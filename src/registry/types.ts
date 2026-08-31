@@ -129,7 +129,43 @@ export type SourceDefinition = {
    * an accepted transfer price; Minnesota eCRV is authoritative for the latter.
    */
   readonly authoritativeForParcelIdentity?: boolean;
+  /**
+   * Commercial licence facts, for sources that are bought rather than published.
+   *
+   * `costModel` says a source costs money; this says what it costs and what the
+   * money buys the right to do. That second half is the part that constrains
+   * product design, so it belongs in the registry next to the source rather than
+   * in a contract folder nobody reads before writing a feature.
+   */
+  readonly licenseTerms?: SourceLicenseTerms;
   readonly notes: string;
+};
+
+export type LicenseFeeBasis = 'one_time' | 'weekly' | 'monthly' | 'annual' | 'per_request';
+
+export type SourceLicenseTerms = {
+  readonly licenseName: string;
+  readonly licensor: string;
+  /** The statute the licence is made under, where it names one. */
+  readonly statutoryAuthority: string | null;
+  /** Published prices, in whole US dollars, per product the licence covers. */
+  readonly fees: readonly {
+    readonly product: string;
+    readonly usd: number;
+    readonly basis: LicenseFeeBasis;
+  }[];
+  /** Categories of requester the publisher supplies without charge, if any. */
+  readonly freeFor: readonly string[];
+  /** Whether the licence permits serving the data to customers in the normal course of business. */
+  readonly permitsServingCustomers: boolean;
+  /** Whether it forbids reselling or repackaging the records in bulk. */
+  readonly prohibitsBulkRedistribution: boolean;
+  readonly requiresConsentToSublicense: boolean;
+  /** Whether the records may not be presented as the publisher's official record. */
+  readonly prohibitsOfficialPresentation: boolean;
+  /** ISO date the terms were read. Terms change; an unread licence is an unknown one. */
+  readonly reviewedAt: string;
+  readonly termsUrl: string;
 };
 
 // ---------------------------------------------------------------------------

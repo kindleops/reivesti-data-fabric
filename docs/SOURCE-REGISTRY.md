@@ -136,6 +136,22 @@ it and the connector ships no HTTP client at all. This is the distinction the
 mechanism yet", `prohibited` means "we have read the terms and they say no".
 Activation is a Minn. Stat. ch. 13 data-practices request, not a crawl.
 
+**Minnesota Business Bulk Data is `blocked_on_access`, and its `automationStatus`
+is `manual_only`** — and the reason is different again from the other two. There
+*is* a sanctioned bulk product: the Secretary of State sells the whole register
+for $710 commercially (free for news media, journalists, researchers and
+non-commercial use). What cannot be automated is the purchase and the signature
+on the Electronic Media License Agreement. So the connector ships no network
+transport, and the registry now records the licence itself — the fee schedule,
+who gets it free, and the three restrictions that constrain product design — in
+`SourceDefinition.licenseTerms`. A licensed source's terms belong next to the
+source, not in a contract folder nobody reads before writing a feature.
+
+Three sources, three genuinely different verdicts, all from reading the actual
+terms: `sanctioned` (Hennepin parcels), `manual_only` because no mechanism exists
+yet (eCRV) or because the mechanism is a purchase (MN SOS), and `prohibited`
+because the terms say no (RecordEASE).
+
 **MN eCRV is `blocked_on_access`.** The adapter is complete and everything after
 retrieval runs today. Moving it to `active` requires exactly two changes, both
 recorded in `MN-ECRV.md`: extract access granted by the department, and
@@ -151,9 +167,11 @@ reviewed.
 | MN DOR eCRV Weekly Sales Extract | all MN counties (87) | transfer, deed, mortgage, parcel, contact_enrichment | `blocked_on_access` | DF-0B ✅ |
 | Hennepin County Parcels | 27053 | parcel, assessor, ownership, tax | **`active`** | DF-0C ✅ |
 | Hennepin County recorded instruments | 27053 | deed, mortgage, mortgage_release, lien | `blocked_on_access` | DF-0E ✅ |
-| MN Secretary of State entities | MN (state) | business_entity | `planned` | DF-0E |
+| MN Secretary of State Business Bulk Data | MN (state) | business_entity | `blocked_on_access` | DF-0F ✅ |
 | Dallas County foreclosure notices | 48113 | foreclosure_notice | `planned`, jurisdiction not catalogued | DF-0F |
 
-`mn_ecrv`, `mn_hennepin_assessor` and `mn_hennepin_recorder` have adapters. The rest exist so the
-registry shape is exercised against the real variety of upcoming sources before
-an adapter locks the design in, and the runtime refuses to run any of them.
+`mn_ecrv`, `mn_hennepin_assessor`, `mn_hennepin_recorder` and `mn_sos_business` have adapters.
+Dallas remains modelled-only — and deliberately held out of the default registry,
+because Texas counties are not catalogued — so the registry shape stays exercised
+against a source no adapter has yet locked the design around. The runtime refuses
+to run it.

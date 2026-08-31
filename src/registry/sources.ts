@@ -17,6 +17,8 @@ export const HENNEPIN_ASSESSOR_SOURCE_ID = 'mn_hennepin_county_parcels';
 export const HENNEPIN_ADAPTER_KEY = 'mn_hennepin_assessor';
 export const HENNEPIN_RECORDER_SOURCE_ID = 'mn_hennepin_recorded_instruments';
 export const HENNEPIN_RECORDER_ADAPTER_KEY = 'mn_hennepin_recorder';
+export const MN_SOS_SOURCE_ID = 'mn_sos_business_entities';
+export const MN_SOS_ADAPTER_KEY = 'mn_sos_business';
 
 export const SOURCES: readonly SourceDefinition[] = [
   {
@@ -118,23 +120,64 @@ export const SOURCES: readonly SourceDefinition[] = [
       + 'separately numbered series and are modelled as distinct registration systems.',
   },
   {
-    sourceId: 'mn_sos_business_entities',
+    sourceId: MN_SOS_SOURCE_ID,
     sourceAuthority: 'Minnesota Secretary of State',
-    sourceProgram: 'Business Services',
+    sourceProgram: 'Business & Lien System (MBLS) — Business Bulk Data',
     sourceFamily: 'state_entity_registry',
-    sourceName: 'Minnesota business entity registry',
-    sourceHomepage: 'https://www.sos.state.mn.us/business-liens/',
+    sourceName: 'Minnesota Business Bulk Data',
+    sourceHomepage: 'https://www.sos.state.mn.us/business-liens/business-help/lists-and-data/',
     accessType: 'bulk_download',
-    automationStatus: 'unknown',
-    termsStatus: 'not_reviewed',
-    licenseStatus: 'unknown',
-    costModel: 'unknown',
+    // There IS a sanctioned bulk product — but obtaining it means a purchase and
+    // a signed licence by a human on the MBLS Portal. No machine endpoint exists,
+    // and software may not sign or buy on anyone's behalf, so retrieval is
+    // manual_only and the runtime will refuse any publisher-reaching transport.
+    automationStatus: 'manual_only',
+    // Permissive for the intended use and restrictive about redistribution: the
+    // licence grants the right to serve customers in the normal course of
+    // business and to charge for access, and forbids bulk resale or repackaging.
+    termsStatus: 'reviewed_permitted',
+    licenseStatus: 'licensed',
+    costModel: 'fee_per_request',
+    // The file is a current-state export. It carries only names and addresses
+    // active at generation time, so the register supplies no history of its own.
     historicalDepth: null,
-    expectedRefreshFrequency: 'daily',
-    sourcePriority: 3,
-    active: false,
-    carriesRestrictedContact: false,
-    notes: 'DF-0E. Statewide entity source used later for organisation party resolution. Not implemented.',
+    expectedRefreshFrequency: 'monthly',
+    // Authoritative for business registration facts in Minnesota, and for
+    // nothing about property. Authority is field-specific.
+    sourcePriority: 1,
+    active: true,
+    // Filings name registered agents, organizers and officers, most of whom are
+    // natural persons, and give their addresses.
+    carriesRestrictedContact: true,
+    authoritativeForParcelIdentity: false,
+    licenseTerms: {
+      licenseName: 'Electronic Media License Agreement',
+      licensor: 'Minnesota Office of the Secretary of State',
+      statutoryAuthority: 'Minn. Stat. § 13.03 subd. 3',
+      fees: [
+        { product: 'Business Bulk Data (all records, active and inactive)', usd: 710, basis: 'one_time' },
+        { product: 'Active Business Data', usd: 30, basis: 'one_time' },
+        { product: 'Active Business Data (weekly refresh)', usd: 30, basis: 'weekly' },
+        { product: 'Business name search', usd: 35, basis: 'per_request' },
+      ],
+      freeFor: ['news media', 'journalists', 'researchers', 'non-commercial use'],
+      permitsServingCustomers: true,
+      prohibitsBulkRedistribution: true,
+      requiresConsentToSublicense: true,
+      prohibitsOfficialPresentation: true,
+      reviewedAt: '2026-08-31',
+      termsUrl: 'https://mblsportal.sos.state.mn.us/',
+    },
+    notes:
+      'One heterogeneous CSV in a ZIP, uncompressed possibly over 2.5 GB, generated at the beginning of '
+      + 'each month and delivered through MBLS Portal → Transaction History to a registered account. Three '
+      + 'record types (01 master, 02 filing history, 03 name/address) share the file, distinguished by '
+      + 'column 2 and keyed by a 36-character Master ID GUID that is static, unique and never recycled. '
+      + 'Name and address rows carry only what was ACTIVE at generation time, so the delivery contains no '
+      + 'prior-name history. An assumed name is its own master row (business type 59) with no documented '
+      + 'link to the business that filed it. Licence permits serving customers and charging for access; it '
+      + 'forbids bulk resale or repackaging of any substantial part, sub-licensing without written consent, '
+      + 'and presenting the records as the office\'s Official record. Updates require a separate agreement.',
   },
   {
     sourceId: 'tx_dallas_foreclosure_notices',
@@ -216,14 +259,22 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
   },
   {
     mappingId: 'mn_sos__statewide',
-    sourceId: 'mn_sos_business_entities',
+    sourceId: MN_SOS_SOURCE_ID,
     scope: { kind: 'states', stateCodes: ['MN'] },
     capabilities: ['business_entity'],
     coverageStart: null,
     coverageEnd: null,
-    status: 'planned',
-    adapterKey: 'mn_sos_entities',
-    config: {},
+    // The adapter exists and runs end to end on synthetic fixtures. Live
+    // activation waits on a purchase and a signature, not on code.
+    status: 'blocked_on_access',
+    adapterKey: MN_SOS_ADAPTER_KEY,
+    config: {
+      product: 'business_bulk_data',
+      licensedDelivery: true,
+      purchaseUrl: 'https://mblsportal.sos.state.mn.us/',
+      implementationGuideVersion: 'mbls-business-bulk-data-implementation-guide/2026-08-31',
+      termsVerifiedAt: '2026-08-31',
+    },
   },
   {
     mappingId: 'dallas_foreclosure__dallas',

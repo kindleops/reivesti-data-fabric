@@ -71,6 +71,13 @@ since the Fabric must not depend on the web application runtime.
 | Treating `financeType = CASH` as a cash buyer, or `legalActionInd` as a foreclosure | Both stay as source declarations on the transaction. These are derived claims about people, and DF-0B does not make them. |
 | Resolving parties on matching names | All eCRV parties are `unresolved`. False merges are worse than missed merges. |
 | An admin UI | CLI plus structured logs, per the phase brief. |
+| Scraping the MBLS public business search instead of buying the bulk file | Bought the licensed product's route. A public UI is a different access route under different terms, and "the data is public" is not the same as "this mechanism is sanctioned". `manual_only`, and the connector ships no HTTP client. |
+| Buying Active Business Data at $30 instead of Business Bulk Data at $710 | The cheap product omits every inactive registration — exactly the population that matters when tracing a dissolved seller entity. Saving $680 by silently narrowing the estate is not a saving. |
+| Fuzzy organization matching (Levenshtein, Jaro-Winkler, embeddings) | Deterministic rules only. All three are excellent ways to rank candidates for a human and none of them may establish identity. A false merge corrupts every downstream ownership conclusion, silently. |
+| Resolving on a statewide-unique exact legal name | Recorded as *strong* evidence and still `provisional`. Enabling the rule is a decision to make after `measureNameCollisions()` runs on the real register, not before. |
+| Linking an assumed name to the business that filed it | The delivery documents no such link. The assumed-name row becomes its own entity, flagged as not a legal entity, and any parent relationship is left to the evidence-scored resolver. |
+| Deriving prior names from the bulk file | The file carries only names active at generation time. No `PRIOR_NAME` is emitted from a single delivery; a name history is a Reivesti derivation across deliveries, and is not claimed as a source fact. |
+| Assuming the bulk CSV is grouped or sorted by Master ID | Externally sorted before grouping. The guide never promises an ordering, and assuming one would make the estate depend on how the publisher happened to write the export. |
 
 ---
 
@@ -93,3 +100,27 @@ rather than of what the store happened to contain. That is the only version of
 the property worth testing, and the write-once interpretation record now enforces
 it: the same parser producing a different answer for the same bytes is a hard
 failure.
+
+
+**A registry is a register.** `registryStatus: 'active'` means a filing is in good
+standing with the Secretary of State. It does not mean the company trades, employs
+anyone, holds property or is worth contacting. There is deliberately no
+`BUSINESS_ACTIVE`, `BUSINESS_OPERATING` or `ACTIVE_BUYER` event type, no
+`is_operating` column, and a test enumerates the event vocabulary to keep it that
+way. The temptation to read a status column as a buying signal is exactly the kind
+of quiet inference this codebase exists to prevent.
+
+**Row numbers are not part of a record.** An early version of the SOS connector
+carried the delivery's row numbers on the grouped record for traceability. They
+reached the content digest, which meant a reshuffled export looked like a register
+in which every company had changed — and the September delivery reported 17
+revisions where one address had moved. Row numbers are a property of the
+delivery's ordering, not of the business. They survive only on quarantined rows,
+where tracing back to the file is the entire point.
+
+**A licence is part of a delivery's identity.** The SOS manifest travels as line 1
+of the artifact rather than as a sidecar, so the terms the bytes arrived under are
+inside the immutable evidence. A delivery whose declared terms do not permit the
+intended use quarantines the run before a single row is read. Ingesting bytes
+whose terms are unknown, and discovering the problem later from the data, is the
+failure mode that costs a relationship with a publisher.

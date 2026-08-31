@@ -14,6 +14,7 @@ import {
 } from '../src/connectors/mn-hennepin-assessor/index.ts';
 import { createStreamingArtifactStore, type StreamingArtifactStore } from '../src/archive/artifact-store.ts';
 import { createHennepinRecorderConnector } from '../src/connectors/mn-hennepin-recorder/index.ts';
+import { createMnSosBusinessConnector } from '../src/connectors/mn-sos-business/index.ts';
 import { createStreamingFilesystemObjectStore } from '../src/archive/object-store.ts';
 import { runStreamingConnector, type StreamRunOptions, type StreamRunResult } from '../src/runtime/stream-run.ts';
 import { createGenerationStore, type GenerationStore } from '../src/runtime/staged-store.ts';
@@ -30,6 +31,8 @@ export const HENNEPIN_MAPPING_ID = 'hennepin_assessor__hennepin';
 export const HENNEPIN_FIXTURES = join(REPO, 'fixtures', 'hennepin');
 export const RECORDER_MAPPING_ID = 'hennepin_recorder__hennepin';
 export const RECORDER_FIXTURES = join(REPO, 'fixtures', 'hennepin-recorder');
+export const SOS_MAPPING_ID = 'mn_sos__statewide';
+export const SOS_FIXTURES = join(REPO, 'fixtures', 'mn-sos');
 /** The eCRV filing that names the same Hennepin parcel as the other two sources. */
 export const ECRV_CONVERGENCE_FIXTURE = join(SYNTHETIC, '07-hennepin-convergence-preliminary-pid.xml');
 export const RUN_INSTANT = '2026-08-31T12:00:00.000Z';
@@ -40,6 +43,10 @@ export function fixture(name: string): string {
 
 export function hennepinFixture(name: string): string {
   return join(HENNEPIN_FIXTURES, name);
+}
+
+export function sosFixture(name: string): string {
+  return join(SOS_FIXTURES, name);
 }
 
 export function recorderFixture(name: string): string {
@@ -64,6 +71,8 @@ export type StreamHarness = {
   run(file: string, overrides?: Partial<StreamRunOptions> & { period?: string }): Promise<StreamRunResult>;
   /** Runs the Hennepin recorder connector over a local index delivery. */
   runRecorder(file: string, overrides?: Partial<StreamRunOptions> & { period?: string }): Promise<StreamRunResult>;
+  /** Runs the Minnesota SOS connector over a licensed delivery bundle. */
+  runSos(file: string, overrides?: Partial<StreamRunOptions> & { period?: string; chunkLines?: number }): Promise<StreamRunResult>;
   /** Every canonical bundle currently activated, across all runs. */
   bundles(): Promise<unknown[]>;
   /** Rows from any staged table, across all runs. */
@@ -115,6 +124,29 @@ export function streamHarness(options: { root?: string; contactPlane?: ContactPl
         registry: defaultRegistry(),
         connector: createHennepinRecorderConnector({ localFile: file, referencePeriod: period }),
         mappingId: RECORDER_MAPPING_ID,
+        artifactStore,
+        contactPlane,
+        varRoot,
+        clock: fixedClock(RUN_INSTANT),
+        logger: captureLogger().logger,
+        referencePeriod: period,
+        localFile: file,
+        ...rest,
+      });
+    },
+    async runSos(file, overrides = {}) {
+      const period = overrides.period ?? '2026-08';
+      const { period: _ignored, chunkLines, ...rest } = overrides;
+      return runStreamingConnector({
+        registry: defaultRegistry(),
+        connector: createMnSosBusinessConnector({
+          localFile: file,
+          referencePeriod: period,
+          // Deliberately tiny in tests: a chunk size that forces many spill
+          // files is the point, because the output must not depend on it.
+          sort: { chunkLines: chunkLines ?? 4, scratchDir: join(varRoot, 'scratch') },
+        }),
+        mappingId: SOS_MAPPING_ID,
         artifactStore,
         contactPlane,
         varRoot,

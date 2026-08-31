@@ -59,6 +59,7 @@ if (!server) {
         '0003_data_fabric_snapshot_and_resolution.sql',
         '0004_data_fabric_streaming_runs.sql',
         '0005_data_fabric_recorded_instruments.sql',
+        '0006_data_fabric_business_entities.sql',
       ]);
     });
 
@@ -77,6 +78,12 @@ if (!server) {
         order by 1`);
       assert.deepEqual(r.rows.map((x) => x.t), [
         'data_fabric.assessment_observations',
+        'data_fabric.business_entities',
+        'data_fabric.business_entity_addresses',
+        'data_fabric.business_entity_filings',
+        'data_fabric.business_entity_links',
+        'data_fabric.business_entity_names',
+        'data_fabric.business_filing_parties',
         'data_fabric.canonical_events',
         'data_fabric.distress_events',
         'data_fabric.financing_events',
@@ -127,7 +134,7 @@ if (!server) {
         where ns.nspname in ('data_fabric','data_fabric_restricted')
         group by 1`);
       const byType = Object.fromEntries(r.rows.map((x) => [x.contype, x.n]));
-      assert.ok(byType['p'] >= 34, `expected a primary key per table, got ${byType['p']}`);
+      assert.ok(byType['p'] >= 40, `expected a primary key per table, got ${byType['p']}`);
       assert.ok(byType['f'] >= 30, `expected foreign keys, got ${byType['f']}`);
       assert.ok(byType['u'] >= 6, `expected unique constraints, got ${byType['u']}`);
       assert.ok(byType['c'] >= 30, `expected check constraints, got ${byType['c']}`);
@@ -255,7 +262,7 @@ if (!server) {
         select n.nspname || '.' || c.relname as t, c.relrowsecurity, c.relforcerowsecurity
         from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname in ('data_fabric','data_fabric_restricted') and c.relkind = 'r'`);
-      assert.equal(r.rows.length, 35);
+      assert.equal(r.rows.length, 41);
       const bad = r.rows.filter((x) => !x.relrowsecurity || !x.relforcerowsecurity);
       assert.deepEqual(bad.map((x) => x.t), [], 'tables missing enabled+forced RLS');
     });
@@ -264,11 +271,11 @@ if (!server) {
       const r = await db.query(`
         select tablename, policyname, permissive, roles::text
         from pg_policies where schemaname in ('data_fabric','data_fabric_restricted')`);
-      assert.equal(r.rows.length, 35 * APP_ROLES.length);
+      assert.equal(r.rows.length, 41 * APP_ROLES.length);
       assert.ok(r.rows.every((x) => x.permissive === 'RESTRICTIVE'), 'policies must be RESTRICTIVE');
       for (const role of APP_ROLES) {
         const forRole = r.rows.filter((x) => x.roles.includes(role));
-        assert.equal(forRole.length, 35, `expected a deny policy per table for ${role}`);
+        assert.equal(forRole.length, 41, `expected a deny policy per table for ${role}`);
       }
     });
 
@@ -434,6 +441,62 @@ if (!server) {
         select pg_get_constraintdef(oid) as def from pg_constraint
         where conrelid = 'data_fabric.transaction_candidates'::regclass and contype = 'c'`);
       assert.match(r.rows.map((x) => x.def).join(' '), /CONFLICT.*cardinality\(disagreements\)/);
+    });
+
+    test('a business entity link cannot claim resolution without naming an entity', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.business_entity_links'::regclass and contype = 'c'`);
+      const defs = r.rows.map((x) => x.def).join(' ');
+      assert.match(defs, /link_state = 'resolved'::text\) = \(entity_id IS NOT NULL\)/);
+    });
+
+    test('one resolution decision per observation per resolver version, superseded not overwritten', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.business_entity_links'::regclass and contype = 'u'`);
+      assert.match(r.rows.map((x) => x.def).join(' '), /party_observation_id, resolver_version/);
+    });
+
+    test('a business entity is keyed by the registry identifier, never by its name', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.business_entities'::regclass and contype = 'u'`);
+      const defs = r.rows.map((x) => x.def).join(' ');
+      assert.match(defs, /source_id, source_entity_id/);
+      assert.ok(!/legal_name|normalized_name/.test(defs), 'a name must never be a uniqueness key');
+    });
+
+    test('a filing party has no address, phone or email column anywhere', async () => {
+      const r = await db.query(`
+        select column_name from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'business_filing_parties'`);
+      for (const row of r.rows) {
+        assert.ok(
+          !/address|phone|email|line1|postal|city/i.test(row.column_name),
+          `business_filing_parties.${row.column_name} would put personal contact data on a canonical row`,
+        );
+      }
+    });
+
+    test('registry status is constrained to the three the register can actually state', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.business_entities'::regclass and contype = 'c'`);
+      const defs = r.rows.map((x) => x.def).join(' ');
+      assert.match(defs, /registry_status/);
+      for (const forbidden of ['operating', 'trading', 'in_business']) {
+        assert.ok(!defs.includes(forbidden), `${forbidden} is not something a register states`);
+      }
+    });
+
+    test('every business row records which licence class it may be used under', async () => {
+      const r = await db.query(`
+        select column_name, column_default from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'business_entities'
+          and column_name = 'license_class'`);
+      assert.equal(r.rows.length, 1);
+      assert.match(String(r.rows[0].column_default), /CANONICAL_INTERNAL/);
     });
 
     test('no recorder-sourced sale event type exists', async () => {

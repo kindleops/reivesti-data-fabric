@@ -1,0 +1,7 @@
+{"kind":"df.mn-sos.delivery/1","sourceId":"mn_sos_business_entities","product":"business_bulk_data","registryJurisdictionId":"us-mn","fileGeneratedAt":"2026-08-01T00:00:00.000Z","obtainedAt":"2026-08-02T00:00:00.000Z","entryName":"business_bulk_data.csv","archiveSha256":null,"implementationGuideVersion":"mbls-business-bulk-data-implementation-guide/2026-08-31","license":{"agreementName":"Electronic Media License Agreement","statutoryAuthority":"Minn. Stat. \u00a7 13.03 subd. 3","mayServeCustomers":false,"prohibitsBulkResale":true,"requiresConsentToSublicense":true,"prohibitsOfficialPresentation":true,"reviewedAt":"2026-08-31","termsUrl":"https://mblsportal.sos.state.mn.us/"}}
+"00000000-0000-4000-8000-000000000001","02","44","1000001","1000455","Renewal","S","01/09/2025","01/09/2025"
+"00000000-0000-4000-8000-000000000001","03","44","1000001","1000001","","2","","100 Synthetic Ave","Suite 220","Minneapolis","MN","55401","1234","USA"
+"00000000-0000-4000-8000-000000000001","02","44","1000001","1000001","Original Filing","P","03/04/2019","03/04/2019"
+"00000000-0000-4000-8000-000000000001","03","44","1000001","1000001","4","14","Dana Fictitious","18 Imaginary Rd","","Saint Paul","MN","55102","","USA"
+"00000000-0000-4000-8000-000000000001","03","44","1000001","1000001","7","14","Robin Placeholder","18 Imaginary Rd","","Saint Paul","MN","55102","","USA"
+"00000000-0000-4000-8000-000000000001","01","44","1000001","NORTH STAR HOMES LLC","Active","03/04/2019","","12/31/2026","","","0","0","0","","","","","","","","08/01/2026"

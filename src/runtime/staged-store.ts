@@ -37,6 +37,11 @@ export const STAGED_TABLES = [
   // graph can be folded without reading canonical bundles it does not need.
   'instruments', 'instrument_parties', 'instrument_property_links',
   'legal_descriptions', 'instrument_references', 'recorded_financing',
+  // State business-registry rows (DF-0F). Entities, their names, addresses and
+  // filings, and the parties named on those filings. Party ADDRESSES are not
+  // here: they are personal data and go to the restricted tables below.
+  'business_entities', 'business_entity_names', 'business_entity_addresses',
+  'business_entity_filings', 'business_filing_parties',
 ] as const;
 export const RESTRICTED_TABLES = ['contacts'] as const;
 export type StagedTable = (typeof STAGED_TABLES)[number] | (typeof RESTRICTED_TABLES)[number];

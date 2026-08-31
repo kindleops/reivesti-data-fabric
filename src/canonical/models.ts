@@ -382,7 +382,17 @@ export type CanonicalEventType =
   | 'CONVEYANCE_OBSERVED'
   | 'MORTGAGE_RECORDED'
   | 'MORTGAGE_ASSIGNED'
-  | 'MORTGAGE_RELEASED';
+  | 'MORTGAGE_RELEASED'
+  // State business registers. Every one of these is an OBSERVATION of a
+  // registration. None asserts that a company trades, holds property, invests or
+  // is worth contacting — a register is a register, and there is deliberately no
+  // BUSINESS_ACTIVE or BUSINESS_OPERATING here to be misread later.
+  | 'BUSINESS_ENTITY_OBSERVED'
+  | 'BUSINESS_FILING_OBSERVED'
+  | 'BUSINESS_STATUS_OBSERVED'
+  | 'BUSINESS_NAME_OBSERVED'
+  | 'BUSINESS_ADDRESS_OBSERVED'
+  | 'BUSINESS_PARTY_OBSERVED';
 
 export type CanonicalEvent = {
   /** Deterministic: replaying the same evidence re-emits the same event id. */

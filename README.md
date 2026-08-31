@@ -8,7 +8,8 @@ web application — that application is a **consumer** of what this produces.
 **Phase:** DF-0A (national source runtime) + DF-0B (Minnesota eCRV) + DF-0C
 (real PostgreSQL migration proof, Hennepin County assessor, cross-source
 property resolution) + DF-0D (bounded-memory streaming, full-county proof) +
-DF-0E (recorded instruments, instrument graph, ownership foundation).
+DF-0E (recorded instruments, instrument graph, ownership foundation) + DF-0F
+(Minnesota Secretary of State business register, organization identity).
 
 ---
 
@@ -65,12 +66,13 @@ src/
     mn-ecrv/    field map, record types, parser, normaliser, connector
     mn-hennepin-assessor/   the same five files for the first snapshot source
     mn-hennepin-recorder/   taxonomy, record, parse, normalise, streaming connector
+    mn-sos-business/        domain vocabularies, heterogeneous CSV, licensed delivery
   cli/          df
 db/migrations/  data_fabric + data_fabric_restricted — DRAFTS, NOT APPLIED to
                 any Reivesti database; executed for real against a disposable one
 docs/           architecture, source registry, MN eCRV, DB topology, decisions
-fixtures/       the pinned eCRV XSD and synthetic test documents
-tests/          365 tests, including a real-PostgreSQL migration gate
+fixtures/       the pinned eCRV XSD and synthetic test documents, all invented
+tests/          424 tests plus 40 real-PostgreSQL migration assertions
 ```
 
 ---
@@ -84,6 +86,7 @@ tests/          365 tests, including a real-PostgreSQL migration gate
 | [MN-ECRV.md](docs/MN-ECRV.md) | Authority, access, cadence, schema, field coverage, county-added limitations, live-activation steps |
 | [STREAMING-INGESTION.md](docs/STREAMING-INGESTION.md) | Bounded-memory design, what was actually wrong, measurements, checkpoint/resume, operational dials |
 | [HENNEPIN-RECORDED-INSTRUMENTS.md](docs/HENNEPIN-RECORDED-INSTRUMENTS.md) | RecordEASE access finding, document taxonomy, reference graph, ownership and mortgage boundaries, convergence |
+| [MN-SOS-BUSINESS-ENTITIES.md](docs/MN-SOS-BUSINESS-ENTITIES.md) | Licensed bulk delivery, what the licence permits, the heterogeneous CSV, organization resolution rules and why almost nothing resolves |
 | [HENNEPIN-ASSESSOR.md](docs/HENNEPIN-ASSESSOR.md) | Authority, ArcGIS access, 122-field coverage, snapshot semantics, crawl strategy, eCRV convergence, ownership limits |
 | [REIVESTI-DB-TOPOLOGY.md](docs/REIVESTI-DB-TOPOLOGY.md) | What the application owns, what the Fabric owns, why no second Supabase project |
 | [DESIGN-DECISIONS.md](docs/DESIGN-DECISIONS.md) | EXISTING / REUSE / EXTEND / NEW / REJECTED |
@@ -103,6 +106,8 @@ tests/          365 tests, including a real-PostgreSQL migration gate
 | Hennepin full-county ingestion | proven: 448,087 parcels, reconciled, 221 MB peak; not scheduled |
 | DF-0E recorded-instrument architecture | complete |
 | Hennepin RecordEASE access | **blocked** — terms prohibit programmatic access; activation is a data-practices request |
+| DF-0F business-entity register and organization identity | complete |
+| MN SOS bulk delivery | **not purchased** — $710 commercial one-time, signed licence, no machine endpoint |
 | Production DDL | **not applied**, and not ready to be |
 | Scheduled ingestion | not activated |
 
@@ -120,6 +125,13 @@ fixtures, and will run unchanged against the live feed. See
 - No canonical type has a field that can hold a phone number or an email address.
 - No party from any source is ever resolved to a canonical identity. Matching
   names are not evidence.
+- An organization name resolves to a state registration on one thing only: the
+  registry's own identifier. A statewide-unique exact name is strong evidence and
+  still does not resolve, pending a collision audit on the real register.
+- A licensed source carries its terms in the registry and a licence class on every
+  row. A delivery whose terms do not permit the use quarantines before it is read.
+- A business registration says a REGISTRATION exists. It never says a company
+  trades, holds property, or is worth contacting.
 - A parcel's absence from the latest snapshot is never a deletion.
 - Property resolution is a fold over evidence, so it cannot depend on the order
   sources were ingested in.

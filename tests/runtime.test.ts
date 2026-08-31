@@ -9,7 +9,8 @@ import { fixedClock } from '../src/core/clock.ts';
 import { isFabricError } from '../src/core/errors.ts';
 import { captureLogger } from '../src/core/logging.ts';
 import { createMnEcrvConnector } from '../src/connectors/mn-ecrv/index.ts';
-import { defaultRegistry } from '../src/registry/sources.ts';
+import { createRegistry } from '../src/registry/registry.ts';
+import { SOURCES, defaultRegistry } from '../src/registry/sources.ts';
 import { createMemoryFabricStore } from '../src/runtime/fabric-store.ts';
 import { DEFAULT_RETRY, backoffDelay, createRateLimiter, withRetry } from '../src/runtime/retry.ts';
 import { runConnector, runReport } from '../src/runtime/run.ts';
@@ -128,10 +129,24 @@ test('a changed file with the same name produces a second artifact, keeping the 
 // --- configuration and activation gates ----------------------------------------
 
 test('a mapping that is only planned refuses to run', async () => {
+  // Built here rather than taken from the default registry: every mapping there
+  // now has an adapter, and this gate must keep working for the next source that
+  // is modelled before it is built.
+  const plannedRegistry = createRegistry(SOURCES, [{
+    mappingId: 'mn_sos__planned_example',
+    sourceId: 'mn_sos_business_entities',
+    scope: { kind: 'states', stateCodes: ['MN'] },
+    capabilities: ['business_entity'],
+    coverageStart: null,
+    coverageEnd: null,
+    status: 'planned',
+    adapterKey: 'not_yet_built',
+    config: {},
+  }]);
   const result = await runConnector({
-    registry: defaultRegistry(),
-    connector: { ...createMnEcrvConnector(), adapterKey: 'mn_sos_entities' },
-    mappingId: 'mn_sos__statewide',
+    registry: plannedRegistry,
+    connector: { ...createMnEcrvConnector(), adapterKey: 'not_yet_built' },
+    mappingId: 'mn_sos__planned_example',
     artifactStore: createArtifactStore(createFilesystemObjectStore(tempRoot())),
     fabricStore: createMemoryFabricStore(),
     contactPlane: createContactPlane(),

@@ -8,6 +8,7 @@ has been applied to production.**
 | `0001_data_fabric_core.sql` | schema `data_fabric` — registry, release/run/artifact/observation provenance, canonical property / party / transaction / financing / instrument / distress, canonical events |
 | `0002_data_fabric_restricted_contact.sql` | schema `data_fabric_restricted` — the contact plane; forced RLS and explicit denials across both schemas |
 | `0005_data_fabric_recorded_instruments.sql` | recorded instruments, instrument parties and property links, legal descriptions, the reference graph, recorded financing, ownership observations, cross-source transaction candidates |
+| `0006_data_fabric_business_entities.sql` | state business registrations, their names, addresses, filings and filing parties, and the evidence-bearing links from observed organization names to registrations |
 | `0004_data_fabric_streaming_runs.sql` | streaming run manifest (reconciliation counts, canonical digest, batch configuration), snapshot absences keyed by hash, resolution lookup indexes |
 | `0003_data_fabric_snapshot_and_resolution.sql` | snapshot sources, time-aware assessment and characteristic observations, authoritative property resolution and conflicts; re-applies the security posture to the new tables |
 

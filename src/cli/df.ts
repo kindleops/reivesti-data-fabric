@@ -30,8 +30,10 @@ import {
   hennepinDispositionCounts,
 } from '../connectors/mn-hennepin-assessor/field-map.ts';
 import { ECRV_COUNTY_ONLY_FIELDS, ECRV_FIELD_MAP, dispositionCounts } from '../connectors/mn-ecrv/field-map.ts';
+import { createHennepinRecorderConnector } from '../connectors/mn-hennepin-recorder/index.ts';
+import { createMnSosBusinessConnector } from '../connectors/mn-sos-business/index.ts';
 import { defaultRegistry } from '../registry/sources.ts';
-import type { Connector } from '../runtime/connector.ts';
+import type { Connector, StreamingConnector } from '../runtime/connector.ts';
 import { createNdjsonFabricStore } from '../runtime/fabric-store.ts';
 import { runConnector, runReport } from '../runtime/run.ts';
 import { DEFAULT_BATCH_CONFIG, runStreamingConnector } from '../runtime/stream-run.ts';
@@ -85,6 +87,41 @@ const ADAPTERS: Readonly<Record<string, (o: AdapterOptions) => Connector>> = {
       }
       : { localReleases: [{ path: o.file, referencePeriod: o.period }] },
   ),
+};
+
+type StreamAdapterOptions = {
+  readonly file: string;
+  readonly period: string;
+  readonly live: boolean;
+  readonly maxFeatures: number | undefined;
+  readonly fetchBatchSize: number;
+  readonly maxConcurrentRequests: number;
+};
+
+/**
+ * Adapters the bounded-memory `stream` command can run.
+ *
+ * Only the assessor has a live transport. The recorder and the SOS register are
+ * both operator-delivered — one because automation is contractually prohibited,
+ * the other because the delivery is a purchase — so their entries take a file
+ * and nothing else. There is deliberately no way to ask either for `--live`.
+ */
+const STREAMING_ADAPTERS: Readonly<Record<string, (o: StreamAdapterOptions) => StreamingConnector>> = {
+  mn_hennepin_assessor: (o) => createStreamingHennepinConnector({
+    ...(o.live
+      ? { live: { referencePeriod: o.period, ...(o.maxFeatures !== undefined ? { maxFeatures: o.maxFeatures } : {}) } }
+      : {}),
+    fetchBatchSize: o.fetchBatchSize,
+    maxConcurrentRequests: o.maxConcurrentRequests,
+  }),
+  mn_hennepin_recorder: (o) => createHennepinRecorderConnector({
+    ...(o.file ? { localFile: o.file } : {}),
+    referencePeriod: o.period,
+  }),
+  mn_sos_business: (o) => createMnSosBusinessConnector({
+    ...(o.file ? { localFile: o.file } : {}),
+    referencePeriod: o.period,
+  }),
 };
 
 async function main(): Promise<number> {
@@ -239,7 +276,8 @@ async function main(): Promise<number> {
         return 2;
       }
       const mapping = registry.mapping(mappingId);
-      if (mapping.adapterKey !== 'mn_hennepin_assessor') {
+      const buildStream = STREAMING_ADAPTERS[mapping.adapterKey];
+      if (!buildStream) {
         process.stderr.write(`adapter "${mapping.adapterKey}" has no streaming implementation\n`);
         return 2;
       }
@@ -274,8 +312,11 @@ async function main(): Promise<number> {
 
       const result = await runStreamingConnector({
         registry,
-        connector: createStreamingHennepinConnector({
-          ...(live ? { live: { referencePeriod: period, ...(max !== undefined ? { maxFeatures: max } : {}) } } : {}),
+        connector: buildStream({
+          file,
+          period,
+          live,
+          maxFeatures: max,
           fetchBatchSize: batchSize,
           maxConcurrentRequests: concurrency,
         }),
@@ -371,6 +412,35 @@ async function main(): Promise<number> {
       return 0;
     }
 
+    case 'entity-links': {
+      // Organization-name → state-registration decisions, INCLUDING the refusals.
+      // A run that resolves nothing has still decided something, and an operator
+      // needs to see why before anyone proposes loosening a rule.
+      const { readFile } = await import('node:fs/promises');
+      const path = `${VAR_ROOT}/derived/entity-links/current.ndjson`;
+      const text = await readFile(path, 'utf8').catch(() => '');
+      const rows = text.split('\n').filter(Boolean).map((l) => JSON.parse(l) as {
+        observedName: string; observationSourceId: string; state: string;
+        entityId: string | null; candidateEntityIds: string[];
+        evidence: { evidenceType: string; strength: string }[]; reason: string | null;
+      });
+      const byState: Record<string, number> = {};
+      for (const r of rows) byState[r.state] = (byState[r.state] ?? 0) + 1;
+      out({
+        summary: { decisions: rows.length, byState },
+        decisions: rows.map((r) => ({
+          name: r.observedName,
+          source: r.observationSourceId,
+          state: r.state,
+          entityId: r.entityId,
+          candidates: r.candidateEntityIds.length,
+          evidence: r.evidence.map((e) => `${e.evidenceType}(${e.strength})`),
+          reason: r.reason,
+        })),
+      });
+      return 0;
+    }
+
     default: {
       process.stdout.write(
         [
@@ -381,6 +451,7 @@ async function main(): Promise<number> {
           '  df fields [--source hennepin]                     field inventory and dispositions',
           '  df resolutions                                    canonical property resolution state',
           '  df conflicts                                      open cross-source conflicts',
+          '  df entity-links                                   organization → registration decisions, refusals included',
           '  df run <mappingId> --file <p> --period <label>    ingest a local extract',
           '  df run <mappingId> --live --period <l> [--max N]  ingest from a sanctioned API source',
           '',

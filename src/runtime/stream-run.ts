@@ -30,6 +30,8 @@ import {
   parcelAuthorityFor,
 } from '../canonical/property-resolution.ts';
 import { contributionOf, projectResolutions } from '../canonical/resolution-projection.ts';
+import { DEFAULT_RULES, type EntityLinkDecision } from '../canonical/entity-resolution.ts';
+import { organizationObservationOf, projectOrganizationLinks } from '../canonical/organization-projection.ts';
 import {
   SnapshotIndexBuilder,
   type SnapshotIndex,
@@ -113,6 +115,8 @@ export type StreamRunResult = {
   readonly snapshot: SourceSnapshot | null;
   readonly resolutions: readonly PropertyResolution[];
   readonly conflicts: readonly PropertyConflict[];
+  /** Organization-link decisions, sampled. The full set is on disk. */
+  readonly entityLinks: readonly EntityLinkDecision[];
   readonly timings: Readonly<Record<string, number>>;
   readonly peakHeapBytes: number;
 };
@@ -574,6 +578,39 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       await writeSnapshotIndex(indexPath, nextIndex.build());
     }
 
+    // ---- project organization links -----------------------------------------
+    //
+    // After activation, deliberately. This fold reads BOTH sides of the estate —
+    // every county source's party observations and every registered entity — and
+    // a staged generation cannot be read back before it is committed. Like every
+    // other projection it is a pure recomputation, so a crash before it finishes
+    // costs a rerun and never a wrong answer.
+    const linkStart = performance.now();
+    const entityLinksPath = join(varRoot, 'derived', 'entity-links', 'current.ndjson');
+    const entityLinks: EntityLinkDecision[] = [];
+    if (staged) {
+      const linkWriter = await createFileLineWriter(`${entityLinksPath}.tmp`);
+      const summary = await projectOrganizationLinks(
+        () => organizationObservations(store),
+        () => store.readTable('business_entities'),
+        () => store.readTable('business_entity_addresses'),
+        async (decision) => {
+          if (entityLinks.length < keepSamples) entityLinks.push(decision);
+          await linkWriter.write(canonicalJson(decision));
+        },
+        {
+          rules: DEFAULT_RULES,
+          decidedAt: observedAt,
+          sort: { chunkLines: batch.sortChunkLines, scratchDir: scratch },
+          scratchDir: scratch,
+        },
+      );
+      await linkWriter.close();
+      await promote(`${entityLinksPath}.tmp`, entityLinksPath);
+      runLogger.info('stream.entity_links', summary);
+    }
+    timings['entity_links'] = Math.round(performance.now() - linkStart);
+
     runLogger.info('stream.finished', {
       rows: metrics.rowsParsed,
       resolved: projection.resolvedCount,
@@ -593,7 +630,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       discoveredIdCount: retrieved,
       duplicateCount: snapshot.duplicateCount,
       sourceChangedDuringRead: summary.snapshot?.sourceChangedDuringRead ?? false,
-    }), resolutions, conflicts);
+    }), resolutions, conflicts, entityLinks);
   } catch (error) {
     await staged?.abort();
     const fabric = error instanceof FabricError ? error : null;
@@ -615,8 +652,9 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     run: SourceRun,
     resolutions: readonly PropertyResolution[] = [],
     conflicts: readonly PropertyConflict[] = [],
+    entityLinks: readonly EntityLinkDecision[] = [],
   ): StreamRunResult {
-    return { run, artifact, snapshot, resolutions, conflicts, timings, peakHeapBytes };
+    return { run, artifact, snapshot, resolutions, conflicts, entityLinks, timings, peakHeapBytes };
   }
 }
 
@@ -642,6 +680,23 @@ async function* allContributions(
     }
   }
   yield* readLines(currentPath);
+}
+
+/**
+ * Every organization name any source has observed, across the whole estate.
+ *
+ * Read from the committed bundles as a stream. Names that do not look like an
+ * organization are skipped here and nowhere else — the party observation itself
+ * is untouched and keeps whatever `kind` its source stated.
+ */
+async function* organizationObservations(store: GenerationStore): AsyncGenerator<string> {
+  for await (const line of store.readTable('bundles')) {
+    const bundle = JSON.parse(line) as CanonicalBundle;
+    for (const party of bundle.parties) {
+      const observation = organizationObservationOf(party);
+      if (observation) yield canonicalJson(observation);
+    }
+  }
 }
 
 function contributionLines(bundle: CanonicalBundle): readonly string[] {

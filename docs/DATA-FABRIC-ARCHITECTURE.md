@@ -242,6 +242,46 @@ cluster is classified — `SUPPORTED_MATCH`, `POSSIBLE_MATCH`, `CONFLICT`,
 `UNRESOLVED` — never merged. A `CONFLICT` is a durable statement that the sources
 disagree, which beats a silently chosen winner.
 
+## 5e. Organizations: candidate generation is not resolution
+
+A county record names a company; a state register knows companies. Joining them
+is the single most dangerous operation in the estate, because a wrong join
+silently corrupts every downstream conclusion about who owns what — so the two
+halves are kept structurally apart.
+
+**Normalization generates candidates.** It folds case, punctuation, `&`/`AND` and
+suffix spellings, and offers a second, space-insensitive key that is broader
+still. It never asserts identity. There is no phonetic matching, no edit distance
+and no token dropping anywhere in the Fabric.
+
+**Resolution asserts identity, and almost nothing qualifies.** The shipped rules
+resolve on one thing only: an observation that carried the registry's own
+identifier. A statewide-unique exact name is recorded as *strong* evidence and
+still produces `provisional`, because enabling a name rule is a decision to be
+made after measuring collisions in the real register — which
+`measureNameCollisions()` does, streamed, over the whole file.
+
+Every decision — including every refusal — is written with its evidence, its full
+candidate set, and the resolver version that made it. A better resolver writes a
+new decision; it never overwrites the old one.
+
+The projection is a two-pass disk-backed sort-merge join over both sides of the
+estate. Nothing indexes the register in memory: it is over a million rows and the
+`dataset <= memory` assumption is exactly what DF-0D removed.
+
+## 5f. Licensed sources
+
+Some sources are bought, not published. The registry records the licence with the
+source (`SourceDefinition.licenseTerms`): the fee schedule, who may have it free,
+and whether the terms permit serving customers, forbid bulk redistribution, and
+require consent to sub-license.
+
+The rows carry it too. `LicenseClass` marks each value `RAW_LICENSED`,
+`NORMALIZED_PRIVATE`, `CANONICAL_INTERNAL`, `DERIVED_MEMBER_SAFE` or
+`PUBLIC_SAFE`, so the question "may this leave the server?" is answered by the
+data rather than by application code that remembers. A delivery whose declared
+terms do not permit the intended use **quarantines the run before a row is read**.
+
 ## 6. Change detection
 
 | Case | Result |
@@ -365,16 +405,21 @@ Postgres in a later phase is mechanical.
 Adding a source is: a registry row, a mapping row, and an adapter implementing
 `Connector`. Nothing in the runtime changes.
 
-The contract is deliberately exercised against five source shapes before any of
-them is built (all `planned` in the registry, none implemented):
+The contract was deliberately exercised against five source shapes before any of
+them was built. Four now have adapters, and each one stressed a different part of
+the runtime without changing it:
 
-| Shape | Example | What it stresses |
-|---|---|---|
-| Statewide bulk file | MN eCRV (DF-0B) | one source, 87 jurisdictions, weekly releases |
-| County snapshot | Hennepin assessor (DF-0C) | state-of-the-world per release, not events |
-| Document index | Hennepin recorder (DF-0D) | append-only instruments, sanctioned access |
-| Statewide entity API | MN Secretary of State (DF-0E) | API transport, organisation resolution |
-| County notice feed | Dallas foreclosures (DF-0F) | dated events, a second state |
+| Shape | Example | What it stressed | Built |
+|---|---|---|---|
+| Statewide bulk file | MN eCRV | one source, 87 jurisdictions, weekly releases | DF-0B |
+| County snapshot | Hennepin assessor | state-of-the-world per release, not events | DF-0C |
+| Document index | Hennepin recorder | append-only instruments, prohibited automation | DF-0E |
+| Statewide entity register | MN Secretary of State | licensed bulk delivery, heterogeneous CSV, organisation resolution | DF-0F |
+| County notice feed | Dallas foreclosures | dated events, a second state | modelled only |
+
+The one prediction that turned out wrong is worth recording: the Secretary of
+State was modelled as an *API* source. It is a purchased monthly CSV. The registry
+row changed; the runtime did not.
 
 A mapping whose jurisdictions are not yet catalogued fails loudly rather than
 expanding to zero — asserted in tests using the Dallas mapping, since Texas

@@ -24,6 +24,7 @@ test('migrations exist and are ordered', () => {
     '0003_data_fabric_snapshot_and_resolution.sql',
     '0004_data_fabric_streaming_runs.sql',
     '0005_data_fabric_recorded_instruments.sql',
+  '0006_data_fabric_business_entities.sql',
   ]);
 });
 
