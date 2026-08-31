@@ -13,6 +13,7 @@ import {
   createStreamingHennepinConnector,
 } from '../src/connectors/mn-hennepin-assessor/index.ts';
 import { createStreamingArtifactStore, type StreamingArtifactStore } from '../src/archive/artifact-store.ts';
+import { createHennepinRecorderConnector } from '../src/connectors/mn-hennepin-recorder/index.ts';
 import { createStreamingFilesystemObjectStore } from '../src/archive/object-store.ts';
 import { runStreamingConnector, type StreamRunOptions, type StreamRunResult } from '../src/runtime/stream-run.ts';
 import { createGenerationStore, type GenerationStore } from '../src/runtime/staged-store.ts';
@@ -27,6 +28,10 @@ export const SYNTHETIC = join(FIXTURES, 'synthetic');
 export const MAPPING_ID = 'mn_ecrv__all_mn_counties';
 export const HENNEPIN_MAPPING_ID = 'hennepin_assessor__hennepin';
 export const HENNEPIN_FIXTURES = join(REPO, 'fixtures', 'hennepin');
+export const RECORDER_MAPPING_ID = 'hennepin_recorder__hennepin';
+export const RECORDER_FIXTURES = join(REPO, 'fixtures', 'hennepin-recorder');
+/** The eCRV filing that names the same Hennepin parcel as the other two sources. */
+export const ECRV_CONVERGENCE_FIXTURE = join(SYNTHETIC, '07-hennepin-convergence-preliminary-pid.xml');
 export const RUN_INSTANT = '2026-08-31T12:00:00.000Z';
 
 export function fixture(name: string): string {
@@ -35,6 +40,10 @@ export function fixture(name: string): string {
 
 export function hennepinFixture(name: string): string {
   return join(HENNEPIN_FIXTURES, name);
+}
+
+export function recorderFixture(name: string): string {
+  return join(RECORDER_FIXTURES, name);
 }
 
 export function fixtureXml(name: string): string {
@@ -53,8 +62,12 @@ export type StreamHarness = {
   readonly contactPlane: ContactPlane;
   readonly store: GenerationStore;
   run(file: string, overrides?: Partial<StreamRunOptions> & { period?: string }): Promise<StreamRunResult>;
+  /** Runs the Hennepin recorder connector over a local index delivery. */
+  runRecorder(file: string, overrides?: Partial<StreamRunOptions> & { period?: string }): Promise<StreamRunResult>;
   /** Every canonical bundle currently activated, across all runs. */
   bundles(): Promise<unknown[]>;
+  /** Rows from any staged table, across all runs. */
+  table(name: string): Promise<unknown[]>;
   rows(table: 'bundles' | 'events' | 'absences' | 'contacts'): Promise<unknown[]>;
   resolutions(): Promise<unknown[]>;
 };
@@ -95,11 +108,33 @@ export function streamHarness(options: { root?: string; contactPlane?: ContactPl
         ...rest,
       });
     },
+    async runRecorder(file, overrides = {}) {
+      const period = overrides.period ?? '2024-2025';
+      const { period: _ignored, ...rest } = overrides;
+      return runStreamingConnector({
+        registry: defaultRegistry(),
+        connector: createHennepinRecorderConnector({ localFile: file, referencePeriod: period }),
+        mappingId: RECORDER_MAPPING_ID,
+        artifactStore,
+        contactPlane,
+        varRoot,
+        clock: fixedClock(RUN_INSTANT),
+        logger: captureLogger().logger,
+        referencePeriod: period,
+        localFile: file,
+        ...rest,
+      });
+    },
+    async table(name) {
+      const out: unknown[] = [];
+      for await (const line of store.readTable(name as 'bundles')) out.push(JSON.parse(line));
+      return out;
+    },
     bundles: () => readAll('bundles'),
     rows: readAll,
     async resolutions() {
       const { readFile } = await import('node:fs/promises');
-      const path = join(varRoot, 'derived', 'resolutions', 'mn_hennepin_county_parcels.ndjson');
+      const path = join(varRoot, 'derived', 'resolutions', 'current.ndjson');
       const text = await readFile(path, 'utf8').catch(() => '');
       return text.split('\n').filter(Boolean).map((l) => JSON.parse(l));
     },

@@ -204,6 +204,44 @@ latter. There is no blanket "county beats state".
 Disagreements become `property_conflicts` rows — flagged for a human or for
 better evidence. Ingestion never picks a winner.
 
+## 5c. Recorded instruments: document, conveyance, sale
+
+DF-0E adds the first recorded-instrument family, and with it a three-level
+distinction the rest of the system depends on:
+
+| Claim | Needs | Source |
+|---|---|---|
+| **A document was recorded** | nothing beyond the row | recorder — always safe |
+| **A conveyance was observed** | a conveying family AND an ownership-grade property link AND a named grantee | recorder — conditional |
+| **A sale happened, for this much** | a transfer declaration | **eCRV only** — never a deed |
+
+A deed carries no reliable price, so there is deliberately no recorder-sourced
+sale event of any kind, and the database constraint on `canonical_events` says so.
+
+Four instrument types touch title and are still excluded from conveyance: a
+contract for deed (equitable interest only), a transfer-on-death deed (conveys
+nothing until death), a sheriff's certificate (subject to redemption) and a
+correction (amends, conveys nothing). Each would look like an ownership change to
+a naive rule.
+
+**Unresolved references are data.** A satisfaction naming a mortgage the estate
+has not backfilled yet keeps its pointer; the lineage appears the moment the
+target arrives.
+
+**Authority is field-specific.** The recorder is authoritative for recording
+date, document number and document type. The assessor is authoritative for parcel
+identity. eCRV is authoritative for sale economics. There is no global ranking
+between sources, and the registry's `authoritativeForParcelIdentity` flag is
+per-field precisely so no one is tempted to invent one.
+
+## 5d. Not triple-counting a transaction
+
+Three sources describing one sale must not become three canonical sales, and must
+not be merged on a hunch. Observations are clustered by property and date and the
+cluster is classified — `SUPPORTED_MATCH`, `POSSIBLE_MATCH`, `CONFLICT`,
+`UNRESOLVED` — never merged. A `CONFLICT` is a durable statement that the sources
+disagree, which beats a silently chosen winner.
+
 ## 6. Change detection
 
 | Case | Result |

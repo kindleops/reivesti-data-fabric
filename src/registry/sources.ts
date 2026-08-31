@@ -15,6 +15,8 @@ export const MN_ECRV_SOURCE_ID = 'mn_dor_ecrv_weekly_sales_extract';
 export const MN_ECRV_ADAPTER_KEY = 'mn_ecrv';
 export const HENNEPIN_ASSESSOR_SOURCE_ID = 'mn_hennepin_county_parcels';
 export const HENNEPIN_ADAPTER_KEY = 'mn_hennepin_assessor';
+export const HENNEPIN_RECORDER_SOURCE_ID = 'mn_hennepin_recorded_instruments';
+export const HENNEPIN_RECORDER_ADAPTER_KEY = 'mn_hennepin_recorder';
 
 export const SOURCES: readonly SourceDefinition[] = [
   {
@@ -78,23 +80,42 @@ export const SOURCES: readonly SourceDefinition[] = [
       + 'structure characteristics (bedrooms, living area, stories).',
   },
   {
-    sourceId: 'mn_hennepin_recorded_instruments',
+    sourceId: HENNEPIN_RECORDER_SOURCE_ID,
     sourceAuthority: 'Hennepin County, Minnesota',
     sourceProgram: 'County Recorder / Registrar of Titles (RecordEASE)',
     sourceFamily: 'county_recorder_index',
     sourceName: 'Hennepin County recorded document index',
-    sourceHomepage: 'https://www.hennepin.us/residents/property/recording-documents',
-    accessType: 'vendor_export',
-    automationStatus: 'unknown',
-    termsStatus: 'not_reviewed',
-    licenseStatus: 'unknown',
-    costModel: 'subscription',
+    sourceHomepage: 'https://www.hennepincounty.gov/services/property/land-title-records-access',
+    // A lawful delivery under the Minnesota Government Data Practices Act, not a
+    // machine interface: no API, feed or index export is published.
+    accessType: 'manual_import',
+    // The binding subscription agreement states: "SUBSCRIBER shall not access the
+    // Information by any means other than the Application including but not
+    // limited to scraping, robots, wanderers, crawlers, spiders, etc". This is a
+    // contractual prohibition, not a rate limit, and the runtime enforces it:
+    // no publisher-reaching transport will run against this source.
+    automationStatus: 'prohibited',
+    termsStatus: 'reviewed_restricted',
+    // The same agreement forbids redistribution of the Information, which
+    // constrains what any downstream product may expose.
+    licenseStatus: 'restricted',
+    costModel: 'fee_per_request',
     historicalDepth: null,
     expectedRefreshFrequency: 'daily',
-    sourcePriority: 2,
-    active: false,
-    carriesRestrictedContact: false,
-    notes: 'DF-0D. Document-index-shaped source: append-only instrument records. Requires sanctioned access. Not implemented.',
+    // The recorder is authoritative for recording date, document number and
+    // document type — and for nothing else. Authority is field-specific.
+    sourcePriority: 1,
+    active: true,
+    // Recorded documents name people and often carry their addresses.
+    carriesRestrictedContact: true,
+    authoritativeForParcelIdentity: false,
+    notes:
+      'RecordEASE Public (free index search) and RecordEASE Pro ($2.50 per document/certificate/plat, '
+      + 'no monthly fee) are browser applications for human use. Programmatic access is contractually '
+      + 'prohibited and Hennepin publishes no recorded-document layer in its open data. Activation path '
+      + 'is a Minn. Stat. ch. 13 data-practices request for the recording index '
+      + '(recordsrequest@hennepin.us). Abstract (Minn. Stat. ch. 507) and Torrens (ch. 508) are '
+      + 'separately numbered series and are modelled as distinct registration systems.',
   },
   {
     sourceId: 'mn_sos_business_entities',
@@ -176,14 +197,22 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
   },
   {
     mappingId: 'hennepin_recorder__hennepin',
-    sourceId: 'mn_hennepin_recorded_instruments',
+    sourceId: HENNEPIN_RECORDER_SOURCE_ID,
     scope: { kind: 'counties', countyFips: ['27053'] },
     capabilities: ['deed', 'mortgage', 'mortgage_release', 'lien'],
     coverageStart: null,
     coverageEnd: null,
-    status: 'planned',
-    adapterKey: 'hennepin_recorder',
-    config: {},
+    // The adapter is complete and runs against a lawful delivery. What is
+    // missing is the delivery, not the code.
+    status: 'blocked_on_access',
+    adapterKey: HENNEPIN_RECORDER_ADAPTER_KEY,
+    config: {
+      accessRequestContact: 'recordsrequest@hennepin.us',
+      technicalSupportContact: 'ts.recordease.support@hennepin.us',
+      subscriptionAgreement: 'https://formcatalog.hennepin.us/rres/recorder_registrar_of_titles/subscription_agreement.html',
+      registrationSystems: ['abstract', 'torrens'],
+      termsVerifiedAt: '2026-08-31',
+    },
   },
   {
     mappingId: 'mn_sos__statewide',

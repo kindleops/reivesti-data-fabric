@@ -117,6 +117,16 @@ export type NormalizeResult = {
   readonly bundle: CanonicalBundle;
   /** Contact data goes to the restricted plane, never into the bundle. */
   readonly contacts: readonly ContactObservation[];
+  /**
+   * Additional canonical rows, keyed by the table they belong to.
+   *
+   * A recorded-instrument source produces instruments, party roles, property
+   * links, legal descriptions and references, none of which fit a bundle shaped
+   * around transactions. The runtime persists them verbatim and never
+   * interprets them, so a new source family costs a key rather than a change to
+   * the pipeline.
+   */
+  readonly extraRows?: Readonly<Record<string, readonly unknown[]>>;
 };
 
 export type ConnectorContext = {

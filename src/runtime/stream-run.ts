@@ -56,7 +56,7 @@ import {
   emptyMetrics,
   isStreamingConnector,
 } from './connector.ts';
-import { createGenerationStore, type GenerationStore } from './staged-store.ts';
+import { createGenerationStore, type GenerationStore, type StagedTable } from './staged-store.ts';
 import { createCheckpointStore } from './checkpoint.ts';
 import { assertAutomationPermitted } from './transport.ts';
 import type { RateLimiter, RetryPolicy, Sleep } from './retry.ts';
@@ -287,6 +287,11 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
         const transport = connector.transport;
         assertAutomationPermitted(transport, source.automationStatus, source.sourceId);
         if (!isStreamingTransport(transport)) {
+          // No streaming transport and no local file. Give the connector a
+          // chance to say why — a source whose terms forbid automation has a
+          // much more useful answer than "transport unsupported", and that
+          // answer should reach the operator.
+          await connector.discover(ctxForDiscovery(logger, source, mapping));
           fail('CONFIG', `transport for "${source.sourceId}" does not support streaming acquisition`);
         }
         let meta: Awaited<ReturnType<typeof transport.fetchStream>> | null = null;
@@ -422,7 +427,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
         snapshotId: snapshotKey,
       };
 
-      const { bundle, contacts } = connector.normalize(ctx, parsed, evidence, change);
+      const { bundle, contacts, extraRows } = connector.normalize(ctx, parsed, evidence, change);
 
       // Everything below writes and releases. Nothing accumulates.
       normalizedDigest.add(canonicalJson(evidenceProjectionOf(bundle)));
@@ -430,6 +435,11 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
         await staged.write('bundles', bundle);
         for (const event of bundle.events) await staged.write('events', event);
         for (const contact of contacts) await staged.write('contacts', contact);
+        // Connector-specific canonical rows, written verbatim. The runtime does
+        // not know what an instrument reference means and does not need to.
+        for (const [table, rows] of Object.entries(extraRows ?? {})) {
+          for (const row of rows) await staged.write(table as StagedTable, row);
+        }
       }
       // The durable, permission-gated record is the restricted partition written
       // above. The plane keeps a bounded window so an operator can inspect
@@ -526,7 +536,11 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     const conflicts: PropertyConflict[] = [];
     const keepSamples = 200;
 
-    const resolutionsPath = join(varRoot, 'derived', 'resolutions', `${safeSegment(source.sourceId)}.ndjson`);
+    // Estate-wide, deliberately not per-source. The fold reads every source's
+    // contributions, so keying the output by the current run's source meant the
+    // same estate landed in a different file depending on which source ran last
+    // — and left the other file stale. With one source that was invisible.
+    const resolutionsPath = join(varRoot, 'derived', 'resolutions', 'current.ndjson');
     const conflictsPath = join(varRoot, 'derived', 'conflicts', `${safeSegment(runId)}.ndjson`);
     const resolutionWriter = dryRun ? null : await createFileLineWriter(`${resolutionsPath}.tmp`);
     const conflictWriter = dryRun ? null : await createFileLineWriter(`${conflictsPath}.tmp`);
@@ -647,6 +661,15 @@ const HISTORY_DEPENDENT_EVENTS: ReadonlySet<string> = new Set(['PARCEL_ATTRIBUTE
 function evidenceProjectionOf(bundle: CanonicalBundle): unknown {
   const { parcelObservations: _diff, events, ...rest } = bundle;
   return { ...rest, events: events.filter((e) => !HISTORY_DEPENDENT_EVENTS.has(e.eventType)) };
+}
+
+/** A minimal context for the discovery call made purely to surface a refusal. */
+function ctxForDiscovery(
+  logger: Logger,
+  source: ConnectorContext['source'],
+  mapping: ConnectorContext['mapping'],
+): ConnectorContext {
+  return { logger, source, mapping, runId: 'preflight' };
 }
 
 function releaseFromManifest(artifact: ArchivedArtifact): SourceRelease {

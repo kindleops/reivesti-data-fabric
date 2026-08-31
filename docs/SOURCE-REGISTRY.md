@@ -127,6 +127,15 @@ carries — `parcel`, `assessor`, `ownership`, `tax`. Deliberately *not* declare
 `deed`, `mortgage` and `foreclosure_notice`. The county runs other systems that
 hold those, and this feed is not them.
 
+**Hennepin recorded instruments is `blocked_on_access`, and its `automationStatus`
+is `prohibited`** — the only source in the registry so marked. Hennepin's
+RecordEASE subscription agreement forbids "scraping, robots, wanderers, crawlers,
+spiders" by name, so the runtime refuses every publisher-reaching transport for
+it and the connector ships no HTTP client at all. This is the distinction the
+`automationStatus` field exists to carry: `manual_only` means "no sanctioned
+mechanism yet", `prohibited` means "we have read the terms and they say no".
+Activation is a Minn. Stat. ch. 13 data-practices request, not a crawl.
+
 **MN eCRV is `blocked_on_access`.** The adapter is complete and everything after
 retrieval runs today. Moving it to `active` requires exactly two changes, both
 recorded in `MN-ECRV.md`: extract access granted by the department, and
@@ -141,10 +150,10 @@ reviewed.
 |---|---|---|---|---|
 | MN DOR eCRV Weekly Sales Extract | all MN counties (87) | transfer, deed, mortgage, parcel, contact_enrichment | `blocked_on_access` | DF-0B ✅ |
 | Hennepin County Parcels | 27053 | parcel, assessor, ownership, tax | **`active`** | DF-0C ✅ |
-| Hennepin County recorded instruments | 27053 | deed, mortgage, mortgage_release, lien | `planned` | DF-0D |
+| Hennepin County recorded instruments | 27053 | deed, mortgage, mortgage_release, lien | `blocked_on_access` | DF-0E ✅ |
 | MN Secretary of State entities | MN (state) | business_entity | `planned` | DF-0E |
 | Dallas County foreclosure notices | 48113 | foreclosure_notice | `planned`, jurisdiction not catalogued | DF-0F |
 
-`mn_ecrv` and `mn_hennepin_assessor` have adapters. The rest exist so the
+`mn_ecrv`, `mn_hennepin_assessor` and `mn_hennepin_recorder` have adapters. The rest exist so the
 registry shape is exercised against the real variety of upcoming sources before
 an adapter locks the design in, and the runtime refuses to run any of them.

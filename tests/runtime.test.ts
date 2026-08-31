@@ -130,8 +130,8 @@ test('a changed file with the same name produces a second artifact, keeping the 
 test('a mapping that is only planned refuses to run', async () => {
   const result = await runConnector({
     registry: defaultRegistry(),
-    connector: { ...createMnEcrvConnector(), adapterKey: 'hennepin_recorder' },
-    mappingId: 'hennepin_recorder__hennepin',
+    connector: { ...createMnEcrvConnector(), adapterKey: 'mn_sos_entities' },
+    mappingId: 'mn_sos__statewide',
     artifactStore: createArtifactStore(createFilesystemObjectStore(tempRoot())),
     fabricStore: createMemoryFabricStore(),
     contactPlane: createContactPlane(),

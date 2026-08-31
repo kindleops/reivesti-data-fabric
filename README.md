@@ -7,7 +7,8 @@ web application — that application is a **consumer** of what this produces.
 
 **Phase:** DF-0A (national source runtime) + DF-0B (Minnesota eCRV) + DF-0C
 (real PostgreSQL migration proof, Hennepin County assessor, cross-source
-property resolution) + DF-0D (bounded-memory streaming, full-county proof).
+property resolution) + DF-0D (bounded-memory streaming, full-county proof) +
+DF-0E (recorded instruments, instrument graph, ownership foundation).
 
 ---
 
@@ -63,12 +64,13 @@ src/
   connectors/
     mn-ecrv/    field map, record types, parser, normaliser, connector
     mn-hennepin-assessor/   the same five files for the first snapshot source
+    mn-hennepin-recorder/   taxonomy, record, parse, normalise, streaming connector
   cli/          df
 db/migrations/  data_fabric + data_fabric_restricted — DRAFTS, NOT APPLIED to
                 any Reivesti database; executed for real against a disposable one
 docs/           architecture, source registry, MN eCRV, DB topology, decisions
 fixtures/       the pinned eCRV XSD and synthetic test documents
-tests/          297 tests, including a real-PostgreSQL migration gate
+tests/          365 tests, including a real-PostgreSQL migration gate
 ```
 
 ---
@@ -81,6 +83,7 @@ tests/          297 tests, including a real-PostgreSQL migration gate
 | [SOURCE-REGISTRY.md](docs/SOURCE-REGISTRY.md) | Jurisdiction/source modelling, how one statewide connector covers 87 counties, activation lifecycle |
 | [MN-ECRV.md](docs/MN-ECRV.md) | Authority, access, cadence, schema, field coverage, county-added limitations, live-activation steps |
 | [STREAMING-INGESTION.md](docs/STREAMING-INGESTION.md) | Bounded-memory design, what was actually wrong, measurements, checkpoint/resume, operational dials |
+| [HENNEPIN-RECORDED-INSTRUMENTS.md](docs/HENNEPIN-RECORDED-INSTRUMENTS.md) | RecordEASE access finding, document taxonomy, reference graph, ownership and mortgage boundaries, convergence |
 | [HENNEPIN-ASSESSOR.md](docs/HENNEPIN-ASSESSOR.md) | Authority, ArcGIS access, 122-field coverage, snapshot semantics, crawl strategy, eCRV convergence, ownership limits |
 | [REIVESTI-DB-TOPOLOGY.md](docs/REIVESTI-DB-TOPOLOGY.md) | What the application owns, what the Fabric owns, why no second Supabase project |
 | [DESIGN-DECISIONS.md](docs/DESIGN-DECISIONS.md) | EXISTING / REUSE / EXTEND / NEW / REJECTED |
@@ -98,6 +101,8 @@ tests/          297 tests, including a real-PostgreSQL migration gate
 | eCRV live extract retrieval | not available — request access from ecrv.support@state.mn.us |
 | DF-0D streaming runtime | complete — 448,087 parcels in a 512 MB heap |
 | Hennepin full-county ingestion | proven: 448,087 parcels, reconciled, 221 MB peak; not scheduled |
+| DF-0E recorded-instrument architecture | complete |
+| Hennepin RecordEASE access | **blocked** — terms prohibit programmatic access; activation is a data-practices request |
 | Production DDL | **not applied**, and not ready to be |
 | Scheduled ingestion | not activated |
 
@@ -119,6 +124,9 @@ fixtures, and will run unchanged against the live feed. See
 - Property resolution is a fold over evidence, so it cannot depend on the order
   sources were ingested in.
 - An assessor roll never produces a sale, a transfer, or an ownership acquisition.
+- A recorded deed never produces a sale either: a deed carries no reliable price.
+- A source whose terms forbid automation is marked `prohibited`, and the runtime
+  refuses every publisher-reaching transport for it.
 - Batch sizes are throughput dials that never change results.
 - A crash cannot activate a partial estate: canonical rows are activated by one
   atomic pointer swap.

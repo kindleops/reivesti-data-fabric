@@ -31,7 +31,13 @@ import { readLines } from '../core/lines.ts';
 export const CURRENT_POINTER = 'CURRENT';
 
 /** Tables a streaming run writes. Restricted rows are segregated on disk. */
-export const STAGED_TABLES = ['bundles', 'events', 'absences'] as const;
+export const STAGED_TABLES = [
+  'bundles', 'events', 'absences',
+  // Recorded-instrument rows (DF-0E). Segregated per table so the instrument
+  // graph can be folded without reading canonical bundles it does not need.
+  'instruments', 'instrument_parties', 'instrument_property_links',
+  'legal_descriptions', 'instrument_references', 'recorded_financing',
+] as const;
 export const RESTRICTED_TABLES = ['contacts'] as const;
 export type StagedTable = (typeof STAGED_TABLES)[number] | (typeof RESTRICTED_TABLES)[number];
 

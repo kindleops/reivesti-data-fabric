@@ -320,6 +320,33 @@ mailing-only value appears in it.
 
 ---
 
+## 6a. A second streaming source
+
+DF-0E added the Hennepin recorder connector on the same runtime with no changes
+to the pipeline. Two small extensions carried it:
+
+- **`extraRows`** on a normalisation result. A connector may emit canonical rows
+  beyond the transaction-shaped bundle — instruments, party roles, property
+  links, legal descriptions, references, recorded financing — keyed by staged
+  table. The runtime persists them verbatim and never interprets them, so a new
+  source family costs a key rather than a change to the runtime.
+- **`discover()` on a refusal path.** When a connector has no streaming transport
+  and no local file, the runtime now asks it to explain itself before failing.
+  A source whose terms forbid automation has a far more useful answer than
+  "transport unsupported", and the operator should see it.
+
+Everything else — bounded memory, batch invariance, atomic activation, replay,
+idempotency — applied unchanged and is asserted for the recorder in
+`tests/recorded-instruments.test.ts`.
+
+One DF-0D defect surfaced only once a second source existed: the resolution
+projection folds the **entire estate** but was writing its output to a file keyed
+by the *current run's* source. With one source that was invisible; with two, the
+same estate landed in a different file depending on which source ran last, and
+the other file went stale. The output is now estate-wide
+(`derived/resolutions/current.ndjson`), and order-independence is asserted across
+sources rather than only across runs of one source.
+
 ## 7. Limits
 
 1. **Absences are recorded by key hash**, not key. The full key lives in the prior
@@ -335,4 +362,7 @@ mailing-only value appears in it.
    optimisation if that becomes a problem.
 4. **One county is proven.** Multi-county estates will re-fold every county's
    contributions on every run; partitioning the projection by county is the
-   obvious fix and is not yet needed.
+   obvious fix and is not yet needed. **Tracked scaling P1**: partition the
+   projection by jurisdiction and source before any multi-county rollout. DF-0E
+   added a second source to the same county and did not degrade it materially,
+   which is the condition under which this stays deferred.

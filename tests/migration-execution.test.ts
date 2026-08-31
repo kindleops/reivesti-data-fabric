@@ -58,6 +58,7 @@ if (!server) {
         '0002_data_fabric_restricted_contact.sql',
         '0003_data_fabric_snapshot_and_resolution.sql',
         '0004_data_fabric_streaming_runs.sql',
+        '0005_data_fabric_recorded_instruments.sql',
       ]);
     });
 
@@ -79,7 +80,12 @@ if (!server) {
         'data_fabric.canonical_events',
         'data_fabric.distress_events',
         'data_fabric.financing_events',
+        'data_fabric.instrument_parties',
+        'data_fabric.instrument_property_links',
+        'data_fabric.instrument_references',
         'data_fabric.jurisdictions',
+        'data_fabric.legal_descriptions',
+        'data_fabric.ownership_observations',
         'data_fabric.parcel_snapshot_absences',
         'data_fabric.parcel_snapshot_observations',
         'data_fabric.parties',
@@ -90,6 +96,12 @@ if (!server) {
         'data_fabric.property_conflicts',
         'data_fabric.property_identifier_observations',
         'data_fabric.property_resolutions',
+        'data_fabric.recorded_financing',
+        'data_fabric.recorded_instrument_documents',
+        // The DF-0B placeholder, superseded by recorded_instrument_documents
+        // above. Left in place rather than dropped: these migrations are drafts
+        // and hold nothing, but a DROP that ships is a DROP that can run
+        // somewhere unexpected. Consolidating the two is a tracked cleanup.
         'data_fabric.recorded_instruments',
         'data_fabric.source_artifacts',
         'data_fabric.source_jurisdiction_mappings',
@@ -98,6 +110,7 @@ if (!server) {
         'data_fabric.source_runs',
         'data_fabric.source_snapshots',
         'data_fabric.sources',
+        'data_fabric.transaction_candidates',
         'data_fabric.transaction_events',
         'data_fabric.transaction_parcels',
         'data_fabric.transaction_parties',
@@ -114,7 +127,7 @@ if (!server) {
         where ns.nspname in ('data_fabric','data_fabric_restricted')
         group by 1`);
       const byType = Object.fromEntries(r.rows.map((x) => [x.contype, x.n]));
-      assert.ok(byType['p'] >= 27, `expected a primary key per table, got ${byType['p']}`);
+      assert.ok(byType['p'] >= 34, `expected a primary key per table, got ${byType['p']}`);
       assert.ok(byType['f'] >= 30, `expected foreign keys, got ${byType['f']}`);
       assert.ok(byType['u'] >= 6, `expected unique constraints, got ${byType['u']}`);
       assert.ok(byType['c'] >= 30, `expected check constraints, got ${byType['c']}`);
@@ -156,6 +169,10 @@ if (!server) {
         'ao_property_idx',
         'psa_snapshot_idx',
         'pr_parcel_idx',
+        'rid_recorded_at_idx',
+        'ir_unresolved_idx',
+        'oo_property_idx',
+        'tc_state_idx',
       ]) {
         assert.ok(names.has(expected), `missing index ${expected}`);
       }
@@ -238,7 +255,7 @@ if (!server) {
         select n.nspname || '.' || c.relname as t, c.relrowsecurity, c.relforcerowsecurity
         from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname in ('data_fabric','data_fabric_restricted') and c.relkind = 'r'`);
-      assert.equal(r.rows.length, 27);
+      assert.equal(r.rows.length, 35);
       const bad = r.rows.filter((x) => !x.relrowsecurity || !x.relforcerowsecurity);
       assert.deepEqual(bad.map((x) => x.t), [], 'tables missing enabled+forced RLS');
     });
@@ -247,11 +264,11 @@ if (!server) {
       const r = await db.query(`
         select tablename, policyname, permissive, roles::text
         from pg_policies where schemaname in ('data_fabric','data_fabric_restricted')`);
-      assert.equal(r.rows.length, 27 * APP_ROLES.length);
+      assert.equal(r.rows.length, 35 * APP_ROLES.length);
       assert.ok(r.rows.every((x) => x.permissive === 'RESTRICTIVE'), 'policies must be RESTRICTIVE');
       for (const role of APP_ROLES) {
         const forRole = r.rows.filter((x) => x.roles.includes(role));
-        assert.equal(forRole.length, 27, `expected a deny policy per table for ${role}`);
+        assert.equal(forRole.length, 35, `expected a deny policy per table for ${role}`);
       }
     });
 
@@ -369,6 +386,68 @@ if (!server) {
       // There is deliberately no 'deleted' or 'removed' state to write.
       assert.ok(!/deleted|removed/i.test(definitions));
       assert.match(definitions, /\^\[0-9a-f\]\{1,16\}\$/);
+    });
+
+
+    test('recorded-instrument identity is scoped to county and registration system', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.recorded_instrument_documents'::regclass and contype = 'u'`);
+      // Document number alone is not unique: Abstract (Minn. Stat. ch. 507) and
+      // Torrens (ch. 508) number independently, in every county.
+      assert.match(r.rows.map((x) => x.def).join(' '), /county_fips.*registration_system.*normalized_document_number/);
+    });
+
+    test('an unresolved reference is storable, and a resolved one needs a target', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.instrument_references'::regclass and contype = 'c'`);
+      const definitions = r.rows.map((x) => x.def).join(' ');
+      // The whole point: a 2024 satisfaction pointing at a 2009 mortgage must be
+      // storable before backfill reaches 2009.
+      assert.match(definitions, /resolved = \(to_instrument_id IS NOT NULL\)/i);
+      const columns = await db.query(`
+        select is_nullable from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'instrument_references'
+          and column_name = 'to_instrument_id'`);
+      assert.equal(columns.rows[0].is_nullable, 'YES');
+    });
+
+    test('a property link cannot claim resolution without naming a property', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.instrument_property_links'::regclass and contype = 'c'`);
+      assert.match(r.rows.map((x) => x.def).join(' '), /DIRECT_PARCEL/);
+    });
+
+    test('an ownership interval cannot end before it starts', async () => {
+      const r = await db.query(`
+        select conname from pg_constraint
+        where conrelid = 'data_fabric.ownership_observations'::regclass and contype = 'c'`);
+      const names = r.rows.map((x) => x.conname);
+      assert.ok(names.includes('ownership_interval_ordered'));
+      assert.ok(names.includes('disposition_needs_an_instrument'));
+    });
+
+    test('a transaction candidate marked CONFLICT must say why', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.transaction_candidates'::regclass and contype = 'c'`);
+      assert.match(r.rows.map((x) => x.def).join(' '), /CONFLICT.*cardinality\(disagreements\)/);
+    });
+
+    test('no recorder-sourced sale event type exists', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.canonical_events'::regclass and contype = 'c'`);
+      const definitions = r.rows.map((x) => x.def).join(' ');
+      assert.match(definitions, /INSTRUMENT_RECORDED/);
+      assert.match(definitions, /CONVEYANCE_OBSERVED/);
+      // A deed carries no reliable price, so there is deliberately no
+      // recorder-sourced sale or ownership-transfer event to write.
+      for (const forbidden of ['DEED_SALE', 'OWNERSHIP_TRANSFERRED', 'PROPERTY_SOLD', 'BUYER_ACQUIRED']) {
+        assert.ok(!definitions.includes(forbidden), `${forbidden} must not be an event type`);
+      }
     });
 
     // --- repeatability --------------------------------------------------------

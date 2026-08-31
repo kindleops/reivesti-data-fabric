@@ -132,10 +132,13 @@ test('the eCRV source records restricted contact and unsanctioned automation', (
 test('future connectors are modelled in the registry without being implemented', () => {
   const registry = defaultRegistry();
   const planned = registry.mappings.filter((m) => m.status === 'planned').map((m) => m.adapterKey);
-  // Hennepin left this list in DF-0C: it has an adapter now. The rest are still
-  // registry entries only, and the runtime refuses to run them.
-  for (const key of ['hennepin_recorder', 'mn_sos_entities']) {
+  // The Hennepin assessor left this list in DF-0C and the Hennepin recorder in
+  // DF-0E: both have adapters now. What remains is registry entries only, and
+  // the runtime refuses to run them.
+  for (const key of ['mn_sos_entities']) {
     assert.ok(planned.includes(key), `${key} should be modelled as planned`);
   }
-  assert.ok(!planned.includes('mn_hennepin_assessor'), 'Hennepin is implemented and should no longer be planned');
+  for (const implemented of ['mn_hennepin_assessor', 'mn_hennepin_recorder']) {
+    assert.ok(!planned.includes(implemented), `${implemented} is implemented and should no longer be planned`);
+  }
 });

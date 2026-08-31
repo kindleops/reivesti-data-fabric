@@ -373,7 +373,16 @@ export type CanonicalEventType =
   | 'PARCEL_ATTRIBUTES_CHANGED'
   | 'ASSESSOR_OWNER_OBSERVED'
   | 'ASSESSMENT_OBSERVED'
-  | 'PROPERTY_CHARACTERISTICS_OBSERVED';
+  | 'PROPERTY_CHARACTERISTICS_OBSERVED'
+  // Recorded-instrument sources. Note the layering: a document was RECORDED is
+  // always safe; a CONVEYANCE was observed needs a conveying family and land we
+  // can identify; a SALE is never claimed here at all, because a deed carries no
+  // reliable price and eCRV is the source for sale economics.
+  | 'INSTRUMENT_RECORDED'
+  | 'CONVEYANCE_OBSERVED'
+  | 'MORTGAGE_RECORDED'
+  | 'MORTGAGE_ASSIGNED'
+  | 'MORTGAGE_RELEASED';
 
 export type CanonicalEvent = {
   /** Deterministic: replaying the same evidence re-emits the same event id. */

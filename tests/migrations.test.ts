@@ -23,6 +23,7 @@ test('migrations exist and are ordered', () => {
     '0002_data_fabric_restricted_contact.sql',
     '0003_data_fabric_snapshot_and_resolution.sql',
     '0004_data_fabric_streaming_runs.sql',
+    '0005_data_fabric_recorded_instruments.sql',
   ]);
 });
 
@@ -77,6 +78,15 @@ test('every table the runtime writes has a home in the schema', () => {
     'data_fabric.property_characteristic_observations',
     'data_fabric.property_resolutions',
     'data_fabric.parcel_snapshot_absences',
+    // DF-0E: recorded instruments and the graph over them.
+    'data_fabric.recorded_instrument_documents',
+    'data_fabric.instrument_parties',
+    'data_fabric.instrument_property_links',
+    'data_fabric.legal_descriptions',
+    'data_fabric.instrument_references',
+    'data_fabric.recorded_financing',
+    'data_fabric.ownership_observations',
+    'data_fabric.transaction_candidates',
     'data_fabric.property_conflicts',
   ];
   for (const table of expected) {
