@@ -1,0 +1,16 @@
+{
+  "name": "reivesti-data-fabric",
+  "version": "0.1.0-df0b",
+  "private": true,
+  "type": "module",
+  "description": "Reivesti Data Fabric — authoritative ingestion, provenance, canonicalization and resolution runtime for public-record real-estate data. Headless: CLI, workers, database, object storage. No UI, no runtime dependency on the Reivesti web application.",
+  "engines": { "node": ">=22.18.0" },
+  "bin": { "df": "./src/cli/df.ts" },
+  "scripts": {
+    "test": "node --test --test-concurrency=1 tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test",
+    "df": "node src/cli/df.ts"
+  },
+  "devDependencies": { "typescript": "^5.7.2" }
+}
