@@ -347,6 +347,55 @@ the other file went stale. The output is now estate-wide
 (`derived/resolutions/current.ndjson`), and order-independence is asserted across
 sources rather than only across runs of one source.
 
+## 6b. A third streaming source, and a latent sort bug
+
+DF-0F added the Minnesota SOS business register. The runtime again needed no
+changes, but the source did stress one part of it in a way no earlier source had:
+**one external sort feeding another**.
+
+Grouping the register needs a sort by Master ID. Deciding organization links
+needs two more — a key-join sort feeding an observation-join sort — and the
+organization-link projection also joins entities to their addresses before
+counting statewide name collisions. Several sorts are therefore live at once in
+one process.
+
+`externalSort` named its spill directory `sort-<pid>-<timestamp>`. Two sorts
+started in the same millisecond shared a directory, and both wrote
+`run-0.ndjson`, `run-1.ndjson`, … over each other. Every earlier use was
+sequential, so it had never fired. It surfaced as a JSON parse error a million
+rows into a 300,000-business proof — the honest failure mode, but only because
+the proof was run at a scale where chunks actually spill. Fixed with a
+process-local counter in the directory name.
+
+Two things are worth taking from that. Spilling only happens above the chunk
+threshold, so a bug in the spill path is invisible to any test whose fixture fits
+in one chunk — which is why the batch-invariance tests deliberately run at
+`chunkLines: 1`. And a scaling proof is not only about memory: it is the only
+place where concurrency, file counts and merge behaviour are exercised at all.
+
+### Measured, DF-0F
+
+A synthetic register of 300,000 businesses (1,200,000 CSV rows, 170,436,210
+bytes), written **ungrouped** so the sort does real work:
+
+| | |
+|---|---|
+| heap cap | 768 MB |
+| peak heap | 151 MB |
+| heap across the crawl | flat, 48–90 MB |
+| parse + normalize | 101 s |
+| organization-link projection | 28 s |
+
+Batch invariance holds at that scale, not only in fixtures. The same delivery at
+`sortChunkLines` 50,000 and 5,000 produced the same run id and the same
+normalized digest, `ec2a37c1268bb09bf2a2e7b273dd26962aaa35cbb955ae374fa967f5cdd73016`.
+
+One caveat found while measuring: a smaller sort chunk costs *more* memory here,
+not less — 151 MB at 50,000 lines per chunk against **301 MB at 5,000**, because
+5,000 produces 240 run files and the k-way merge holds one buffered read stream
+per file. The default of 50,000 is the better trade at this shape. It changes
+nothing about the output, which is the point of the dial.
+
 ## 7. Limits
 
 1. **Absences are recorded by key hash**, not key. The full key lives in the prior

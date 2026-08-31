@@ -118,6 +118,39 @@ test('external sort cleans up its spill directory', async () => {
   assert.deepEqual(readdirSync(scratch), [], 'spill files must not outlive the sort');
 });
 
+test('two concurrent sorts sharing a scratch directory do not clobber each other', async () => {
+  // The organization-link join runs one sort inside another, so several are live
+  // at once. Spill directories used to be named by pid and millisecond, which
+  // meant two sorts started together shared one and overwrote each other's
+  // `run-N.ndjson` files. Only fires above the chunk threshold — hence the tiny
+  // chunk size — and only when the two sorts carry DIFFERENT data, which is why
+  // they are tagged here: identical inputs would hide the clobbering entirely.
+  const scratch = tempRoot('df-sort-shared-');
+  const options = { chunkLines: 10, scratchDir: scratch };
+
+  async function* tagged(tag: string): AsyncGenerator<string> {
+    for await (const line of shuffled(200)) yield `${line}|${tag}`;
+  }
+
+  const left = externalSort(tagged('left'), keyOf, options)[Symbol.asyncIterator]();
+  const right = externalSort(tagged('right'), keyOf, options)[Symbol.asyncIterator]();
+
+  const a: string[] = [];
+  const b: string[] = [];
+  for (;;) {
+    const [l, r] = await Promise.all([left.next(), right.next()]);
+    if (!l.done) a.push(l.value);
+    if (!r.done) b.push(r.value);
+    if (l.done && r.done) break;
+  }
+
+  assert.equal(a.length, 200);
+  assert.equal(b.length, 200);
+  assert.ok(a.every((line) => line.endsWith('|left')), 'the left sort read the right sort\'s spill files');
+  assert.ok(b.every((line) => line.endsWith('|right')), 'the right sort read the left sort\'s spill files');
+  assert.deepEqual(readdirSync(scratch), [], 'both sorts must clean up after themselves');
+});
+
 test('groupSorted yields one group per key, holding only that group', async () => {
   async function* sorted(): AsyncGenerator<string> {
     yield 'a|1'; yield 'a|2'; yield 'b|3'; yield 'c|4'; yield 'c|5'; yield 'c|6';

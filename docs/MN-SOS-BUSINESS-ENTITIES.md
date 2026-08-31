@@ -175,6 +175,36 @@ Unknown domain codes are a different case: they are **reported and retained**,
 never mapped to a nearest neighbour and never a reason to fail. Appendix II is a
 snapshot of a live register that adds codes.
 
+### Proven at register scale
+
+The real register is roughly a million businesses. The nearest honest proof
+available without the licensed file is a synthetic register of the same shape,
+generated at 300,000 businesses and **deliberately written ungrouped** so the
+sort is doing real work:
+
+| | |
+|---|---|
+| businesses | 300,000 |
+| CSV rows | 1,200,000 |
+| delivery bytes | 170,436,210 |
+| heap cap | 768 MB (`--max-old-space-size=768`) |
+| **peak heap** | **151 MB** |
+| heap across the crawl | flat, 48–90 MB |
+| parse + normalize | 101 s |
+| organization-link projection | 28 s |
+| entities emitted | 300,000, zero quarantined |
+| digest at `sortChunkLines` 50,000 and 5,000 | identical (`ec2a37c1…`) |
+
+Nothing about that scales with the register: memory is one sort chunk plus one
+business, and the link projection is a sort-merge join, not an index.
+
+That run found a real defect worth recording. `externalSort` named its spill
+directory `sort-<pid>-<timestamp>`, so two sorts started in the same millisecond
+shared a directory and clobbered each other's `run-N.ndjson` files. It had never
+fired, because every earlier use was sequential — the organization-link join is
+the first place one sort feeds another. It surfaced as a JSON parse error a
+million rows in, and is fixed with a process-local counter.
+
 ### Operator procedure
 
 The connector consumes a **delivery bundle**: the manifest as line 1, then the CSV
@@ -266,9 +296,81 @@ The projection itself
 ([`organization-projection.ts`](../src/canonical/organization-projection.ts)) is a
 two-pass disk-backed sort-merge join. Nothing indexes the register in memory.
 
+### Collision measurement
+
+`measureNameCollisions()` streams the whole register — externally sorted, no
+in-memory index — and returns the numbers a name rule has to be justified by:
+distinct legal names, distinct normalized names, distinct compact names, how many
+entities sit in a name collision, how many addresses are shared, the largest
+collision, and the statewide uniqueness rate.
+
+**It has not been run on the real register, because the licensed delivery has not
+been purchased.** On the 18-entity synthetic fixture — built to contain
+collisions deliberately, so this is a lower bound on messiness, not an estimate:
+
+| | |
+|---|---|
+| entities | 18 |
+| distinct normalized names | 16 |
+| normalized names shared by >1 entity | 2 (4 entities) |
+| compact-key collisions | 3 (6 entities) |
+| addresses shared by >1 entity | 2 |
+| normalized uniqueness rate | 0.7778 |
+
+The real numbers are the ones that matter and they are step 5 of the activation
+checklist.
+
 ---
 
-## 7. Restricted data
+## 7. Refresh strategy
+
+The bulk file is a monthly regeneration and **updates are not included** — B.2 of
+the agreement makes them a separate arrangement. So there are three options, and
+the choice is deliberately deferred until real data exists:
+
+**Monthly bulk re-ingest.** Buy the file again, ingest it as a new snapshot. The
+runtime already handles this: unchanged entities cost nothing, changes surface as
+field-group deltas, and absences are recorded as absences. This is the honest
+default and needs no new machinery.
+
+**Active Business Data as a supplement** ($30 one-time, or $30/week). It carries
+active registrations only, so it can never *replace* the bulk file — the inactive
+population is exactly what matters when tracing a dissolved seller entity, and a
+weekly diet of active-only data would slowly rot the estate's view of everything
+that lapsed. Its honest role is a **freshness supplement between bulk deliveries**:
+useful for catching a newly formed LLC quickly, never authoritative about absence.
+Consuming it would need one change the model already anticipates — a delivery that
+covers a subset must not drive absence detection, so it would be ingested as a
+non-snapshot release.
+
+**Targeted name search** ($35 per lookup). A per-question cost, not a data source.
+Not modelled.
+
+Recommendation: monthly bulk, with Active Business Data added only if a concrete
+product need for sub-monthly freshness appears. Nothing is scheduled today.
+
+---
+
+## 8. UCC is a separate source family, and is not started
+
+Minnesota's Secretary of State separately sells **UCC data** — the financing
+statements filed against business assets. It is genuinely valuable to Reivesti as
+a *financing and lien* signal, and it is deliberately **out of scope for DF-0F**.
+
+The reason is semantic, not commercial. A UCC filing is a lien against collateral,
+not a fact about a business registration; its parties are debtors and secured
+parties rather than officers and agents; its lifecycle (initial statement,
+amendment, continuation, termination, lapse after five years) is its own model;
+and linking a UCC debtor to a business registration is the same evidence problem
+this phase just solved for names, with an extra layer of collateral description on
+top. It needs its own phase and its own licence review.
+
+Recorded here so the gap is a decision rather than an oversight. Nothing in this
+repository ingests UCC data.
+
+---
+
+## 9. Restricted data
 
 Filings name **natural persons** — registered agents, organizers, incorporators,
 officers. Their names are authoritative registry facts and are stored. Their
@@ -286,7 +388,7 @@ that phone numbers are not available from that office — and no skip tracing.
 
 ---
 
-## 8. Tables
+## 10. Tables
 
 | Table | Holds |
 |---|---|
@@ -302,7 +404,7 @@ Reivesti database.**
 
 ---
 
-## 9. Activation checklist
+## 11. Activation checklist
 
 1. Purchase Business Bulk Data through the MBLS Portal ($710 commercial), or
    apply for a free copy if the use qualifies.

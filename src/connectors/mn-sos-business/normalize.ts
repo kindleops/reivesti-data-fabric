@@ -141,6 +141,10 @@ export function normalizeSosEntity(
       assumed_name_record: master.businessTypeCode === '59',
       source_export_date: master.exportDate,
     },
+    // Canonical, internal. The delivered bytes are RAW_LICENSED and stay in the
+    // artifact store; a member-facing answer about one entity would be
+    // DERIVED_MEMBER_SAFE, and this phase produces none.
+    licenseClass: 'CANONICAL_INTERNAL',
     evidence,
   };
 

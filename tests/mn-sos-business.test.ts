@@ -6,7 +6,7 @@
  */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { canonicalJson } from '../src/core/hash.ts';
 import { isFabricError } from '../src/core/errors.ts';
@@ -666,6 +666,71 @@ test('replaying the retained artifact reproduces the run exactly', async () => {
   const replayed = await h.runSos(AUGUST, { replayArtifact: first.artifact! } as never);
   assert.equal(replayed.run.normalizedDigest, first.run.normalizedDigest);
   assert.equal(replayed.run.runId, first.run.runId);
+});
+
+test('an interrupted delivery activates nothing', async () => {
+  const h = streamHarness();
+  await h.runSos(AUGUST);
+  const before = (await h.table('business_entities')).length;
+
+  // A delivery that fails mid-read: the manifest is valid, the rows are not.
+  const broken = join(h.root, 'broken.bundle');
+  const good = await readFile(AUGUST, 'utf8');
+  const lines = good.split('\n');
+  await writeFile(broken, `${lines.slice(0, 20).join('\n')}\n"unterminated\n`);
+
+  const result = await h.runSos(broken, { period: '2026-broken' });
+  assert.notEqual(result.run.status, 'completed');
+  // The previously activated generation is untouched: a crash cannot leave a
+  // partial register visible.
+  assert.equal((await h.table('business_entities')).length, before);
+});
+
+test('replay reproduces the entity rows and the link decisions byte for byte', async () => {
+  const h = streamHarness();
+  const first = await h.runSos(AUGUST);
+  const entitiesBefore = (await h.table('business_entities')).map(canonicalJson).sort();
+  const linksBefore = (await readLinks(h.varRoot)).map((l) => canonicalJson(l)).sort();
+
+  const replayed = await h.runSos(AUGUST, { replayArtifact: first.artifact! } as never);
+  assert.equal(replayed.run.normalizedDigest, first.run.normalizedDigest);
+  assert.deepEqual((await h.table('business_entities')).map(canonicalJson).sort(), entitiesBefore);
+  assert.deepEqual((await readLinks(h.varRoot)).map((l) => canonicalJson(l)).sort(), linksBefore);
+});
+
+test('an assumed name and a legal name that collide stay two candidates, never one entity', async () => {
+  const { entities } = await august();
+  const legal = byId(entities, gid(5));
+  const assumed = byId(entities, gid(12));
+  assert.equal(legal['normalizedName'], assumed['normalizedName']);
+  assert.notEqual(legal['entityId'], assumed['entityId']);
+  // The assumed-name row is not a company, so it must never resolve a property
+  // owner even though the name matches exactly.
+  assert.equal((assumed['attributes'] as Row)['is_legal_entity'], false);
+});
+
+test('a home-jurisdiction name that equals another entity\'s legal name is a candidate, not a merge', async () => {
+  const { entities, names } = await august();
+  const iowa = byId(entities, gid(15));
+  const mn = byId(entities, gid(9));
+  const homeName = names.find((n) => n['entityId'] === iowa['entityId'] && n['nameType'] === 'HOME_JURISDICTION_NAME') as Row;
+  assert.equal(homeName['normalizedName'], mn['normalizedName']);
+  assert.notEqual(iowa['entityId'], mn['entityId']);
+});
+
+test('nothing in the estate is classified as safe to publish', async () => {
+  const { entities } = await august();
+  assert.ok(entities.length > 0);
+  for (const entity of entities) {
+    assert.equal(entity['licenseClass'], 'CANONICAL_INTERNAL');
+    assert.notEqual(entity['licenseClass'], 'PUBLIC_SAFE');
+  }
+  // And there is no member- or public-facing projection of the register at all.
+  const derived = join((await august()).h.varRoot, 'derived');
+  const names = await readdir(derived).catch(() => [] as string[]);
+  for (const name of names) {
+    assert.ok(!/public|member|export|feed/i.test(name), `${name} looks like a published projection`);
+  }
 });
 
 // ===========================================================================

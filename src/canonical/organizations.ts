@@ -57,6 +57,12 @@ export type BusinessEntityRecord = {
   readonly homeBusinessName: string | null;
   /** Source-specific flags kept as stated, not folded into a type. */
   readonly attributes: Readonly<Record<string, unknown>>;
+  /**
+   * How this row may be used, given the source licence (see `LicenseClass`
+   * below). Carried on the row so the boundary is answerable from the data
+   * rather than from application code that remembers which sources were bought.
+   */
+  readonly licenseClass: LicenseClass;
   readonly evidence: SourceEvidence;
 };
 

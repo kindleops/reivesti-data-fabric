@@ -37,6 +37,13 @@ export type SortOptions = {
  * Ties are broken by the line itself, so the total order is deterministic even
  * when two records share a key.
  */
+let sortSequence = 0;
+
+function nextSortId(): number {
+  sortSequence += 1;
+  return sortSequence;
+}
+
 export async function* externalSort(
   source: AsyncIterable<string>,
   keyOf: (line: string) => string,
@@ -45,8 +52,12 @@ export async function* externalSort(
   const chunkLines = options.chunkLines ?? DEFAULT_CHUNK_LINES;
   if (chunkLines < 1) fail('CONFIG', `chunkLines must be at least 1, got ${chunkLines}`);
 
+  // A counter, not just a timestamp. Two sorts started in the same millisecond
+  // used to share a directory and clobber each other's `run-N.ndjson` spills —
+  // which only happens when one sort feeds another, as the organization-link
+  // join does, and which surfaced as a JSON parse error a million rows in.
   const scratch = options.scratchDir
-    ? await ensureDir(join(options.scratchDir, `sort-${process.pid}-${Date.now()}`))
+    ? await ensureDir(join(options.scratchDir, `sort-${process.pid}-${Date.now()}-${nextSortId()}`))
     : await mkdtemp(join(tmpdir(), 'df-sort-'));
 
   const runFiles: string[] = [];
