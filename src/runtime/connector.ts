@@ -61,6 +61,12 @@ export type ParsedRecord = {
   readonly contentDigest: string;
   /** Digest of the exact source text this record was read from. */
   readonly rawFragmentDigest: string;
+  /**
+   * Optional per-group digests. A snapshot source restates every row every
+   * time, so "changed" is only useful if the run can say what kind of thing
+   * changed: 12,000 assessment changes and 40 owner changes, not 12,040 rows.
+   */
+  readonly fieldGroupDigests?: Readonly<Record<string, string>>;
 };
 
 export type ParsedBatch = {
@@ -72,6 +78,13 @@ export type ParsedBatch = {
   readonly unknownFields: readonly string[];
   /** Fields the pinned schema requires that the source omitted. */
   readonly missingFields: readonly string[];
+  /** Present for snapshot sources: what the source claimed vs what we retrieved. */
+  readonly snapshot?: {
+    readonly sourceReportedCount: number | null;
+    readonly retrievedCount: number;
+    readonly duplicateCount: number;
+    readonly sourceSchemaDigest: string | null;
+  };
 };
 
 export type RecordValidation = {
@@ -88,6 +101,16 @@ export type BatchValidation = {
   readonly schemaDrift: boolean;
   readonly driftReasons: readonly string[];
   readonly records: readonly RecordValidation[];
+};
+
+/**
+ * What the runtime knows about a record that the connector cannot work out on
+ * its own: how it compares with the last time we saw it.
+ */
+export type ChangeContext = {
+  readonly kind: 'new' | 'unchanged' | 'revised';
+  readonly changedFieldGroups: readonly string[];
+  readonly snapshotId: string | null;
 };
 
 export type NormalizeResult = {
@@ -120,7 +143,19 @@ export type Connector = {
 
   validate(ctx: ConnectorContext, batch: ParsedBatch): BatchValidation;
 
-  normalize(ctx: ConnectorContext, parsed: ParsedRecord, evidence: SourceEvidence): NormalizeResult;
+  normalize(
+    ctx: ConnectorContext,
+    parsed: ParsedRecord,
+    evidence: SourceEvidence,
+    change: ChangeContext,
+  ): NormalizeResult;
+
+  /**
+   * Declared by sources that publish a state of the world rather than a feed of
+   * events. Turns on absence detection and snapshot reconciliation in the
+   * runtime; it does not fork the pipeline.
+   */
+  readonly snapshotSource?: boolean;
 };
 
 export type RunStatus =
@@ -151,6 +186,8 @@ export type RunMetrics = {
   rowsNew: number;
   contactObservations: number;
   canonicalEvents: number;
+  /** Snapshot sources only: keys earlier snapshots had that this one does not. */
+  rowsMissingFromSnapshot: number;
 };
 
 export function emptyMetrics(): RunMetrics {
@@ -165,6 +202,7 @@ export function emptyMetrics(): RunMetrics {
     rowsNew: 0,
     contactObservations: 0,
     canonicalEvents: 0,
+    rowsMissingFromSnapshot: 0,
   };
 }
 
@@ -195,4 +233,7 @@ export type SourceRun = {
   readonly failureMessage: string | null;
   /** Digest over every canonical bundle emitted. Two runs over the same evidence must match. */
   readonly normalizedDigest: string | null;
+  readonly snapshotId: string | null;
+  /** complete / partial / unverifiable, from count reconciliation. */
+  readonly snapshotCompleteness: string | null;
 };

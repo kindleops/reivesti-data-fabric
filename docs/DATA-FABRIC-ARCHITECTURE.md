@@ -138,6 +138,52 @@ quarantine anything; adding, removing, retyping or re-enumerating anything does.
 
 ---
 
+## 5a. Snapshot sources
+
+eCRV is an append-only feed of filings. A county assessor roll is the opposite
+shape: a periodic photograph of a state of the world. A connector declares
+`snapshotSource: true` and the shared runtime turns on three behaviours — it does
+**not** fork the pipeline.
+
+**Reconciliation.** Every snapshot records the count the source claimed against
+the count we retrieved, giving `complete` / `partial` / `unverifiable`. Without
+that pair, "we ingested the whole county" is an assertion rather than a
+measurement. An incomplete crawl quarantines the run.
+
+**Absence.** A key earlier snapshots carried and this one does not is recorded as
+its own observation. It is never a deletion: a partial export produces exactly
+the same signal as a genuine retirement, and only later snapshots can tell them
+apart. Prior observations and canonical rows are untouched.
+
+**Field-group diffs.** Rows are digested per named group, so a run reports
+"12,000 assessment changes and 40 owner changes" rather than "12,040 rows
+changed".
+
+## 5b. Property resolution across sources
+
+A property's resolution is a **fold** over every identifier observation pointing
+at it, recomputed as a projection — never an in-place edit of any observation.
+
+That single choice buys order-independence. A fold over a set cannot depend on
+insertion order, so ingesting a state transfer declaration and then a county
+assessor roll produces byte-identical output to the reverse order. The canonical
+property id helps: it is a pure function of `(countyFips, normalizedParcel)`, so
+both sources compute the same id without ever consulting each other.
+
+| Evidence | Identifier state | Property state |
+|---|---|---|
+| state-level preliminary PID only | `preliminary` / `provisional` | `provisional` |
+| county-assigned authoritative PID | `final` / `resolved` | `resolved` |
+| address only | `unknown` / `unresolved` | not resolved at all |
+
+Authority is declared per source with `authoritativeForParcelIdentity`, and it is
+**field- and semantic-specific**. A county assessor is authoritative for parcel
+identity and *not* for an accepted transfer price; eCRV is authoritative for the
+latter. There is no blanket "county beats state".
+
+Disagreements become `property_conflicts` rows — flagged for a human or for
+better evidence. Ingestion never picks a winner.
+
 ## 6. Change detection
 
 | Case | Result |
@@ -197,6 +243,24 @@ their manifest, so storage policy can act on it.
 
 ---
 
+## 8a. What the replay digest covers
+
+`normalizedDigest` answers "what do these bytes say?", which must be stable
+forever. A snapshot source also produces output describing how this reading
+*differs from what we already knew* — a change kind, a `PARCEL_ATTRIBUTES_CHANGED`
+event. Those depend on store history, not on the bytes, so the same artifact
+legitimately produces different values for them on a first ingest and a re-ingest.
+
+They are therefore excluded from the digest and reported separately, on the
+parcel observations and in the run metrics, where a changing value is correct.
+
+A related rule, learned the hard way: a run's partition holds the **complete**
+canonical reading of its artifact, not just the delta it found newsworthy. A run
+id is derived from its evidence, so persisting only the delta meant re-ingesting
+an unchanged artifact rewrote that run's partition with nothing — deleting rows
+the earlier run had correctly emitted. The delta drives metrics and the
+append-only observation ledger; it does not decide what the partition contains.
+
 ## 9. Storage and the database
 
 Two schemas, both owned by the Fabric and disjoint from the application's
@@ -209,7 +273,14 @@ RLS is enabled **and forced** on every table (`FORCE` matters: without it a tabl
 owner still bypasses the policies). `anon` and `authenticated` are explicitly
 denied and have no `USAGE` on either schema.
 
-Migrations in `db/migrations/` are **drafts and have not been applied anywhere**.
+Migrations in `db/migrations/` are **drafts and have not been applied to any
+Reivesti database, and never to production**. They are, however, executed for
+real: `npm run test:pg` boots a disposable PostgreSQL 17 cluster in a temp
+directory, applies every migration, and interrogates `pg_catalog` and real row
+behaviour — objects created, constraints enforced on real inserts, RLS blocking
+real roles, and two independent fresh applications producing an identical schema
+signature. Structural tests assert what the SQL *says*; that gate asserts what
+PostgreSQL *does* with it.
 
 The local derived plane (`var/derived`, `var/restricted`) mirrors these tables as
 NDJSON partitions, one file per (table, run), replaced atomically. Loading it into

@@ -18,7 +18,11 @@ const FILES = readdirSync(DIR).filter((f) => f.endsWith('.sql')).sort();
 const SQL = FILES.map((f) => readFileSync(join(DIR, f), 'utf8')).join('\n');
 
 test('migrations exist and are ordered', () => {
-  assert.deepEqual(FILES, ['0001_data_fabric_core.sql', '0002_data_fabric_restricted_contact.sql']);
+  assert.deepEqual(FILES, [
+    '0001_data_fabric_core.sql',
+    '0002_data_fabric_restricted_contact.sql',
+    '0003_data_fabric_snapshot_and_resolution.sql',
+  ]);
 });
 
 test('every migration states plainly that it has not been applied to production', () => {
@@ -65,6 +69,13 @@ test('every table the runtime writes has a home in the schema', () => {
     'data_fabric.distress_events',
     'data_fabric.canonical_events',
     'data_fabric_restricted.contact_observations',
+    // DF-0C: snapshot sources and authoritative property resolution.
+    'data_fabric.source_snapshots',
+    'data_fabric.parcel_snapshot_observations',
+    'data_fabric.assessment_observations',
+    'data_fabric.property_characteristic_observations',
+    'data_fabric.property_resolutions',
+    'data_fabric.property_conflicts',
   ];
   for (const table of expected) {
     assert.ok(SQL.includes(`create table if not exists ${table} (`), `missing table ${table}`);
@@ -120,7 +131,13 @@ test('canonical event types are constrained to the three the source supports', (
   const match = /event_type\s+text not null check \(event_type in \(([^)]*)\)\)/.exec(core.slice(core.indexOf('canonical_events')));
   assert.ok(match);
   const types = (match[1] ?? '').split(',').map((s) => s.trim().replace(/'/g, ''));
+  // 0001 declares the transfer-source events; 0003 widens the constraint to add
+  // the assessor-supported ones. Neither list may contain a claim the source
+  // cannot make, so the forbidden set is asserted against the whole estate.
   assert.deepEqual(types.sort(), ['FINANCING_OBSERVED', 'PROPERTY_SALE_OBSERVED', 'REAL_ESTATE_TRANSFER_OBSERVED']);
+  for (const forbidden of ['PROPERTY_SOLD', 'BUYER_ACQUIRED_PROPERTY', 'FORECLOSURE', 'ACTIVE_BUYER', 'DISTRESS']) {
+    assert.ok(!SQL.includes(`'${forbidden}'`), `${forbidden} must never be a canonical event type`);
+  }
 });
 
 test('money is stored as integer minor units, never as a float type', () => {

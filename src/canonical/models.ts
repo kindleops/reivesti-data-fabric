@@ -16,6 +16,7 @@
  * values, distress lifecycles and derived intelligence are deliberately absent.
  */
 import { deterministicId } from '../core/hash.ts';
+import type { ParcelSnapshotObservation } from './snapshot.ts';
 
 // ---------------------------------------------------------------------------
 // Lineage
@@ -108,6 +109,12 @@ export type PartyRole =
   | 'grantee'
   | 'borrower'
   | 'lender'
+  /** Owner of record on an assessor roll. An observation of the tax roll, NOT a
+   *  deed-derived ownership history: the roll says who is billed, not who
+   *  acquired what and when. Recorded-instrument history arrives in DF-0D. */
+  | 'assessor_owner_of_record'
+  /** The party the county bills. Frequently a servicer or agent, not the owner. */
+  | 'assessor_taxpayer'
   | 'other';
 
 /**
@@ -256,6 +263,57 @@ export type FinancingEvent = {
 };
 
 // ---------------------------------------------------------------------------
+// Time-aware observations (snapshot sources)
+// ---------------------------------------------------------------------------
+
+/**
+ * Assessment values as one snapshot stated them.
+ *
+ * A new snapshot inserts a new row. It never overwrites the previous one,
+ * because "the total market value is 241,300" is only interesting alongside
+ * "and last year it was 228,000".
+ */
+export type AssessmentObservation = {
+  readonly observationId: string;
+  readonly propertyId: string | null;
+  readonly countyFips: string;
+  readonly normalizedParcel: string;
+  readonly snapshotId: string;
+  /**
+   * Null when the source states no assessment year. Inferring it from the
+   * capture date would be inventing data, so the null stands.
+   */
+  readonly assessmentYear: number | null;
+  /** A parcel may carry several classified portions; this is the sub-record index. */
+  readonly tier: number;
+  readonly propertyTypeCode: string | null;
+  readonly propertyTypeName: string | null;
+  readonly homesteadCode: string | null;
+  readonly landValue: Money | null;
+  readonly buildingValue: Money | null;
+  readonly machineryValue: Money | null;
+  readonly totalValue: Money | null;
+  readonly taxableValue: Money | null;
+  readonly netTaxCapacity: Money | null;
+  readonly netTax: Money | null;
+  readonly characteristics: Readonly<Record<string, unknown>>;
+  readonly evidence: SourceEvidence;
+};
+
+/** Physical and descriptive characteristics as one snapshot stated them. */
+export type PropertyCharacteristicObservation = {
+  readonly observationId: string;
+  readonly propertyId: string | null;
+  readonly countyFips: string;
+  readonly normalizedParcel: string;
+  readonly snapshotId: string;
+  readonly yearBuilt: number | null;
+  readonly parcelAreaSqFt: number | null;
+  readonly characteristics: Readonly<Record<string, unknown>>;
+  readonly evidence: SourceEvidence;
+};
+
+// ---------------------------------------------------------------------------
 // Recorded instruments and distress (modelled now, unpopulated by eCRV)
 // ---------------------------------------------------------------------------
 
@@ -303,9 +361,19 @@ export type DistressEvent = {
  * property of the buyer.
  */
 export type CanonicalEventType =
+  // Transfer sources (eCRV)
   | 'REAL_ESTATE_TRANSFER_OBSERVED'
   | 'PROPERTY_SALE_OBSERVED'
-  | 'FINANCING_OBSERVED';
+  | 'FINANCING_OBSERVED'
+  // Snapshot / assessor sources. None of these asserts a transaction: an
+  // assessor roll cannot support PROPERTY_SOLD, BUYER_ACQUIRED_PROPERTY,
+  // FORECLOSURE or ACTIVE_BUYER, so none of those exists.
+  | 'PARCEL_OBSERVED'
+  | 'PARCEL_RESOLVED'
+  | 'PARCEL_ATTRIBUTES_CHANGED'
+  | 'ASSESSOR_OWNER_OBSERVED'
+  | 'ASSESSMENT_OBSERVED'
+  | 'PROPERTY_CHARACTERISTICS_OBSERVED';
 
 export type CanonicalEvent = {
   /** Deterministic: replaying the same evidence re-emits the same event id. */
@@ -327,4 +395,9 @@ export type CanonicalBundle = {
   readonly properties: readonly Property[];
   readonly financing: readonly FinancingEvent[];
   readonly events: readonly CanonicalEvent[];
+  // Snapshot-source additions. Optional so a feed-source bundle serialises
+  // exactly as it did before these existed, keeping DF-0B digests stable.
+  readonly assessments?: readonly AssessmentObservation[];
+  readonly characteristics?: readonly PropertyCharacteristicObservation[];
+  readonly parcelObservations?: readonly ParcelSnapshotObservation[];
 };

@@ -20,7 +20,14 @@ import { fail } from '../core/errors.ts';
 import { deterministicId } from '../core/hash.ts';
 import type { SourceEvidence } from '../canonical/models.ts';
 
-export type ContactType = 'phone' | 'email' | 'contact_note' | 'unstructured_submitter_block';
+export type ContactType =
+  | 'phone'
+  | 'email'
+  | 'contact_note'
+  | 'unstructured_submitter_block'
+  /** A taxpayer or owner mailing address. Useful for ownership resolution,
+   *  personal enough that it lives here rather than on a canonical party. */
+  | 'mailing_address';
 
 /**
  * What the observation may lawfully be used for. `record_only` is the default

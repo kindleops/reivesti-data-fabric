@@ -14,6 +14,14 @@
 import { type ArchivedArtifact, type ArtifactStore } from '../archive/artifact-store.ts';
 import type { CanonicalBundle, CanonicalEvent, SourceEvidence } from '../canonical/models.ts';
 import { createRevisionLedger, type ChangeKind, type RevisionLedger, type SourceRecordObservation } from '../canonical/revision.ts';
+import {
+  type SnapshotAbsence,
+  type SourceSnapshot,
+  changedGroups,
+  detectAbsences,
+  reconcile,
+  snapshotId as makeSnapshotId,
+} from '../canonical/snapshot.ts';
 import type { ContactObservation, ContactPlane } from '../contact/contact-plane.ts';
 import { type Clock, systemClock } from '../core/clock.ts';
 import { FabricError, fail } from '../core/errors.ts';
@@ -21,6 +29,7 @@ import { canonicalJson, deterministicId, sha256 } from '../core/hash.ts';
 import { type Logger, silentLogger } from '../core/logging.ts';
 import type { Registry } from '../registry/registry.ts';
 import type {
+  ChangeContext,
   Connector,
   ConnectorContext,
   DiscoveredRelease,
@@ -32,6 +41,14 @@ import type {
 } from './connector.ts';
 import { emptyMetrics } from './connector.ts';
 import type { FabricStore } from './fabric-store.ts';
+import {
+  type PropertyConflict,
+  type PropertyResolution,
+  detectConflicts,
+  parcelAuthorityFor,
+  resolveAll,
+} from '../canonical/property-resolution.ts';
+import type { PropertyIdentifierObservation } from '../canonical/models.ts';
 import { assertAutomationPermitted } from './transport.ts';
 import type { RateLimiter, RetryPolicy, Sleep } from './retry.ts';
 
@@ -64,6 +81,8 @@ export type RunResult = {
   readonly artifact: ArchivedArtifact | null;
   readonly batch: ParsedBatch | null;
   readonly changeCounts: Readonly<Record<ChangeKind, number>>;
+  readonly resolutions: readonly PropertyResolution[];
+  readonly conflicts: readonly PropertyConflict[];
 };
 
 export async function runConnector(options: RunOptions): Promise<RunResult> {
@@ -90,6 +109,8 @@ export async function runConnector(options: RunOptions): Promise<RunResult> {
   const metrics = emptyMetrics();
   const changeCounts: Record<ChangeKind, number> = { new: 0, unchanged: 0, revised: 0 };
   let validationErrorCount = 0;
+  let snapshot: SourceSnapshot | null = null;
+  let absences: readonly SnapshotAbsence[] = [];
 
   const finish = async (
     status: SourceRun['status'],
@@ -121,6 +142,8 @@ export async function runConnector(options: RunOptions): Promise<RunResult> {
       failureKind: null,
       failureMessage: null,
       normalizedDigest: null,
+      snapshotId: snapshot?.snapshotId ?? null,
+      snapshotCompleteness: snapshot?.completeness ?? null,
       ...extra,
     };
     logger.info('run.finished', {
@@ -137,7 +160,7 @@ export async function runConnector(options: RunOptions): Promise<RunResult> {
     }
     // Terminal shape only. The success path spreads its own canonical output
     // over this before returning.
-    return { run, bundles: [], events: [], contacts: [], artifact, batch, changeCounts };
+    return { run, bundles: [], events: [], contacts: [], artifact, batch, changeCounts, resolutions: [], conflicts: [] };
   };
 
   const ctx: ConnectorContext = { logger, source, mapping, runId: 'pending' };
@@ -225,6 +248,37 @@ export async function runConnector(options: RunOptions): Promise<RunResult> {
       missingFields: batch.missingFields.length,
     });
 
+    // A snapshot source publishes a state of the world, so the run records what
+    // the source claimed to hold alongside what we actually retrieved. Without
+    // that pair, "we ingested the whole county" is an assertion, not a measurement.
+    if (connector.snapshotSource) {
+      const reported = batch.snapshot?.sourceReportedCount ?? null;
+      const retrieved = batch.snapshot?.retrievedCount ?? batch.records.length;
+      snapshot = {
+        snapshotId: makeSnapshotId(source.sourceId, release.referencePeriod),
+        sourceId: source.sourceId,
+        releaseId: release.releaseId,
+        artifactId: artifact.artifactId,
+        runId,
+        referencePeriod: release.referencePeriod,
+        capturedAt: artifact.manifest.retrievedAt,
+        sourceReportedCount: reported,
+        retrievedCount: retrieved,
+        parsedCount: batch.records.length,
+        acceptedCount: 0,
+        quarantinedCount: 0,
+        duplicateCount: batch.snapshot?.duplicateCount ?? 0,
+        completeness: reconcile(reported, retrieved),
+        sourceSchemaDigest: batch.snapshot?.sourceSchemaDigest ?? null,
+      };
+      runLogger.info('run.snapshot', {
+        snapshotId: snapshot.snapshotId,
+        sourceReportedCount: reported,
+        retrievedCount: retrieved,
+        completeness: snapshot.completeness,
+      });
+    }
+
     // ---- validate ---------------------------------------------------------
     stage = 'validate';
     const validation = connector.validate(runCtx, batch);
@@ -253,15 +307,21 @@ export async function runConnector(options: RunOptions): Promise<RunResult> {
     );
     const observedAt = artifact.manifest.retrievedAt;
 
-    // Two collections on purpose. `allBundles` is every valid record in the
-    // artifact, normalised, and is what the artifact's interpretation digest
-    // describes: a property of the evidence and the code, not of what happened
-    // to be in the store beforehand. The others are only what this run writes.
+    // A run's partition holds the COMPLETE canonical reading of its artifact,
+    // not just the delta it found newsworthy. The two differ whenever a record
+    // is unchanged, and persisting only the delta was a real defect: a run's id
+    // is derived from its evidence, so re-ingesting an unchanged artifact
+    // rewrote that run's partition with nothing and deleted canonical rows the
+    // earlier run had correctly emitted.
+    //
+    // The delta still drives metrics and the append-only observation ledger; it
+    // just no longer decides what the partition contains.
     const allBundles: CanonicalBundle[] = [];
-    const bundles: CanonicalBundle[] = [];
-    const events: CanonicalEvent[] = [];
-    const contacts: ContactObservation[] = [];
+    const allEvents: CanonicalEvent[] = [];
+    const allContacts: ContactObservation[] = [];
     const newObservations: SourceRecordObservation[] = [];
+    /** Source record keys this snapshot contains, for absence detection. */
+    const presentKeys = new Set<string>();
 
     for (const parsed of batch.records) {
       const issues = issuesByRecord.get(parsed.sourceRecordId) ?? [];
@@ -284,8 +344,19 @@ export async function runConnector(options: RunOptions): Promise<RunResult> {
         observedAt,
         contentDigest: parsed.contentDigest,
         parserVersion: connector.parserVersion,
+        snapshotId: snapshot?.snapshotId ?? null,
+        ...(parsed.fieldGroupDigests ? { fieldGroupDigests: parsed.fieldGroupDigests } : {}),
       });
       changeCounts[decision.kind] += 1;
+      presentKeys.add(parsed.sourceRecordId);
+
+      const change: ChangeContext = {
+        kind: decision.kind,
+        changedFieldGroups: parsed.fieldGroupDigests
+          ? changedGroups(decision.previous?.fieldGroupDigests, parsed.fieldGroupDigests)
+          : [],
+        snapshotId: snapshot?.snapshotId ?? null,
+      };
 
       const evidence: SourceEvidence = {
         sourceId: source.sourceId,
@@ -298,12 +369,15 @@ export async function runConnector(options: RunOptions): Promise<RunResult> {
         parserVersion: connector.parserVersion,
         normalizationVersion: connector.normalizationVersion,
       };
-      const result = connector.normalize(runCtx, parsed, evidence);
+      const result = connector.normalize(runCtx, parsed, evidence, change);
       allBundles.push(result.bundle);
+      allEvents.push(...result.bundle.events);
+      allContacts.push(...result.contacts);
 
       if (decision.kind === 'unchanged') {
-        // Already retained, byte-identical. It still counts toward the
-        // artifact's digest, but there is nothing new to write or emit.
+        // Byte-identical to what we already hold. It still belongs in this run's
+        // partition and in the artifact's digest; what it does not do is add a
+        // new observation to the append-only ledger.
         metrics.rowsUnchanged += 1;
         continue;
       }
@@ -311,40 +385,93 @@ export async function runConnector(options: RunOptions): Promise<RunResult> {
       else metrics.rowsRevised += 1;
 
       newObservations.push(decision.observation);
-      bundles.push(result.bundle);
-      events.push(...result.bundle.events);
-      contacts.push(...result.contacts);
+      // rowsEmitted counts the delta: how much of this artifact was news.
       metrics.rowsEmitted += 1;
+    }
+
+    // A key that earlier snapshots carried and this one does not is a fact
+    // about the snapshot, not about the world. It is recorded as its own
+    // observation; nothing is deleted and no prior row is touched.
+    if (connector.snapshotSource && snapshot) {
+      const previouslySeen = new Map<string, string>();
+      for (const observation of ledger.all()) {
+        if (observation.sourceId !== source.sourceId) continue;
+        if (observation.snapshotId === snapshot.snapshotId) continue;
+        previouslySeen.set(observation.sourceRecordId, observation.snapshotId ?? '');
+      }
+      absences = detectAbsences({
+        sourceId: source.sourceId,
+        snapshotId: snapshot.snapshotId,
+        runId,
+        observedAt,
+        previouslySeen,
+        presentNow: presentKeys,
+      });
+      metrics.rowsMissingFromSnapshot = absences.length;
+      snapshot = {
+        ...snapshot,
+        acceptedCount: metrics.rowsValid,
+        quarantinedCount: metrics.rowsQuarantined,
+      };
+      if (absences.length > 0) {
+        runLogger.warn('run.snapshot_absences', {
+          snapshotId: snapshot.snapshotId,
+          missing: absences.length,
+          note: 'absent from the latest snapshot; NOT interpreted as removed from the world',
+        });
+      }
     }
 
     // ---- emit -------------------------------------------------------------
     stage = 'emit';
-    metrics.canonicalEvents = events.length;
-    metrics.contactObservations = contacts.length;
+    metrics.canonicalEvents = allEvents.length;
+    metrics.contactObservations = allContacts.length;
 
     // Digest over the canonical reading of the whole artifact, order-independent.
     // Same evidence plus same code must give the same value on every machine and
     // in every order, whether or not the derived store already held the records.
     const normalizedDigest = sha256(
-      allBundles.map((b) => sha256(canonicalJson(b))).sort().join('\n'),
+      allBundles.map((b) => sha256(canonicalJson(evidenceProjection(b)))).sort().join('\n'),
     );
 
     if (!dryRun) {
-      for (const c of contacts) contactPlane.record(c);
+      for (const c of allContacts) contactPlane.record(c);
       await fabricStore.putSourceObservations(runId, newObservations);
-      await fabricStore.putBundles(runId, bundles);
-      await fabricStore.putEvents(runId, events);
-      await fabricStore.putContacts(runId, contacts);
+      if (snapshot) await fabricStore.putSnapshot(snapshot);
+      if (absences.length > 0) await fabricStore.putAbsences(runId, absences);
+      await fabricStore.putBundles(runId, allBundles);
+      await fabricStore.putEvents(runId, allEvents);
+      await fabricStore.putContacts(runId, allContacts);
     }
     await recordInterpretation(
       artifactStore, artifact, connector, batch, allBundles.length, normalizedDigest, false, validationErrorCount, dryRun,
     );
 
+    // Property resolution is a PROJECTION recomputed from every identifier
+    // observation the store holds, not an incremental edit. That is what makes
+    // it order-independent: folding a set cannot depend on insertion order, so
+    // eCRV-then-assessor and assessor-then-eCRV land in the same place.
+    let resolutions: readonly PropertyResolution[] = [];
+    let conflicts: readonly PropertyConflict[] = [];
+    if (!dryRun) {
+      const projected = await projectPropertyResolutions(registry, fabricStore, runId, observedAt);
+      resolutions = projected.resolutions;
+      conflicts = projected.conflicts;
+      await fabricStore.putResolutions(resolutions);
+      await fabricStore.putConflicts(runId, conflicts);
+      runLogger.info('run.resolutions', {
+        properties: resolutions.length,
+        resolved: resolutions.filter((r) => r.state === 'resolved').length,
+        provisional: resolutions.filter((r) => r.state === 'provisional').length,
+        conflicts: conflicts.length,
+      });
+    }
+
     const result = await finish(metrics.rowsQuarantined > 0 && metrics.rowsEmitted === 0 ? 'quarantined' : 'completed', {
       runId,
       normalizedDigest,
     });
-    return { ...result, bundles, events, contacts };
+    return { ...result, bundles: allBundles, events: allEvents, contacts: allContacts, resolutions, conflicts };
   } catch (error) {
     const fabric = error instanceof FabricError ? error : null;
     logger.error('run.failed', {
@@ -372,6 +499,69 @@ export async function replayArtifact(
 }
 
 // ---------------------------------------------------------------------------
+
+/**
+ * Recomputes property resolution across every source in the store.
+ *
+ * Deliberately a full recomputation rather than an incremental update. The set
+ * of identifier observations is the only input, so the result cannot depend on
+ * which source arrived first — the property DF-0C exists to guarantee. It is
+ * cheap because it touches only identifier observations, and correctness here is
+ * worth far more than the arithmetic saved by an incremental path.
+ */
+export async function projectPropertyResolutions(
+  registry: Registry,
+  fabricStore: FabricStore,
+  runId: string,
+  detectedAt: string,
+): Promise<{ resolutions: readonly PropertyResolution[]; conflicts: readonly PropertyConflict[] }> {
+  const authority = parcelAuthorityFor(
+    registry.sources.filter((s) => s.authoritativeForParcelIdentity === true).map((s) => s.sourceId),
+  );
+
+  const bundles = await fabricStore.bundles();
+  const identifiers: PropertyIdentifierObservation[] = [];
+  const addressByObservation = new Map<string, string>();
+
+  for (const bundle of bundles) {
+    // Address evidence is attached per source record so a PID that two sources
+    // describe with different addresses can be flagged. It never resolves.
+    const addressForRecord = bundle.propertyIdentifiers
+      .find((o) => o.identifierType === 'normalized_address')?.normalizedValue;
+    for (const observation of bundle.propertyIdentifiers) {
+      identifiers.push(observation);
+      if (observation.identifierType === 'county_parcel' && addressForRecord) {
+        addressByObservation.set(observation.observationId, addressForRecord);
+      }
+    }
+  }
+
+  return {
+    resolutions: resolveAll(identifiers, authority),
+    conflicts: detectConflicts({ observations: identifiers, authority, runId, detectedAt, addressByObservation }),
+  };
+}
+
+/**
+ * The part of a canonical bundle that is a pure function of the evidence.
+ *
+ * A snapshot source also produces output that describes how this reading
+ * *differs from what we already knew*: the change kind on a parcel observation,
+ * and the PARCEL_ATTRIBUTES_CHANGED event. Those depend on the store's history,
+ * not on the bytes, so the same artifact legitimately produces different values
+ * for them on a first ingest and a re-ingest.
+ *
+ * They are therefore excluded from the digest. The digest answers "what do these
+ * bytes say?", which must be stable forever; the diff answers "what is new?",
+ * which must not be. Both are recorded — the diff lives on the parcel
+ * observations and in the run metrics, where a changing value is correct.
+ */
+const HISTORY_DEPENDENT_EVENTS: ReadonlySet<string> = new Set(['PARCEL_ATTRIBUTES_CHANGED']);
+
+export function evidenceProjection(bundle: CanonicalBundle): unknown {
+  const { parcelObservations: _diff, events, ...rest } = bundle;
+  return { ...rest, events: events.filter((e) => !HISTORY_DEPENDENT_EVENTS.has(e.eventType)) };
+}
 
 function evidenceRunId(
   sourceId: string,
