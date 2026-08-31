@@ -144,6 +144,16 @@ export async function runConnector(options: RunOptions): Promise<RunResult> {
       normalizedDigest: null,
       snapshotId: snapshot?.snapshotId ?? null,
       snapshotCompleteness: snapshot?.completeness ?? null,
+      sourceSchemaDigest: snapshot?.sourceSchemaDigest ?? null,
+      artifactByteLength: artifact?.byteLength ?? null,
+      sourceReportedCount: snapshot?.sourceReportedCount ?? null,
+      discoveredIdCount: null,
+      downloadedCount: snapshot?.retrievedCount ?? null,
+      duplicateCount: snapshot?.duplicateCount ?? 0,
+      sourceChangedDuringRead: false,
+      canonicalDigest: null,
+      batchConfiguration: { mode: 'buffered' },
+      streamed: false,
       ...extra,
     };
     logger.info('run.finished', {

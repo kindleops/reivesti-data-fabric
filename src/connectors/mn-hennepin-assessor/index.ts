@@ -14,7 +14,7 @@
 import { fail } from '../../core/errors.ts';
 import { contentDigest, sha256 } from '../../core/hash.ts';
 import type { SourceEvidence } from '../../canonical/models.ts';
-import { SNAPSHOT_CHANGE_KIND, fieldGroupDigests } from '../../canonical/snapshot.ts';
+import { SNAPSHOT_CHANGE_KIND } from '../../canonical/snapshot.ts';
 import {
   createArcGisSnapshotTransport,
   decodeSnapshotBundle,
@@ -24,6 +24,8 @@ import type {
   BatchValidation,
   ChangeContext,
   Connector,
+  StreamingConnector,
+  StreamingParseSession,
   ConnectorContext,
   DiscoveredRelease,
   NormalizeResult,
@@ -41,6 +43,9 @@ import {
 import { HENNEPIN_FIELD_MAP, hennepinOutFields } from './field-map.ts';
 import { HENNEPIN_COUNTY_FIPS, hennepinSourceRecordId, parseHennepinFeature } from './parse.ts';
 import { HENNEPIN_NORMALIZATION_VERSION, normalizeHennepinParcel } from './normalize.ts';
+import { openHennepinStream } from './stream.ts';
+import { fieldGroupsOf } from './groups.ts';
+import { createStreamingArcGisTransport } from '../../runtime/arcgis-stream.ts';
 
 export const HENNEPIN_CONNECTOR_VERSION = 'mn_hennepin_connector_1';
 export const HENNEPIN_PARSER_VERSION = 'mn_hennepin_parser_1';
@@ -58,24 +63,6 @@ export const HENNEPIN_LAYER_ID = 1;
 export const PINNED_FIELD_SET_DIGEST = sha256(
   HENNEPIN_FIELD_MAP.map((f) => `${f.field}:${f.sourceType}:${f.maxLength ?? ''}`).sort().join('\n'),
 );
-
-/** Which record fields belong to which change-reporting group. */
-const GROUPS = {
-  identity: (r: ReturnType<typeof parseHennepinFeature>['record']) => ({ pid: r.pid, status: r.propertyStatusCode }),
-  address: (r: ReturnType<typeof parseHennepinFeature>['record']) => r.situs,
-  owner: (r: ReturnType<typeof parseHennepinFeature>['record']) => ({ owner: r.ownerName, taxpayer: r.taxpayerNameLine }),
-  assessment: (r: ReturnType<typeof parseHennepinFeature>['record']) => ({
-    tiers: r.tiers, marketTotal: r.marketValueTotalMinor, taxableTotal: r.taxableValueTotalMinor,
-  }),
-  tax: (r: ReturnType<typeof parseHennepinFeature>['record']) => ({
-    total: r.attributes['tax_total'], net: r.attributes['total_net_tax'],
-    paid: r.attributes['net_tax_paid'], delinquent: r.attributes['earliest_delinquent_year'],
-  }),
-  characteristics: (r: ReturnType<typeof parseHennepinFeature>['record']) => ({
-    yearBuilt: r.yearBuilt, area: r.parcelAreaSqFt, legal: r.legalDescription,
-  }),
-  geography: (r: ReturnType<typeof parseHennepinFeature>['record']) => r.geography,
-} as const;
 
 const validations = new WeakMap<ParsedBatch, BatchValidation>();
 
@@ -98,6 +85,44 @@ export type HennepinConnectorOptions = {
   readonly transport?: Transport;
   readonly sourceId?: string;
 };
+
+/**
+ * The streaming Hennepin connector. Same adapter key, same versions, same
+ * normalisation — only acquisition and parsing differ, so a bundle produced by
+ * either path canonicalises identically.
+ */
+export function createStreamingHennepinConnector(
+  options: HennepinConnectorOptions & {
+    readonly fetchBatchSize?: number;
+    readonly maxConcurrentRequests?: number;
+  } = {},
+): StreamingConnector {
+  const base = createHennepinAssessorConnector(options);
+  const transport = options.transport ?? (options.live
+    ? createStreamingArcGisTransport({
+      serviceUrl: HENNEPIN_SERVICE_URL,
+      layerId: HENNEPIN_LAYER_ID,
+      outFields: hennepinOutFields(),
+      ...(options.live.maxFeatures !== undefined ? { maxFeatures: options.live.maxFeatures } : {}),
+      ...(options.fetchBatchSize !== undefined ? { pageSize: options.fetchBatchSize } : {}),
+      ...(options.maxConcurrentRequests !== undefined ? { maxConcurrentRequests: options.maxConcurrentRequests } : {}),
+      ...(options.live.fetchImpl !== undefined ? { fetchImpl: options.live.fetchImpl } : {}),
+      userAgent: 'Reivesti-DataFabric/0.1 (+https://github.com/kindleops/reivesti-data-fabric)',
+    })
+    : base.transport);
+
+  return {
+    ...base,
+    transport,
+    streaming: true,
+    async openStream(_ctx, lines): Promise<StreamingParseSession> {
+      return openHennepinStream(lines, {
+        pinnedFieldSetDigest: PINNED_FIELD_SET_DIGEST,
+        schemaVersion: HENNEPIN_SCHEMA_VERSION,
+      });
+    },
+  };
+}
 
 export function createHennepinAssessorConnector(options: HennepinConnectorOptions = {}): Connector {
   const sourceId = options.sourceId ?? HENNEPIN_ASSESSOR_SOURCE_ID;
@@ -178,10 +203,7 @@ export function createHennepinAssessorConnector(options: HennepinConnectorOption
         }
         seen.set(parsed.sourceRecordId, origin);
 
-        const groups = fieldGroupDigests(
-          Object.fromEntries(Object.entries(GROUPS).map(([name, pick]) => [name, pick(parsed.record)])),
-          contentDigest,
-        );
+        const groups = fieldGroupsOf(parsed.record);
 
         records.push({
           sourceRecordId: parsed.sourceRecordId,

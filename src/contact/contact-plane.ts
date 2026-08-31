@@ -69,20 +69,44 @@ export type ContactPlane = {
   record(observation: ContactObservation): void;
   /** Throws RESTRICTED for any principal outside the reader set. */
   read(principal: AccessPrincipal, filter?: { partyObservationId?: string }): readonly ContactObservation[];
-  /** Row count only. Safe for operational metrics; discloses no values. */
+  /** Exact row count, regardless of how many rows are retained for reading. */
   size(): number;
   /** Per-type counts. Also value-free, for run reports. */
   countsByType(): Readonly<Record<string, number>>;
 };
 
-export function createContactPlane(): ContactPlane {
+export type ContactPlaneOptions = {
+  /**
+   * Rows kept for inspection. Counts remain exact beyond it.
+   *
+   * A county-scale run produces one mailing-address observation per parcel, and
+   * retaining 448,000 of them in a Map is dataset-sized memory for no benefit:
+   * the durable record is the restricted partition on disk, and this plane is an
+   * access-controlled window onto recent activity. Unbounded by default so the
+   * buffered runtime behaves exactly as before.
+   */
+  readonly maxRetained?: number;
+};
+
+export function createContactPlane(options: ContactPlaneOptions = {}): ContactPlane {
+  const maxRetained = options.maxRetained ?? Number.POSITIVE_INFINITY;
   const rows = new Map<string, ContactObservation>();
+  const typeCounts: Record<string, number> = {};
+  const recordedIds = new Set<string>();
+  let recorded = 0;
 
   return {
     record(observation) {
       // Deterministic id: replaying the same evidence re-records the same row
       // rather than accumulating duplicates of somebody's phone number.
-      rows.set(observation.contactObservationId, observation);
+      if (!recordedIds.has(observation.contactObservationId)) {
+        recordedIds.add(observation.contactObservationId);
+        recorded += 1;
+        typeCounts[observation.contactType] = (typeCounts[observation.contactType] ?? 0) + 1;
+      }
+      if (rows.size < maxRetained || rows.has(observation.contactObservationId)) {
+        rows.set(observation.contactObservationId, observation);
+      }
     },
     read(principal, filter) {
       if (!READERS.has(principal)) {
@@ -93,12 +117,13 @@ export function createContactPlane(): ContactPlane {
       return all.filter((r) => r.partyObservationId === filter.partyObservationId);
     },
     size() {
-      return rows.size;
+      // Exact even when retention is capped: an operator asking "how many
+      // contact observations did that run produce?" must not get a truncated
+      // answer because of a memory setting.
+      return recorded;
     },
     countsByType() {
-      const out: Record<string, number> = {};
-      for (const r of rows.values()) out[r.contactType] = (out[r.contactType] ?? 0) + 1;
-      return out;
+      return { ...typeCounts };
     },
   };
 }

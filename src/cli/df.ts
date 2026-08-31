@@ -13,14 +13,17 @@
  *   df verify --artifact <sha256>     re-verify retained evidence against its manifest
  *   df runs                           run history
  */
-import { createArtifactStore, artifactDir, type ArchivedArtifact } from '../archive/artifact-store.ts';
-import { createFilesystemObjectStore } from '../archive/object-store.ts';
+import { createArtifactStore, createStreamingArtifactStore, artifactDir, type ArchivedArtifact } from '../archive/artifact-store.ts';
+import { createFilesystemObjectStore, createStreamingFilesystemObjectStore } from '../archive/object-store.ts';
 import { createContactPlane } from '../contact/contact-plane.ts';
 import { systemClock } from '../core/clock.ts';
 import { FabricError } from '../core/errors.ts';
 import { createLogger } from '../core/logging.ts';
 import { createMnEcrvConnector } from '../connectors/mn-ecrv/index.ts';
-import { createHennepinAssessorConnector } from '../connectors/mn-hennepin-assessor/index.ts';
+import {
+  createHennepinAssessorConnector,
+  createStreamingHennepinConnector,
+} from '../connectors/mn-hennepin-assessor/index.ts';
 import {
   HENNEPIN_ABSENT_FIELDS,
   HENNEPIN_FIELD_MAP,
@@ -31,6 +34,9 @@ import { defaultRegistry } from '../registry/sources.ts';
 import type { Connector } from '../runtime/connector.ts';
 import { createNdjsonFabricStore } from '../runtime/fabric-store.ts';
 import { runConnector, runReport } from '../runtime/run.ts';
+import { DEFAULT_BATCH_CONFIG, runStreamingConnector } from '../runtime/stream-run.ts';
+import { createGenerationStore } from '../runtime/staged-store.ts';
+import { createRateLimiter } from '../runtime/retry.ts';
 
 const VAR_ROOT = process.env['DF_VAR'] ?? 'var';
 const ARCHIVE_ROOT_DIR = process.env['DF_ARCHIVE'] ?? `${VAR_ROOT}/archive`;
@@ -224,6 +230,109 @@ async function main(): Promise<number> {
       return 0;
     }
 
+    case 'stream': {
+      // The bounded-memory path. Handles a full county; the buffered `run`
+      // command does not, and says so rather than dying at 400,000 rows.
+      const mappingId = positional[0];
+      if (!mappingId) {
+        process.stderr.write('usage: df stream <mappingId> [--file <p> | --live] --period <label> [--max N]\n');
+        return 2;
+      }
+      const mapping = registry.mapping(mappingId);
+      if (mapping.adapterKey !== 'mn_hennepin_assessor') {
+        process.stderr.write(`adapter "${mapping.adapterKey}" has no streaming implementation\n`);
+        return 2;
+      }
+
+      const period = typeof flags['period'] === 'string' ? (flags['period'] as string) : 'unspecified';
+      const file = typeof flags['file'] === 'string' ? (flags['file'] as string) : '';
+      const live = flags['live'] === true;
+      const max = typeof flags['max'] === 'string' ? Number(flags['max']) : undefined;
+      const rateMs = typeof flags['rate-ms'] === 'string' ? Number(flags['rate-ms']) : 400;
+      const batchSize = typeof flags['batch'] === 'string' ? Number(flags['batch']) : DEFAULT_BATCH_CONFIG.fetchBatchSize;
+      const concurrency = typeof flags['concurrency'] === 'string'
+        ? Number(flags['concurrency']) : DEFAULT_BATCH_CONFIG.maxConcurrentRequests;
+
+      if (!live && !file && flags['artifact'] === undefined) {
+        process.stderr.write('stream requires --file <path>, --live, or --artifact <sha256>\n');
+        return 2;
+      }
+
+      const objects = createStreamingFilesystemObjectStore(ARCHIVE_ROOT_DIR);
+      const artifactStore = createStreamingArtifactStore(objects);
+      const contactPlane = createContactPlane({ maxRetained: 1000 });
+
+      let replay: ArchivedArtifact | undefined;
+      if (typeof flags['artifact'] === 'string') {
+        const sha = flags['artifact'] as string;
+        if (!/^[0-9a-f]{64}$/.test(sha)) {
+          process.stderr.write('--artifact expects a sha256\n');
+          return 2;
+        }
+        replay = await locateArtifact(createArtifactStore(objects), mapping.sourceId, period, sha);
+      }
+
+      const result = await runStreamingConnector({
+        registry,
+        connector: createStreamingHennepinConnector({
+          ...(live ? { live: { referencePeriod: period, ...(max !== undefined ? { maxFeatures: max } : {}) } } : {}),
+          fetchBatchSize: batchSize,
+          maxConcurrentRequests: concurrency,
+        }),
+        mappingId,
+        artifactStore,
+        contactPlane,
+        varRoot: VAR_ROOT,
+        clock: systemClock,
+        logger: createLogger(),
+        dryRun: flags['dry-run'] === true,
+        referencePeriod: period,
+        resume: flags['resume'] === true,
+        ...(file ? { localFile: file } : {}),
+        ...(replay ? { replayArtifact: replay } : {}),
+        rateLimiter: createRateLimiter(rateMs),
+        batch: { fetchBatchSize: batchSize, maxConcurrentRequests: concurrency },
+      });
+
+      out({
+        report: runReport(result.run),
+        reconciliation: {
+          sourceReportedCount: result.run.sourceReportedCount,
+          downloadedCount: result.run.downloadedCount,
+          parsed: result.run.metrics.rowsParsed,
+          accepted: result.run.metrics.rowsValid,
+          quarantined: result.run.metrics.rowsQuarantined,
+          duplicates: result.run.duplicateCount,
+          missingFromSnapshot: result.run.metrics.rowsMissingFromSnapshot,
+          completeness: result.run.snapshotCompleteness,
+          sourceChangedDuringRead: result.run.sourceChangedDuringRead,
+        },
+        canonical: {
+          resolved: result.run.metrics.rowsResolved,
+          conflicts: result.run.metrics.rowsConflicted,
+          canonicalDigest: result.run.canonicalDigest,
+        },
+        timings: result.timings,
+        peakHeapMB: Math.round(result.peakHeapBytes / 1048576),
+        batchConfiguration: result.run.batchConfiguration,
+      });
+      return result.run.status === 'completed' ? 0 : 1;
+    }
+
+    case 'checkpoints': {
+      const { createCheckpointStore } = await import('../runtime/checkpoint.ts');
+      out(await createCheckpointStore(VAR_ROOT).list());
+      return 0;
+    }
+
+    case 'sweep': {
+      // Reclaims generation directories a crashed run left behind. Never touches
+      // the generation a CURRENT pointer names.
+      const removed = await createGenerationStore(VAR_ROOT).sweepAbandoned();
+      out({ abandonedGenerationsRemoved: removed });
+      return 0;
+    }
+
     case 'runs': {
       const fabricStore = createNdjsonFabricStore(VAR_ROOT);
       out((await fabricStore.runs()).map(runReport));
@@ -274,6 +383,13 @@ async function main(): Promise<number> {
           '  df conflicts                                      open cross-source conflicts',
           '  df run <mappingId> --file <p> --period <label>    ingest a local extract',
           '  df run <mappingId> --live --period <l> [--max N]  ingest from a sanctioned API source',
+          '',
+          '  df stream <mappingId> --live --period <l>          bounded-memory ingest (full county)',
+          '    [--max N] [--batch 2000] [--concurrency 2] [--rate-ms 400] [--dry-run] [--resume]',
+          '  df stream <mappingId> --file <p> --period <l>      bounded-memory ingest of a local bundle',
+          '  df stream <mappingId> --artifact <sha256> --period <l>   replay, no network',
+          '  df sweep                                          reclaim abandoned run generations',
+          '  df checkpoints                                    completed acquisitions available to --resume',
           '  df replay <mappingId> --artifact <sha256> --period <label>',
           '  df verify --artifact <sha256> [--source <id>] [--period <label>]',
           '  df runs                                           run history',

@@ -22,6 +22,7 @@ test('migrations exist and are ordered', () => {
     '0001_data_fabric_core.sql',
     '0002_data_fabric_restricted_contact.sql',
     '0003_data_fabric_snapshot_and_resolution.sql',
+    '0004_data_fabric_streaming_runs.sql',
   ]);
 });
 
@@ -75,6 +76,7 @@ test('every table the runtime writes has a home in the schema', () => {
     'data_fabric.assessment_observations',
     'data_fabric.property_characteristic_observations',
     'data_fabric.property_resolutions',
+    'data_fabric.parcel_snapshot_absences',
     'data_fabric.property_conflicts',
   ];
   for (const table of expected) {

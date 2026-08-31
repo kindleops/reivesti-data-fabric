@@ -304,15 +304,30 @@ No skip tracing, no enrichment, no outbound anything.
 4. **Geometry is not retrieved** (`returnGeometry=false`). `LAT`/`LON` give a
    representative point. Geometry belongs in geospatial storage, and pulling
    polygons would multiply artifact size for no DF-0C consumer.
-5. **Full-county ingestion is not proven.** The largest live run was 5,000
-   parcels. At 448k the artifact would be roughly 1.1 GB and the current
-   in-memory pipeline would not fit — streaming is required first. See the
-   performance section of the phase report.
+5. ~~**Full-county ingestion is not proven.**~~ **Closed in DF-0D.** The whole
+   county now ingests through the streaming runtime in bounded memory. See
+   `STREAMING-INGESTION.md`.
 6. **Sale-code semantics unmapped** (`DERIVE_LATER`).
 7. **Reissue behaviour unknown**: whether the county ever republishes a month's
    compilation is untested.
 
 ---
+
+## 10a. Full-county ingestion (DF-0D)
+
+```bash
+df stream hennepin_assessor__hennepin --live --period 2026-09 \
+  --batch 2000 --concurrency 2 --rate-ms 400
+```
+
+A full crawl is roughly 225 requests at `maxRecordCount` 2,000 and produces a
+~1.1 GB artifact. The rate limiter is engaged by default; there is no reason to
+make those requests fast.
+
+The run is only reported `complete` when the source's own count reconciles with
+what was retrieved **and** that count did not move during the crawl. A layer that
+changed underneath a long read is quarantined rather than presented as a
+consistent snapshot.
 
 ## 11. Activating full ingestion
 
@@ -324,9 +339,9 @@ Live access needs no approval — the gate is operational, not legal.
    ```
    Confirm `completeness: complete`, `unknownFields: []`, no drift.
 2. Replay the retained artifact and confirm the `normalizedDigest` matches.
-3. **Before removing `--max`**, implement streaming ingestion. A 448k-parcel
-   snapshot at ~2.5 KB/parcel is ~1.1 GB; the pipeline currently holds the whole
-   batch in memory.
+3. Use `df stream`, not `df run`. The buffered command holds the whole batch in
+   memory and will not survive a county; the streaming command completes
+   448,087 parcels inside a 512 MB heap.
 4. Keep the rate limiter engaged. A full crawl is ~225 requests at
    `maxRecordCount` 2,000; there is no reason to make them fast.
 5. Snapshot monthly, matching the county's compilation cadence. Two snapshots in

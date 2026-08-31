@@ -40,6 +40,10 @@ test('a successful run reports the full lifecycle and a complete metric set', as
     canonicalEvents: 9,
     // eCRV is a feed, not a snapshot, so absence detection does not apply.
     rowsMissingFromSnapshot: 0,
+    // The buffered runtime projects resolutions but does not report them in
+    // metrics; the streaming runtime does. Both are asserted in their own suites.
+    rowsResolved: 0,
+    rowsConflicted: 0,
   });
   // Everything an operator needs to judge the run, with no UI.
   for (const field of ['runId', 'artifactSha256', 'schemaVersion', 'schemaDigest', 'normalizedDigest'] as const) {

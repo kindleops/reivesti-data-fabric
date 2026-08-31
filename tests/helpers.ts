@@ -8,7 +8,14 @@ import { createContactPlane, type ContactPlane } from '../src/contact/contact-pl
 import { fixedClock } from '../src/core/clock.ts';
 import { captureLogger } from '../src/core/logging.ts';
 import { createMnEcrvConnector, type EcrvConnectorOptions } from '../src/connectors/mn-ecrv/index.ts';
-import { createHennepinAssessorConnector } from '../src/connectors/mn-hennepin-assessor/index.ts';
+import {
+  createHennepinAssessorConnector,
+  createStreamingHennepinConnector,
+} from '../src/connectors/mn-hennepin-assessor/index.ts';
+import { createStreamingArtifactStore, type StreamingArtifactStore } from '../src/archive/artifact-store.ts';
+import { createStreamingFilesystemObjectStore } from '../src/archive/object-store.ts';
+import { runStreamingConnector, type StreamRunOptions, type StreamRunResult } from '../src/runtime/stream-run.ts';
+import { createGenerationStore, type GenerationStore } from '../src/runtime/staged-store.ts';
 import { defaultRegistry } from '../src/registry/sources.ts';
 import { createMemoryFabricStore, type FabricStore } from '../src/runtime/fabric-store.ts';
 import { runConnector, type RunOptions, type RunResult } from '../src/runtime/run.ts';
@@ -36,6 +43,67 @@ export function fixtureXml(name: string): string {
 
 export function tempRoot(prefix = 'df-test-'): string {
   return mkdtempSync(join(tmpdir(), prefix));
+}
+
+/** A complete streaming estate: archive, generation store and var root. */
+export type StreamHarness = {
+  readonly root: string;
+  readonly varRoot: string;
+  readonly artifactStore: StreamingArtifactStore;
+  readonly contactPlane: ContactPlane;
+  readonly store: GenerationStore;
+  run(file: string, overrides?: Partial<StreamRunOptions> & { period?: string }): Promise<StreamRunResult>;
+  /** Every canonical bundle currently activated, across all runs. */
+  bundles(): Promise<unknown[]>;
+  rows(table: 'bundles' | 'events' | 'absences' | 'contacts'): Promise<unknown[]>;
+  resolutions(): Promise<unknown[]>;
+};
+
+export function streamHarness(options: { root?: string; contactPlane?: ContactPlane } = {}): StreamHarness {
+  const root = options.root ?? tempRoot('df-stream-');
+  const varRoot = join(root, 'var');
+  const artifactStore = createStreamingArtifactStore(createStreamingFilesystemObjectStore(join(root, 'archive')));
+  const contactPlane = options.contactPlane ?? createContactPlane();
+  const store = createGenerationStore(varRoot);
+
+  const readAll = async (table: 'bundles' | 'events' | 'absences' | 'contacts'): Promise<unknown[]> => {
+    const out: unknown[] = [];
+    for await (const line of store.readTable(table)) out.push(JSON.parse(line));
+    return out;
+  };
+
+  return {
+    root,
+    varRoot,
+    artifactStore,
+    contactPlane,
+    store,
+    async run(file, overrides = {}) {
+      const period = overrides.period ?? '2026-08';
+      const { period: _ignored, ...rest } = overrides;
+      return runStreamingConnector({
+        registry: defaultRegistry(),
+        connector: createStreamingHennepinConnector(),
+        mappingId: HENNEPIN_MAPPING_ID,
+        artifactStore,
+        contactPlane,
+        varRoot,
+        clock: fixedClock(RUN_INSTANT),
+        logger: captureLogger().logger,
+        referencePeriod: period,
+        localFile: file,
+        ...rest,
+      });
+    },
+    bundles: () => readAll('bundles'),
+    rows: readAll,
+    async resolutions() {
+      const { readFile } = await import('node:fs/promises');
+      const path = join(varRoot, 'derived', 'resolutions', 'mn_hennepin_county_parcels.ndjson');
+      const text = await readFile(path, 'utf8').catch(() => '');
+      return text.split('\n').filter(Boolean).map((l) => JSON.parse(l));
+    },
+  };
 }
 
 export type Harness = {

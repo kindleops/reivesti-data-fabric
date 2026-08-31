@@ -7,7 +7,7 @@ web application — that application is a **consumer** of what this produces.
 
 **Phase:** DF-0A (national source runtime) + DF-0B (Minnesota eCRV) + DF-0C
 (real PostgreSQL migration proof, Hennepin County assessor, cross-source
-property resolution).
+property resolution) + DF-0D (bounded-memory streaming, full-county proof).
 
 ---
 
@@ -29,6 +29,10 @@ node src/cli/df.ts run mn_ecrv__all_mn_counties \
 # A snapshot source. --live reaches the county's public API; --max bounds it.
 node src/cli/df.ts run hennepin_assessor__hennepin \
   --file fixtures/hennepin/snapshot-2026-08.ndjson --period 2026-08
+
+# The bounded-memory path. Handles a whole county; `run` does not.
+node src/cli/df.ts stream hennepin_assessor__hennepin \
+  --file fixtures/hennepin/v2-2026-08.ndjson --period 2026-08
 
 node src/cli/df.ts resolutions   # canonical property resolution state
 node src/cli/df.ts conflicts     # cross-source disagreements, flagged not guessed
@@ -64,7 +68,7 @@ db/migrations/  data_fabric + data_fabric_restricted — DRAFTS, NOT APPLIED to
                 any Reivesti database; executed for real against a disposable one
 docs/           architecture, source registry, MN eCRV, DB topology, decisions
 fixtures/       the pinned eCRV XSD and synthetic test documents
-tests/          235 tests, including a real-PostgreSQL migration gate
+tests/          297 tests, including a real-PostgreSQL migration gate
 ```
 
 ---
@@ -76,6 +80,7 @@ tests/          235 tests, including a real-PostgreSQL migration gate
 | [DATA-FABRIC-ARCHITECTURE.md](docs/DATA-FABRIC-ARCHITECTURE.md) | System architecture, connector lifecycle, immutability, replay, drift, the contact plane, expansion |
 | [SOURCE-REGISTRY.md](docs/SOURCE-REGISTRY.md) | Jurisdiction/source modelling, how one statewide connector covers 87 counties, activation lifecycle |
 | [MN-ECRV.md](docs/MN-ECRV.md) | Authority, access, cadence, schema, field coverage, county-added limitations, live-activation steps |
+| [STREAMING-INGESTION.md](docs/STREAMING-INGESTION.md) | Bounded-memory design, what was actually wrong, measurements, checkpoint/resume, operational dials |
 | [HENNEPIN-ASSESSOR.md](docs/HENNEPIN-ASSESSOR.md) | Authority, ArcGIS access, 122-field coverage, snapshot semantics, crawl strategy, eCRV convergence, ownership limits |
 | [REIVESTI-DB-TOPOLOGY.md](docs/REIVESTI-DB-TOPOLOGY.md) | What the application owns, what the Fabric owns, why no second Supabase project |
 | [DESIGN-DECISIONS.md](docs/DESIGN-DECISIONS.md) | EXISTING / REUSE / EXTEND / NEW / REJECTED |
@@ -91,7 +96,8 @@ tests/          235 tests, including a real-PostgreSQL migration gate
 | DF-0C real PostgreSQL migration proof | complete — PostgreSQL 17.10, 25 assertions |
 | DF-0C Hennepin assessor connector | complete, **live access permitted**, proven on 5,000 real parcels |
 | eCRV live extract retrieval | not available — request access from ecrv.support@state.mn.us |
-| Hennepin full-county ingestion | not enabled — needs streaming first (~1.1 GB / 448k parcels) |
+| DF-0D streaming runtime | complete — 448,087 parcels in a 512 MB heap |
+| Hennepin full-county ingestion | proven: 448,087 parcels, reconciled, 221 MB peak; not scheduled |
 | Production DDL | **not applied**, and not ready to be |
 | Scheduled ingestion | not activated |
 
@@ -113,3 +119,6 @@ fixtures, and will run unchanged against the live feed. See
 - Property resolution is a fold over evidence, so it cannot depend on the order
   sources were ingested in.
 - An assessor roll never produces a sale, a transfer, or an ownership acquisition.
+- Batch sizes are throughput dials that never change results.
+- A crash cannot activate a partial estate: canonical rows are activated by one
+  atomic pointer swap.

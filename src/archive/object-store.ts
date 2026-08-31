@@ -8,8 +8,9 @@
  * overwrite. That single rule is what stops `latest.xml` from becoming history.
  */
 import { createHash } from 'node:crypto';
-import { constants } from 'node:fs';
-import { access, chmod, mkdir, readFile, readdir, rename, stat, writeFile } from 'node:fs/promises';
+import { constants, createReadStream, createWriteStream } from 'node:fs';
+import { access, chmod, mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+import { once } from 'node:events';
 import { dirname, join, relative, sep } from 'node:path';
 import { fail } from '../core/errors.ts';
 
@@ -128,4 +129,141 @@ async function readIfPresent(path: string): Promise<Buffer | null> {
     if ((e as NodeJS.ErrnoException).code === 'ENOENT') return null;
     throw e;
   }
+}
+
+// ---------------------------------------------------------------------------
+// Streaming: for objects too large to hold in memory
+// ---------------------------------------------------------------------------
+
+/** A backpressure-aware byte sink. Awaiting `write` is what bounds memory. */
+export type ByteSink = {
+  write(chunk: string | Uint8Array): Promise<void>;
+};
+
+/**
+ * Bytes written to a staging location, digested on the way past.
+ *
+ * A content-addressed key cannot be known until the last byte has been seen, so
+ * a large artifact is staged first and promoted afterwards. An interrupted
+ * download leaves a staging file and never a valid artifact.
+ */
+export type StagedObject = {
+  readonly sha256: string;
+  readonly byteLength: number;
+  /** Moves the staged bytes to `key`. Identical existing content is a no-op. */
+  promote(key: string): Promise<PutResult>;
+  discard(): Promise<void>;
+};
+
+export type StreamingObjectStore = ObjectStore & {
+  /** Writes through `produce` to a staging file, hashing incrementally. */
+  stage(produce: (sink: ByteSink) => Promise<void>): Promise<StagedObject>;
+  /** Re-reads an object and returns its digest without materialising it. */
+  digestOf(key: string): Promise<{ sha256: string; byteLength: number }>;
+  /** Absolute path of an object, for streaming line readers. */
+  pathOf(key: string): string;
+};
+
+export function createStreamingFilesystemObjectStore(root: string): StreamingObjectStore {
+  const base = createFilesystemObjectStore(root);
+
+  const pathFor = (key: string): string => {
+    assertValidKey(key);
+    return join(root, ...key.split('/'));
+  };
+
+  return {
+    ...base,
+    pathOf: pathFor,
+
+    async stage(produce) {
+      const stagingDir = join(root, '.staging');
+      await mkdir(stagingDir, { recursive: true });
+      const path = join(stagingDir, `stage-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+
+      const hash = createHash('sha256');
+      let byteLength = 0;
+      const stream = createWriteStream(path, { mode: 0o600, highWaterMark: 1 << 20 });
+
+      const sink: ByteSink = {
+        async write(chunk) {
+          const bytes = typeof chunk === 'string' ? Buffer.from(chunk, 'utf8') : Buffer.from(chunk);
+          hash.update(bytes);
+          byteLength += bytes.byteLength;
+          // Backpressure: without this the producer can queue the whole county
+          // in the stream's internal buffer and the streaming is only notional.
+          if (!stream.write(bytes)) await once(stream, 'drain');
+        },
+      };
+
+      let failed = false;
+      try {
+        await produce(sink);
+      } catch (error) {
+        failed = true;
+        throw error;
+      } finally {
+        stream.end();
+        await once(stream, 'finish').catch(() => {});
+        if (failed) await rm(path, { force: true });
+      }
+
+      const sha256 = hash.digest('hex');
+      let settled = false;
+
+      return {
+        sha256,
+        byteLength,
+        async promote(key) {
+          if (settled) fail('CONFIG', 'staged object has already been promoted or discarded');
+          settled = true;
+          const destination = pathFor(key);
+
+          const existing = await stat(destination).catch(() => null);
+          if (existing) {
+            // Content addressing means a same-key collision is a same-content
+            // collision, but it is verified rather than assumed.
+            const retained = await digestFile(destination);
+            await rm(path, { force: true });
+            if (retained.sha256 !== sha256) {
+              fail('IMMUTABILITY', `refusing to overwrite retained object "${key}"`, {
+                key, retainedSha256: retained.sha256, incomingSha256: sha256,
+              });
+            }
+            return { created: false, sha256, byteLength };
+          }
+
+          await mkdir(dirname(destination), { recursive: true });
+          await rename(path, destination);
+          await chmod(destination, 0o444).catch(() => {});
+          return { created: true, sha256, byteLength };
+        },
+        async discard() {
+          if (settled) return;
+          settled = true;
+          await rm(path, { force: true });
+        },
+      };
+    },
+
+    async digestOf(key) {
+      const path = pathFor(key);
+      const info = await stat(path).catch(() => null);
+      if (!info) fail('TRANSPORT', `object "${key}" is not present in ${root}`, { key });
+      return digestFile(path);
+    },
+  };
+}
+
+/** Streams a file through sha256 without holding it. */
+async function digestFile(path: string): Promise<{ sha256: string; byteLength: number }> {
+  const hash = createHash('sha256');
+  let byteLength = 0;
+  const stream = createReadStream(path, { highWaterMark: 1 << 20 });
+  for await (const chunk of stream) {
+    const bytes = chunk as Buffer;
+    hash.update(bytes);
+    byteLength += bytes.byteLength;
+  }
+  return { sha256: hash.digest('hex'), byteLength };
 }

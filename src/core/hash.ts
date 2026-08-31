@@ -65,3 +65,60 @@ export function deterministicId(
   }).join('|');
   return `${namespace}_${sha256(`${namespace}|${joined}`).slice(0, 32)}`;
 }
+
+/**
+ * Order-independent digest of a *set* of items, computed incrementally.
+ *
+ * DF-0C digested a run by collecting every per-record digest into an array,
+ * sorting it and hashing the join. That needs the whole dataset in memory, which
+ * is exactly what streaming exists to avoid.
+ *
+ * This accumulates instead: each item's sha256 is treated as a big-endian
+ * 256-bit integer and added modulo 2^256. Addition is commutative, so ingestion
+ * order cannot change the result, and unlike XOR it does not cancel duplicates —
+ * two identical records digest differently from one. Memory is 32 bytes
+ * regardless of how many items pass through.
+ *
+ * This is a set/multiset checksum for change detection, not a collision-
+ * resistant commitment: an adversary who chooses inputs can construct a
+ * collision, which is not a threat model that applies to a county parcel file.
+ */
+export class MultisetDigest {
+  private readonly acc = new Uint8Array(32);
+  private count = 0;
+
+  /** Adds one item, digesting it first. */
+  add(value: string | Uint8Array): this {
+    return this.addDigest(createHash('sha256').update(value).digest());
+  }
+
+  /** Adds an item whose sha256 has already been computed (hex or bytes). */
+  addDigest(digest: string | Uint8Array): this {
+    const bytes = typeof digest === 'string' ? hexToBytes(digest) : digest;
+    if (bytes.length !== 32) throw new TypeError(`expected a 32-byte digest, got ${bytes.length}`);
+    let carry = 0;
+    for (let i = 31; i >= 0; i--) {
+      const sum = (this.acc[i] as number) + (bytes[i] as number) + carry;
+      this.acc[i] = sum & 0xff;
+      carry = sum >>> 8;
+    }
+    this.count += 1;
+    return this;
+  }
+
+  get size(): number {
+    return this.count;
+  }
+
+  /** The accumulated digest, hex encoded. Empty sets digest to all zeroes. */
+  value(): string {
+    return Buffer.from(this.acc).toString('hex');
+  }
+}
+
+function hexToBytes(hex: string): Uint8Array {
+  if (hex.length !== 64 || !/^[0-9a-f]+$/.test(hex)) throw new TypeError(`not a sha256 hex digest: ${hex}`);
+  const out = new Uint8Array(32);
+  for (let i = 0; i < 32; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  return out;
+}

@@ -7,6 +7,7 @@ has been applied to production.**
 |---|---|
 | `0001_data_fabric_core.sql` | schema `data_fabric` — registry, release/run/artifact/observation provenance, canonical property / party / transaction / financing / instrument / distress, canonical events |
 | `0002_data_fabric_restricted_contact.sql` | schema `data_fabric_restricted` — the contact plane; forced RLS and explicit denials across both schemas |
+| `0004_data_fabric_streaming_runs.sql` | streaming run manifest (reconciliation counts, canonical digest, batch configuration), snapshot absences keyed by hash, resolution lookup indexes |
 | `0003_data_fabric_snapshot_and_resolution.sql` | snapshot sources, time-aware assessment and characteristic observations, authoritative property resolution and conflicts; re-applies the security posture to the new tables |
 
 ## Before applying
@@ -50,3 +51,7 @@ evidence, and the repeatability gate does not need one.
 - A property's resolution cannot claim `resolved` without naming the
   authoritative source that justifies it.
 - An artifact cannot be marked mutable.
+- A run cannot be recorded `completed` while `source_changed_during_read` is
+  true: "complete" is the claim everything downstream trusts.
+- Absence has exactly one spelling, `parcel_missing_from_latest_source`. There is
+  deliberately no `deleted` state to write.

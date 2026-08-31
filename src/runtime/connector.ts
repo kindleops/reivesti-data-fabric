@@ -188,6 +188,8 @@ export type RunMetrics = {
   canonicalEvents: number;
   /** Snapshot sources only: keys earlier snapshots had that this one does not. */
   rowsMissingFromSnapshot: number;
+  rowsResolved: number;
+  rowsConflicted: number;
 };
 
 export function emptyMetrics(): RunMetrics {
@@ -203,6 +205,8 @@ export function emptyMetrics(): RunMetrics {
     contactObservations: 0,
     canonicalEvents: 0,
     rowsMissingFromSnapshot: 0,
+    rowsResolved: 0,
+    rowsConflicted: 0,
   };
 }
 
@@ -236,4 +240,72 @@ export type SourceRun = {
   readonly snapshotId: string | null;
   /** complete / partial / unverifiable, from count reconciliation. */
   readonly snapshotCompleteness: string | null;
+  /** Digest over the source's own field/schema metadata at capture time. */
+  readonly sourceSchemaDigest: string | null;
+  readonly artifactByteLength: number | null;
+  readonly sourceReportedCount: number | null;
+  readonly discoveredIdCount: number | null;
+  readonly downloadedCount: number | null;
+  readonly duplicateCount: number;
+  /** True when the source's own count moved while we were reading it. */
+  readonly sourceChangedDuringRead: boolean;
+  /** Digest over canonical property resolutions produced by this run. */
+  readonly canonicalDigest: string | null;
+  readonly batchConfiguration: Readonly<Record<string, number | string | null>>;
+  readonly streamed: boolean;
 };
+
+// ---------------------------------------------------------------------------
+// Streaming connectors
+// ---------------------------------------------------------------------------
+
+import type { ValidationIssue as StreamValidationIssue } from '../schema/xsd.ts';
+
+/** One record read from a streamed artifact, with its own validation verdict. */
+export type StreamedRecord = {
+  readonly parsed: ParsedRecord;
+  readonly issues: readonly StreamValidationIssue[];
+};
+
+/**
+ * Facts a streamed parse can only report once the last line has been read:
+ * how many rows there actually were, and whether the crawl reconciled.
+ */
+export type StreamSummary = {
+  readonly driftReasons: readonly string[];
+  readonly unknownFields: readonly string[];
+  readonly missingFields: readonly string[];
+  readonly snapshot?: {
+    readonly sourceReportedCount: number | null;
+    readonly retrievedCount: number;
+    readonly duplicateCount: number;
+    readonly sourceSchemaDigest: string | null;
+    readonly sourceChangedDuringRead: boolean;
+  };
+};
+
+/**
+ * A parse in progress over a line stream.
+ *
+ * The header is read eagerly by `openStream`, so schema drift is detectable
+ * before a single record is normalised — there is no point streaming 448,000
+ * rows through a parser that is about to be told the schema moved.
+ */
+export type StreamingParseSession = {
+  readonly schemaVersion: string;
+  readonly schemaDigest: string;
+  /** Non-empty means: quarantine now, do not read records. */
+  readonly earlyDriftReasons: readonly string[];
+  records(): AsyncGenerator<StreamedRecord>;
+  /** Valid only after `records()` is exhausted. */
+  finish(): StreamSummary;
+};
+
+export type StreamingConnector = Connector & {
+  readonly streaming: true;
+  openStream(ctx: ConnectorContext, lines: AsyncIterable<string>): Promise<StreamingParseSession>;
+};
+
+export function isStreamingConnector(connector: Connector): connector is StreamingConnector {
+  return (connector as StreamingConnector).streaming === true;
+}

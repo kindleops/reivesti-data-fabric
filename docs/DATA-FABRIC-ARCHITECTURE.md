@@ -138,6 +138,26 @@ quarantine anything; adding, removing, retyping or re-enumerating anything does.
 
 ---
 
+## 5-pre. Two runtimes, one contract
+
+There are two orchestrators behind the same `Connector` contract:
+
+| | buffered (`run.ts`) | streaming (`stream-run.ts`) |
+|---|---|---|
+| Holds | the whole artifact and its canonical output | a bounded window |
+| Suits | filings, small extracts, fixtures | county-scale snapshots |
+| Diff | in-memory revision ledger | fixed-width binary key index |
+| Resolution | fold over the loaded estate | external sort and merge |
+| Activation | partition replace per table | generation directory plus atomic `CURRENT` swap |
+
+They produce the same canonical ids, the same resolutions and the same evidence
+digests; the streaming path simply never holds the dataset. A connector opts in
+by implementing `openStream`. See `STREAMING-INGESTION.md` for the design, the
+measurements and the operational dials.
+
+The rule the whole thing exists to keep: **the Fabric must never require
+`source_dataset_size <= process_memory`.**
+
 ## 5a. Snapshot sources
 
 eCRV is an append-only feed of filings. A county assessor roll is the opposite
@@ -242,6 +262,20 @@ Raw artifacts carry the same data and are labelled `carriesRestrictedContact` in
 their manifest, so storage policy can act on it.
 
 ---
+
+## 7a. Digesting without holding the dataset
+
+The buffered runtime digests a run by collecting per-record digests, sorting and
+hashing the join — which needs the whole dataset in memory.
+
+The streaming runtime accumulates instead: each record's sha256 is treated as a
+256-bit big-endian integer and added modulo 2^256. Addition is commutative, so
+order cannot change the result, and unlike XOR it does not cancel duplicates.
+Memory is 32 bytes regardless of row count.
+
+It is a multiset checksum for change detection rather than a collision-resistant
+commitment, which is the right tool for "did this file change?" and the wrong one
+for an adversarial setting. No source in the Fabric is adversarial.
 
 ## 8a. What the replay digest covers
 

@@ -57,6 +57,7 @@ if (!server) {
         '0001_data_fabric_core.sql',
         '0002_data_fabric_restricted_contact.sql',
         '0003_data_fabric_snapshot_and_resolution.sql',
+        '0004_data_fabric_streaming_runs.sql',
       ]);
     });
 
@@ -79,6 +80,7 @@ if (!server) {
         'data_fabric.distress_events',
         'data_fabric.financing_events',
         'data_fabric.jurisdictions',
+        'data_fabric.parcel_snapshot_absences',
         'data_fabric.parcel_snapshot_observations',
         'data_fabric.parties',
         'data_fabric.party_aliases',
@@ -112,7 +114,7 @@ if (!server) {
         where ns.nspname in ('data_fabric','data_fabric_restricted')
         group by 1`);
       const byType = Object.fromEntries(r.rows.map((x) => [x.contype, x.n]));
-      assert.ok(byType['p'] >= 26, `expected a primary key per table, got ${byType['p']}`);
+      assert.ok(byType['p'] >= 27, `expected a primary key per table, got ${byType['p']}`);
       assert.ok(byType['f'] >= 30, `expected foreign keys, got ${byType['f']}`);
       assert.ok(byType['u'] >= 6, `expected unique constraints, got ${byType['u']}`);
       assert.ok(byType['c'] >= 30, `expected check constraints, got ${byType['c']}`);
@@ -152,6 +154,8 @@ if (!server) {
         'co_party_obs_idx',
         'pso_snapshot_idx',
         'ao_property_idx',
+        'psa_snapshot_idx',
+        'pr_parcel_idx',
       ]) {
         assert.ok(names.has(expected), `missing index ${expected}`);
       }
@@ -234,7 +238,7 @@ if (!server) {
         select n.nspname || '.' || c.relname as t, c.relrowsecurity, c.relforcerowsecurity
         from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname in ('data_fabric','data_fabric_restricted') and c.relkind = 'r'`);
-      assert.equal(r.rows.length, 26);
+      assert.equal(r.rows.length, 27);
       const bad = r.rows.filter((x) => !x.relrowsecurity || !x.relforcerowsecurity);
       assert.deepEqual(bad.map((x) => x.t), [], 'tables missing enabled+forced RLS');
     });
@@ -243,11 +247,11 @@ if (!server) {
       const r = await db.query(`
         select tablename, policyname, permissive, roles::text
         from pg_policies where schemaname in ('data_fabric','data_fabric_restricted')`);
-      assert.equal(r.rows.length, 26 * APP_ROLES.length);
+      assert.equal(r.rows.length, 27 * APP_ROLES.length);
       assert.ok(r.rows.every((x) => x.permissive === 'RESTRICTIVE'), 'policies must be RESTRICTIVE');
       for (const role of APP_ROLES) {
         const forRole = r.rows.filter((x) => x.roles.includes(role));
-        assert.equal(forRole.length, 26, `expected a deny policy per table for ${role}`);
+        assert.equal(forRole.length, 27, `expected a deny policy per table for ${role}`);
       }
     });
 
@@ -314,6 +318,57 @@ if (!server) {
       const pol = await db.query(`
         select distinct roles::text from pg_policies where schemaname = 'data_fabric'`);
       assert.deepEqual(pol.rows.map((x) => x.roles).sort(), ['{anon}', '{authenticated}']);
+    });
+
+
+    test('the run manifest columns DF-0D added exist and are typed', async () => {
+      const r = await db.query(`
+        select column_name, data_type, is_nullable
+        from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'source_runs'
+          and column_name in (
+            'artifact_byte_length','source_reported_count','source_reported_count_at_end',
+            'source_changed_during_read','discovered_id_count','downloaded_count','duplicate_count',
+            'canonical_digest','source_schema_digest','batch_configuration','streamed',
+            'rows_missing_from_snapshot','rows_resolved','rows_conflicted','peak_heap_bytes')
+        order by column_name`);
+      assert.equal(r.rows.length, 15, 'every DF-0D manifest column should exist');
+      const byName = Object.fromEntries(r.rows.map((x) => [x.column_name, x]));
+      assert.equal(byName['batch_configuration'].data_type, 'jsonb');
+      assert.equal(byName['streamed'].data_type, 'boolean');
+      assert.equal(byName['source_changed_during_read'].is_nullable, 'NO');
+    });
+
+    test('a completed run cannot claim success while the source moved under it', async () => {
+      await seedMinimal(db);
+      // The honest-reconciliation constraint: "complete" is the claim everything
+      // downstream trusts, so the database refuses to record it alongside
+      // evidence that the snapshot was never consistent.
+      await assert.rejects(
+        () => db.query(`
+          insert into data_fabric.source_runs
+            (run_id, source_id, mapping_id, adapter_key, connector_version, parser_version,
+             normalization_version, schema_version, started_at, status, stage, source_changed_during_read)
+          values ('run_drifted','src_test','map_test','test','c','p','n','s', now(), 'completed','emit', true)`),
+        /source_runs_reconciliation_honest/,
+      );
+      // The same run recorded as quarantined is accepted.
+      await db.query(`
+        insert into data_fabric.source_runs
+          (run_id, source_id, mapping_id, adapter_key, connector_version, parser_version,
+           normalization_version, schema_version, started_at, status, stage, source_changed_during_read)
+        values ('run_drifted','src_test','map_test','test','c','p','n','s', now(), 'quarantined','emit', true)`);
+    });
+
+    test('absence is recorded by key hash and cannot be spelled as a deletion', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.parcel_snapshot_absences'::regclass and contype = 'c'`);
+      const definitions = r.rows.map((x) => x.def).join(' ');
+      assert.match(definitions, /parcel_missing_from_latest_source/);
+      // There is deliberately no 'deleted' or 'removed' state to write.
+      assert.ok(!/deleted|removed/i.test(definitions));
+      assert.match(definitions, /\^\[0-9a-f\]\{1,16\}\$/);
     });
 
     // --- repeatability --------------------------------------------------------

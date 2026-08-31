@@ -239,3 +239,113 @@ function decode<T>(bytes: Uint8Array): T {
 }
 
 export { contentDigest };
+
+// ---------------------------------------------------------------------------
+// Streaming archival
+// ---------------------------------------------------------------------------
+
+import type { ByteSink, StreamingObjectStore } from './object-store.ts';
+import { readLines } from '../core/lines.ts';
+
+export type StreamingArchiveInput = Omit<ArchiveInput, 'bytes'>;
+
+export type StreamingArtifactStore = ArtifactStore & {
+  /**
+   * Archives bytes produced incrementally.
+   *
+   * The content-addressed key is unknowable until the last byte, so the stream
+   * is staged and digested first, then promoted into its digest-named home.
+   * A failure anywhere leaves the staging file and no artifact at all: a
+   * half-downloaded county can never be mistaken for a complete one.
+   */
+  archiveStream(
+    input: StreamingArchiveInput,
+    produce: (sink: ByteSink) => Promise<void>,
+  ): Promise<ArchivedArtifact>;
+
+  /** Re-reads the artifact and confirms its digest. Holds nothing. */
+  verify(artifact: Pick<ArchivedArtifact, 'storagePath' | 'sha256'>): Promise<void>;
+
+  /**
+   * Yields the artifact's lines, verifying the digest FIRST.
+   *
+   * Verification is a separate pass on purpose. Hashing while yielding would
+   * only detect corruption after a consumer had already acted on the corrupt
+   * rows, which is worse than useless for a provenance system.
+   */
+  readLinesVerified(
+    artifact: Pick<ArchivedArtifact, 'storagePath' | 'sha256'>,
+  ): AsyncGenerator<string>;
+};
+
+export function createStreamingArtifactStore(store: StreamingObjectStore): StreamingArtifactStore {
+  const base = createArtifactStore(store);
+
+  const verify = async (artifact: Pick<ArchivedArtifact, 'storagePath' | 'sha256'>): Promise<void> => {
+    const actual = await store.digestOf(artifact.storagePath);
+    if (actual.sha256 !== artifact.sha256) {
+      fail('REPLAY', 'retained artifact failed digest verification on read', {
+        storagePath: artifact.storagePath, expected: artifact.sha256, actual: actual.sha256,
+      });
+    }
+  };
+
+  return {
+    ...base,
+    verify,
+
+    async archiveStream(input, produce) {
+      const staged = await store.stage(produce);
+      const dir = artifactDir(input.sourceId, input.referencePeriod, staged.sha256);
+      const objectKey = `${dir}/source-original${extensionOf(input.originalFilename)}`;
+      const manifestKey = `${dir}/manifest.json`;
+
+      const put = await staged.promote(objectKey);
+
+      const manifest: RetrievalManifest = {
+        manifestVersion: 1,
+        sourceAuthority: input.sourceAuthority,
+        sourceProgram: input.sourceProgram,
+        sourceFamily: input.sourceFamily,
+        sourceId: input.sourceId,
+        releaseId: input.releaseId,
+        referencePeriod: input.referencePeriod,
+        originalUrl: input.originalUrl,
+        originalFilename: input.originalFilename,
+        retrievedAt: input.retrievedAt,
+        effectiveAt: input.effectiveAt,
+        byteLength: staged.byteLength,
+        sha256: staged.sha256,
+        jurisdictionIds: [...input.jurisdictionIds].sort(),
+        access: input.access,
+      };
+
+      // As in the buffered path, a second retrieval of identical bytes keeps the
+      // first manifest: the original retrieval time is the historical fact.
+      const manifestExists = await store.exists(manifestKey);
+      if (!manifestExists) await store.put(manifestKey, encodeManifest(manifest));
+      const retained = manifestExists
+        ? (JSON.parse(new TextDecoder().decode(await store.get(manifestKey))) as RetrievalManifest)
+        : manifest;
+
+      return {
+        artifactId: `artifact_${staged.sha256}`,
+        sha256: staged.sha256,
+        byteLength: staged.byteLength,
+        storagePath: objectKey,
+        manifestPath: manifestKey,
+        created: put.created,
+        manifest: retained,
+      };
+    },
+
+    async *readLinesVerified(artifact) {
+      await verify(artifact);
+      yield* readLines(store.pathOf(artifact.storagePath));
+    },
+  };
+}
+
+function encodeManifest(value: unknown): Uint8Array {
+  return new TextEncoder().encode(`${canonicalJson(value)}\n`);
+}
