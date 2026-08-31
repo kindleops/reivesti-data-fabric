@@ -1,0 +1,9 @@
+node_modules/
+var/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+# Raw source artifacts are never committed: they live in the object store.
+artifacts/
