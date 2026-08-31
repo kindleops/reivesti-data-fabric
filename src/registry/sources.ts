@@ -13,6 +13,8 @@ import type { SourceDefinition, SourceJurisdictionMapping } from './types.ts';
 
 export const MN_ECRV_SOURCE_ID = 'mn_dor_ecrv_weekly_sales_extract';
 export const MN_ECRV_ADAPTER_KEY = 'mn_ecrv';
+export const HENNEPIN_ASSESSOR_SOURCE_ID = 'mn_hennepin_county_parcels';
+export const HENNEPIN_ADAPTER_KEY = 'mn_hennepin_assessor';
 
 export const SOURCES: readonly SourceDefinition[] = [
   {
@@ -44,23 +46,36 @@ export const SOURCES: readonly SourceDefinition[] = [
       + 'granted by request to ecrv.support@state.mn.us.',
   },
   {
-    sourceId: 'mn_hennepin_assessor',
+    sourceId: HENNEPIN_ASSESSOR_SOURCE_ID,
     sourceAuthority: 'Hennepin County, Minnesota',
-    sourceProgram: 'Assessor / Property Information',
+    sourceProgram: 'Hennepin County GIS - County Parcels (LAND_PROPERTY)',
     sourceFamily: 'county_assessor',
-    sourceName: 'Hennepin County assessor and parcel data',
-    sourceHomepage: 'https://www.hennepin.us/residents/property',
-    accessType: 'bulk_download',
-    automationStatus: 'unknown',
-    termsStatus: 'not_reviewed',
-    licenseStatus: 'unknown',
-    costModel: 'unknown',
+    sourceName: 'Hennepin County Parcels',
+    sourceHomepage: 'https://gis-hennepin.hub.arcgis.com/datasets/county-parcels',
+    accessType: 'api',
+    // A public ArcGIS REST service the county publishes as open data: no
+    // credentials, no licence, and query is the interface it exists to offer.
+    automationStatus: 'sanctioned',
+    termsStatus: 'reviewed_permitted',
+    licenseStatus: 'public_domain',
+    costModel: 'free',
+    // The service publishes only the current compilation; no archive of prior
+    // months is offered, so depth begins when Reivesti starts snapshotting.
     historicalDepth: null,
-    expectedRefreshFrequency: 'unknown',
-    sourcePriority: 2,
-    active: false,
-    carriesRestrictedContact: false,
-    notes: 'DF-0C. Snapshot-shaped source: full-state-of-the-world per release. Not implemented.',
+    expectedRefreshFrequency: 'monthly',
+    // Authoritative for parcel identity in Hennepin, so it outranks the
+    // state-level preliminary PID for that one purpose.
+    sourcePriority: 1,
+    active: true,
+    // OWNER_NM, TAXPAYER_NM and the taxpayer mailing block are personal data.
+    carriesRestrictedContact: true,
+    authoritativeForParcelIdentity: true,
+    notes:
+      'ArcGIS MapServer layer 1, 122 fields, ~448k parcel features, EPSG:26915, maxRecordCount 2000. '
+      + 'Compiled monthly by Hennepin County GIS from Survey Division geometry and Real Estate Services '
+      + 'tax attributes. Licence: furnished AS IS, no warranty, not for legal/engineering/surveying use. '
+      + 'Contains no assessment-year column: values are current-as-of-snapshot. Contains no interior '
+      + 'structure characteristics (bedrooms, living area, stories).',
   },
   {
     sourceId: 'mn_hennepin_recorded_instruments',
@@ -141,14 +156,23 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
   },
   {
     mappingId: 'hennepin_assessor__hennepin',
-    sourceId: 'mn_hennepin_assessor',
+    sourceId: HENNEPIN_ASSESSOR_SOURCE_ID,
     scope: { kind: 'counties', countyFips: ['27053'] },
+    // Only what the layer actually carries. Deliberately absent: `deed`,
+    // `mortgage` and `foreclosure_notice` — the county runs other systems that
+    // hold those, and this feed is not them.
     capabilities: ['parcel', 'assessor', 'ownership', 'tax'],
     coverageStart: null,
     coverageEnd: null,
-    status: 'planned',
-    adapterKey: 'hennepin_assessor',
-    config: {},
+    status: 'active',
+    adapterKey: HENNEPIN_ADAPTER_KEY,
+    config: {
+      serviceUrl: 'https://gis.hennepin.us/arcgis/rest/services/HennepinData/LAND_PROPERTY/MapServer',
+      layerId: 1,
+      maxRecordCount: 2000,
+      spatialReferenceWkid: 26915,
+      metadataVerifiedAt: '2026-08-31',
+    },
   },
   {
     mappingId: 'hennepin_recorder__hennepin',

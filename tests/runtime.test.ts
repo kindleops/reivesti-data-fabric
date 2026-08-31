@@ -38,6 +38,8 @@ test('a successful run reports the full lifecycle and a complete metric set', as
     // 2 phones, 2 emails and 1 submitter comment across the three filings.
     contactObservations: 5,
     canonicalEvents: 9,
+    // eCRV is a feed, not a snapshot, so absence detection does not apply.
+    rowsMissingFromSnapshot: 0,
   });
   // Everything an operator needs to judge the run, with no UI.
   for (const field of ['runId', 'artifactSha256', 'schemaVersion', 'schemaDigest', 'normalizedDigest'] as const) {
@@ -124,8 +126,8 @@ test('a changed file with the same name produces a second artifact, keeping the 
 test('a mapping that is only planned refuses to run', async () => {
   const result = await runConnector({
     registry: defaultRegistry(),
-    connector: { ...createMnEcrvConnector(), adapterKey: 'hennepin_assessor' },
-    mappingId: 'hennepin_assessor__hennepin',
+    connector: { ...createMnEcrvConnector(), adapterKey: 'hennepin_recorder' },
+    mappingId: 'hennepin_recorder__hennepin',
     artifactStore: createArtifactStore(createFilesystemObjectStore(tempRoot())),
     fabricStore: createMemoryFabricStore(),
     contactPlane: createContactPlane(),
@@ -257,10 +259,17 @@ test('the NDJSON store replaces a run partition rather than appending duplicates
   await harness({ root: h.root, fabricStore: store }).run(['fixtures/mn-ecrv/weekly-extract-sample.zip']);
   const second = await store.bundles();
 
-  // The second run saw every record as unchanged, so it wrote an empty
-  // partition for its own run id, which is the same id. Nothing accumulated.
+  // A run's partition holds the complete canonical reading of its artifact, so
+  // re-ingesting identical bytes rewrites an identical partition: nothing
+  // accumulates, and — importantly — nothing is deleted either. Persisting only
+  // the delta would have emptied this partition, because the second run found
+  // every record unchanged.
   assert.equal(first.length, 3);
-  assert.equal(second.length, 0);
+  assert.equal(second.length, 3);
+  assert.deepEqual(
+    second.map((b) => b.transaction.transactionId).sort(),
+    first.map((b) => b.transaction.transactionId).sort(),
+  );
   assert.equal((await store.runs()).length, 1);
 });
 

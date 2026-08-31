@@ -7,14 +7,16 @@ has been applied to production.**
 |---|---|
 | `0001_data_fabric_core.sql` | schema `data_fabric` — registry, release/run/artifact/observation provenance, canonical property / party / transaction / financing / instrument / distress, canonical events |
 | `0002_data_fabric_restricted_contact.sql` | schema `data_fabric_restricted` — the contact plane; forced RLS and explicit denials across both schemas |
+| `0003_data_fabric_snapshot_and_resolution.sql` | snapshot sources, time-aware assessment and characteristic observations, authoritative property resolution and conflicts; re-applies the security posture to the new tables |
 
 ## Before applying
 
-1. Apply against a throwaway database first. This has not been possible in the
-   development environment used for DF-0B (no Docker, no `psql`), so the
-   migrations are currently verified **structurally only** — see
-   `tests/migrations.test.ts`, which asserts what the schema says, not that it
-   runs.
+1. Apply against a throwaway database first. `npm run test:pg` does exactly
+   this: it boots a disposable PostgreSQL 17 cluster in a temp directory,
+   applies every migration, verifies objects, constraints, RLS, privileges and
+   real row behaviour, checks that a second fresh application yields an
+   identical schema signature, then deletes the cluster. As of DF-0C the
+   migrations are verified **by execution**, not only structurally.
 2. Confirm `data_fabric` and `data_fabric_restricted` do not exist in the target.
    The Reivesti application occupies `public` exclusively; see
    `docs/REIVESTI-DB-TOPOLOGY.md`.
@@ -22,6 +24,13 @@ has been applied to production.**
    creation for roles that are absent rather than failing.
 4. Create the private object-storage bucket for raw artifacts separately. Raw eCRV
    bytes contain personal contact data; the bucket must not be public.
+
+## No down migrations
+
+There are none, and that is deliberate rather than an oversight. Reset is by
+dropping the database, which is what the disposable-cluster harness does. A
+down migration for a provenance schema would be a tool for destroying retained
+evidence, and the repeatability gate does not need one.
 
 ## Invariants the schema enforces
 
@@ -36,4 +45,8 @@ has been applied to production.**
   `raw_record_hash` and `observed_at`.
 - Currency is `bigint` minor units. No column anywhere uses `real`,
   `double precision`, `float` or `money`.
-- RLS is enabled **and forced** on every table in both schemas.
+- RLS is enabled **and forced** on every table in both schemas, re-applied by
+  every migration that adds a table.
+- A property's resolution cannot claim `resolved` without naming the
+  authoritative source that justifies it.
+- An artifact cannot be marked mutable.

@@ -4,13 +4,25 @@
   "private": true,
   "type": "module",
   "description": "Reivesti Data Fabric — authoritative ingestion, provenance, canonicalization and resolution runtime for public-record real-estate data. Headless: CLI, workers, database, object storage. No UI, no runtime dependency on the Reivesti web application.",
-  "engines": { "node": ">=22.18.0" },
-  "bin": { "df": "./src/cli/df.ts" },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "bin": {
+    "df": "./src/cli/df.ts"
+  },
   "scripts": {
     "test": "node --test --test-concurrency=1 tests/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "check": "npm run typecheck && npm test",
-    "df": "node src/cli/df.ts"
+    "check": "npm run typecheck && npm test && npm run test:pg",
+    "df": "node src/cli/df.ts",
+    "test:pg": "node --test --test-concurrency=1 tests/migration-execution.test.ts"
   },
-  "devDependencies": { "typescript": "^5.7.2" }
+  "devDependencies": {
+    "@types/pg": "^8.23.1",
+    "pg": "^8.23.0",
+    "typescript": "^5.7.2"
+  },
+  "optionalDependencies": {
+    "embedded-postgres": "17.10.0-beta.17"
+  }
 }

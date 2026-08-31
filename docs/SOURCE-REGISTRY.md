@@ -46,6 +46,7 @@ terms. The fields that gate behaviour rather than merely describing it:
 | `termsStatus` / `licenseStatus` | Recorded on every artifact manifest so a downstream consumer can see the terms the bytes arrived under. |
 | `sourcePriority` | 1 = highest. Ordering hint for later resolution when sources disagree. |
 | `sourceFamily` | The reusable shape. Sources in one family often share an adapter across jurisdictions. |
+| `authoritativeForParcelIdentity` | True when the office that *assigns* parcel numbers publishes this feed. Promotes a property from provisional to resolved. Field-specific: it says nothing about who is authoritative for a sale price. |
 
 "Public record" is never treated as "automatable". These are different facts and
 the registry keeps them separate.
@@ -119,6 +120,13 @@ planned ──▶ fixture_only ──▶ blocked_on_access ──▶ active ─�
 | `active` | Live retrieval permitted and proven | Runs on schedule |
 | `retired` | Stopped | **Refuses to run** |
 
+**Hennepin County Parcels is `active`.** It is a public ArcGIS REST service with
+no credentials and no licence, so `automationStatus` is `sanctioned` and the
+runtime will reach the publisher. Capabilities are only what the layer actually
+carries — `parcel`, `assessor`, `ownership`, `tax`. Deliberately *not* declared:
+`deed`, `mortgage` and `foreclosure_notice`. The county runs other systems that
+hold those, and this feed is not them.
+
 **MN eCRV is `blocked_on_access`.** The adapter is complete and everything after
 retrieval runs today. Moving it to `active` requires exactly two changes, both
 recorded in `MN-ECRV.md`: extract access granted by the department, and
@@ -132,10 +140,11 @@ reviewed.
 | Source | Scope | Capabilities | Status | Phase |
 |---|---|---|---|---|
 | MN DOR eCRV Weekly Sales Extract | all MN counties (87) | transfer, deed, mortgage, parcel, contact_enrichment | `blocked_on_access` | DF-0B ✅ |
-| Hennepin County assessor | 27053 | parcel, assessor, ownership, tax | `planned` | DF-0C |
+| Hennepin County Parcels | 27053 | parcel, assessor, ownership, tax | **`active`** | DF-0C ✅ |
 | Hennepin County recorded instruments | 27053 | deed, mortgage, mortgage_release, lien | `planned` | DF-0D |
 | MN Secretary of State entities | MN (state) | business_entity | `planned` | DF-0E |
 | Dallas County foreclosure notices | 48113 | foreclosure_notice | `planned`, jurisdiction not catalogued | DF-0F |
 
-Only `mn_ecrv` has an adapter. The rest exist so the registry shape is exercised
-against the real variety of upcoming sources before an adapter locks the design in.
+`mn_ecrv` and `mn_hennepin_assessor` have adapters. The rest exist so the
+registry shape is exercised against the real variety of upcoming sources before
+an adapter locks the design in, and the runtime refuses to run any of them.

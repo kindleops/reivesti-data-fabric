@@ -20,6 +20,12 @@ import { systemClock } from '../core/clock.ts';
 import { FabricError } from '../core/errors.ts';
 import { createLogger } from '../core/logging.ts';
 import { createMnEcrvConnector } from '../connectors/mn-ecrv/index.ts';
+import { createHennepinAssessorConnector } from '../connectors/mn-hennepin-assessor/index.ts';
+import {
+  HENNEPIN_ABSENT_FIELDS,
+  HENNEPIN_FIELD_MAP,
+  hennepinDispositionCounts,
+} from '../connectors/mn-hennepin-assessor/field-map.ts';
 import { ECRV_COUNTY_ONLY_FIELDS, ECRV_FIELD_MAP, dispositionCounts } from '../connectors/mn-ecrv/field-map.ts';
 import { defaultRegistry } from '../registry/sources.ts';
 import type { Connector } from '../runtime/connector.ts';
@@ -53,9 +59,26 @@ function out(value: unknown): void {
   process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
 }
 
+type AdapterOptions = {
+  readonly file: string;
+  readonly period: string;
+  readonly live: boolean;
+  readonly maxFeatures: number | undefined;
+};
+
 /** Adapters the CLI can run. A mapping naming anything else cannot be run. */
-const ADAPTERS: Readonly<Record<string, (file: string, period: string) => Connector>> = {
-  mn_ecrv: (file, period) => createMnEcrvConnector({ localReleases: [{ path: file, referencePeriod: period }] }),
+const ADAPTERS: Readonly<Record<string, (o: AdapterOptions) => Connector>> = {
+  mn_ecrv: (o) => createMnEcrvConnector({ localReleases: [{ path: o.file, referencePeriod: o.period }] }),
+  mn_hennepin_assessor: (o) => createHennepinAssessorConnector(
+    o.live
+      ? {
+        live: {
+          referencePeriod: o.period,
+          ...(o.maxFeatures !== undefined ? { maxFeatures: o.maxFeatures } : {}),
+        },
+      }
+      : { localReleases: [{ path: o.file, referencePeriod: o.period }] },
+  ),
 };
 
 async function main(): Promise<number> {
@@ -94,6 +117,17 @@ async function main(): Promise<number> {
     }
 
     case 'fields': {
+      if (flags['source'] === 'hennepin') {
+        out({
+          source: 'mn_hennepin_county_parcels',
+          layer: 'Hennepin County Parcels (LAND_PROPERTY/1)',
+          publishedFields: HENNEPIN_FIELD_MAP.length,
+          dispositions: hennepinDispositionCounts(),
+          fields: HENNEPIN_FIELD_MAP,
+          notInThisSource: HENNEPIN_ABSENT_FIELDS,
+        });
+        return 0;
+      }
       out({
         schema: 'sales_extract_schema_3',
         leafElements: ECRV_FIELD_MAP.length,
@@ -124,7 +158,13 @@ async function main(): Promise<number> {
       const fabricStore = createNdjsonFabricStore(VAR_ROOT);
       const contactPlane = createContactPlane();
       const logger = createLogger();
-      const connector = build(file, period);
+      const live = flags['live'] === true;
+      const maxRaw = typeof flags['max'] === 'string' ? Number(flags['max']) : undefined;
+      if (maxRaw !== undefined && (!Number.isInteger(maxRaw) || maxRaw < 1)) {
+        process.stderr.write('--max must be a positive integer\n');
+        return 2;
+      }
+      const connector = build({ file, period, live, maxFeatures: maxRaw });
 
       let replay: ArchivedArtifact | undefined;
       if (command === 'replay') {
@@ -134,8 +174,8 @@ async function main(): Promise<number> {
           return 2;
         }
         replay = await locateArtifact(artifactStore, mapping.sourceId, period, sha);
-      } else if (!file) {
-        process.stderr.write('run requires --file <path>\n');
+      } else if (!file && !live) {
+        process.stderr.write('run requires --file <path>, or --live for a sanctioned API source\n');
         return 2;
       }
 
@@ -156,6 +196,14 @@ async function main(): Promise<number> {
         changeCounts: result.changeCounts,
         // Counts only. Contact values never leave the restricted plane.
         restrictedContactObservations: result.contacts.length,
+        propertyResolutions: {
+          total: result.resolutions.length,
+          resolved: result.resolutions.filter((r) => r.state === 'resolved').length,
+          provisional: result.resolutions.filter((r) => r.state === 'provisional').length,
+        },
+        conflicts: result.conflicts.map((c) => ({
+          kind: c.conflictKind, severity: c.severity, parcel: c.normalizedParcel,
+        })),
       });
       return result.run.status === 'completed' ? 0 : 1;
     }
@@ -182,6 +230,38 @@ async function main(): Promise<number> {
       return 0;
     }
 
+    case 'resolutions': {
+      const fabricStore = createNdjsonFabricStore(VAR_ROOT);
+      const rows = await fabricStore.resolutions();
+      out({
+        total: rows.length,
+        byState: rows.reduce<Record<string, number>>((acc, r) => {
+          acc[r.state] = (acc[r.state] ?? 0) + 1;
+          return acc;
+        }, {}),
+        properties: rows.map((r) => ({
+          propertyId: r.propertyId,
+          parcel: `${r.countyFips}:${r.normalizedParcel}`,
+          state: r.state,
+          authority: r.authoritativeSourceId,
+          sources: r.contributingSourceIds,
+        })),
+      });
+      return 0;
+    }
+
+    case 'conflicts': {
+      const fabricStore = createNdjsonFabricStore(VAR_ROOT);
+      const rows = await fabricStore.conflicts();
+      out(rows.filter((c) => c.status !== 'dismissed').map((c) => ({
+        kind: c.conflictKind,
+        severity: c.severity,
+        parcel: c.normalizedParcel,
+        detail: c.detail,
+      })));
+      return 0;
+    }
+
     default: {
       process.stdout.write(
         [
@@ -189,8 +269,11 @@ async function main(): Promise<number> {
           '',
           '  df sources                                        registered sources and coverage',
           '  df jurisdictions [--state MN]                     catalogued jurisdictions',
-          '  df fields                                         eCRV field inventory and dispositions',
+          '  df fields [--source hennepin]                     field inventory and dispositions',
+          '  df resolutions                                    canonical property resolution state',
+          '  df conflicts                                      open cross-source conflicts',
           '  df run <mappingId> --file <p> --period <label>    ingest a local extract',
+          '  df run <mappingId> --live --period <l> [--max N]  ingest from a sanctioned API source',
           '  df replay <mappingId> --artifact <sha256> --period <label>',
           '  df verify --artifact <sha256> [--source <id>] [--period <label>]',
           '  df runs                                           run history',

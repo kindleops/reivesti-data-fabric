@@ -7,3 +7,9 @@ var/
 !.env.example
 # Raw source artifacts are never committed: they live in the object store.
 artifacts/
+
+# Disposable PostgreSQL clusters created by the migration-execution gate.
+pg-sandbox/
+# Downloaded source snapshots. Live county data is never committed.
+snapshots/
+*.ndjson.live

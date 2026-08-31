@@ -120,6 +120,15 @@ export type SourceDefinition = {
   readonly active: boolean;
   /** True when the payload can contain personal contact data or protected identity. */
   readonly carriesRestrictedContact: boolean;
+  /**
+   * True when this source's parcel identifiers are the county-assigned, verified
+   * ones — i.e. the office that issues the number publishes this feed.
+   *
+   * Authority is field- and semantic-specific, never a blanket "county beats
+   * state". A county assessor is authoritative for parcel identity and NOT for
+   * an accepted transfer price; Minnesota eCRV is authoritative for the latter.
+   */
+  readonly authoritativeForParcelIdentity?: boolean;
   readonly notes: string;
 };
 
