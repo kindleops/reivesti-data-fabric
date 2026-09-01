@@ -9,6 +9,7 @@
  * runtime refuses to run a mapping whose adapter is not registered.
  */
 import { createRegistry, type Registry } from './registry.ts';
+import { MN_STATEWIDE_PARTICIPATING_COUNTIES } from '../connectors/mn-statewide-parcels/participation.ts';
 import type { SourceDefinition, SourceJurisdictionMapping } from './types.ts';
 
 export const MN_ECRV_SOURCE_ID = 'mn_dor_ecrv_weekly_sales_extract';
@@ -19,6 +20,8 @@ export const HENNEPIN_RECORDER_SOURCE_ID = 'mn_hennepin_recorded_instruments';
 export const HENNEPIN_RECORDER_ADAPTER_KEY = 'mn_hennepin_recorder';
 export const MN_SOS_SOURCE_ID = 'mn_sos_business_entities';
 export const MN_SOS_ADAPTER_KEY = 'mn_sos_business';
+export const MN_STATEWIDE_SOURCE_ID = 'mn_statewide_parcels';
+export const MN_STATEWIDE_ADAPTER_KEY = 'mn_statewide_parcels';
 
 export const SOURCES: readonly SourceDefinition[] = [
   {
@@ -222,6 +225,47 @@ export const SOURCES: readonly SourceDefinition[] = [
       + 'and presenting the records as the office\'s Official record. Updates require a separate agreement.',
   },
   {
+    sourceId: MN_STATEWIDE_SOURCE_ID,
+    sourceAuthority: 'Minnesota Geospatial Information Office (MnGeo)',
+    sourceProgram: 'Minnesota Geospatial Commons — statewide parcel aggregation',
+    sourceFamily: 'state_parcel_aggregation',
+    sourceName: 'Parcels, Compiled from Opt-In Open Data Counties, Minnesota',
+    sourceHomepage: 'https://gis.data.mn.gov/maps/69148d3959194a05a23964cc60f6517b',
+    accessType: 'bulk_download',
+    // Open data on the state's own portal: no account, no credentials, no fee.
+    // Both a public FeatureServer and a bulk GeoPackage are published.
+    automationStatus: 'sanctioned',
+    termsStatus: 'reviewed_permitted',
+    licenseStatus: 'open_with_attribution',
+    costModel: 'free',
+    costClass: 'FREE_OPEN_DATA',
+    role: 'CORE_CANONICAL_SOURCE',
+    accessRequest: {
+      state: 'NOT_REQUIRED', contact: null, basis: null, requestedAt: null,
+      lastUpdatedAt: '2026-08-31', quotedFeeUsd: null, notes: null,
+    },
+    // Each aggregation run republishes the current rolls. No archive of prior
+    // runs is offered, so depth begins when Reivesti starts snapshotting.
+    historicalDepth: null,
+    expectedRefreshFrequency: 'monthly',
+    // The county rolls themselves, republished under a state standard. For the
+    // 59 participating counties this is authoritative parcel identity — the
+    // aggregation does not re-key parcels.
+    sourcePriority: 1,
+    active: true,
+    // owner_name, tax_name and four lines each of owner and taxpayer mailing.
+    carriesRestrictedContact: true,
+    authoritativeForParcelIdentity: true,
+    notes:
+      'ArcGIS FeatureServer layer 1 plus a bulk GeoPackage distribution; 94 attribute fields standardised to '
+      + 'the MnGAC Parcel Data Standard v1.1.3. 2,710,201 parcels across 59 of Minnesota\'s 87 counties as of '
+      + 'the 2026-08-06 aggregation run; participation is per county and is published in layer 0, which also '
+      + 'carries each county\'s acquisition date (range 2024-05-20 to 2026-08-06 — freshness varies by over two '
+      + 'years). Carries sale_date and sale_value, which are the ASSESSOR\'S echo of a last sale: present on a '
+      + 'minority of parcels, including zero-consideration transfers, latest-only, with dates reaching the year '
+      + '3009. NOT eCRV-grade transfer economics. Geometry is available and deliberately not ingested.',
+  },
+  {
     sourceId: 'tx_dallas_foreclosure_notices',
     sourceAuthority: 'Dallas County, Texas',
     sourceProgram: 'County Clerk foreclosure notice postings',
@@ -323,6 +367,28 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
       licensedDelivery: true,
       purchaseUrl: 'https://mblsportal.sos.state.mn.us/',
       implementationGuideVersion: 'mbls-business-bulk-data-implementation-guide/2026-08-31',
+      termsVerifiedAt: '2026-08-31',
+    },
+  },
+  {
+    // ONE mapping, 59 counties. Not 59 source definitions: coverage is a
+    // relationship, and duplicating the source per county would be 59 lies
+    // about how many sources exist.
+    mappingId: 'mn_statewide_parcels__opt_in_counties',
+    sourceId: MN_STATEWIDE_SOURCE_ID,
+    scope: { kind: 'counties', countyFips: [...MN_STATEWIDE_PARTICIPATING_COUNTIES] },
+    capabilities: ['parcel', 'assessor', 'ownership', 'tax'],
+    coverageStart: null,
+    coverageEnd: null,
+    status: 'active',
+    adapterKey: MN_STATEWIDE_ADAPTER_KEY,
+    config: {
+      serviceUrl: 'https://enterprise.gisdata.mn.gov/aghost/rest/services/us_mn_state_mngeo/plan_parcels_open/FeatureServer',
+      layerId: 1,
+      metadataLayerId: 0,
+      bulkUrl: 'https://operations.gis.data.mn.gov/api/publicdownload/download/511/plan_parcels_open.gpkg',
+      schemaStandard: 'MnGAC Parcel Data Standard v1.1.3',
+      aggregationRunDate: '2026-08-06',
       termsVerifiedAt: '2026-08-31',
     },
   },

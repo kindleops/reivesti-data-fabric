@@ -11,7 +11,8 @@ property resolution) + DF-0D (bounded-memory streaming, full-county proof) +
 DF-0E (recorded instruments, instrument graph, ownership foundation) + DF-0F
 (Minnesota Secretary of State business register, organization identity) + DF-0G
 (zero-cost doctrine, national jurisdiction registry, projection partitioning,
-source discovery).
+source discovery) + DF-0H (Minnesota statewide parcels: 59 counties, 2.71M
+parcels, field-level source authority).
 
 ---
 
@@ -71,6 +72,7 @@ src/
     mn-hennepin-assessor/   the same five files for the first snapshot source
     mn-hennepin-recorder/   taxonomy, record, parse, normalise, streaming connector
     mn-sos-business/        domain vocabularies, heterogeneous CSV, licensed delivery
+    mn-statewide-parcels/   59 counties from one source; bulk GeoPackage + ArcGIS
   cli/          df
 db/migrations/  data_fabric + data_fabric_restricted — DRAFTS, NOT APPLIED to
                 any Reivesti database; executed for real against a disposable one
@@ -87,6 +89,7 @@ tests/          520 tests plus 47 real-PostgreSQL migration assertions
 
 | Document | Covers |
 |---|---|
+| [MN-STATEWIDE-PARCELS.md](docs/MN-STATEWIDE-PARCELS.md) | The 59-county source: acquisition trade-off, field map, sale-echo semantics, Hennepin overlap and field authority |
 | [ZERO-COST-DATA-DOCTRINE.md](docs/ZERO-COST-DATA-DOCTRINE.md) | Why Reivesti does not pay for core data, cost classification, the activation evaluator, paid-source non-dependency |
 | [NATIONAL-COVERAGE.md](docs/NATIONAL-COVERAGE.md) | The county-equivalent catalogue, changing geographies, the coverage matrix, projection partitioning and its measurements |
 | [SOURCE-DISCOVERY.md](docs/SOURCE-DISCOVERY.md) | Candidate model, evidence requirements, shared platform families, ranking, first national reconnaissance |
@@ -120,7 +123,8 @@ tests/          520 tests plus 47 real-PostgreSQL migration assertions
 | DF-0G zero-cost doctrine | complete — enforced in code and in the schema |
 | DF-0G national jurisdiction registry | complete — 3,244 county-equivalents from pinned Census files |
 | DF-0G projection partitioning | complete — one-county update: 143 ms, zero writes elsewhere |
-| National coverage | 3,222 active jurisdictions, **1** with a core-eligible source |
+| DF-0H Minnesota statewide parcels | complete — 2,710,201 parcels, 59 county partitions |
+| National coverage | 3,222 active jurisdictions, **59** with a core-eligible source |
 | Production DDL | **not applied**, and not ready to be |
 | Scheduled ingestion | not activated |
 
@@ -164,3 +168,9 @@ fixtures, and will run unchanged against the live feed. See
   their successors without crosswalk evidence.
 - Changing one county recomputes one county. Unaffected jurisdictions are not
   rewritten at all.
+- A county is never inferred from an address. A row whose county is missing or
+  uncatalogued is quarantined, not placed by guessing.
+- An assessor's echo of a last sale is not a transfer record and never fills
+  consideration.
+- Where two sources cover one place, both are kept. Authority is decided per
+  field from measured agreement, and a source is retired only on proof.

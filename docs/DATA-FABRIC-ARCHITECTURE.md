@@ -324,6 +324,53 @@ Per-partition activation is atomic. **Across** partitions it is not, and the run
 records which activations succeeded rather than implying a guarantee that does
 not exist. See [NATIONAL-COVERAGE.md](NATIONAL-COVERAGE.md).
 
+## 5i. Acquisition is pluggable; the bundle contract is not
+
+DF-0H's Minnesota statewide source is published two ways by the same publisher:
+an ArcGIS FeatureServer and a bulk GeoPackage. Measured, the query path needed
+14-19 hours of sustained requests against a state service; the bulk file took two
+minutes.
+
+The resolution is architectural rather than a special case. **Both acquisition
+paths emit the same NDJSON snapshot bundle** — header, features, trailer — so
+parsing, drift detection, county routing, partitioning, digesting and replay are
+identical whichever way the bytes arrived. A record ingested from the bulk file
+and the same record ingested from the API normalise to the same canonical row.
+
+The bundle declares which path produced it, and the bulk bundle carries the
+download URL and archive digest in its header: claiming bytes came from a crawl
+when they did not would misdescribe the artifact's provenance.
+
+## 5j. Generic transport, specific semantics
+
+The ArcGIS runtime is source-agnostic and is reused verbatim across counties and
+states: metadata, count, object-id enumeration, POST batching, retry, throttling,
+streaming archive, checkpoint/resume, bundle format, trailer detection,
+field-set drift, duplicate detection, count reconciliation.
+
+What stays per source is the field map, the feature parser, what a parcel
+identifier means, and the capability declarations. A generic ArcGIS *guesser*
+that inferred owner names or parcel numbers from field-name patterns would be
+wrong the first time a county named something differently, and wrong silently.
+
+## 5k. Field-level source authority
+
+Two legitimate free sources can describe the same county. The question is not
+which source wins but **which source is authoritative for which field** — a state
+aggregation can be fresher on one attribute and thinner on another.
+
+Verdicts are derived from a measured agreement profile, per field, per
+jurisdiction: `PREFER_DIRECT_COUNTY`, `PREFER_STATE_AGGREGATION`,
+`COEQUAL_OBSERVATIONS`, `SEMANTICALLY_DIFFERENT` (agreement too low to be
+staleness), or `UNRESOLVED`. Every verdict carries its measurement, and the
+column is not nullable.
+
+**Both observations are always retained.** A canonical current value may prefer
+one source; the evidence keeps both, and disagreement is recorded rather than
+resolved by deletion. Retiring a source requires proving redundancy field for
+field, equal freshness, no unique fields lost and retained provenance — enforced
+by a database constraint. Broader coverage is deliberately not on that list.
+
 ## 6. Change detection
 
 | Case | Result |

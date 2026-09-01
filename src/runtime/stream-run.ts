@@ -135,6 +135,8 @@ export type StreamRunResult = {
   readonly activations: readonly PartitionActivation[];
   /** Digest over every partition in the estate, built from their child digests. */
   readonly globalDigest: string | null;
+  /** Rows this run produced per county. The reconciliation denominator. */
+  readonly countyCounts: Readonly<Record<string, number>>;
   readonly timings: Readonly<Record<string, number>>;
   readonly peakHeapBytes: number;
 };
@@ -399,6 +401,9 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     // mapped to 87 counties that delivered one county's rows must recompute one
     // partition, and the declared scope cannot tell the difference.
     const observedCounties = new Set<string>();
+    // Per-county row counts, so a statewide run can reconcile against the
+    // publisher's own per-county figures instead of only a grand total.
+    const observedCountyCounts = new Map<string, number>();
     let producedOrganizationRows = false;
 
     const normalizedDigest = new MultisetDigest();
@@ -475,6 +480,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       for (const contact of contacts) contactPlane.record(contact as ContactObservation);
       for (const contribution of contributionsOf(bundle)) {
         observedCounties.add(contribution.c);
+        observedCountyCounts.set(contribution.c, (observedCountyCounts.get(contribution.c) ?? 0) + 1);
         await contributionsWriter.write(canonicalJson(contribution));
       }
       // A run changes organization identity if it named an organization at all —
@@ -651,7 +657,8 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
           partitionId: a.partitionId, state: a.state, generation: a.generation,
         })),
         estateDigest,
-      }), resolutions, conflicts, entityLinks, plan, activations, estateDigest);
+      }), resolutions, conflicts, entityLinks, plan, activations, estateDigest,
+      Object.fromEntries([...observedCountyCounts].sort()));
     }
 
     runLogger.info('stream.finished', {
@@ -679,7 +686,8 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
         partitionId: a.partitionId, state: a.state, generation: a.generation,
       })),
       estateDigest,
-    }), resolutions, conflicts, entityLinks, plan, activations, estateDigest);
+    }), resolutions, conflicts, entityLinks, plan, activations, estateDigest,
+    Object.fromEntries([...observedCountyCounts].sort()));
   } catch (error) {
     await staged?.abort();
     const fabric = error instanceof FabricError ? error : null;
@@ -705,10 +713,11 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     partitionPlan: PartitionPlan = { runId: run.runId, partitions: [], observedJurisdictionIds: [], domains: [] },
     activations: readonly PartitionActivation[] = [],
     estateDigest: string | null = null,
+    countyCounts: Readonly<Record<string, number>> = {},
   ): StreamRunResult {
     return {
       run, artifact, snapshot, resolutions, conflicts, entityLinks,
-      partitionPlan, activations, globalDigest: estateDigest, timings, peakHeapBytes,
+      partitionPlan, activations, globalDigest: estateDigest, countyCounts, timings, peakHeapBytes,
     };
   }
 }

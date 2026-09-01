@@ -194,6 +194,7 @@ eligibility the moment a free request comes back with a price.
 | Hennepin County Parcels | 27053 | parcel, assessor, ownership, tax | `FREE_OPEN_DATA` | **`CORE_ELIGIBLE`** | **`active`** | DF-0C ✅ |
 | Hennepin County recorded instruments | 27053 | deed, mortgage, mortgage_release, lien | `FREE_DATA_REQUEST` | `BLOCKED_AUTOMATION` | `blocked_on_access` | DF-0E ✅ |
 | MN Secretary of State Business Bulk Data | MN (state) | business_entity | `PAID_OPTIONAL` | `DEFERRED` | `blocked_on_access` | DF-0F ✅ |
+| **MnGeo statewide parcels** | **59 MN counties** | parcel, assessor, ownership, tax | `FREE_OPEN_DATA` | **`CORE_ELIGIBLE`** | **`active`** | DF-0H ✅ |
 | Dallas County foreclosure notices | 48113 | foreclosure_notice | `UNKNOWN_COST` | `BLOCKED_COST_UNKNOWN` | `planned` | modelled |
 
 `mn_ecrv`, `mn_hennepin_assessor`, `mn_hennepin_recorder` and `mn_sos_business` have adapters.
@@ -201,6 +202,18 @@ Dallas remains modelled-only, but it is no longer held out of the registry:
 DF-0G catalogued every US county-equivalent, so its scope resolves. It stays
 `planned` with no declared role, because a source may not be called core until
 its cost is known. The runtime still refuses to run it.
+
+**One source, 59 counties.** The Minnesota statewide aggregation is a single
+source definition with a single mapping whose scope names 59 county FIPS — not 59
+source definitions. It is the reference case for the source/jurisdiction
+relationship, and the first source activated by DF-0G's evaluator rather than
+before it existed.
+
+**Two sources may cover one place.** Hennepin is covered for `parcel` by its own
+county service, by the statewide aggregation and by eCRV. The registry keeps all
+three; which is *preferred* is a field-level decision recorded in
+`source_field_authority`, never a blanket winner. See
+[MN-STATEWIDE-PARCELS.md](MN-STATEWIDE-PARCELS.md).
 
 **Coverage is now reportable nationally.** 3,222 active county-equivalents, of
 which exactly one has a core-eligible source. See

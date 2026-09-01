@@ -103,14 +103,15 @@ fields it is supposed to summarise.
 
 ### Where things actually stand
 
-3,222 active jurisdictions; **1** has a core-eligible source today.
+3,222 active jurisdictions; **59** have a core-eligible source, all in Minnesota,
+after DF-0H activated the statewide parcel aggregation.
 
 | Capability | Covered | Blocked on access | Blocked on terms | Unverified |
 |---|---|---|---|---|
-| parcel | 1 | 86 | 0 | 3,135 |
-| assessor | 1 | 0 | 0 | 3,221 |
-| ownership | 1 | 0 | 0 | 3,221 |
-| tax | 1 | 0 | 0 | 3,221 |
+| parcel | **59** | 28 | 0 | 3,135 |
+| assessor | **59** | 0 | 0 | 3,163 |
+| ownership | **59** | 0 | 0 | 3,163 |
+| tax | **59** | 0 | 0 | 3,163 |
 | transfer | 0 | 87 | 0 | 3,135 |
 | deed | 0 | 87 | 0 | 3,135 |
 | mortgage | 0 | 87 | 0 | 3,135 |
@@ -118,8 +119,12 @@ fields it is supposed to summarise.
 
 Sources: 5 total — 3 zero-cost, 1 paid optional, 1 unpriced, 1 core-eligible.
 
-That table is the honest state of a system that has built five connectors and
-proved the machinery, not of a system with national coverage. **Reconnaissance is
+One source produced 58 of those 59. That is the leverage argument made concrete:
+DF-0G ranked the Minnesota aggregation first on measured jurisdiction reach, and
+implementing it multiplied covered jurisdictions by 59 without a new transport.
+
+That table is still the honest state of a system with six connectors, not of a
+system with national coverage. **Reconnaissance is
 not ingestion**, and the report deliberately counts verified core sources rather
 than candidates.
 
@@ -239,6 +244,14 @@ One honest cost: a **full** rebuild is about 2× slower partitioned (14.3 s vs
 updates are every run, so that is the right trade — but it is a real trade.
 
 ---
+
+### Multiple sources per jurisdiction
+
+Hennepin is covered by three sources for `parcel`: its own service, the statewide
+aggregation, and eCRV's preliminary parcel identifiers. The coverage graph keeps
+all three rather than collapsing them to a boolean, because "who else has this?"
+is the question that matters when a source breaks. Which one is *preferred* is a
+field-level decision — see `source_field_authority`.
 
 ## 4. What is deliberately not solved
 

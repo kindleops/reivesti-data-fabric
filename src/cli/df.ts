@@ -32,6 +32,15 @@ import {
 import { ECRV_COUNTY_ONLY_FIELDS, ECRV_FIELD_MAP, dispositionCounts } from '../connectors/mn-ecrv/field-map.ts';
 import { createHennepinRecorderConnector } from '../connectors/mn-hennepin-recorder/index.ts';
 import { createMnSosBusinessConnector } from '../connectors/mn-sos-business/index.ts';
+import {
+  GPKG_METADATA_TABLE,
+  GPKG_TABLE,
+  MN_STATEWIDE_BULK_URL,
+  MN_STATEWIDE_LAYER_ID,
+  MN_STATEWIDE_SERVICE_URL,
+  createMnStatewideParcelConnector,
+} from '../connectors/mn-statewide-parcels/index.ts';
+import { convertGpkgToBundle } from '../connectors/mn-statewide-parcels/gpkg.ts';
 import { defaultRegistry } from '../registry/sources.ts';
 import { assessActivation } from '../registry/policy.ts';
 import {
@@ -130,6 +139,15 @@ const STREAMING_ADAPTERS: Readonly<Record<string, (o: StreamAdapterOptions) => S
   mn_hennepin_recorder: (o) => createHennepinRecorderConnector({
     ...(o.file ? { localFile: o.file } : {}),
     referencePeriod: o.period,
+  }),
+  mn_statewide_parcels: (o) => createMnStatewideParcelConnector({
+    ...(o.file ? { localFile: o.file } : {}),
+    referencePeriod: o.period,
+    ...(o.live
+      ? { live: { referencePeriod: o.period, ...(o.maxFeatures !== undefined ? { maxFeatures: o.maxFeatures } : {}) } }
+      : {}),
+    fetchBatchSize: o.fetchBatchSize,
+    maxConcurrentRequests: o.maxConcurrentRequests,
   }),
   mn_sos_business: (o) => createMnSosBusinessConnector({
     ...(o.file ? { localFile: o.file } : {}),
@@ -528,6 +546,49 @@ async function main(): Promise<number> {
       return 0;
     }
 
+    case 'gpkg-bundle': {
+      // Converts the publisher's bulk GeoPackage into the snapshot bundle the
+      // streaming runtime ingests. One request to the publisher instead of the
+      // 1,356 paginated queries the same data would take over the API.
+      const gpkg = typeof flags['gpkg'] === 'string' ? (flags['gpkg'] as string) : '';
+      const outPath = typeof flags['out'] === 'string' ? (flags['out'] as string) : '';
+      if (!gpkg || !outPath) {
+        process.stderr.write('usage: df gpkg-bundle --gpkg <file.gpkg> --out <bundle.ndjson> [--max N]\n');
+        return 2;
+      }
+      const { createFileLineWriter } = await import('../core/lines.ts');
+      const { sha256File } = await import('../core/hash.ts');
+      const { readFileSync } = await import('node:fs');
+      const metaPath = typeof flags['layer-meta'] === 'string' ? (flags['layer-meta'] as string) : '';
+      const liveFields = metaPath
+        ? (JSON.parse(readFileSync(metaPath, 'utf8')) as { fields: { name: string; type: string; length?: number }[] }).fields
+        : [];
+      if (liveFields.length === 0) {
+        process.stderr.write('--layer-meta <layer.json> is required: the pinned field-set digest is computed from '
+          + "the publisher's own layer metadata, never from the GeoPackage's own column list\n");
+        return 2;
+      }
+      const archiveSha256 = await sha256File(gpkg);
+      const writer = await createFileLineWriter(outPath);
+      const started = Date.now();
+      const result = await convertGpkgToBundle({
+        gpkgPath: gpkg,
+        table: GPKG_TABLE,
+        metadataTable: GPKG_METADATA_TABLE,
+        sourceId: 'mn_statewide_parcels',
+        serviceUrl: MN_STATEWIDE_SERVICE_URL,
+        layerId: MN_STATEWIDE_LAYER_ID,
+        liveFields,
+        downloadUrl: MN_STATEWIDE_BULK_URL,
+        archiveSha256,
+        retrievedAt: systemClock.now().toISOString(),
+        ...(typeof flags['max'] === 'string' ? { maxRows: Number(flags['max']) } : {}),
+      }, (line) => writer.write(line));
+      await writer.close();
+      out({ ...result, archiveSha256, out: outPath, ms: Date.now() - started });
+      return 0;
+    }
+
     case 'policy': {
       // The zero-cost doctrine applied to every registered source, with the
       // gate that decided each verdict and what would have to change.
@@ -628,6 +689,7 @@ async function main(): Promise<number> {
           '  df geography                                      county-equivalent catalogue and its provenance',
           '  df coverage                                       national coverage report',
           '  df partitions [--sweep]                           projection partitions and the global digest',
+          '  df gpkg-bundle --gpkg <f> --out <f> --layer-meta <f>   publisher bulk GeoPackage -> snapshot bundle',
           '',
           '  df sources candidates                             researched source candidates',
           '  df sources rank                                   zero-cost priority ranking',

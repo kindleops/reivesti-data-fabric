@@ -312,12 +312,13 @@ test('the national report counts jurisdictions with a verified core source, not 
   const registry = defaultRegistry();
   const report = nationalCoverageReport(registry, buildCoverage(registry), AT);
   assert.equal(report.activeJurisdictions, ACTIVE_COUNTY_EQUIVALENTS.length);
-  // Exactly one county has a live, free, sanctioned source today.
-  assert.equal(report.jurisdictionsWithCoreSource, 1);
+  // DF-0H activated the statewide aggregation: 59 counties, plus Hennepin from
+  // its own direct source — which is the same county, so 59 distinct.
+  assert.equal(report.jurisdictionsWithCoreSource, 59);
   assert.equal(report.sources.paidOptional, 1);
   assert.ok(report.byCapability.length === TRACKED_CAPABILITIES.length);
   const parcel = report.byCapability.find((c) => c.capability === 'parcel');
-  assert.equal(parcel?.covered, 1);
+  assert.equal(parcel?.covered, 59);
 });
 
 test('coverage gaps name the states where leverage is', () => {

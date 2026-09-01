@@ -61,6 +61,7 @@ if (!server) {
         '0005_data_fabric_recorded_instruments.sql',
         '0006_data_fabric_business_entities.sql',
         '0007_data_fabric_zero_cost_national.sql',
+        '0008_data_fabric_field_authority.sql',
       ]);
     });
 
@@ -87,6 +88,7 @@ if (!server) {
         'data_fabric.business_filing_parties',
         'data_fabric.canonical_events',
         'data_fabric.capability_coverage',
+        'data_fabric.capability_source_preference',
         'data_fabric.distress_events',
         'data_fabric.financing_events',
         'data_fabric.instrument_parties',
@@ -117,12 +119,14 @@ if (!server) {
         'data_fabric.source_artifacts',
         'data_fabric.source_candidate_evidence',
         'data_fabric.source_candidates',
+        'data_fabric.source_field_authority',
         'data_fabric.source_jurisdiction_mappings',
         'data_fabric.source_platforms',
         'data_fabric.source_record_observations',
         'data_fabric.source_releases',
         'data_fabric.source_runs',
         'data_fabric.source_snapshots',
+        'data_fabric.source_supersession',
         'data_fabric.sources',
         'data_fabric.transaction_candidates',
         'data_fabric.transaction_events',
@@ -141,7 +145,7 @@ if (!server) {
         where ns.nspname in ('data_fabric','data_fabric_restricted')
         group by 1`);
       const byType = Object.fromEntries(r.rows.map((x) => [x.contype, x.n]));
-      assert.ok(byType['p'] >= 45, `expected a primary key per table, got ${byType['p']}`);
+      assert.ok(byType['p'] >= 48, `expected a primary key per table, got ${byType['p']}`);
       assert.ok(byType['f'] >= 30, `expected foreign keys, got ${byType['f']}`);
       assert.ok(byType['u'] >= 6, `expected unique constraints, got ${byType['u']}`);
       assert.ok(byType['c'] >= 30, `expected check constraints, got ${byType['c']}`);
@@ -269,7 +273,7 @@ if (!server) {
         select n.nspname || '.' || c.relname as t, c.relrowsecurity, c.relforcerowsecurity
         from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname in ('data_fabric','data_fabric_restricted') and c.relkind = 'r'`);
-      assert.equal(r.rows.length, 47);
+      assert.equal(r.rows.length, 50);
       const bad = r.rows.filter((x) => !x.relrowsecurity || !x.relforcerowsecurity);
       assert.deepEqual(bad.map((x) => x.t), [], 'tables missing enabled+forced RLS');
     });
@@ -278,11 +282,11 @@ if (!server) {
       const r = await db.query(`
         select tablename, policyname, permissive, roles::text
         from pg_policies where schemaname in ('data_fabric','data_fabric_restricted')`);
-      assert.equal(r.rows.length, 47 * APP_ROLES.length);
+      assert.equal(r.rows.length, 50 * APP_ROLES.length);
       assert.ok(r.rows.every((x) => x.permissive === 'RESTRICTIVE'), 'policies must be RESTRICTIVE');
       for (const role of APP_ROLES) {
         const forRole = r.rows.filter((x) => x.roles.includes(role));
-        assert.equal(forRole.length, 47, `expected a deny policy per table for ${role}`);
+        assert.equal(forRole.length, 50, `expected a deny policy per table for ${role}`);
       }
     });
 
@@ -582,6 +586,49 @@ if (!server) {
         where conrelid = 'data_fabric.capability_coverage'::regclass and contype = 'c'`)).rows.map((x) => x.def).join(' ');
       assert.match(defs, /UNVERIFIED/);
       assert.match(defs, /UNAVAILABLE/);
+    });
+
+    test('a field-authority verdict must carry the measurement behind it', async () => {
+      const columns = (await db.query(`
+        select column_name, is_nullable from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'source_field_authority'`)).rows;
+      const basis = columns.find((c) => c.column_name === 'basis');
+      assert.equal(basis?.is_nullable, 'NO', 'a preference with no evidence cannot be checked or overturned');
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.source_field_authority'::regclass and contype = 'c'`)).rows
+        .map((x) => x.def).join(' ');
+      assert.match(defs, /PREFER_DIRECT_COUNTY/);
+      assert.match(defs, /SEMANTICALLY_DIFFERENT/);
+      // The compared populations must add up.
+      assert.match(defs, /exact_match \+ normalized_match\) \+ conflicts\) <= both_populated/);
+    });
+
+    test('a source may only be retired with every condition proven', async () => {
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.source_supersession'::regclass and contype = 'c'`)).rows
+        .map((x) => x.def).join(' ');
+      assert.match(defs, /redundant_field_for_field/);
+      assert.match(defs, /no_unique_fields_lost/);
+      assert.match(defs, /provenance_remains/);
+
+      // A retirement missing any proof is refused by the database.
+      await assert.rejects(() => db.query(`insert into data_fabric.source_supersession (
+        supersession_id, retired_source_id, replacement_source_id, redundant_field_for_field,
+        freshness_at_least_equal, no_unique_fields_lost, provenance_remains, operational_reason, decided_at
+      ) values ('probe','mn_hennepin_county_parcels','mn_statewide_parcels',
+        false, true, true, true, 'broader coverage', now())`));
+    });
+
+    test('capability preference keeps every source, not one boolean', async () => {
+      const columns = (await db.query(`
+        select column_name, data_type from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'capability_source_preference'`)).rows;
+      const supporting = columns.find((c) => c.column_name === 'supporting_source_ids');
+      assert.equal(supporting?.data_type, 'ARRAY');
+      const preferred = columns.find((c) => c.column_name === 'preferred_source_id');
+      assert.equal(preferred?.is_nullable ?? 'YES', 'YES', 'null preference is the honest default');
     });
 
     test('no recorder-sourced sale event type exists', async () => {

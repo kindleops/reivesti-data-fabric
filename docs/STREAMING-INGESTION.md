@@ -396,6 +396,54 @@ not less — 151 MB at 50,000 lines per chunk against **301 MB at 5,000**, becau
 per file. The default of 50,000 is the better trade at this shape. It changes
 nothing about the output, which is the point of the dial.
 
+## 6c. A fourth streaming source, at 2.7 million rows
+
+DF-0H ingested the Minnesota statewide parcel aggregation — 2,710,201 rows across
+59 counties — on the same runtime. Two things it changed, and one it exposed.
+
+**Acquisition became pluggable.** The publisher offers both a FeatureServer and a
+bulk GeoPackage. The query path measured 37.6 s per 2,000 rows (14-19 hours for
+the whole state); the bulk file took two minutes. Both now emit the same snapshot
+bundle, so everything downstream is identical and the choice is purely about how
+to be a good citizen of someone else's service.
+
+**A parse failure can quarantine a row instead of a run.** 18,462 of the 2.7
+million rows carry no parcel identifier, and some counties publish placeholder
+rows with junk identifiers. Failing the state because of them would be absurd, so
+connectors may opt into per-row quarantine. It stays loud: a systematic failure
+trips a drift reason at 5% of rows, with an absolute floor of 50 so a small
+delivery is never called drift on no evidence.
+
+### The defect this exposed, and the fix
+
+Duplicate detection held a `Map<sourceRecordId, firstSeenIndex>` so a repeated
+identity could name where it was first read. Bounded by distinct records rather
+than by dataset bytes — but *linear in row count*, and at this scale that is not
+the same as bounded. Measured on the first attempt:
+
+| rows processed | heap |
+|---|---|
+| 400,000 | 180 MB |
+| 675,000 | 247 MB |
+| 1,000,000 | 339 MB |
+| 1,175,000 | 402 MB |
+
+Roughly 0.34 MB per thousand rows, on a trajectory to exhaust a 1 GB cap before
+the end of the state. The run was stopped rather than allowed to OOM.
+
+The fix was to hold **53-bit fingerprints in a `Set<number>`** instead of strings
+and boxed indices: two FNV-1a variants combined, about 16 bytes per row instead
+of ~120. The cost is the first-seen index in the duplicate message, which is
+worth far less than finishing. At 2.7 million identities the chance of a false
+duplicate is roughly one in 2,500, and a false duplicate quarantines a single row
+with a stated reason rather than corrupting anything — the right way round for a
+cheap guard.
+
+The general lesson is the one DF-0F's spill-directory collision taught in a
+different costume: **a structure that is "bounded" by a count rather than by
+bytes is only bounded until the count gets large**, and the only way to find out
+is to run it at the size it will actually see.
+
 ## 7. Limits
 
 1. **Absences are recorded by key hash**, not key. The full key lives in the prior
