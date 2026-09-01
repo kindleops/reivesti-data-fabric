@@ -444,6 +444,34 @@ different costume: **a structure that is "bounded" by a count rather than by
 bytes is only bounded until the count gets large**, and the only way to find out
 is to run it at the size it will actually see.
 
+### And the fix was not enough — the honest result
+
+The fingerprint change bought real headroom and did **not** make memory constant.
+The full statewide run completed with a peak of **967 MB against a 1,024 MB cap**,
+and a subsequent replay of the same artifact under the same cap **ran out of
+memory at 2,625,000 of 2,710,201 rows**. Two runs of identical work, one just
+inside the limit and one just outside it, which is the signature of a margin that
+is too thin to call bounded.
+
+What is still linear in row count:
+
+| structure | cost at 2.7M rows |
+|---|---|
+| `Set<number>` of identity fingerprints (values exceed SMI range, so each is a heap number) | ~85 MB |
+| `SnapshotIndexBuilder`, 24 bytes per row, grown by doubling | ~65 MB, ~130 MB transient |
+| allocation churn — roughly 40 short-lived objects per row across parse, normalise and 3 party observations | pressure rather than retention |
+
+So the accurate claim is **not** "memory is independent of dataset size". It is:
+memory is independent of dataset *bytes* — a 2.5 GB artifact streams through
+without being held — and grows with distinct *record count*, at roughly 350 MB
+per million rows on this source. At 2.7 million that needs about 1.5 GB to be
+comfortable. At 10 million it would not work at all.
+
+Recorded as the phase's principal limitation. The fix for a future phase is to
+move both structures off the heap: the identity set to a disk-backed structure or
+a Bloom filter with an external-sort verification pass, and the snapshot index to
+a memory-mapped file it is already shaped for.
+
 ## 7. Limits
 
 1. **Absences are recorded by key hash**, not key. The full key lives in the prior

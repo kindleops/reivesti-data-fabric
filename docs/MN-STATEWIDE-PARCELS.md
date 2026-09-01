@@ -58,7 +58,23 @@ dataset as a file, is neither considerate nor reliable — and the file is not a
 workaround, it is a distribution the publisher lists on the dataset itself.
 
 The ArcGIS transport stays implemented and generic. It is the right path for
-sources with no bulk distribution, and it is the verification path for this one.
+sources with no bulk distribution, and it is the verification path for this one —
+DF-0H ran it live against this layer to prove it works:
+
+| | |
+|---|---|
+| features requested | 200 (`--max 200`, one page, 1 s rate limit) |
+| source reported count | 2,710,201 — reconciled against the live service |
+| parsed / accepted / quarantined | 200 / 200 / 0 |
+| routed to | `property/us-county-27037` — county routing on live data |
+| peak heap | 53 MB |
+| **acquisition time** | **224 seconds** |
+
+Two hundred features took nearly four minutes, because the transport enumerates
+the layer's object ids before fetching any of them and this layer has 2,710,201
+of them. That is a second, independent confirmation of the 14-19 hour estimate,
+and it is a property of the *layer's size* rather than of the transport: the same
+code crawls Hennepin's 448,087 parcels perfectly well.
 
 ### The bundle contract is the boundary
 
@@ -305,7 +321,103 @@ No live owner name or mailing address is committed to this repository.
 
 ---
 
-## 12. Retention
+## 12. Measured
+
+Full statewide ingest of the retained 2,526,658,472-byte bundle:
+
+| | |
+|---|---|
+| source reported / parsed | 2,710,201 / 2,710,201 |
+| accepted | 2,648,100 |
+| quarantined | 62,101 (43,639 duplicate parcels, 18,462 with no identifier) |
+| **reconciliation** | 2,648,100 + 62,101 = 2,710,201 — exact |
+| county partitions | 59 of 59; partition rows sum exactly to accepted |
+| completeness | `complete` |
+| acquire / parse+normalize / project | 17 s / 1,555 s / 831 s |
+| **peak heap** | **967 MB** against a 1,024 MB cap |
+| contact observations | 8,090,905 (restricted plane) |
+| canonical events | 7,174,656 |
+
+**Memory is the phase's real limitation and the margin was too thin.** A replay
+of the same artifact under the same 1 GB cap ran out of memory at 2,625,000 rows.
+Memory is independent of dataset *bytes* — a 2.5 GB artifact streams through
+without being held — but grows with distinct record count at roughly 350 MB per
+million rows. See STREAMING-INGESTION.md for the structures responsible and the
+fix. 2.7 million rows needs about 1.5 GB to be comfortable.
+
+### Partition isolation, on real counties
+
+Ingesting the 448,087-row direct Hennepin artifact into the completed 59-county
+estate rewrote exactly two partitions:
+
+```
+rewritten: [ "organization/us", "property/us-county-27053" ]
+```
+
+**58 real county partitions: zero writes.** The organization partition is
+nation-scoped by design, so it recomputes on any run that names an organization
+— the documented cost of that key, not an isolation failure.
+
+### The overlap, measured
+
+443,605 properties observed by both sources; 4,482 only in the direct feed;
+3,439 only in the aggregation. **Neither is a superset**, which is on its own
+enough to refuse supersession.
+
+| Field | Both | Agreement | Verdict |
+|---|---|---|---|
+| `normalized_parcel` | 443,605 | 100.00% | COEQUAL |
+| `assessment_land` | 443,605 | 99.99% | COEQUAL |
+| `assessment_total` / `_building` | 443,605 | 99.97% | COEQUAL |
+| `year_built` | 420,222 | 100.00%, +23,383 only in aggregation | COEQUAL |
+| `assessor_sale_value` | 443,605 | 99.33% | UNRESOLVED |
+| `taxpayer_name` | 443,605 | 99.24% | UNRESOLVED |
+| `owner_name` | 443,605 | 99.18% | UNRESOLVED |
+| `classification` | 442,980 | 76.84% | UNRESOLVED |
+| `tax_year` | 0 — **443,605 only in aggregation** | — | PREFER_STATE_AGGREGATION |
+| `situs_address` | 443,605 | 0.00% | SEMANTICALLY_DIFFERENT |
+| `parcel_area` | 443,605 | 0.00% | SEMANTICALLY_DIFFERENT |
+| `tax_total` | 443,605 | 5.91% | SEMANTICALLY_DIFFERENT |
+| `assessor_sale_date` | 390,003 | 0.00% | SEMANTICALLY_DIFFERENT |
+
+The parcel identifier — the thing that makes them the same property — agrees
+perfectly, and assessment values agree to within 0.03%. Convergence is sound.
+
+**But three of the four `SEMANTICALLY_DIFFERENT` verdicts are OUR fault, not the
+sources'.** `parcel_area` is square feet on one side and acres on the other.
+`situs_address` is two different string-assembly conventions in two of our own
+normalisers. And `assessor_sale_date` disagrees on 100% of 390,003 parcels while
+`assessor_sale_value` agrees on 99.33% — a value cannot match while its date
+never does unless the date *formats* differ.
+
+So the audit found something more useful than a ranking between two publishers:
+**inconsistent canonicalisation between two Reivesti connectors.** That is
+recorded as a P1. It is exactly the class of defect that stays invisible until
+two sources describe the same thing, and it is an argument for the overlap audit
+existing at all.
+
+### Replay, network off
+
+The retained artifact replayed into a fresh estate with no network access
+(`acquire: 1 ms` — the bytes came from the artifact store):
+
+| | original | replay |
+|---|---|---|
+| artifact sha256 | `5f9251f9…` | **identical** |
+| run id | `run_a64397ed…` | **identical** |
+| normalized digest | `bbef1b39…` | **identical** |
+| global estate digest | `29d0fcbe…` | **identical** |
+| parsed / accepted / quarantined | 2,710,201 / 2,648,100 / 62,101 | **identical** |
+| per-county output digests | 59 partitions | **59 of 59 identical** |
+
+Peak heap on replay was 1,677 MB against a 2,560 MB cap — higher than the
+original 967 MB under a 1,024 MB cap, because V8 defers major collection when it
+has room. The working set is genuinely below both figures; what the 1 GB OOM
+proves is that the *margin* at that cap is too thin, not that 1.6 GB is retained.
+
+---
+
+## 13. Retention
 
 Retained, because they are the evidence:
 
