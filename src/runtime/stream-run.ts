@@ -29,9 +29,21 @@ import {
   type PropertyResolution,
   parcelAuthorityFor,
 } from '../canonical/property-resolution.ts';
-import { contributionOf, projectResolutions } from '../canonical/resolution-projection.ts';
-import { DEFAULT_RULES, type EntityLinkDecision } from '../canonical/entity-resolution.ts';
-import { organizationObservationOf, projectOrganizationLinks } from '../canonical/organization-projection.ts';
+import { contributionOf, projectResolutions, type ResolutionContribution } from '../canonical/resolution-projection.ts';
+import {
+  countyPartition,
+  globalDigest,
+  nationPartition,
+  parsePartitionId,
+  partitionId,
+  planPartitions,
+  type PartitionManifest,
+  type PartitionPlan,
+} from '../canonical/partitions.ts';
+import { createPartitionStore, type PartitionActivation, type PartitionStore } from './partition-store.ts';
+import { recomputePartitions } from './partition-projection.ts';
+import type { EntityLinkDecision } from '../canonical/entity-resolution.ts';
+import { organizationObservationOf } from '../canonical/organization-projection.ts';
 import {
   SnapshotIndexBuilder,
   type SnapshotIndex,
@@ -43,6 +55,7 @@ import type { ContactObservation, ContactPlane } from '../contact/contact-plane.
 import { type Clock, systemClock } from '../core/clock.ts';
 import { FabricError, fail } from '../core/errors.ts';
 import { MultisetDigest, canonicalJson, deterministicId, sha256 } from '../core/hash.ts';
+import { externalSort, groupSorted } from '../core/external-sort.ts';
 import { createFileLineWriter, type LineWriter, readLines } from '../core/lines.ts';
 import { type Logger, silentLogger } from '../core/logging.ts';
 import type { Registry } from '../registry/registry.ts';
@@ -117,6 +130,11 @@ export type StreamRunResult = {
   readonly conflicts: readonly PropertyConflict[];
   /** Organization-link decisions, sampled. The full set is on disk. */
   readonly entityLinks: readonly EntityLinkDecision[];
+  /** Which partitions this run recomputed, and how each activation went. */
+  readonly partitionPlan: PartitionPlan;
+  readonly activations: readonly PartitionActivation[];
+  /** Digest over every partition in the estate, built from their child digests. */
+  readonly globalDigest: string | null;
   readonly timings: Readonly<Record<string, number>>;
   readonly peakHeapBytes: number;
 };
@@ -376,6 +394,12 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     staged = dryRun ? null : await store.beginRun(runId);
     const contributionsPath = join(scratch, 'contributions.ndjson');
     const contributionsWriter: LineWriter = await createFileLineWriter(contributionsPath);
+    // The jurisdictions this run actually produced rows for. The plan is built
+    // from these, not from the mapping's declared scope: a statewide source
+    // mapped to 87 counties that delivered one county's rows must recompute one
+    // partition, and the declared scope cannot tell the difference.
+    const observedCounties = new Set<string>();
+    let producedOrganizationRows = false;
 
     const normalizedDigest = new MultisetDigest();
     const observedAt = acquired.manifest.retrievedAt;
@@ -449,7 +473,19 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       // above. The plane keeps a bounded window so an operator can inspect
       // recent rows without the run holding a county of mailing addresses.
       for (const contact of contacts) contactPlane.record(contact as ContactObservation);
-      for (const line of contributionLines(bundle)) await contributionsWriter.write(line);
+      for (const contribution of contributionsOf(bundle)) {
+        observedCounties.add(contribution.c);
+        await contributionsWriter.write(canonicalJson(contribution));
+      }
+      // A run changes organization identity if it named an organization at all —
+      // a new assessor owner can match a registration just as a new registration
+      // can match an existing owner. Both directions have to trigger the fold.
+      if (!producedOrganizationRows) {
+        if ((extraRows?.['business_entities']?.length ?? 0) > 0) producedOrganizationRows = true;
+        else if (bundle.parties.some((party) => organizationObservationOf(party) !== null)) {
+          producedOrganizationRows = true;
+        }
+      }
 
       metrics.rowsEmitted += 1;
       metrics.canonicalEvents += bundle.events.length;
@@ -529,92 +565,100 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
 
     await contributionsWriter.close();
 
-    // ---- project resolution ------------------------------------------------
+    // ---- activate canonical rows -------------------------------------------
+    //
+    // Canonical rows go live BEFORE the projections run, and deliberately so.
+    // A projection is a pure recomputation from committed evidence: it can be
+    // re-run at any time and will produce the same answer, so a crash between
+    // activation and projection costs a rerun, never a wrong estate. The
+    // previous order forced the fold to read uncommitted scratch files, which is
+    // what made it estate-wide in the first place.
     stage = 'emit';
-    const projectStart = performance.now();
-    const authority = parcelAuthorityFor(
-      options.registry.sources.filter((s) => s.authoritativeForParcelIdentity === true).map((s) => s.sourceId),
-    );
-    const canonicalDigest = new MultisetDigest();
-    const resolutions: PropertyResolution[] = [];
-    const conflicts: PropertyConflict[] = [];
-    const keepSamples = 200;
-
-    // Estate-wide, deliberately not per-source. The fold reads every source's
-    // contributions, so keying the output by the current run's source meant the
-    // same estate landed in a different file depending on which source ran last
-    // — and left the other file stale. With one source that was invisible.
-    const resolutionsPath = join(varRoot, 'derived', 'resolutions', 'current.ndjson');
-    const conflictsPath = join(varRoot, 'derived', 'conflicts', `${safeSegment(runId)}.ndjson`);
-    const resolutionWriter = dryRun ? null : await createFileLineWriter(`${resolutionsPath}.tmp`);
-    const conflictWriter = dryRun ? null : await createFileLineWriter(`${conflictsPath}.tmp`);
-
-    const projection = await projectResolutions(
-      () => allContributions(store, contributionsPath, runId),
-      {
-        async resolution(row) {
-          canonicalDigest.add(canonicalJson(row));
-          if (resolutions.length < keepSamples) resolutions.push(row);
-          await resolutionWriter?.write(canonicalJson(row));
-        },
-        async conflict(row) {
-          if (conflicts.length < keepSamples) conflicts.push(row);
-          await conflictWriter?.write(canonicalJson(row));
-        },
-      },
-      { authority, runId, detectedAt: observedAt, sort: { chunkLines: batch.sortChunkLines, scratchDir: scratch } },
-    );
-    await resolutionWriter?.close();
-    await conflictWriter?.close();
-    metrics.rowsResolved = projection.resolvedCount;
-    metrics.rowsConflicted = projection.conflictCount;
-    timings['project'] = Math.round(performance.now() - projectStart);
-
-    // ---- activate ----------------------------------------------------------
     if (staged) {
       await staged.commit();
-      await promote(`${resolutionsPath}.tmp`, resolutionsPath);
-      await promote(`${conflictsPath}.tmp`, conflictsPath);
       await writeSnapshotIndex(indexPath, nextIndex.build());
     }
 
-    // ---- project organization links -----------------------------------------
-    //
-    // After activation, deliberately. This fold reads BOTH sides of the estate —
-    // every county source's party observations and every registered entity — and
-    // a staged generation cannot be read back before it is committed. Like every
-    // other projection it is a pure recomputation, so a crash before it finishes
-    // costs a rerun and never a wrong answer.
-    const linkStart = performance.now();
-    const entityLinksPath = join(varRoot, 'derived', 'entity-links', 'current.ndjson');
+    // ---- distribute contributions to their partitions -----------------------
+    const projectStart = performance.now();
+    const partitions = createPartitionStore(varRoot);
+    const authority = parcelAuthorityFor(
+      options.registry.sources.filter((s) => s.authoritativeForParcelIdentity === true).map((s) => s.sourceId),
+    );
+    const resolutions: PropertyResolution[] = [];
+    const conflicts: PropertyConflict[] = [];
     const entityLinks: EntityLinkDecision[] = [];
-    if (staged) {
-      const linkWriter = await createFileLineWriter(`${entityLinksPath}.tmp`);
-      const summary = await projectOrganizationLinks(
-        () => organizationObservations(store),
-        () => store.readTable('business_entities'),
-        () => store.readTable('business_entity_addresses'),
-        async (decision) => {
-          if (entityLinks.length < keepSamples) entityLinks.push(decision);
-          await linkWriter.write(canonicalJson(decision));
+    const activations: PartitionActivation[] = [];
+    const keepSamples = 200;
+    let resolvedCount = 0;
+    let conflictCount = 0;
+
+    const plan = planPartitions({
+      runId,
+      observedCountyFips: observedCounties,
+      producedOrganizationRows,
+      // No connector produces transaction-candidate inputs through this path
+      // yet. Declared rather than faked: an empty domain is honest, an invented
+      // partition is not.
+      producedTransactionRows: false,
+    });
+
+    if (!dryRun) {
+      await distributeContributions(partitions, contributionsPath, runId, {
+        chunkLines: batch.sortChunkLines, scratchDir: scratch,
+      });
+
+      const recomputed = await recomputePartitions({
+        partitions,
+        partitionIds: plan.partitions,
+        authority,
+        runId,
+        detectedAt: observedAt,
+        sort: { chunkLines: batch.sortChunkLines, scratchDir: scratch },
+        logger: runLogger,
+        keepSamples,
+        organization: {
+          observations: () => organizationObservations(store),
+          entities: () => store.readTable('business_entities'),
+          addresses: () => store.readTable('business_entity_addresses'),
         },
-        {
-          rules: DEFAULT_RULES,
-          decidedAt: observedAt,
-          sort: { chunkLines: batch.sortChunkLines, scratchDir: scratch },
-          scratchDir: scratch,
-        },
-      );
-      await linkWriter.close();
-      await promote(`${entityLinksPath}.tmp`, entityLinksPath);
-      runLogger.info('stream.entity_links', summary);
+      });
+      activations.push(...recomputed.activations);
+      resolutions.push(...recomputed.resolutions);
+      conflicts.push(...recomputed.conflicts);
+      entityLinks.push(...recomputed.entityLinks);
+      resolvedCount = recomputed.resolvedCount;
+      conflictCount = recomputed.conflictCount;
     }
-    timings['entity_links'] = Math.round(performance.now() - linkStart);
+
+    metrics.rowsResolved = resolvedCount;
+    metrics.rowsConflicted = conflictCount;
+    const manifests: readonly PartitionManifest[] = dryRun ? [] : await partitions.manifests();
+    const estateDigest = globalDigest(manifests);
+    timings['project'] = Math.round(performance.now() - projectStart);
+
+    const failedPartitions = activations.filter((a) => a.state === 'failed');
+    if (failedPartitions.length > 0) {
+      return result(finish('failed', {
+        runId,
+        normalizedDigest: normalizedDigest.value(),
+        canonicalDigest: estateDigest,
+        failureKind: 'VALIDATION',
+        failureMessage: `${failedPartitions.length} partition(s) failed to project: `
+          + failedPartitions.map((a) => a.partitionId).join(', '),
+        partitionPlan: plan.partitions,
+        partitionActivations: activations.map((a) => ({
+          partitionId: a.partitionId, state: a.state, generation: a.generation,
+        })),
+        estateDigest,
+      }), resolutions, conflicts, entityLinks, plan, activations, estateDigest);
+    }
 
     runLogger.info('stream.finished', {
       rows: metrics.rowsParsed,
-      resolved: projection.resolvedCount,
-      conflicts: projection.conflictCount,
+      resolved: resolvedCount,
+      conflicts: conflictCount,
+      partitions: plan.partitions.length,
       completeness: snapshot.completeness,
       peakHeapMB: Math.round(peakHeapBytes / 1048576),
     });
@@ -622,7 +666,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     return result(finish(metrics.rowsQuarantined > 0 && metrics.rowsEmitted === 0 ? 'quarantined' : 'completed', {
       runId,
       normalizedDigest: normalizedDigest.value(),
-      canonicalDigest: canonicalDigest.value(),
+      canonicalDigest: estateDigest,
       validationErrorCount,
       unknownFields: summary.unknownFields,
       sourceReportedCount: reported,
@@ -630,7 +674,12 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       discoveredIdCount: retrieved,
       duplicateCount: snapshot.duplicateCount,
       sourceChangedDuringRead: summary.snapshot?.sourceChangedDuringRead ?? false,
-    }), resolutions, conflicts, entityLinks);
+      partitionPlan: plan.partitions,
+      partitionActivations: activations.map((a) => ({
+        partitionId: a.partitionId, state: a.state, generation: a.generation,
+      })),
+      estateDigest,
+    }), resolutions, conflicts, entityLinks, plan, activations, estateDigest);
   } catch (error) {
     await staged?.abort();
     const fabric = error instanceof FabricError ? error : null;
@@ -653,8 +702,14 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     resolutions: readonly PropertyResolution[] = [],
     conflicts: readonly PropertyConflict[] = [],
     entityLinks: readonly EntityLinkDecision[] = [],
+    partitionPlan: PartitionPlan = { runId: run.runId, partitions: [], observedJurisdictionIds: [], domains: [] },
+    activations: readonly PartitionActivation[] = [],
+    estateDigest: string | null = null,
   ): StreamRunResult {
-    return { run, artifact, snapshot, resolutions, conflicts, entityLinks, timings, peakHeapBytes };
+    return {
+      run, artifact, snapshot, resolutions, conflicts, entityLinks,
+      partitionPlan, activations, globalDigest: estateDigest, timings, peakHeapBytes,
+    };
   }
 }
 
@@ -676,7 +731,7 @@ async function* allContributions(
     if (runId === currentRunId) continue; // the current run is read from scratch, uncommitted
     for await (const line of store.readRunTable(runId, 'bundles')) {
       const bundle = JSON.parse(line) as CanonicalBundle;
-      for (const contribution of contributionLines(bundle)) yield contribution;
+      for (const contribution of contributionsOf(bundle)) yield canonicalJson(contribution);
     }
   }
   yield* readLines(currentPath);
@@ -699,13 +754,53 @@ async function* organizationObservations(store: GenerationStore): AsyncGenerator
   }
 }
 
-function contributionLines(bundle: CanonicalBundle): readonly string[] {
+/**
+ * Splits one run's contributions into per-partition files.
+ *
+ * Externally sorted by county rather than fanned out to open file handles: a
+ * national source would otherwise need 3,222 simultaneous writers. One extra
+ * disk pass buys a bound that does not depend on how many jurisdictions a
+ * delivery happens to cover.
+ */
+async function distributeContributions(
+  partitions: PartitionStore,
+  scratchFile: string,
+  runId: string,
+  sort: { chunkLines: number; scratchDir: string },
+): Promise<readonly string[]> {
+  const written: string[] = [];
+  const keyOf = (line: string): string => {
+    const at = line.indexOf('"c":"');
+    if (at === -1) return '';
+    const from = at + 5;
+    const to = line.indexOf('"', from);
+    return to === -1 ? '' : line.slice(from, to);
+  };
+
+  const grouped = groupSorted(
+    externalSort(readLines(scratchFile), keyOf, sort),
+    keyOf,
+    (line: string) => line,
+  );
+  for await (const { key, items } of grouped) {
+    if (key === '') continue; // a contribution with no county cannot be placed
+    const partition = countyPartition('PROPERTY_RESOLUTION', key);
+    async function* lines(): AsyncGenerator<string> {
+      for (const item of items) yield item;
+    }
+    await partitions.writeContributions(partition, runId, lines());
+    written.push(partitionId(partition));
+  }
+  return written;
+}
+
+function contributionsOf(bundle: CanonicalBundle): readonly ResolutionContribution[] {
   const address = bundle.propertyIdentifiers
     .find((o) => o.identifierType === 'normalized_address')?.normalizedValue ?? null;
-  const out: string[] = [];
+  const out: ResolutionContribution[] = [];
   for (const observation of bundle.propertyIdentifiers) {
     const contribution = contributionOf(observation as PropertyIdentifierObservation, address);
-    if (contribution) out.push(canonicalJson(contribution));
+    if (contribution) out.push(contribution);
   }
   return out;
 }

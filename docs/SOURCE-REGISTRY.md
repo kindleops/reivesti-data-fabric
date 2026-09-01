@@ -160,18 +160,48 @@ reviewed.
 
 ---
 
+## 6a. Cost, role and the zero-cost doctrine
+
+DF-0G added two fields that change how every row here is read.
+
+**`costClass`** says what a source costs, as its own classification —
+`FREE_BULK`, `FREE_API`, `FREE_OPEN_DATA`, `FREE_WEB_SERVICE`,
+`FREE_PUBLIC_DOWNLOAD`, `FREE_DATA_REQUEST`, `FREE_MANUAL_DELIVERY`,
+`FIRST_PARTY`, the three `PAID_*` classes, or `UNKNOWN_COST`. It is deliberately
+independent of access type, automation status and licence status: a free source
+may forbid automation, and a paid source may be perfectly lawful.
+
+**`role`** says what a source is *for*: `CORE_CANONICAL_SOURCE`,
+`CORE_SUPPORTING_SOURCE`, `OPTIONAL_ENRICHMENT`, `VALIDATION_ONLY`,
+`MANUAL_RESEARCH_ONLY`, `DEFERRED`, `REJECTED`. A source may not be declared core
+until it is known to be free — enforced in `createRegistry()` and by a database
+constraint.
+
+Together they make "Reivesti does not pay for core data" checkable rather than
+remembered. Full doctrine: [ZERO-COST-DATA-DOCTRINE.md](ZERO-COST-DATA-DOCTRINE.md).
+
+**`accessRequest`** tracks free access paths administratively — `NOT_REQUESTED`
+through `DELIVERED`, plus `FEE_QUOTED`, which moves a source out of zero-cost
+eligibility the moment a free request comes back with a price.
+
+---
+
 ## 7. Current registry contents
 
-| Source | Scope | Capabilities | Status | Phase |
-|---|---|---|---|---|
-| MN DOR eCRV Weekly Sales Extract | all MN counties (87) | transfer, deed, mortgage, parcel, contact_enrichment | `blocked_on_access` | DF-0B ✅ |
-| Hennepin County Parcels | 27053 | parcel, assessor, ownership, tax | **`active`** | DF-0C ✅ |
-| Hennepin County recorded instruments | 27053 | deed, mortgage, mortgage_release, lien | `blocked_on_access` | DF-0E ✅ |
-| MN Secretary of State Business Bulk Data | MN (state) | business_entity | `blocked_on_access` | DF-0F ✅ |
-| Dallas County foreclosure notices | 48113 | foreclosure_notice | `planned`, jurisdiction not catalogued | DF-0F |
+| Source | Scope | Capabilities | Cost | Verdict | Status | Phase |
+|---|---|---|---|---|---|---|
+| MN DOR eCRV Weekly Sales Extract | all MN counties (87) | transfer, deed, mortgage, parcel, contact_enrichment | `FREE_DATA_REQUEST` | `BLOCKED_ACCESS` | `blocked_on_access` | DF-0B ✅ |
+| Hennepin County Parcels | 27053 | parcel, assessor, ownership, tax | `FREE_OPEN_DATA` | **`CORE_ELIGIBLE`** | **`active`** | DF-0C ✅ |
+| Hennepin County recorded instruments | 27053 | deed, mortgage, mortgage_release, lien | `FREE_DATA_REQUEST` | `BLOCKED_AUTOMATION` | `blocked_on_access` | DF-0E ✅ |
+| MN Secretary of State Business Bulk Data | MN (state) | business_entity | `PAID_OPTIONAL` | `DEFERRED` | `blocked_on_access` | DF-0F ✅ |
+| Dallas County foreclosure notices | 48113 | foreclosure_notice | `UNKNOWN_COST` | `BLOCKED_COST_UNKNOWN` | `planned` | modelled |
 
 `mn_ecrv`, `mn_hennepin_assessor`, `mn_hennepin_recorder` and `mn_sos_business` have adapters.
-Dallas remains modelled-only — and deliberately held out of the default registry,
-because Texas counties are not catalogued — so the registry shape stays exercised
-against a source no adapter has yet locked the design around. The runtime refuses
-to run it.
+Dallas remains modelled-only, but it is no longer held out of the registry:
+DF-0G catalogued every US county-equivalent, so its scope resolves. It stays
+`planned` with no declared role, because a source may not be called core until
+its cost is known. The runtime still refuses to run it.
+
+**Coverage is now reportable nationally.** 3,222 active county-equivalents, of
+which exactly one has a core-eligible source. See
+[NATIONAL-COVERAGE.md](NATIONAL-COVERAGE.md) and `df coverage`.

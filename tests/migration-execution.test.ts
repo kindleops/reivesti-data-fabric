@@ -60,6 +60,7 @@ if (!server) {
         '0004_data_fabric_streaming_runs.sql',
         '0005_data_fabric_recorded_instruments.sql',
         '0006_data_fabric_business_entities.sql',
+        '0007_data_fabric_zero_cost_national.sql',
       ]);
     });
 
@@ -85,6 +86,7 @@ if (!server) {
         'data_fabric.business_entity_names',
         'data_fabric.business_filing_parties',
         'data_fabric.canonical_events',
+        'data_fabric.capability_coverage',
         'data_fabric.distress_events',
         'data_fabric.financing_events',
         'data_fabric.instrument_parties',
@@ -98,6 +100,7 @@ if (!server) {
         'data_fabric.parties',
         'data_fabric.party_aliases',
         'data_fabric.party_observations',
+        'data_fabric.projection_partitions',
         'data_fabric.properties',
         'data_fabric.property_characteristic_observations',
         'data_fabric.property_conflicts',
@@ -110,8 +113,12 @@ if (!server) {
         // and hold nothing, but a DROP that ships is a DROP that can run
         // somewhere unexpected. Consolidating the two is a tracked cleanup.
         'data_fabric.recorded_instruments',
+        'data_fabric.run_partition_activations',
         'data_fabric.source_artifacts',
+        'data_fabric.source_candidate_evidence',
+        'data_fabric.source_candidates',
         'data_fabric.source_jurisdiction_mappings',
+        'data_fabric.source_platforms',
         'data_fabric.source_record_observations',
         'data_fabric.source_releases',
         'data_fabric.source_runs',
@@ -134,7 +141,7 @@ if (!server) {
         where ns.nspname in ('data_fabric','data_fabric_restricted')
         group by 1`);
       const byType = Object.fromEntries(r.rows.map((x) => [x.contype, x.n]));
-      assert.ok(byType['p'] >= 40, `expected a primary key per table, got ${byType['p']}`);
+      assert.ok(byType['p'] >= 45, `expected a primary key per table, got ${byType['p']}`);
       assert.ok(byType['f'] >= 30, `expected foreign keys, got ${byType['f']}`);
       assert.ok(byType['u'] >= 6, `expected unique constraints, got ${byType['u']}`);
       assert.ok(byType['c'] >= 30, `expected check constraints, got ${byType['c']}`);
@@ -262,7 +269,7 @@ if (!server) {
         select n.nspname || '.' || c.relname as t, c.relrowsecurity, c.relforcerowsecurity
         from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname in ('data_fabric','data_fabric_restricted') and c.relkind = 'r'`);
-      assert.equal(r.rows.length, 41);
+      assert.equal(r.rows.length, 47);
       const bad = r.rows.filter((x) => !x.relrowsecurity || !x.relforcerowsecurity);
       assert.deepEqual(bad.map((x) => x.t), [], 'tables missing enabled+forced RLS');
     });
@@ -271,11 +278,11 @@ if (!server) {
       const r = await db.query(`
         select tablename, policyname, permissive, roles::text
         from pg_policies where schemaname in ('data_fabric','data_fabric_restricted')`);
-      assert.equal(r.rows.length, 41 * APP_ROLES.length);
+      assert.equal(r.rows.length, 47 * APP_ROLES.length);
       assert.ok(r.rows.every((x) => x.permissive === 'RESTRICTIVE'), 'policies must be RESTRICTIVE');
       for (const role of APP_ROLES) {
         const forRole = r.rows.filter((x) => x.roles.includes(role));
-        assert.equal(forRole.length, 41, `expected a deny policy per table for ${role}`);
+        assert.equal(forRole.length, 47, `expected a deny policy per table for ${role}`);
       }
     });
 
@@ -497,6 +504,84 @@ if (!server) {
           and column_name = 'license_class'`);
       assert.equal(r.rows.length, 1);
       assert.match(String(r.rows[0].column_default), /CANONICAL_INTERNAL/);
+    });
+
+    test('a paid source cannot hold a core role, enforced by the database', async () => {
+      // The zero-cost doctrine as a constraint, not a convention. Someone
+      // editing a row by hand must not be able to make a paid source canonical.
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.sources'::regclass and contype = 'c'`)).rows.map((x) => x.def).join(' ');
+      assert.match(defs, /CORE_CANONICAL_SOURCE/);
+      assert.match(defs, /cost_class/);
+
+      await db.query(`insert into data_fabric.sources (
+        source_id, source_authority, source_program, source_family, source_name, source_homepage,
+        access_type, automation_status, terms_status, license_status, cost_model,
+        expected_refresh_frequency, source_priority, cost_class, source_role
+      ) values ('probe_free','a','b','c','d','http://e','api','sanctioned','reviewed_permitted',
+        'public_domain','free','monthly',1,'FREE_API','CORE_CANONICAL_SOURCE')`);
+
+      await assert.rejects(() => db.query(`update data_fabric.sources
+        set cost_class = 'PAID_SUBSCRIPTION' where source_id = 'probe_free'`));
+      await db.query(`delete from data_fabric.sources where source_id = 'probe_free'`);
+    });
+
+    test('a quoted fee and a zero-cost class cannot both be true', async () => {
+      await assert.rejects(() => db.query(`insert into data_fabric.sources (
+        source_id, source_authority, source_program, source_family, source_name, source_homepage,
+        access_type, automation_status, terms_status, license_status, cost_model,
+        expected_refresh_frequency, source_priority, cost_class, quoted_fee_usd
+      ) values ('probe_fee','a','b','c','d','http://e','manual_import','manual_only','reviewed_permitted',
+        'unknown','free','monthly',1,'FREE_DATA_REQUEST',250.00)`));
+    });
+
+    test('a successor geography may only be recorded on a replaced or retired one', async () => {
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.jurisdictions'::regclass and contype = 'c'`)).rows.map((x) => x.def).join(' ');
+      assert.match(defs, /replaced_by/);
+      assert.match(defs, /geography_status/);
+    });
+
+    test('a projection partition is unique per domain and scope', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.projection_partitions'::regclass and contype = 'u'`);
+      assert.match(r.rows.map((x) => x.def).join(' '), /domain, scope_id/);
+    });
+
+    test('an activated partition names its generation and a failed one does not', async () => {
+      const r = await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.run_partition_activations'::regclass and contype = 'c'`);
+      assert.match(r.rows.map((x) => x.def).join(' '), /activation_state = 'activated'::text\) = \(generation IS NOT NULL\)/);
+    });
+
+    test('a source candidate is not a source: separate table, evidence required', async () => {
+      const tables = (await db.query(`
+        select table_name from information_schema.tables
+        where table_schema = 'data_fabric' and table_name in
+          ('source_candidates','source_candidate_evidence','source_platforms')`)).rows.map((x) => x.table_name);
+      assert.deepEqual(tables.sort(), ['source_candidate_evidence', 'source_candidates', 'source_platforms']);
+      // A candidate carries hypotheses, never the fields the runtime consults.
+      const columns = (await db.query(`
+        select column_name from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'source_candidates'`)).rows.map((x) => x.column_name);
+      assert.ok(columns.includes('cost_hypothesis'));
+      assert.ok(!columns.includes('cost_class'), 'a candidate must not carry the field the doctrine reads');
+    });
+
+    test('coverage records whether an entry may count as core', async () => {
+      const columns = (await db.query(`
+        select column_name from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'capability_coverage'`)).rows.map((x) => x.column_name);
+      assert.ok(columns.includes('counts_as_core'));
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.capability_coverage'::regclass and contype = 'c'`)).rows.map((x) => x.def).join(' ');
+      assert.match(defs, /UNVERIFIED/);
+      assert.match(defs, /UNAVAILABLE/);
     });
 
     test('no recorder-sourced sale event type exists', async () => {

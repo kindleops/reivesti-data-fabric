@@ -33,6 +33,19 @@ import { ECRV_COUNTY_ONLY_FIELDS, ECRV_FIELD_MAP, dispositionCounts } from '../c
 import { createHennepinRecorderConnector } from '../connectors/mn-hennepin-recorder/index.ts';
 import { createMnSosBusinessConnector } from '../connectors/mn-sos-business/index.ts';
 import { defaultRegistry } from '../registry/sources.ts';
+import { assessActivation } from '../registry/policy.ts';
+import {
+  buildCoverage,
+  coverageGaps,
+  nationalCoverageReport,
+  TRACKED_CAPABILITIES,
+} from '../registry/coverage.ts';
+import { GEOGRAPHY_PROVENANCE, US_COUNTY_EQUIVALENTS } from '../registry/us-geography.ts';
+import { checkPromotion } from '../discovery/candidates.ts';
+import { LEGAL_CAPABILITY_LIMITS, PLATFORM_FAMILIES, SOURCE_CANDIDATES } from '../discovery/catalogue.ts';
+import { candidateJurisdictionCount, rankCatalogue } from '../discovery/rank.ts';
+import { createPartitionStore } from '../runtime/partition-store.ts';
+import { globalDigest } from '../canonical/partitions.ts';
 import type { Connector, StreamingConnector } from '../runtime/connector.ts';
 import { createNdjsonFabricStore } from '../runtime/fabric-store.ts';
 import { runConnector, runReport } from '../runtime/run.ts';
@@ -130,6 +143,106 @@ async function main(): Promise<number> {
 
   switch (command) {
     case 'sources': {
+      // Subcommands for source research. `df sources` on its own keeps its old
+      // behaviour: the registered sources and their coverage.
+      const sub = positional[0];
+      if (sub === 'candidates') {
+        out(SOURCE_CANDIDATES.map((c) => ({
+          candidateId: c.candidateId,
+          authority: c.authority,
+          name: c.sourceName,
+          capabilities: c.capabilities,
+          jurisdictions: candidateJurisdictionCount(c),
+          costHypothesis: c.costHypothesis,
+          automationHypothesis: c.automationHypothesis,
+          verification: c.verification,
+          platform: c.platformId,
+          promotable: checkPromotion(c).ready,
+        })));
+        return 0;
+      }
+      if (sub === 'rank') {
+        out({
+          gate: 'cost must be zero for a CORE candidate; excluded candidates are not scored',
+          ranked: rankCatalogue(),
+        });
+        return 0;
+      }
+      if (sub === 'inspect') {
+        const needle = (positional[1] ?? '').toLowerCase();
+        const found = SOURCE_CANDIDATES.find(
+          (c) => c.candidateId === positional[1] || c.sourceName.toLowerCase().includes(needle),
+        );
+        if (!found) {
+          process.stderr.write('usage: df sources inspect <candidateId | name fragment>\n');
+          return 2;
+        }
+        out({ candidate: found, jurisdictions: candidateJurisdictionCount(found), promotion: checkPromotion(found) });
+        return 0;
+      }
+      if (sub === 'verify') {
+        // Reports what verification a candidate still needs. It does NOT reach
+        // any publisher: verification is a research act performed by a person,
+        // and an automated discovery bot is explicitly out of scope.
+        const found = SOURCE_CANDIDATES.find((c) => c.candidateId === positional[1]
+          || c.sourceName.toLowerCase().includes((positional[1] ?? '').toLowerCase()));
+        if (!found) {
+          process.stderr.write('usage: df sources verify <candidateId | name fragment>\n');
+          return 2;
+        }
+        const check = checkPromotion(found);
+        out({
+          candidate: found.sourceName,
+          verification: found.verification,
+          ready: check.ready,
+          missing: check.missing,
+          evidence: found.evidence.map((e) => ({ claim: e.claim, kind: e.kind, url: e.url })),
+        });
+        return check.ready ? 0 : 1;
+      }
+      if (sub === 'platforms') {
+        out(PLATFORM_FAMILIES);
+        return 0;
+      }
+      if (sub === 'coverage') {
+        const jurisdictionId = positional[1];
+        if (!jurisdictionId) {
+          process.stderr.write('usage: df sources coverage <jurisdictionId>\n');
+          return 2;
+        }
+        const matrix = buildCoverage(registry);
+        out({
+          jurisdictionId,
+          capabilities: TRACKED_CAPABILITIES.map((capability) => ({
+            capability,
+            core: matrix.coreStateOf(jurisdictionId, capability),
+            any: matrix.anyStateOf(jurisdictionId, capability),
+          })),
+          entries: matrix.entriesFor(jurisdictionId),
+        });
+        return 0;
+      }
+      if (sub === 'gaps') {
+        const matrix = buildCoverage(registry);
+        out({
+          note: 'UNVERIFIED means nobody has looked. It is not the same as UNAVAILABLE.',
+          legalLimits: LEGAL_CAPABILITY_LIMITS,
+          gaps: coverageGaps(registry, matrix),
+        });
+        return 0;
+      }
+      if (sub === 'opportunities') {
+        // Verified free candidates that are not yet implemented, best first.
+        const implemented = new Set(registry.sources.map((s) => s.sourceName.toLowerCase()));
+        out(rankCatalogue()
+          .filter((r) => r.excluded === null && !implemented.has(r.sourceName.toLowerCase()))
+          .map((r) => ({ ...r, components: undefined, score: r.score })));
+        return 0;
+      }
+      if (sub !== undefined) {
+        process.stderr.write(`unknown "df sources" subcommand "${sub}"\n`);
+        return 2;
+      }
       out(registry.sources.map((s) => ({
         sourceId: s.sourceId,
         authority: s.sourceAuthority,
@@ -138,6 +251,9 @@ async function main(): Promise<number> {
         accessType: s.accessType,
         automationStatus: s.automationStatus,
         licenseStatus: s.licenseStatus,
+        costClass: s.costClass ?? 'UNKNOWN_COST',
+        role: s.role ?? null,
+        activation: assessActivation(s).verdict,
         carriesRestrictedContact: s.carriesRestrictedContact,
         active: s.active,
         coverage: registry.mappingsForSource(s.sourceId).map((m) => ({
@@ -412,6 +528,63 @@ async function main(): Promise<number> {
       return 0;
     }
 
+    case 'policy': {
+      // The zero-cost doctrine applied to every registered source, with the
+      // gate that decided each verdict and what would have to change.
+      out({
+        doctrine: 'CORE activation requires zero cost AND sanctioned acquisition AND compatible terms '
+          + 'AND acceptable authority AND reproducible provenance.',
+        sources: registry.sources.map((s) => assessActivation(s)),
+      });
+      return 0;
+    }
+
+    case 'geography': {
+      const byStatus: Record<string, number> = {};
+      const byType: Record<string, number> = {};
+      for (const c of US_COUNTY_EQUIVALENTS) {
+        byStatus[c.status] = (byStatus[c.status] ?? 0) + 1;
+        byType[c.type] = (byType[c.type] ?? 0) + 1;
+      }
+      out({
+        provenance: GEOGRAPHY_PROVENANCE,
+        total: US_COUNTY_EQUIVALENTS.length,
+        byStatus,
+        byType,
+        replaced: US_COUNTY_EQUIVALENTS.filter((c) => c.status === 'replaced')
+          .map((c) => ({ fips: c.fips, name: c.name, note: c.note })),
+      });
+      return 0;
+    }
+
+    case 'coverage': {
+      const matrix = buildCoverage(registry);
+      out(nationalCoverageReport(registry, matrix, systemClock.now().toISOString()));
+      return 0;
+    }
+
+    case 'partitions': {
+      const store = createPartitionStore(VAR_ROOT);
+      if (flags['sweep'] === true) {
+        out({ abandonedGenerationsRemoved: await store.sweepAbandoned() });
+        return 0;
+      }
+      const manifests = await store.manifests();
+      out({
+        count: manifests.length,
+        globalDigest: globalDigest(manifests),
+        partitions: manifests.map((m) => ({
+          partitionId: m.partitionId,
+          rows: m.rowCount,
+          inputRows: m.inputRowCount,
+          outputDigest: m.outputDigest,
+          resolver: m.resolverVersion,
+          activatedAt: m.activatedAt,
+        })),
+      });
+      return 0;
+    }
+
     case 'entity-links': {
       // Organization-name → state-registration decisions, INCLUDING the refusals.
       // A run that resolves nothing has still decided something, and an operator
@@ -451,6 +624,19 @@ async function main(): Promise<number> {
           '  df fields [--source hennepin]                     field inventory and dispositions',
           '  df resolutions                                    canonical property resolution state',
           '  df conflicts                                      open cross-source conflicts',
+          '  df policy                                         zero-cost activation verdict per source',
+          '  df geography                                      county-equivalent catalogue and its provenance',
+          '  df coverage                                       national coverage report',
+          '  df partitions [--sweep]                           projection partitions and the global digest',
+          '',
+          '  df sources candidates                             researched source candidates',
+          '  df sources rank                                   zero-cost priority ranking',
+          '  df sources inspect <id|name>                      one candidate with its evidence',
+          '  df sources verify <id|name>                       what a candidate still needs to be promotable',
+          '  df sources platforms                              shared source-platform families',
+          '  df sources coverage <jurisdictionId>              capability coverage for one place',
+          '  df sources gaps                                   coverage gaps by capability and state',
+          '  df sources opportunities                          verified free candidates not yet implemented',
           '  df entity-links                                   organization → registration decisions, refusals included',
           '  df run <mappingId> --file <p> --period <label>    ingest a local extract',
           '  df run <mappingId> --live --period <l> [--max N]  ingest from a sanctioned API source',

@@ -1,5 +1,6 @@
 // Registry query surface and integrity rules.
 import { fail } from '../core/errors.ts';
+import { assertRolePermitted } from './policy.ts';
 import { JURISDICTIONS, NATION_ID, getJurisdiction, stateJurisdictionId } from './jurisdictions.ts';
 import type {
   Capability,
@@ -31,6 +32,11 @@ export function createRegistry(
   for (const s of sources) {
     if (byId.has(s.sourceId)) fail('CONFIG', `duplicate sourceId "${s.sourceId}" in registry`);
     if (s.sourcePriority < 1) fail('CONFIG', `source "${s.sourceId}" has a non-positive priority`);
+    // The zero-cost doctrine, enforced where sources are assembled rather than
+    // only where they are evaluated. Mirrors sources_core_role_is_zero_cost in
+    // migration 0007: a source may not even be DECLARED core until it is known
+    // to be free.
+    assertRolePermitted(s);
     byId.set(s.sourceId, s);
   }
 

@@ -18,6 +18,7 @@ import { createMnSosBusinessConnector } from '../src/connectors/mn-sos-business/
 import { createStreamingFilesystemObjectStore } from '../src/archive/object-store.ts';
 import { runStreamingConnector, type StreamRunOptions, type StreamRunResult } from '../src/runtime/stream-run.ts';
 import { createGenerationStore, type GenerationStore } from '../src/runtime/staged-store.ts';
+import { createPartitionStore, type PartitionStore, type PartitionTable } from '../src/runtime/partition-store.ts';
 import { defaultRegistry } from '../src/registry/sources.ts';
 import { createMemoryFabricStore, type FabricStore } from '../src/runtime/fabric-store.ts';
 import { runConnector, type RunOptions, type RunResult } from '../src/runtime/run.ts';
@@ -79,7 +80,20 @@ export type StreamHarness = {
   table(name: string): Promise<unknown[]>;
   rows(table: 'bundles' | 'events' | 'absences' | 'contacts'): Promise<unknown[]>;
   resolutions(): Promise<unknown[]>;
+  partitionConflicts(): Promise<unknown[]>;
+  entityLinks(): Promise<unknown[]>;
+  readonly partitions: PartitionStore;
 };
+
+/** Every row of one partition table, across every partition in the estate. */
+export async function partitionRows(varRoot: string, table: PartitionTable): Promise<unknown[]> {
+  const store = createPartitionStore(varRoot);
+  const out: unknown[] = [];
+  for (const key of await store.listPartitions()) {
+    for await (const line of store.readTable(key, table)) out.push(JSON.parse(line));
+  }
+  return out;
+}
 
 export function streamHarness(options: { root?: string; contactPlane?: ContactPlane } = {}): StreamHarness {
   const root = options.root ?? tempRoot('df-stream-');
@@ -164,12 +178,19 @@ export function streamHarness(options: { root?: string; contactPlane?: ContactPl
     },
     bundles: () => readAll('bundles'),
     rows: readAll,
+    // Resolutions now live one partition per county, so the estate-wide view is
+    // a union across partitions rather than a single file. That IS the change:
+    // no run writes an estate-wide file any more.
     async resolutions() {
-      const { readFile } = await import('node:fs/promises');
-      const path = join(varRoot, 'derived', 'resolutions', 'current.ndjson');
-      const text = await readFile(path, 'utf8').catch(() => '');
-      return text.split('\n').filter(Boolean).map((l) => JSON.parse(l));
+      return partitionRows(varRoot, 'resolutions');
     },
+    async partitionConflicts() {
+      return partitionRows(varRoot, 'conflicts');
+    },
+    async entityLinks() {
+      return partitionRows(varRoot, 'entity_links');
+    },
+    partitions: createPartitionStore(varRoot),
   };
 }
 

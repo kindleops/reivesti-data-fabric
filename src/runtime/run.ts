@@ -669,6 +669,8 @@ export function runReport(run: SourceRun): RunReport {
     validationErrorCount: run.validationErrorCount,
     unknownFields: run.unknownFields,
     normalizedDigest: run.normalizedDigest,
+    ...(run.partitionPlan ? { partitions: run.partitionPlan } : {}),
+    ...(run.estateDigest ? { estateDigest: run.estateDigest } : {}),
     failure: run.failureKind ? `${run.failureKind}: ${run.failureMessage}` : null,
   };
 }

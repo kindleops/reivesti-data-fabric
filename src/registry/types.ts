@@ -13,6 +13,10 @@
 
 export type JurisdictionType = 'nation' | 'state' | 'county' | 'municipality' | 'judicial_district';
 
+import type { CountyEquivalentType, GeographyStatus } from './us-geography.ts';
+
+export type { CountyEquivalentType, GeographyStatus };
+
 export type Jurisdiction = {
   /** Stable Reivesti-owned key, e.g. "us", "us-mn", "us-mn-27053". */
   readonly jurisdictionId: string;
@@ -26,6 +30,22 @@ export type Jurisdiction = {
   readonly name: string;
   /** The parent jurisdiction this one sits inside, if any. */
   readonly parentId?: string;
+  /**
+   * The legal form of a county-equivalent, kept distinct rather than flattened
+   * into "county". A parish, a borough, a census area, a planning region and an
+   * independent city are governed differently, and the offices that hold their
+   * records differ with them — which is a source-registry fact, not trivia.
+   */
+  readonly countyEquivalentType?: CountyEquivalentType;
+  /**
+   * Whether this geography is current. Retired identities are RETAINED: a deed
+   * recorded in New Haven County in 2019 was recorded there, and rewriting it to
+   * a planning region would falsify the record.
+   */
+  readonly status?: GeographyStatus;
+  /** Successor geographies, only where an authoritative crosswalk states them. */
+  readonly replacedBy?: readonly string[];
+  readonly note?: string;
 };
 
 // ---------------------------------------------------------------------------
@@ -81,7 +101,111 @@ export type TermsStatus = 'reviewed_permitted' | 'reviewed_restricted' | 'not_re
 
 export type LicenseStatus = 'public_domain' | 'open_with_attribution' | 'licensed' | 'restricted' | 'unknown';
 
+/**
+ * The original coarse cost model, kept because existing rows use it and
+ * rewriting history is not the job. `costClass` below is the field policy reads.
+ */
 export type CostModel = 'free' | 'fee_per_request' | 'subscription' | 'contract' | 'unknown';
+
+/**
+ * What it costs to obtain this source, as a first-class classification.
+ *
+ * Deliberately separate from access type, automation status, licence status and
+ * authority — four questions that are routinely conflated and are genuinely
+ * independent. A free source may forbid automation. A paid source may be
+ * perfectly lawful to use. Neither fact is derivable from the other, and the
+ * zero-cost doctrine turns on the cost answer alone.
+ */
+export type CostClass =
+  // Zero-cost families. Each is a distinct ACQUISITION shape, because the
+  // engineering and the operational burden differ even though the price does not.
+  /** A published file or archive, downloadable without payment. */
+  | 'FREE_BULK'
+  /** A documented programmatic interface offered without charge. */
+  | 'FREE_API'
+  /** A file a human downloads from a public page, no account, no fee. */
+  | 'FREE_PUBLIC_DOWNLOAD'
+  /** An open-data portal dataset (Socrata, CKAN, ArcGIS Hub, and the like). */
+  | 'FREE_OPEN_DATA'
+  /** A queryable service — ArcGIS FeatureServer, WFS, OGC API. */
+  | 'FREE_WEB_SERVICE'
+  /** Obtainable at no charge by a public-records or data-practices request. */
+  | 'FREE_DATA_REQUEST'
+  /** An operator receives a recurring file at no charge by arrangement. */
+  | 'FREE_MANUAL_DELIVERY'
+  /** Reivesti's own data. Costs nothing and is owned outright. */
+  | 'FIRST_PARTY'
+  // Non-zero. Usable, documentable, never required.
+  | 'PAID_OPTIONAL'
+  | 'PAID_SUBSCRIPTION'
+  | 'PAID_PER_RECORD'
+  /** Not yet established. Treated as ineligible, NOT as free. */
+  | 'UNKNOWN_COST';
+
+/** The zero-cost families, in one place so the doctrine has a single definition. */
+export const ZERO_COST_CLASSES: ReadonlySet<CostClass> = new Set<CostClass>([
+  'FREE_BULK', 'FREE_API', 'FREE_PUBLIC_DOWNLOAD', 'FREE_OPEN_DATA',
+  'FREE_WEB_SERVICE', 'FREE_DATA_REQUEST', 'FREE_MANUAL_DELIVERY', 'FIRST_PARTY',
+]);
+
+export function isZeroCost(cost: CostClass): boolean {
+  return ZERO_COST_CLASSES.has(cost);
+}
+
+/**
+ * What a source is FOR in the estate.
+ *
+ * The point of this field is to stop a paid optional source from quietly
+ * becoming load-bearing. A source that is only ever `OPTIONAL_ENRICHMENT` cannot
+ * be the thing a canonical property id depends on, and the difference has to be
+ * declared rather than discovered during an outage.
+ */
+export type SourceRole =
+  /** Canonical facts the estate is built from. Must be zero-cost. */
+  | 'CORE_CANONICAL_SOURCE'
+  /** Supports canonical resolution without being the authority. Must be zero-cost. */
+  | 'CORE_SUPPORTING_SOURCE'
+  /** Adds value; nothing canonical may depend on it. May be paid. */
+  | 'OPTIONAL_ENRICHMENT'
+  /** Used only to check other sources, never to assert a fact. */
+  | 'VALIDATION_ONLY'
+  /** A human looks things up here. No ingestion. */
+  | 'MANUAL_RESEARCH_ONLY'
+  /** Known, deliberately not pursued yet. */
+  | 'DEFERRED'
+  /** Considered and ruled out. The reason is kept. */
+  | 'REJECTED';
+
+/**
+ * Administrative state of a free access path.
+ *
+ * Source OPERATIONS metadata, not source truth: it says where a request has got
+ * to, never what the data contains. It matters because a free data request that
+ * comes back with a fee quote changes the source's cost class, and that
+ * transition needs somewhere to be recorded.
+ */
+export type AccessRequestState =
+  | 'NOT_REQUIRED'
+  | 'NOT_REQUESTED'
+  | 'REQUESTED'
+  | 'AWAITING_RESPONSE'
+  | 'APPROVED'
+  | 'DENIED'
+  | 'FEE_QUOTED'
+  | 'DELIVERED';
+
+export type AccessRequest = {
+  readonly state: AccessRequestState;
+  /** Who the request goes to. */
+  readonly contact: string | null;
+  /** The statute or programme it is made under, where there is one. */
+  readonly basis: string | null;
+  readonly requestedAt: string | null;
+  readonly lastUpdatedAt: string | null;
+  /** Set when the answer came back with a price. Moves the source off zero-cost. */
+  readonly quotedFeeUsd: number | null;
+  readonly notes: string | null;
+};
 
 export type RefreshFrequency =
   | 'continuous'
@@ -138,6 +262,16 @@ export type SourceDefinition = {
    * in a contract folder nobody reads before writing a feature.
    */
   readonly licenseTerms?: SourceLicenseTerms;
+  /**
+   * What it costs. The zero-cost doctrine reads this field and no other.
+   * Optional so DF-0A..0F rows stay valid; policy treats absence as UNKNOWN_COST,
+   * which is ineligible rather than free.
+   */
+  readonly costClass?: CostClass;
+  /** What the source is for. Absence is treated as undeclared, never as core. */
+  readonly role?: SourceRole;
+  /** Where a free access path has got to administratively. */
+  readonly accessRequest?: AccessRequest;
   readonly notes: string;
 };
 

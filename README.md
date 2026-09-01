@@ -9,7 +9,9 @@ web application — that application is a **consumer** of what this produces.
 (real PostgreSQL migration proof, Hennepin County assessor, cross-source
 property resolution) + DF-0D (bounded-memory streaming, full-county proof) +
 DF-0E (recorded instruments, instrument graph, ownership foundation) + DF-0F
-(Minnesota Secretary of State business register, organization identity).
+(Minnesota Secretary of State business register, organization identity) + DF-0G
+(zero-cost doctrine, national jurisdiction registry, projection partitioning,
+source discovery).
 
 ---
 
@@ -56,7 +58,9 @@ derived plane and the artifact store live. Both are gitignored.
 ```
 src/
   core/         hashing, canonical JSON, strict XML, zip, logging, clock, errors
-  registry/     jurisdictions, sources, capabilities, scope expansion
+  registry/     jurisdictions (all 3,244 US county-equivalents), sources,
+                capabilities, scope expansion, zero-cost policy, coverage matrix
+  discovery/    source candidates, research evidence, platform families, ranking
   schema/       XSD compiler, instance validator, schema digest
   archive/      write-once object store, content-addressed artifact store
   runtime/      connector contract, transports, retry, run orchestrator, stores
@@ -70,9 +74,11 @@ src/
   cli/          df
 db/migrations/  data_fabric + data_fabric_restricted — DRAFTS, NOT APPLIED to
                 any Reivesti database; executed for real against a disposable one
+reference/      pinned federal geography files the jurisdiction registry is
+                built from, verified by digest at load
 docs/           architecture, source registry, MN eCRV, DB topology, decisions
 fixtures/       the pinned eCRV XSD and synthetic test documents, all invented
-tests/          424 tests plus 40 real-PostgreSQL migration assertions
+tests/          520 tests plus 47 real-PostgreSQL migration assertions
 ```
 
 ---
@@ -81,6 +87,9 @@ tests/          424 tests plus 40 real-PostgreSQL migration assertions
 
 | Document | Covers |
 |---|---|
+| [ZERO-COST-DATA-DOCTRINE.md](docs/ZERO-COST-DATA-DOCTRINE.md) | Why Reivesti does not pay for core data, cost classification, the activation evaluator, paid-source non-dependency |
+| [NATIONAL-COVERAGE.md](docs/NATIONAL-COVERAGE.md) | The county-equivalent catalogue, changing geographies, the coverage matrix, projection partitioning and its measurements |
+| [SOURCE-DISCOVERY.md](docs/SOURCE-DISCOVERY.md) | Candidate model, evidence requirements, shared platform families, ranking, first national reconnaissance |
 | [DATA-FABRIC-ARCHITECTURE.md](docs/DATA-FABRIC-ARCHITECTURE.md) | System architecture, connector lifecycle, immutability, replay, drift, the contact plane, expansion |
 | [SOURCE-REGISTRY.md](docs/SOURCE-REGISTRY.md) | Jurisdiction/source modelling, how one statewide connector covers 87 counties, activation lifecycle |
 | [MN-ECRV.md](docs/MN-ECRV.md) | Authority, access, cadence, schema, field coverage, county-added limitations, live-activation steps |
@@ -107,7 +116,11 @@ tests/          424 tests plus 40 real-PostgreSQL migration assertions
 | DF-0E recorded-instrument architecture | complete |
 | Hennepin RecordEASE access | **blocked** — terms prohibit programmatic access; activation is a data-practices request |
 | DF-0F business-entity register and organization identity | complete |
-| MN SOS bulk delivery | **not purchased** — $710 commercial one-time, signed licence, no machine endpoint |
+| MN SOS bulk delivery | **not purchased, and deferred** — $710 commercial; Reivesti does not pay for core data |
+| DF-0G zero-cost doctrine | complete — enforced in code and in the schema |
+| DF-0G national jurisdiction registry | complete — 3,244 county-equivalents from pinned Census files |
+| DF-0G projection partitioning | complete — one-county update: 143 ms, zero writes elsewhere |
+| National coverage | 3,222 active jurisdictions, **1** with a core-eligible source |
 | Production DDL | **not applied**, and not ready to be |
 | Scheduled ingestion | not activated |
 
@@ -142,3 +155,12 @@ fixtures, and will run unchanged against the live feed. See
 - Batch sizes are throughput dials that never change results.
 - A crash cannot activate a partial estate: canonical rows are activated by one
   atomic pointer swap.
+- Reivesti does not pay for core data. A paid source may never be required for
+  canonical coverage, and a source may not even be declared core until it is
+  known to be free.
+- `UNKNOWN_COST` is ineligible, not free. `UNVERIFIED` coverage is not
+  `UNAVAILABLE` coverage.
+- Retired geography identities are retained, and are never silently mapped onto
+  their successors without crosswalk evidence.
+- Changing one county recomputes one county. Unaffected jurisdictions are not
+  rewritten at all.

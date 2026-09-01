@@ -71,6 +71,17 @@ since the Fabric must not depend on the web application runtime.
 | Treating `financeType = CASH` as a cash buyer, or `legalActionInd` as a foreclosure | Both stay as source declarations on the transaction. These are derived claims about people, and DF-0B does not make them. |
 | Resolving parties on matching names | All eCRV parties are `unresolved`. False merges are worse than missed merges. |
 | An admin UI | CLI plus structured logs, per the phase brief. |
+| Partitioning projections by `source_id` | By jurisdiction, for property. Property resolution exists to make the assessor, eCRV and the recorder converge on one parcel; partitioning by source would put three observations of one property in three partitions that never meet, which does not slow convergence down — it removes it. |
+| One partition per property | Correct and useless: the address-collision pass compares parcels against each other, so a per-property partition cannot see the conflict it exists to find. Also millions of generation directories. |
+| Partitioning organization identity by county | Nation-scoped. A company observed as an owner in Hennepin may be registered in Delaware; scoping identity to where an observation happened to be seen is the definition of a wrong key. |
+| Claiming global atomicity across a multi-partition run | Per-partition activation, with the outcome of each recorded. Partitions are independent, so a half-applied run leaves every partition individually consistent — and saying that plainly beats implying a guarantee that does not exist. |
+| A hard-coded county count | Derived from pinned Census files, digest-verified at load. Connecticut replaced eight counties with nine planning regions; a remembered number is a bug waiting for a news cycle. |
+| Mapping retired Connecticut counties onto planning regions | No successor asserted. The boundaries do not correspond one-to-one and no federal crosswalk exists; inventing one would relocate every record filed before 2022. |
+| Calling the island areas "retired" because they are absent from the 2025 Gazetteer | `SOURCE_LEGACY`. Absence from a product's scope is not evidence that a geography ceased to exist. |
+| Treating `UNKNOWN_COST` as free, or as paid | Neither. Unknown is ineligible for core use and is reported as unresearched — "we have not priced it" sends someone to a fee schedule, "it costs money" sends them to a budget. |
+| Cost as a heavily-weighted ranking factor | A hard gate. A paid source is excluded and the exclusion is reported instead of a score; a weight is how a doctrine erodes one comparison at a time. |
+| An automated source-discovery bot | `df sources verify` reports what evidence is missing and reaches no publisher. Crawling the internet looking for government data is the behaviour the access doctrine exists to prevent. |
+| Reporting Texas's missing transfer prices as `BLOCKED_ON_COST` | `UNAVAILABLE`, with the statute. Tex. Tax Code § 22.27 means no amount of money buys a lawful government sale-price feed; "keep looking" is the right answer to a paid source and the wrong answer to a record that does not exist. |
 | Scraping the MBLS public business search instead of buying the bulk file | Bought the licensed product's route. A public UI is a different access route under different terms, and "the data is public" is not the same as "this mechanism is sanctioned". `manual_only`, and the connector ships no HTTP client. |
 | Buying Active Business Data at $30 instead of Business Bulk Data at $710 | The cheap product omits every inactive registration — exactly the population that matters when tracing a dissolved seller entity. Saving $680 by silently narrowing the estate is not a saving. |
 | Fuzzy organization matching (Levenshtein, Jaro-Winkler, embeddings) | Deterministic rules only. All three are excellent ways to rank candidates for a human and none of them may establish identity. A false merge corrupts every downstream ownership conclusion, silently. |
@@ -124,3 +135,28 @@ inside the immutable evidence. A delivery whose declared terms do not permit the
 intended use quarantines the run before a single row is read. Ingesting bytes
 whose terms are unknown, and discovering the problem later from the data, is the
 failure mode that costs a relationship with a publisher.
+
+
+**Partitioning the inputs, not just the outputs.** The first sketch of the
+partition store split only the projection's results by county. That would have
+looked like a fix and been worth almost nothing: the fold still had to *read*
+every county's contributions to produce one county's answer, so the cost stayed
+O(estate). Contributions are therefore written into per-partition files at run
+time, which is what makes "recompute Hennepin" open no Ramsey file. The
+measurement is the proof — 5,001 input rows read for a one-county update in a
+1.5-million-row estate.
+
+**The address-collision key was quietly wrong, and partitioning found it.**
+`projectResolutions` grouped its second pass by address alone. With one county
+that is correct; with 3,222, "100 Main St" in Hennepin and "100 Main St" in
+Ramsey would have grouped together and reported rival parcel identities for one
+address across state lines. The group key now includes the county FIPS, and
+county partitioning makes the case unreachable in the normal path as well. Two
+independent guards for the same mistake, because the failure is silent.
+
+**A registry that cannot name a place cannot report a gap.** Expanding the
+jurisdiction catalogue from 87 counties to 3,244 county-equivalents is not
+cosmetic: coverage reporting is the whole point of DF-0G, and a place absent from
+the catalogue produces no row at all rather than an `UNVERIFIED` one. The
+difference between "we have nothing for Wyoming" and "Wyoming is not in our
+model" is the difference between a work queue and a blind spot.

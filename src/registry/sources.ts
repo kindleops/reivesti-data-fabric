@@ -36,6 +36,20 @@ export const SOURCES: readonly SourceDefinition[] = [
     termsStatus: 'reviewed_restricted',
     licenseStatus: 'unknown',
     costModel: 'free',
+    // The department distributes the extract to approved requesters at no
+    // charge. Free, but not yet in hand — which is an ACCESS state, not a cost
+    // state, and the two are kept apart deliberately.
+    costClass: 'FREE_DATA_REQUEST',
+    role: 'CORE_CANONICAL_SOURCE',
+    accessRequest: {
+      state: 'NOT_REQUESTED',
+      contact: 'ecrv.support@state.mn.us',
+      basis: 'Minnesota Department of Revenue eCRV extract distribution',
+      requestedAt: null,
+      lastUpdatedAt: '2026-08-31',
+      quotedFeeUsd: null,
+      notes: 'No fee is published for the extract. If a fee is quoted, this source moves to PAID_OPTIONAL.',
+    },
     // Extract schema versions are documented back to 2015-10-12; the department
     // does not publish a retention floor for the extract itself.
     historicalDepth: '2015-10-12',
@@ -63,6 +77,12 @@ export const SOURCES: readonly SourceDefinition[] = [
     termsStatus: 'reviewed_permitted',
     licenseStatus: 'public_domain',
     costModel: 'free',
+    // A public ArcGIS service the county publishes as open data. The reference
+    // implementation of a core-eligible source: free, sanctioned, licence-clear,
+    // and already proven end to end on 448,087 real parcels.
+    costClass: 'FREE_OPEN_DATA',
+    role: 'CORE_CANONICAL_SOURCE',
+    accessRequest: { state: 'NOT_REQUIRED', contact: null, basis: null, requestedAt: null, lastUpdatedAt: '2026-08-31', quotedFeeUsd: null, notes: null },
     // The service publishes only the current compilation; no archive of prior
     // months is offered, so depth begins when Reivesti starts snapshotting.
     historicalDepth: null,
@@ -98,6 +118,22 @@ export const SOURCES: readonly SourceDefinition[] = [
     // no publisher-reaching transport will run against this source.
     automationStatus: 'prohibited',
     termsStatus: 'reviewed_restricted',
+    // The RecordEASE application is not the route. The lawful route is a
+    // Minn. Stat. ch. 13 data-practices request, which carries no standing fee —
+    // so the source is zero-cost and blocked on ACCESS, not on money. A fee
+    // quote on the request would move it to PAID_OPTIONAL.
+    costClass: 'FREE_DATA_REQUEST',
+    role: 'CORE_CANONICAL_SOURCE',
+    accessRequest: {
+      state: 'NOT_REQUESTED',
+      contact: 'recordsrequest@hennepin.us',
+      basis: 'Minn. Stat. ch. 13 (Minnesota Government Data Practices Act)',
+      requestedAt: null,
+      lastUpdatedAt: '2026-08-31',
+      quotedFeeUsd: null,
+      notes: 'RecordEASE Pro charges $2.50 per document image; the recording INDEX request is separate and '
+        + 'is what this source needs. Automation of the application itself is contractually prohibited.',
+    },
     // The same agreement forbids redistribution of the Information, which
     // constrains what any downstream product may expose.
     licenseStatus: 'restricted',
@@ -138,6 +174,12 @@ export const SOURCES: readonly SourceDefinition[] = [
     termsStatus: 'reviewed_permitted',
     licenseStatus: 'licensed',
     costModel: 'fee_per_request',
+    // $710 commercial one-time. DF-0F built the connector before the zero-cost
+    // doctrine existed; under it the source is DEFERRED and the connector stays
+    // implemented, tested and inactive. It is not deleted and it is not a
+    // dependency — a regression test proves the estate works without it.
+    costClass: 'PAID_OPTIONAL',
+    role: 'DEFERRED',
     // The file is a current-state export. It carries only names and addresses
     // active at generation time, so the register supplies no history of its own.
     historicalDepth: null,
@@ -191,12 +233,20 @@ export const SOURCES: readonly SourceDefinition[] = [
     termsStatus: 'not_reviewed',
     licenseStatus: 'unknown',
     costModel: 'unknown',
+    // Not yet researched. Recorded as UNKNOWN_COST rather than assumed free,
+    // which is what keeps it out of core coverage until someone reads the terms.
+    costClass: 'UNKNOWN_COST',
+    // No role is declared. A source may only be called core once it is KNOWN to
+    // be free, which mirrors the sources_core_role_is_zero_cost constraint in
+    // migration 0007 and is asserted when the registry is built.
+
     historicalDepth: null,
     expectedRefreshFrequency: 'weekly',
     sourcePriority: 2,
     active: false,
     carriesRestrictedContact: false,
-    notes: 'DF-0F. Event-feed-shaped source: dated notices, not a state of the world. Not implemented.',
+    notes: 'Event-feed-shaped source: dated notices, not a state of the world. Not implemented. '
+      + 'Texas county geography is catalogued as of DF-0G, so this mapping now resolves.',
   },
 ];
 
@@ -283,22 +333,28 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
     capabilities: ['foreclosure_notice'],
     coverageStart: null,
     coverageEnd: null,
-    // Texas counties are not catalogued yet, so this mapping is intentionally
-    // omitted from the default registry: expanding it would fail loudly, which
-    // is the correct behaviour and is asserted in tests.
+    // DF-0G catalogued every US county-equivalent, so this mapping resolves and
+    // has rejoined the default registry. It stays `planned`: a resolvable scope
+    // is not an adapter, and the runtime still refuses to run it.
     status: 'planned',
     adapterKey: 'dallas_foreclosure',
     config: {},
   },
 ];
 
-/** Mappings whose scopes resolve against the currently catalogued jurisdictions. */
-const RESOLVABLE = MAPPINGS.filter((m) => m.mappingId !== 'dallas_foreclosure__dallas');
-
-export const DALLAS_MAPPING_AWAITING_JURISDICTIONS = MAPPINGS.find(
+/**
+ * Every mapping now resolves.
+ *
+ * DF-0B..0F held the Dallas mapping out of the default registry because Texas
+ * counties were not catalogued and expanding it would have failed. The national
+ * geography removed that exclusion, which is the first concrete dividend of
+ * DF-0G: a source can be modelled anywhere in the country before its adapter
+ * exists.
+ */
+export const DALLAS_MAPPING = MAPPINGS.find(
   (m) => m.mappingId === 'dallas_foreclosure__dallas',
 ) as SourceJurisdictionMapping;
 
 export function defaultRegistry(): Registry {
-  return createRegistry(SOURCES, RESOLVABLE);
+  return createRegistry(SOURCES, MAPPINGS);
 }

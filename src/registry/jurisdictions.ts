@@ -1,11 +1,28 @@
-// Jurisdiction catalogue. Nation and states are enumerated for the whole US so
-// that a source in any state can be registered before its adapter exists.
-// County detail is added state by state as connectors reach that state; only
-// Minnesota is enumerated in DF-0B.
+/**
+ * Jurisdiction catalogue: the whole United States, county-equivalent by
+ * county-equivalent.
+ *
+ * DF-0B enumerated the nation, the states and Minnesota's 87 counties, on the
+ * reasoning that county detail could be added state by state as connectors
+ * arrived. DF-0G replaces that with the complete federal geography, because the
+ * coverage matrix has to be able to say "no source" for a place — and a place
+ * that is not in the catalogue cannot be reported as uncovered, only as absent,
+ * which is a different and much less useful answer.
+ *
+ * The geography is built from pinned Census files (see `us-geography.ts`), not
+ * from a remembered county count. Retired identities stay in the catalogue.
+ */
 import { MN_COUNTIES, MN_STATE_CODE, MN_STATE_FIPS } from './mn-counties.ts';
+import { US_COUNTY_EQUIVALENTS, type CountyEquivalent } from './us-geography.ts';
 import type { Jurisdiction } from './types.ts';
 
-/** [stateCode, stateFips, name] for the 50 states plus DC. */
+/**
+ * [stateCode, stateFips, name] for the 50 states plus DC.
+ *
+ * Enumerated rather than derived: the Gazetteer carries the postal code but not
+ * the state's own name, and a state list that changes is a much bigger event
+ * than a county list that changes.
+ */
 const US_STATES: readonly (readonly [string, string, string])[] = [
   ['AL', '01', 'Alabama'], ['AK', '02', 'Alaska'], ['AZ', '04', 'Arizona'], ['AR', '05', 'Arkansas'],
   ['CA', '06', 'California'], ['CO', '08', 'Colorado'], ['CT', '09', 'Connecticut'], ['DE', '10', 'Delaware'],
@@ -32,12 +49,47 @@ export function countyJurisdictionId(countyFips: string): string {
   return `us-county-${countyFips}`;
 }
 
+/**
+ * State-level entities that appear in the county geography but not in the
+ * 50-states-plus-DC list: Puerto Rico, and the island areas the 2020 vintage
+ * carried. Named here so their counties have a real parent rather than dangling.
+ */
+const TERRITORIES: readonly (readonly [string, string, string])[] = [
+  ['PR', '72', 'Puerto Rico'], ['AS', '60', 'American Samoa'], ['GU', '66', 'Guam'],
+  ['MP', '69', 'Northern Mariana Islands'], ['VI', '78', 'U.S. Virgin Islands'],
+  ['UM', '74', 'U.S. Minor Outlying Islands'],
+];
+
+function jurisdictionOf(county: CountyEquivalent, stateName: string): Jurisdiction {
+  return {
+    jurisdictionId: countyJurisdictionId(county.fips),
+    jurisdictionType: 'county',
+    country: 'US',
+    stateCode: county.stateCode,
+    stateFips: county.stateFips,
+    countyFips: county.fips,
+    // The bare name without its legal suffix, for display and for matching a
+    // source that says "Hennepin". The full federal name is `name`.
+    countyName: county.name
+      .replace(/ (County|Parish|Borough|Census Area|Municipality|Municipio|Planning Region|District|Islands?)$/, '')
+      .replace(/ city$/, ''),
+    name: `${county.name}, ${stateName}`,
+    parentId: stateJurisdictionId(county.stateCode),
+    countyEquivalentType: county.type,
+    status: county.status,
+    replacedBy: county.replacedBy,
+    ...(county.note !== null ? { note: county.note } : {}),
+  };
+}
+
 function buildCatalogue(): readonly Jurisdiction[] {
   const out: Jurisdiction[] = [
-    { jurisdictionId: NATION_ID, jurisdictionType: 'nation', country: 'US', name: 'United States' },
+    { jurisdictionId: NATION_ID, jurisdictionType: 'nation', country: 'US', name: 'United States', status: 'active' },
   ];
 
-  for (const [stateCode, stateFips, name] of US_STATES) {
+  const stateNames = new Map<string, string>();
+  for (const [stateCode, stateFips, name] of [...US_STATES, ...TERRITORIES]) {
+    stateNames.set(stateCode, name);
     out.push({
       jurisdictionId: stateJurisdictionId(stateCode),
       jurisdictionType: 'state',
@@ -46,22 +98,16 @@ function buildCatalogue(): readonly Jurisdiction[] {
       stateFips,
       name,
       parentId: NATION_ID,
+      status: 'active',
     });
   }
 
-  for (const [, countyFips3, countyName] of MN_COUNTIES) {
-    const countyFips = `${MN_STATE_FIPS}${countyFips3}`;
-    out.push({
-      jurisdictionId: countyJurisdictionId(countyFips),
-      jurisdictionType: 'county',
-      country: 'US',
-      stateCode: MN_STATE_CODE,
-      stateFips: MN_STATE_FIPS,
-      countyFips,
-      countyName,
-      name: `${countyName} County, Minnesota`,
-      parentId: stateJurisdictionId(MN_STATE_CODE),
-    });
+  for (const county of US_COUNTY_EQUIVALENTS) {
+    const stateName = stateNames.get(county.stateCode);
+    if (stateName === undefined) {
+      throw new Error(`county ${county.fips} names state "${county.stateCode}", which is not catalogued`);
+    }
+    out.push(jurisdictionOf(county, stateName));
   }
 
   return Object.freeze(out);

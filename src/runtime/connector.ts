@@ -262,6 +262,20 @@ export type SourceRun = {
   /** Digest over canonical property resolutions produced by this run. */
   readonly canonicalDigest: string | null;
   readonly batchConfiguration: Readonly<Record<string, number | string | null>>;
+  /**
+   * Which projection partitions this run recomputed, and how each activation
+   * went. Persisted with the run rather than reconstructed from file paths: what
+   * was recomputed is an auditable fact, and a multi-partition run is not
+   * globally atomic, so the per-partition outcome is the only honest record.
+   */
+  readonly partitionPlan?: readonly string[];
+  readonly partitionActivations?: readonly {
+    readonly partitionId: string;
+    readonly state: string;
+    readonly generation: string | null;
+  }[];
+  /** Digest over every partition in the estate, built from their child digests. */
+  readonly estateDigest?: string | null;
   readonly streamed: boolean;
 };
 

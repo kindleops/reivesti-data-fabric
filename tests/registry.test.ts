@@ -10,9 +10,10 @@ import {
   stateJurisdictionId,
 } from '../src/registry/jurisdictions.ts';
 import { MN_COUNTIES } from '../src/registry/mn-counties.ts';
+import { ACTIVE_COUNTY_EQUIVALENTS, US_COUNTY_EQUIVALENTS } from '../src/registry/us-geography.ts';
 import { createRegistry, expandScope } from '../src/registry/registry.ts';
 import {
-  DALLAS_MAPPING_AWAITING_JURISDICTIONS,
+  DALLAS_MAPPING,
   MN_ECRV_SOURCE_ID,
   SOURCES,
   defaultRegistry,
@@ -49,13 +50,24 @@ test('unpadded and padded county codes resolve to the same county', () => {
   assert.equal(mnCountyByCode('88'), undefined);
 });
 
-test('jurisdiction catalogue covers the nation, every state and Minnesota counties', () => {
+test('jurisdiction catalogue covers the nation, every state and every county-equivalent', () => {
   assert.ok(getJurisdiction('us'));
-  assert.equal(JURISDICTIONS.filter((j) => j.jurisdictionType === 'state').length, 51);
-  assert.equal(JURISDICTIONS.filter((j) => j.jurisdictionType === 'county').length, 87);
+  // 50 states + DC, plus the six territory-level entities whose county
+  // equivalents the federal files carry.
+  assert.equal(JURISDICTIONS.filter((j) => j.jurisdictionType === 'state').length, 57);
+  // Counted from the pinned federal files, never asserted as a remembered number.
+  assert.equal(
+    JURISDICTIONS.filter((j) => j.jurisdictionType === 'county').length,
+    US_COUNTY_EQUIVALENTS.length,
+  );
+  assert.equal(
+    JURISDICTIONS.filter((j) => j.jurisdictionType === 'county' && j.status === 'active').length,
+    ACTIVE_COUNTY_EQUIVALENTS.length,
+  );
   const hennepin = getJurisdiction(countyJurisdictionId('27053'));
   assert.equal(hennepin?.parentId, stateJurisdictionId('MN'));
   assert.equal(hennepin?.stateFips, '27');
+  assert.equal(hennepin?.countyEquivalentType, 'county');
 });
 
 // --- one source, many jurisdictions ------------------------------------------
@@ -84,14 +96,16 @@ test('scopes support nation, state list, all-counties and explicit counties', ()
 });
 
 test('a scope naming uncatalogued jurisdictions fails loudly rather than covering nothing', () => {
-  // Texas counties are not catalogued yet. Silently expanding to zero counties
-  // would look like a working mapping that ingests nothing.
+  // Texas IS catalogued now, so the scope that used to fail here resolves — see
+  // the next test. A scope naming something the catalogue does not contain must
+  // still fail, because silently expanding to zero counties looks exactly like a
+  // working mapping that ingests nothing.
   assert.throws(
-    () => expandScope(DALLAS_MAPPING_AWAITING_JURISDICTIONS.scope, JURISDICTIONS, 'dallas'),
+    () => expandScope({ kind: 'counties', countyFips: ['99999'] }, JURISDICTIONS, 'nowhere'),
     (e: unknown) => isFabricError(e, 'CONFIG'),
   );
   assert.throws(
-    () => expandScope({ kind: 'all_counties_in_states', stateCodes: ['TX'] }, JURISDICTIONS, 'tx'),
+    () => expandScope({ kind: 'all_counties_in_states', stateCodes: ['ZZ'] }, JURISDICTIONS, 'zz'),
     (e: unknown) => isFabricError(e, 'CONFIG'),
   );
 });
@@ -137,8 +151,10 @@ test('future connectors are modelled in the registry without being implemented',
   for (const implemented of ['mn_hennepin_assessor', 'mn_hennepin_recorder', 'mn_sos_business']) {
     assert.ok(!planned.includes(implemented), `${implemented} is implemented and should no longer be planned`);
   }
-  // What remains modelled-but-unimplemented is Dallas, which is deliberately
-  // held out of the default registry because Texas counties are not catalogued.
-  assert.equal(DALLAS_MAPPING_AWAITING_JURISDICTIONS.status, 'planned');
-  assert.ok(!registry.mappings.some((m) => m.mappingId === DALLAS_MAPPING_AWAITING_JURISDICTIONS.mappingId));
+  // What remains modelled-but-unimplemented is Dallas. It is IN the default
+  // registry now — DF-0G catalogued Texas, so its scope resolves — and the
+  // runtime still refuses to run it, which is the distinction that matters.
+  assert.equal(DALLAS_MAPPING.status, 'planned');
+  assert.ok(registry.mappings.some((m) => m.mappingId === DALLAS_MAPPING.mappingId));
+  assert.deepEqual(registry.expand(DALLAS_MAPPING).map((j) => j.countyFips), ['48113']);
 });

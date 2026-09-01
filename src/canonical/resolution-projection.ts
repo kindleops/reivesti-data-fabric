@@ -229,8 +229,17 @@ function keyOfProperty(line: string): string {
   return extract(line, '"p":"');
 }
 
+/**
+ * Address grouping is keyed by COUNTY AND address, never by address alone.
+ *
+ * "100 Main St" exists in most of the 3,222 county-equivalents. Grouping on the
+ * address alone would have reported a same-address conflict spanning states —
+ * and, worse, listed parcels from different counties as if they were rival
+ * identities for one property. Partitioning makes this unreachable in the normal
+ * path; the key makes it unreachable at all.
+ */
 function keyOfAddress(line: string): string {
-  return extract(line, '"a":"');
+  return `${extract(line, '"c":"')}\u0000${extract(line, '"a":"')}`;
 }
 
 function extract(line: string, marker: string): string {

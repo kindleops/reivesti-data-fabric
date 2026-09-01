@@ -49,6 +49,7 @@ import {
   fixture,
   hennepinFixture,
   recorderFixture,
+  partitionRows,
   sosFixture,
   streamHarness,
 } from './helpers.ts';
@@ -812,10 +813,13 @@ function withoutRunIdentity(row: unknown): string {
   return canonicalJson(row, ).replace(/"(runId|artifactId)":"[^"]*"/g, '"$1":""');
 }
 
+/**
+ * Link decisions live in the national organization partition now, not in a
+ * single estate-wide file. Organization identity crosses jurisdictions, so it is
+ * deliberately NOT county-partitioned.
+ */
 async function readLinks(varRoot: string): Promise<EntityLinkDecision[]> {
-  const text = await readFile(join(varRoot, 'derived', 'entity-links', 'current.ndjson'), 'utf8')
-    .catch(() => '');
-  return text.split('\n').filter(Boolean).map((l) => JSON.parse(l) as EntityLinkDecision);
+  return (await partitionRows(varRoot, 'entity_links')) as EntityLinkDecision[];
 }
 
 void fixture;

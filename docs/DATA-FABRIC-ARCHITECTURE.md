@@ -282,6 +282,48 @@ The rows carry it too. `LicenseClass` marks each value `RAW_LICENSED`,
 data rather than by application code that remembers. A delivery whose declared
 terms do not permit the intended use **quarantines the run before a row is read**.
 
+## 5g. The zero-cost doctrine
+
+**Reivesti does not pay for core data.** Core national coverage is built from
+free government sources and Reivesti's own data; paid sources may be documented
+and implemented, and may never be *required*.
+
+A source becomes an active core source only when cost is zero AND acquisition is
+sanctioned AND the licence is compatible AND the authority is the office of
+record AND provenance is reproducible. Nothing else qualifies it — not
+usefulness, not being public, not being technically reachable.
+
+The rule is a pure evaluator (`src/registry/policy.ts`) *and* a database
+constraint (`sources_core_role_is_zero_cost`), on purpose: a doctrine that exists
+only in the layer that happens to be running is not a doctrine.
+
+Cost is a first-class field, separate from access type, automation status and
+licence — four questions that get conflated and are independent. `UNKNOWN_COST`
+is treated as ineligible, never as free. See
+[ZERO-COST-DATA-DOCTRINE.md](ZERO-COST-DATA-DOCTRINE.md).
+
+## 5h. Projection partitioning
+
+Through DF-0F, resolution folded the **entire estate** on every run. That is fine
+for one county and fatal for 3,222.
+
+A projection can be split into independent folds exactly where the identity it
+computes is independent. Property identity is already `propertyId(countyFips,
+parcel)`, so property resolution partitions by county. Organization identity
+crosses jurisdictions — a company observed in Hennepin may be registered in
+Delaware — so it does not, and uses a single national partition.
+
+Each partition owns its inputs, outputs, generation pointer and digests.
+Recomputing one county reads and writes only that county; the estate digest is
+built from sorted child digests, so one county changing changes the global digest
+predictably without re-reading anything else. Measured: a one-county update went
+from 7.6 s over 500,000 rows to 143 ms over 5,001, with **zero** writes anywhere
+else, and stayed flat at 158 ms when the estate tripled.
+
+Per-partition activation is atomic. **Across** partitions it is not, and the run
+records which activations succeeded rather than implying a guarantee that does
+not exist. See [NATIONAL-COVERAGE.md](NATIONAL-COVERAGE.md).
+
 ## 6. Change detection
 
 | Case | Result |
@@ -421,9 +463,12 @@ The one prediction that turned out wrong is worth recording: the Secretary of
 State was modelled as an *API* source. It is a purchased monthly CSV. The registry
 row changed; the runtime did not.
 
-A mapping whose jurisdictions are not yet catalogued fails loudly rather than
-expanding to zero — asserted in tests using the Dallas mapping, since Texas
-counties are not catalogued.
+A mapping whose jurisdictions are not yet catalogued still fails loudly rather
+than expanding to zero. What changed in DF-0G is that **every** US
+county-equivalent is now catalogued, built from pinned Census files, so a source
+anywhere in the country can be modelled before its adapter exists — the Dallas
+mapping, held out of the registry for four phases because Texas was not
+enumerated, now resolves.
 
 ---
 
