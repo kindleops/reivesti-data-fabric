@@ -60,16 +60,40 @@ export type FieldAgreement = {
   readonly exactMatch: number;
   /** …and they matched after case/punctuation folding. */
   readonly normalizedMatch: number;
+  /**
+   * …and they stated the same fact in different representations.
+   *
+   * Square feet against acres, cents against whole dollars, a month against a
+   * padded day. Counted separately from `exactMatch` on purpose: the sources
+   * really did write different things down, and a report that hid that would be
+   * claiming a precision neither publisher offers.
+   */
+  readonly equivalentMatch: number;
   /** …and they genuinely disagreed. */
   readonly conflict: number;
+  /**
+   * …and the question does not apply: two dates with different meanings, or a
+   * value the contract could not parse. Neither agreement nor conflict, and
+   * excluded from the rate rather than quietly counted as one of them.
+   */
+  readonly incomparable: number;
   readonly onlyDirect: number;
   readonly onlyAggregation: number;
   readonly neither: number;
 };
 
+/**
+ * Agreement over the population where the question is answerable.
+ *
+ * `incomparable` rows are removed from the denominator, not scored as failures:
+ * a sale date and a recording date that happen to fall on the same day tell you
+ * nothing about either source's accuracy.
+ */
 export function agreementRate(a: FieldAgreement): number {
-  if (a.bothPopulated === 0) return 0;
-  return Math.round(((a.exactMatch + a.normalizedMatch) / a.bothPopulated) * 10_000) / 10_000;
+  const comparable = a.bothPopulated - a.incomparable;
+  if (comparable <= 0) return 0;
+  const agreed = a.exactMatch + a.normalizedMatch + a.equivalentMatch;
+  return Math.round((agreed / comparable) * 10_000) / 10_000;
 }
 
 /**
@@ -97,11 +121,22 @@ export function deriveVerdict(
   if (agreement.bothPopulated === 0) {
     return { ...base, verdict: 'UNRESOLVED', basis: 'no property has a value from both sources' };
   }
+  if (agreement.bothPopulated - agreement.incomparable <= 0) {
+    return {
+      ...base, verdict: 'SEMANTICALLY_DIFFERENT',
+      basis: `all ${agreement.incomparable} populated pairs are incomparable — the two fields do not answer the same question`,
+    };
+  }
 
   // Near-total agreement: neither is better, and saying so beats inventing a
   // preference that would then be relied on.
   if (rate >= 0.999) {
-    return { ...base, verdict: 'COEQUAL_OBSERVATIONS', basis: `${(rate * 100).toFixed(2)}% agreement over ${agreement.bothPopulated} properties` };
+    const equivalent = agreement.equivalentMatch === 0 ? ''
+      : `, of which ${agreement.equivalentMatch} agree only after unit or precision normalization`;
+    return {
+      ...base, verdict: 'COEQUAL_OBSERVATIONS',
+      basis: `${(rate * 100).toFixed(2)}% agreement over ${agreement.bothPopulated} properties${equivalent}`,
+    };
   }
 
   // Wholesale disagreement is not a freshness problem. Two sources that agree on

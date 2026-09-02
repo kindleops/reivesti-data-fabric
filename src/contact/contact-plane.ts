@@ -18,6 +18,7 @@
  */
 import { fail } from '../core/errors.ts';
 import { deterministicId } from '../core/hash.ts';
+import { createIdentityIndex } from '../runtime/identity-index.ts';
 import type { SourceEvidence } from '../canonical/models.ts';
 
 export type ContactType =
@@ -86,21 +87,41 @@ export type ContactPlaneOptions = {
    * buffered runtime behaves exactly as before.
    */
   readonly maxRetained?: number;
+  /**
+   * Observations this plane expects, if the caller knows. Sizes the dedup
+   * ledger's first allocation; it grows on its own otherwise.
+   */
+  readonly expectedObservations?: number;
 };
 
 export function createContactPlane(options: ContactPlaneOptions = {}): ContactPlane {
   const maxRetained = options.maxRetained ?? Number.POSITIVE_INFINITY;
   const rows = new Map<string, ContactObservation>();
   const typeCounts: Record<string, number> = {};
-  const recordedIds = new Set<string>();
+  /**
+   * The dedup ledger, off the JS heap.
+   *
+   * This was a `Set<string>` of observation ids, and `maxRetained` did not bound
+   * it: a 500,000-parcel run put half a million 64-character ids on the heap —
+   * measured as the last row-proportional structure left after DF-0I moved the
+   * others off. Counting is not a reason to hold a dataset in memory.
+   *
+   * The index is exact: a fingerprint hit is confirmed against the full id, so
+   * two different observations are never collapsed into one and `size()` stays
+   * a true count rather than an estimate.
+   */
+  const recordedIds = createIdentityIndex({
+    ...(options.expectedObservations !== undefined ? { expectedRows: options.expectedObservations } : {}),
+    // `contact_` plus a 32-character digest.
+    averageKeyBytes: 40,
+  });
   let recorded = 0;
 
   return {
     record(observation) {
       // Deterministic id: replaying the same evidence re-records the same row
       // rather than accumulating duplicates of somebody's phone number.
-      if (!recordedIds.has(observation.contactObservationId)) {
-        recordedIds.add(observation.contactObservationId);
+      if (!recordedIds.add(observation.contactObservationId)) {
         recorded += 1;
         typeCounts[observation.contactType] = (typeCounts[observation.contactType] ?? 0) + 1;
       }

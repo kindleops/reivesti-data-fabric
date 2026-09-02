@@ -224,6 +224,11 @@ export function createMnStatewideParcelConnector(
         fieldGroups: (record) => mnStatewideFieldGroups(record),
         identityPath: '/county_pin',
         identityOf: (record) => `parcel ${record.countyFips}:${record.countyPin}`,
+        // Parcel identity is county-scoped, so the snapshot index is too. One
+        // statewide delivery then reads and rewrites 59 small indexes rather
+        // than one national one, and a county's absences are answered from that
+        // county's own prior state.
+        partitionOf: (record) => record.countyFips,
         // The publisher's bulk distribution, converted to the same contract.
         acceptedKinds: [GPKG_BUNDLE_KIND],
         // 18,462 of 2.7 million rows carry no county_pin, and a few counties

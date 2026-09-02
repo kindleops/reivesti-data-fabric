@@ -62,6 +62,7 @@ if (!server) {
         '0006_data_fabric_business_entities.sql',
         '0007_data_fabric_zero_cost_national.sql',
         '0008_data_fabric_field_authority.sql',
+        '0009_data_fabric_normalization_contract.sql',
       ]);
     });
 
@@ -96,6 +97,7 @@ if (!server) {
         'data_fabric.instrument_references',
         'data_fabric.jurisdictions',
         'data_fabric.legal_descriptions',
+        'data_fabric.normalization_contracts',
         'data_fabric.ownership_observations',
         'data_fabric.parcel_snapshot_absences',
         'data_fabric.parcel_snapshot_observations',
@@ -116,6 +118,7 @@ if (!server) {
         // somewhere unexpected. Consolidating the two is a tracked cleanup.
         'data_fabric.recorded_instruments',
         'data_fabric.run_partition_activations',
+        'data_fabric.snapshot_index_state',
         'data_fabric.source_artifacts',
         'data_fabric.source_candidate_evidence',
         'data_fabric.source_candidates',
@@ -273,7 +276,7 @@ if (!server) {
         select n.nspname || '.' || c.relname as t, c.relrowsecurity, c.relforcerowsecurity
         from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname in ('data_fabric','data_fabric_restricted') and c.relkind = 'r'`);
-      assert.equal(r.rows.length, 50);
+      assert.equal(r.rows.length, 52);
       const bad = r.rows.filter((x) => !x.relrowsecurity || !x.relforcerowsecurity);
       assert.deepEqual(bad.map((x) => x.t), [], 'tables missing enabled+forced RLS');
     });
@@ -282,11 +285,11 @@ if (!server) {
       const r = await db.query(`
         select tablename, policyname, permissive, roles::text
         from pg_policies where schemaname in ('data_fabric','data_fabric_restricted')`);
-      assert.equal(r.rows.length, 50 * APP_ROLES.length);
+      assert.equal(r.rows.length, 52 * APP_ROLES.length);
       assert.ok(r.rows.every((x) => x.permissive === 'RESTRICTIVE'), 'policies must be RESTRICTIVE');
       for (const role of APP_ROLES) {
         const forRole = r.rows.filter((x) => x.roles.includes(role));
-        assert.equal(forRole.length, 50, `expected a deny policy per table for ${role}`);
+        assert.equal(forRole.length, 52, `expected a deny policy per table for ${role}`);
       }
     });
 
@@ -600,8 +603,35 @@ if (!server) {
         .map((x) => x.def).join(' ');
       assert.match(defs, /PREFER_DIRECT_COUNTY/);
       assert.match(defs, /SEMANTICALLY_DIFFERENT/);
-      // The compared populations must add up.
-      assert.match(defs, /exact_match \+ normalized_match\) \+ conflicts\) <= both_populated/);
+      // The compared populations must add up, including the two outcomes DF-0I
+      // added: same fact in a different representation, and not comparable at all.
+      assert.match(defs, /equivalent_match/);
+      assert.match(defs, /incomparable\) <= both_populated/);
+      // And the measurement must name the contract it was made under: a verdict
+      // measured by string comparison is not evidence about the current one.
+      const contract = columns.find((c) => c.column_name === 'normalization_contract');
+      const mode = columns.find((c) => c.column_name === 'comparison_mode');
+      assert.equal(contract?.is_nullable, 'NO');
+      assert.equal(mode?.is_nullable, 'NO');
+      assert.match(defs, /'literal'::text, 'canonical'::text/);
+    });
+
+    test('an index built by a failed run cannot be the activated one', async () => {
+      // The snapshot index is the memory of what the last ACCEPTED delivery
+      // held. Two activated indexes for one snapshot would give the next run two
+      // candidate memories and no way to choose.
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.snapshot_index_state'::regclass and contype = 'c'`)).rows
+        .map((x) => x.def).join(' ');
+      assert.match(defs, /BUILDING/);
+      assert.match(defs, /DISCARDED/);
+
+      const rows = (await db.query(`
+        select indexdef from pg_indexes
+        where schemaname = 'data_fabric' and tablename = 'snapshot_index_state'`)).rows
+        .map((x) => x.indexdef).join(' ');
+      assert.match(rows, /UNIQUE.*source_id, snapshot_id.*ACTIVATED/s);
     });
 
     test('a source may only be retired with every condition proven', async () => {

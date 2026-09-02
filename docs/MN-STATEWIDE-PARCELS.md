@@ -247,8 +247,9 @@ Two findings shape the comparison:
   hop, acquired 2026-08-04.
 
 `auditOverlap()` folds both sources' canonical rows, grouped by property, and
-measures per field: both-populated, exact match, normalised match, conflict,
-only-direct, only-aggregation. Verdicts are derived arithmetically:
+measures per field: both-populated, exact match, normalised match, equivalent
+match, conflict, incomparable, only-direct, only-aggregation. Verdicts are
+derived arithmetically:
 
 | Verdict | When |
 |---|---|
@@ -260,6 +261,96 @@ only-direct, only-aggregation. Verdicts are derived arithmetically:
 **Evidence is never destroyed.** A canonical current value may prefer one source;
 both observations remain in the estate with their own provenance. Disagreement is
 recorded, not resolved by deletion.
+
+### The audit runs twice, because the first answer was wrong
+
+DF-0H's audit compared values as strings, and reported `situs_address`,
+`parcel_area` and `assessor_sale_date` at 0.00% agreement and `tax_total` at
+5.91%. Three of those conclusions were false. The sources were describing the
+same parcels correctly; the comparison was between square feet and acres, cents
+and whole dollars, `'201412'` and a day-padded `'2014-12-01'`, and a packed
+street string against the same street split into components. See
+`docs/CANONICAL-NORMALIZATION.md` for the parcel-level evidence.
+
+`auditOverlap` now takes a `mode`:
+
+- `'literal'` is exactly the DF-0H comparison, kept verbatim so the before/after
+  is measured rather than remembered.
+- `'canonical'` compares through the normalization contract, and adds two
+  outcomes the string comparison could not express: `equivalentMatch` (same fact,
+  different unit, scale or precision) and `incomparable` (the question does not
+  apply — two dates that mean different things).
+
+`overlapMigrationReport(before, after)` reports per field how many conflicts the
+contract explained, **how many remain**, and the cause. The remaining conflicts
+are the finding; the explained ones are a correction to our own bookkeeping.
+
+Reproduce it with:
+
+```
+df overlap-audit --direct mn_hennepin_county_parcels \
+                 --aggregation mn_statewide_parcels --county 27053
+```
+
+### Measured, on all 443,605 overlapping parcels
+
+Both sources replayed from their retained artifacts into one estate, network off,
+then audited twice. **The literal-mode rates reproduce DF-0H exactly** — 0.00%,
+0.00%, 0.00% and 5.91% — which is what makes the comparison a measurement rather
+than a memory.
+
+| Field | Before | After | Conflicts explained | **Conflicts remaining** |
+|---|---:|---:|---:|---:|
+| `parcel_area` → `canonical_parcel_area` | 0.00% | **73.50%** | 326,054 | **117,551** |
+| `situs_address` → `canonical_address` | 0.00% | **79.66%** | 353,390 | **90,215** |
+| `assessor_sale_date` → `canonical_sale_date` | 0.00% | **99.38%** | 387,583 | **2,420** |
+| `tax_total` → `canonical_tax_total` | 5.91% | **86.55%** | 357,757 | **59,645** |
+| `assessor_sale_value` → `canonical_sale_value` | 99.33% | 99.33% | 0 | 2,993 |
+
+**1,424,784 reported conflicts were our own bookkeeping. 272,824 were real, and
+are still reported as conflicts.**
+
+Categorised as the phase asked:
+
+| | Count | What it is |
+|---|---:|---|
+| **A. normalization artifacts** | 1,424,784 | unit, scale, precision or structure differences the contract now accounts for |
+| **B. actual source disagreements** | 272,824 | the two publishers state different values |
+| **C. different semantics** | 0 | no compared pair proved incomparable; the four suspects were representation, not meaning |
+| **D. source-null differences** | 467,341 | `tax_year` (443,605 aggregation-only), `year_built` (23,383 aggregation-only), `classification` (625 direct-only), sale date (353 direct-only) |
+
+The detail underneath the rates is the interesting part:
+
+- **Tax total**: only 23,952 parcels (5.40%) match to the cent — almost exactly
+  the 5.91% DF-0H measured, and the same population: parcels whose tax has no
+  cents. Another 360,008 match at whole dollars, which is all MnGeo's integer
+  column can express.
+- **Parcel area**: only 947 match exactly; 325,107 agree within the precision
+  each source states. Two decimals of acres is ±218 square feet, and for a small
+  city lot that interval often does not reach Hennepin's square-foot figure —
+  which is why 117,551 remain, and why they are worth looking at.
+- **Sale date**: 387,583 of 390,003 now agree. 2,420 do not, and those are a real
+  finding rather than a formatting one.
+
+### The verdicts that changed
+
+| Field | DF-0H | DF-0I |
+|---|---|---|
+| `situs_address` / `canonical_address` | SEMANTICALLY_DIFFERENT | **UNRESOLVED** |
+| `parcel_area` / `canonical_parcel_area` | SEMANTICALLY_DIFFERENT | **UNRESOLVED** |
+| `tax_total` / `canonical_tax_total` | SEMANTICALLY_DIFFERENT | **UNRESOLVED** |
+| `assessor_sale_date` / `canonical_sale_date` | SEMANTICALLY_DIFFERENT | **UNRESOLVED** |
+
+Four verdicts changed, and **not one became a preference.** `SEMANTICALLY_DIFFERENT`
+was wrong — the fields do mean the same thing — but 73% to 99% agreement is not
+grounds for declaring a winner either. `UNRESOLVED` is the honest verdict, and it
+says so with its measurement attached.
+
+Everything else is unchanged and stayed unchanged deliberately: `normalized_parcel`
+at 100.00% COEQUAL, the three assessment values at 99.97–99.99% COEQUAL,
+`year_built` COEQUAL, owner and taxpayer names UNRESOLVED at ~99.2%, and
+`tax_year` PREFER_STATE_AGGREGATION because the direct feed does not carry it.
+No comparator was added for names.
 
 ### No supersession
 
@@ -338,12 +429,51 @@ Full statewide ingest of the retained 2,526,658,472-byte bundle:
 | contact observations | 8,090,905 (restricted plane) |
 | canonical events | 7,174,656 |
 
-**Memory is the phase's real limitation and the margin was too thin.** A replay
+**Memory was the phase's real limitation and the margin was too thin.** A replay
 of the same artifact under the same 1 GB cap ran out of memory at 2,625,000 rows.
-Memory is independent of dataset *bytes* — a 2.5 GB artifact streams through
-without being held — but grows with distinct record count at roughly 350 MB per
-million rows. See STREAMING-INGESTION.md for the structures responsible and the
-fix. 2.7 million rows needs about 1.5 GB to be comfortable.
+
+### Re-measured under DF-0I
+
+The same artifact, replayed from the archive with the network off, on the
+off-heap architecture:
+
+| | DF-0H | DF-0I |
+|---|---:|---:|
+| rows parsed / accepted / quarantined | 2,710,201 / 2,648,100 / 62,101 | **identical** |
+| county partitions | 59 | **59** |
+| contact observations | 8,090,905 | **identical** |
+| canonical events | 7,174,656 | **identical** |
+| completeness | complete | complete |
+| **peak heap** | **967 MB** (replay: OOM at row 2,625,000) | **162 MB** |
+| max RSS | — | 614 MB |
+| parse + normalize | 1,555 s | 1,400 s |
+| project | 831 s | 619 s |
+| snapshot indexes on disk | — | 62 MB, across 59 county files |
+
+**162 MB against a 1,024 MB cap**, and row 2,625,000 — the exact row DF-0H died
+on — went past at 33 MB. See `docs/OFF-HEAP-INDEXING.md`.
+
+### Why the digests moved, and why that is not a failed replay
+
+| | DF-0H | DF-0I |
+|---|---|---|
+| raw artifact sha256 | `5f9251f9…` | **`5f9251f9…` — unchanged** |
+| normalized digest | `bbef1b39…` | `cbb9e79f…` |
+| estate digest | `29d0fcbe…` | `8b49e694…` |
+
+The bytes are the same bytes; the run verified the same sha256 it always has.
+What changed is how values are *written down*: the connector's
+`normalizationVersion` moved to `mn_statewide_normalizer_2`, every row now
+carries `normalization_contract: canonical_normalization_v1`, and the canonical
+characteristics gained the contract's area, address, date and money fields.
+
+`normalizationScope()` seeds the normalized digest with those versions precisely
+so this reads as a deliberate representation change rather than as corrupted
+evidence — opposite emergencies that must not look alike. The evidence that it
+is deliberate rather than lossy is in the row above it: the same 2,648,100 rows
+accepted, the same 62,101 quarantined, the same 8,090,905 contact observations
+and the same 7,174,656 canonical events. Nothing was gained or lost; it is
+written down differently.
 
 ### Partition isolation, on real counties
 

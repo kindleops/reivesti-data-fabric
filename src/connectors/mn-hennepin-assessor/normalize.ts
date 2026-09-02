@@ -42,10 +42,23 @@ import {
   contactObservationId,
 } from '../../contact/contact-plane.ts';
 import { contentDigest, deterministicId } from '../../core/hash.ts';
+import { canonicalAddress } from '../../canonical/address.ts';
+import {
+  NORMALIZATION_CONTRACT_VERSION,
+  canonicalArea,
+  canonicalDate,
+  canonicalMoney,
+} from '../../canonical/normalization-contract.ts';
+import { splitPackedStreet } from './street.ts';
 import { countyJurisdictionId } from '../../registry/jurisdictions.ts';
 import type { HennepinParcelRecord } from './record.ts';
 
-export const HENNEPIN_NORMALIZATION_VERSION = 'mn_hennepin_norm_1';
+/**
+ * Bumped in DF-0I: canonical output now carries contract-governed area, address
+ * and date representations. The change is deliberate, so it must be visible as a
+ * version rather than as an unexplained digest difference.
+ */
+export const HENNEPIN_NORMALIZATION_VERSION = 'mn_hennepin_norm_2';
 
 export type HennepinNormalizeContext = {
   readonly sourceId: string;
@@ -202,6 +215,10 @@ export function normalizeHennepinParcel(
       legal_description: record.legalDescription,
       property_status_code: record.propertyStatusCode,
       situs_address: situsText,
+      // Canonical, contract-governed representations. DF-0H compared assembled
+      // display strings and concluded two sources disagreed about every Hennepin
+      // address; they did not, and these are the surface that shows it.
+      ...canonicalFacts(record),
       ...record.geography,
       ...record.attributes,
       // Retained, explicitly not interpreted: the assessor's echo of a last
@@ -379,6 +396,64 @@ function emptyTransactionFor(
       note: 'assessor snapshot row; carries no transfer. Transfer evidence comes from eCRV (DF-0B) and recorded instruments (DF-0D).',
     },
     evidence,
+  };
+}
+
+/**
+ * Contract-governed values for the fields two sources actually compare on.
+ *
+ * The adapter has already read Hennepin's layer and knows what its columns mean;
+ * this hands those meanings to the contract in its representation.
+ */
+function canonicalFacts(record: HennepinParcelRecord): Readonly<Record<string, unknown>> {
+  // Hennepin publishes PARCEL_AREA in square feet. MnGeo publishes acres for the
+  // same parcels; the contract puts both in square feet so they compare.
+  const area = canonicalArea(record.parcelAreaSqFt, 'square_feet');
+  // STREET_NM packs name, type and directional into one padded field. Splitting
+  // it is source interpretation and belongs here, not in the contract.
+  const street = splitPackedStreet(record.situs.streetName);
+  const address = canonicalAddress({
+    houseNumber: record.situs.houseNumber,
+    houseNumberSuffix: record.situs.fractionalHouseNumber,
+    preDirectional: street.preDirectional,
+    streetName: street.streetName,
+    postType: street.postType,
+    postDirectional: street.postDirectional,
+    unitId: record.situs.condoNumber,
+    city: record.situs.municipality,
+    state: 'MN',
+    postalCode: record.situs.zip,
+  });
+  // SALE_DATE is 'YYYYMM' — a year and a month, with no day. Declared as month
+  // precision so it compares honestly against a source that states a day.
+  const saleDate = canonicalDate(record.lastSale.date, 'SALE_DATE', 'month');
+  const saleValue = record.lastSale.priceMinor === null
+    ? canonicalMoney(null)
+    : canonicalMoney(String(record.lastSale.priceMinor), 'minor_units');
+  // TAX_TOT is dollars and cents; the connector already scaled it to minor units.
+  const taxRaw = record.attributes['tax_total'];
+  const taxTotal = taxRaw === null || taxRaw === undefined
+    ? canonicalMoney(null)
+    : canonicalMoney(String(taxRaw), 'minor_units');
+
+  return {
+    canonical_area_square_feet: area.present ? area.squareFeet : null,
+    canonical_area_source_unit: area.present ? area.sourceUnit : null,
+    canonical_area_source_value: area.present ? area.sourceValue : null,
+    canonical_area_absent_reason: area.present ? null : area.reason,
+    // The comparison KEY only — street and unit. The display string is
+    // deliberately not stored: `situs_address` above already carries a
+    // human-readable form, and a second one that concatenates city, state and
+    // ZIP can reproduce a taxpayer mailing line verbatim. The components are
+    // public situs data either way, but a canonical field that is
+    // byte-identical to a restricted value defeats leak scanning, and a scan
+    // that cries wolf is a scan nobody reads.
+    canonical_address_key: address.present ? address.comparisonKey : null,
+    canonical_sale_date: saleDate.present ? saleDate.date : null,
+    canonical_sale_date_precision: saleDate.present ? saleDate.precision : null,
+    canonical_sale_value_minor: saleValue.present ? saleValue.amountMinor.toString() : null,
+    canonical_tax_total_minor: taxTotal.present ? taxTotal.amountMinor.toString() : null,
+    normalization_contract: NORMALIZATION_CONTRACT_VERSION,
   };
 }
 

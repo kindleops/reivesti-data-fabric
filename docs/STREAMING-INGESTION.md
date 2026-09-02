@@ -472,6 +472,88 @@ move both structures off the heap: the identity set to a disk-backed structure o
 a Bloom filter with an external-sort verification pass, and the snapshot index to
 a memory-mapped file it is already shaped for.
 
+## 6d. Taking the indexes off the heap (DF-0I)
+
+Section 6c ended with an honest failure: 967 MB against a 1,024 MB cap, and a
+replay of the same artifact that ran out of memory at row 2,625,000. It also
+ended with a **wrong diagnosis**, which is worth recording because the correction
+is the useful part.
+
+### The diagnosis was wrong
+
+6c blamed the identity `Set` and the `SnapshotIndexBuilder`. Measured one
+structure at a time at 1,000,000 rows (`tools/memprofile.ts`):
+
+| Structure | Heap per row |
+|---|---:|
+| identity `Set<number>` | 37 B (~100 MB at 2.7 M) |
+| `SnapshotIndexBuilder` | **0 B** — it is a `BigUint64Array`, which V8 accounts as external, not heap |
+| `SnapshotIndex`, built and sorted | **0 B** |
+
+The identity set was real but modest. The snapshot index was innocent: it had
+been off-heap since the day it was written, and the 6c table's "~65 MB, ~130 MB
+transient" was external memory misread as heap.
+
+The actual culprit was `distributeContributions`, which grouped contributions by
+county and materialised each county's lines into an array before writing them.
+Hennepin's 447,044 lines are about 110 MB of strings in one array. Per-stage
+sampling found it in a single run:
+
+| Stage | Heap before | Heap after |
+|---|---:|---:|
+| fetch | 39 MB | 41 MB |
+| parse | 36 MB | 16 MB |
+| normalize | 94 MB | 77 MB |
+| **emit** | **215 MB** | **154 MB** |
+
+The fix streams each county group straight into the partition writer.
+
+**Do not infer retention from total heap.** Two of the three structures blamed
+were innocent, and the guilty one was in a stage nobody had profiled.
+
+### What replaced the identity set
+
+An open-addressed hash table in `BigUint64Array`s with a length-prefixed key
+arena in a `Buffer` — all external memory — allocated in fixed-size segments and
+sized from the row count the delivery's own header declares. Measured at 0 bytes
+of heap per row and about 64 bytes of external memory per distinct identity.
+
+Every fingerprint hit is confirmed against the full key, so a collision reports a
+non-match rather than a false duplicate. The 6c fix accepted a one-in-2,500
+chance of a false duplicate quarantining a real parcel; that trade is no longer
+necessary and no longer made.
+
+An earlier DF-0I draft spilled overflow keys to disk while keeping a
+`Set<string>` of them in memory — a heap-proportional structure wearing a
+disk-backed comment. It was replaced before it shipped. See
+`docs/OFF-HEAP-INDEXING.md`.
+
+### Two more structures bounded by a count
+
+Two further defects surfaced while measuring, both the same shape as the one
+6c described and neither in the place anyone was looking:
+
+- **The contact plane's dedup ledger.** `maxRetained` capped the rows kept for
+  reading and did not cap the `Set<string>` of observation ids used to keep
+  `size()` exact. A 500,000-parcel run put half a million ids on the heap; it was
+  the largest remaining row-proportional structure after the identity index moved
+  off. The ledger is now the same off-heap index, and counting stays exact.
+  Peak heap for the 500,000-row ladder step fell from 157 MB to 96 MB.
+- **The external sort's merge buffers.** `mergeSortedFiles` opened every run file
+  with a 1 MiB read buffer, and the number of run files grows with the dataset.
+  The organization fold — two nested sorts over a million observations — peaked
+  at 473 MB of heap with almost nothing retained, and died under a 256 MB cap.
+  The merge now shares a 32 MiB budget across its inputs and merges in passes
+  above 64 of them.
+
+### Off the heap means onto disk, so the permissions were audited
+
+Sort spills and the run's contributions file hold source rows verbatim,
+including owner names and taxpayer mailing lines. The run scratch directory and
+caller-supplied sort scratch went from 0755 to 0700, and spill and line-writer
+files from 0644 to 0600. `createFileLineWriter` now defaults to 0600 rather than
+taking an option callers remember to pass.
+
 ## 7. Limits
 
 1. **Absences are recorded by key hash**, not key. The full key lives in the prior

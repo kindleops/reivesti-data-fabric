@@ -108,9 +108,24 @@ export function createLineWriter(stream: Writable): LineWriter {
   };
 }
 
-export async function createFileLineWriter(path: string): Promise<LineWriter> {
+/**
+ * Opens a line writer on a file, owner-only by default.
+ *
+ * 0600 is the default rather than an option callers remember to pass. Every file
+ * written through here so far holds either raw source rows or staged canonical
+ * rows, and raw rows from an assessor's parcel layer carry owner names and
+ * taxpayer mailing lines before the contact plane has separated them out. A
+ * caller that genuinely wants a readable file says so.
+ */
+export async function createFileLineWriter(
+  path: string,
+  options: { readonly mode?: number } = {},
+): Promise<LineWriter> {
   await mkdir(dirname(path), { recursive: true });
-  return createLineWriter(createWriteStream(path, { highWaterMark: DEFAULT_HIGH_WATER_MARK }));
+  return createLineWriter(createWriteStream(path, {
+    mode: options.mode ?? 0o600,
+    highWaterMark: DEFAULT_HIGH_WATER_MARK,
+  }));
 }
 
 /**
@@ -125,7 +140,9 @@ export async function writeLinesAtomically(
 ): Promise<number> {
   await mkdir(dirname(path), { recursive: true });
   const temp = `${path}.${process.pid}.${Date.now()}.tmp`;
-  const writer = createLineWriter(createWriteStream(temp, { highWaterMark: DEFAULT_HIGH_WATER_MARK }));
+  const writer = createLineWriter(createWriteStream(temp, {
+    mode: 0o600, highWaterMark: DEFAULT_HIGH_WATER_MARK,
+  }));
   try {
     await produce(writer);
     const count = await writer.close();

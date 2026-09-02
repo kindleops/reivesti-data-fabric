@@ -11,6 +11,9 @@ has been applied to production.**
 | `0006_data_fabric_business_entities.sql` | state business registrations, their names, addresses, filings and filing parties, and the evidence-bearing links from observed organization names to registrations |
 | `0004_data_fabric_streaming_runs.sql` | streaming run manifest (reconciliation counts, canonical digest, batch configuration), snapshot absences keyed by hash, resolution lookup indexes |
 | `0003_data_fabric_snapshot_and_resolution.sql` | snapshot sources, time-aware assessment and characteristic observations, authoritative property resolution and conflicts; re-applies the security posture to the new tables |
+| `0007_data_fabric_zero_cost_national.sql` | source cost class and role, access-request state, activation verdicts, capability coverage, national source candidates and their evidence |
+| `0008_data_fabric_field_authority.sql` | per-field source authority with the measurement behind each verdict, capability source preference, and the supersession proofs required to retire a source |
+| `0009_data_fabric_normalization_contract.sql` | the canonical normalization contract registry; field-authority measurements gain `equivalent_match`, `incomparable` and the contract version they were measured under; external snapshot-index lifecycle |
 
 ## Before applying
 

@@ -489,6 +489,12 @@ async function main(): Promise<number> {
         },
         timings: result.timings,
         peakHeapMB: Math.round(result.peakHeapBytes / 1048576),
+        memoryByStage: Object.fromEntries(Object.entries(result.memoryByStage).map(([stage, m]) => [stage, {
+          heapMB: Math.round(m.peakHeapBytes / 1048576),
+          externalMB: Math.round(m.peakExternalBytes / 1048576),
+          arrayBuffersMB: Math.round(m.peakArrayBufferBytes / 1048576),
+          rssMB: Math.round(m.peakRssBytes / 1048576),
+        }])),
         batchConfiguration: result.run.batchConfiguration,
       });
       return result.run.status === 'completed' ? 0 : 1;
@@ -543,6 +549,64 @@ async function main(): Promise<number> {
         parcel: c.normalizedParcel,
         detail: c.detail,
       })));
+      return 0;
+    }
+
+    case 'overlap-audit': {
+      // Two sources describing one county, compared twice: once with the
+      // literal string comparison DF-0H used, and once through the
+      // normalization contract. The difference is the report — see
+      // docs/CANONICAL-NORMALIZATION.md for why the first answer was wrong.
+      const direct = typeof flags['direct'] === 'string' ? (flags['direct'] as string) : '';
+      const aggregation = typeof flags['aggregation'] === 'string' ? (flags['aggregation'] as string) : '';
+      const county = typeof flags['county'] === 'string' ? (flags['county'] as string) : '';
+      if (!direct || !aggregation) {
+        process.stderr.write('usage: df overlap-audit --direct <sourceId> --aggregation <sourceId> [--county <fips>]\n');
+        return 2;
+      }
+      const { createGenerationStore } = await import('../runtime/staged-store.ts');
+      const { auditOverlap, comparablesFrom, overlapMigrationReport, agreementRate } =
+        await import('../canonical/overlap-audit.ts');
+      const store = createGenerationStore(VAR_ROOT);
+      const shared = {
+        directSourceId: direct,
+        aggregationSourceId: aggregation,
+        decidedAt: new Date().toISOString(),
+        sort: { chunkLines: 50_000, scratchDir: `${VAR_ROOT}/scratch` },
+        ...(county ? { countyFips: county } : {}),
+      };
+      const started = Date.now();
+      let peak = 0;
+      const sampler = setInterval(() => { peak = Math.max(peak, process.memoryUsage().heapUsed); }, 100);
+      // Two passes over the same rows. Deliberately not one pass computing both:
+      // the literal audit must stay exactly the code DF-0H ran, so the
+      // comparison is against a measurement rather than a memory of one.
+      const before = await auditOverlap(() => comparablesFrom(store.readTable('bundles')), { ...shared, mode: 'literal' });
+      const after = await auditOverlap(() => comparablesFrom(store.readTable('bundles')), { ...shared, mode: 'canonical' });
+      clearInterval(sampler);
+      out({
+        overlapping: after.overlapping,
+        onlyDirect: after.onlyDirect,
+        onlyAggregation: after.onlyAggregation,
+        contractVersions: after.contractVersions,
+        ms: Date.now() - started,
+        peakHeapMB: Math.round(peak / 1048576),
+        migration: overlapMigrationReport(before, after),
+        canonical: after.agreements.map((a) => ({
+          field: a.field,
+          both: a.bothPopulated,
+          exact: a.exactMatch,
+          normalized: a.normalizedMatch,
+          equivalent: a.equivalentMatch,
+          conflict: a.conflict,
+          incomparable: a.incomparable,
+          onlyDirect: a.onlyDirect,
+          onlyAggregation: a.onlyAggregation,
+          rate: agreementRate(a),
+          verdict: after.decisions.find((d) => d.field === a.field)?.verdict,
+          basis: after.decisions.find((d) => d.field === a.field)?.basis,
+        })),
+      });
       return 0;
     }
 
@@ -710,6 +774,7 @@ async function main(): Promise<number> {
           '  df sweep                                          reclaim abandoned run generations',
           '  df checkpoints                                    completed acquisitions available to --resume',
           '  df replay <mappingId> --artifact <sha256> --period <label>',
+          '  df overlap-audit --direct <sourceId> --aggregation <sourceId> [--county <fips>]',
           '  df verify --artifact <sha256> [--source <id>] [--period <label>]',
           '  df runs                                           run history',
           '',

@@ -371,6 +371,69 @@ resolved by deletion. Retiring a source requires proving redundancy field for
 field, equal freshness, no unique fields lost and retained provenance — enforced
 by a database constraint. Broader coverage is deliberately not on that list.
 
+## 5l. One normalization contract, shared by every connector
+
+A field-level authority verdict is only as good as the comparison behind it, and
+DF-0H's first Hennepin overlap audit reported four fields in total disagreement
+that were not disagreeing at all. Square feet were being compared against acres;
+cents against an integer dollar column; `'201412'` against `'2014-12-01'` where
+the day is padding; a packed street string against the same street split into the
+address standard's components.
+
+`src/canonical/normalization-contract.ts` is the single versioned answer to "how
+is a value written down", used by every connector:
+
+- **Absence is not zero.** Seven distinct absence reasons; `absenceOf(0)` is
+  `null`, because a $0.00 tax bill and an unknown one are different facts.
+- **Money is `bigint` minor units**, parsed from the decimal string. No binary
+  floating point.
+- **Dates carry the precision the source stated**, and a semantic. A sale date is
+  never compared against a recording date.
+- **Areas keep the source unit and value**, and compare within the coarser
+  source's stated precision.
+- **Addresses are components**, and the comparison key is street plus unit —
+  never a display string, and never city or ZIP.
+- **Identifiers keep their leading zeros** and their jurisdiction scope.
+
+Comparators return their own outcomes rather than a boolean:
+`EQUAL_WITHIN_SOURCE_PRECISION`, `EQUAL_AT_WHOLE_UNITS`,
+`EQUAL_AT_SHARED_PRECISION`, `SAME_STREET_DIFFERENT_UNIT`,
+`INCOMPARABLE_SEMANTICS`. Folding those into `EQUAL` would claim a precision the
+publishers do not offer; folding them into `DIFFERENT` is the mistake DF-0H made.
+
+The contract version is part of the run's digest scope, so a change to how values
+are represented changes the replay digest **deliberately** rather than looking
+like a corrupted replay. Source-specific interpretation — that Hennepin's
+`STREET_NM` packs three fields, that MnGeo's sale days are padding — lives in the
+adapter, because only the adapter can know it.
+
+See `docs/CANONICAL-NORMALIZATION.md`.
+
+## 5m. Dataset-sized state is off the JavaScript heap
+
+The rule is `source_dataset_size <= process_memory` must never be required, and
+DF-0I extends it from "streams, not arrays" to "the indexes too". Identity
+fingerprints and keys live in `BigUint64Array`s and `Buffer`s, which V8 accounts
+as external memory; the snapshot key index has always been a flat typed array.
+Measured at 0 bytes of heap per row, against 37 for the `Set` it replaced.
+
+Approximate structures may **assist** and may never **decide**: every fingerprint
+hit is confirmed against the full key, so a collision reports a non-match rather
+than a false duplicate, which would silently drop a real parcel.
+
+Snapshot indexes are **partitioned the way identity is**: one index file per
+county for a parcel source, one for the whole source when identity is
+nation-scoped. Besides smaller working sets, that makes absence detection
+per-county — so a delivery that omits a county reports one uncovered partition
+rather than 40,000 missing parcels, and leaves that county's prior state intact.
+
+An index that grows with the dataset also gets a lifecycle —
+`BUILDING → COMPLETE → ACTIVATED`, with `FAILED` and `DISCARDED` as terminal
+states — because a snapshot index from a quarantined run would make the next run
+report every parcel the rejected delivery omitted as absent.
+
+See `docs/OFF-HEAP-INDEXING.md`.
+
 ## 6. Change detection
 
 | Case | Result |

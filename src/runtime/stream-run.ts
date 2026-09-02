@@ -47,14 +47,17 @@ import { organizationObservationOf } from '../canonical/organization-projection.
 import {
   SnapshotIndexBuilder,
   type SnapshotIndex,
+  activateSnapshotIndex,
+  listIndexedPartitions,
   readSnapshotIndex,
-  writeSnapshotIndex,
+  snapshotIndexPath,
 } from '../canonical/snapshot-index.ts';
 import { SNAPSHOT_CHANGE_KIND, type SnapshotChangeKind, type SourceSnapshot, reconcile, snapshotId as makeSnapshotId } from '../canonical/snapshot.ts';
 import type { ContactObservation, ContactPlane } from '../contact/contact-plane.ts';
 import { type Clock, systemClock } from '../core/clock.ts';
 import { FabricError, fail } from '../core/errors.ts';
 import { MultisetDigest, canonicalJson, deterministicId, sha256 } from '../core/hash.ts';
+import { normalizationScope } from '../canonical/normalization-contract.ts';
 import { externalSort, groupSorted } from '../core/external-sort.ts';
 import { createFileLineWriter, type LineWriter, readLines } from '../core/lines.ts';
 import { type Logger, silentLogger } from '../core/logging.ts';
@@ -137,8 +140,24 @@ export type StreamRunResult = {
   readonly globalDigest: string | null;
   /** Rows this run produced per county. The reconciliation denominator. */
   readonly countyCounts: Readonly<Record<string, number>>;
+  /**
+   * Identity partitions that had prior snapshot state and no rows in this
+   * delivery.
+   *
+   * A delivery-level fact, reported as one line per partition rather than as
+   * one absence per parcel. When a 40,000-parcel county drops out of a
+   * statewide file, "this county was not in the delivery" is the finding;
+   * 40,000 individual "parcel missing" observations would bury it and imply
+   * something about the parcels that is not known.
+   */
+  readonly uncoveredPartitions: readonly string[];
   readonly timings: Readonly<Record<string, number>>;
   readonly peakHeapBytes: number;
+  /** Peak heap, external, arrayBuffers and RSS per pipeline stage. */
+  readonly memoryByStage: Readonly<Record<string, {
+    readonly peakHeapBytes: number; readonly peakExternalBytes: number;
+    readonly peakArrayBufferBytes: number; readonly peakRssBytes: number;
+  }>>;
 };
 
 export async function runStreamingConnector(options: StreamRunOptions): Promise<StreamRunResult> {
@@ -157,8 +176,27 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
 
   const timings: Record<string, number> = {};
   let peakHeapBytes = 0;
+  /**
+   * Per-stage memory, because a single peak number cannot say WHERE the memory
+   * went. DF-0H reported 967 MB and inferring the cause from that one figure was
+   * wrong twice; this records heap, external, arrayBuffers and RSS against the
+   * stage that was running, so the next question is answerable from the run
+   * itself rather than from a separate experiment.
+   */
+  const memoryByStage: Record<string, {
+    peakHeapBytes: number; peakExternalBytes: number; peakArrayBufferBytes: number; peakRssBytes: number;
+  }> = {};
   const sampler = setInterval(() => {
-    peakHeapBytes = Math.max(peakHeapBytes, process.memoryUsage().heapUsed);
+    const usage = process.memoryUsage();
+    const bucket = memoryByStage[stage] ?? {
+      peakHeapBytes: 0, peakExternalBytes: 0, peakArrayBufferBytes: 0, peakRssBytes: 0,
+    };
+    bucket.peakHeapBytes = Math.max(bucket.peakHeapBytes, usage.heapUsed);
+    bucket.peakExternalBytes = Math.max(bucket.peakExternalBytes, usage.external);
+    bucket.peakArrayBufferBytes = Math.max(bucket.peakArrayBufferBytes, usage.arrayBuffers);
+    bucket.peakRssBytes = Math.max(bucket.peakRssBytes, usage.rss);
+    memoryByStage[stage] = bucket;
+    peakHeapBytes = Math.max(peakHeapBytes, usage.heapUsed);
   }, 25);
 
   let stage: RunStage = 'discover';
@@ -211,6 +249,8 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
 
   const store: GenerationStore = createGenerationStore(varRoot);
   let staged: Awaited<ReturnType<GenerationStore['beginRun']>> | null = null;
+  /** Partitions with prior state that this delivery did not cover. See the type. */
+  let uncoveredPartitions: readonly string[] = [];
 
   try {
     if (mapping.adapterKey !== connector.adapterKey) {
@@ -223,7 +263,9 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     if (!isStreamingConnector(connector)) {
       fail('CONFIG', `connector "${connector.adapterKey}" is not a streaming connector`);
     }
-    await mkdir(scratch, { recursive: true });
+    // 0700: the run's scratch holds contributions and sort spills, both of which
+    // are source rows before the contact plane has split them.
+    await mkdir(scratch, { recursive: true, mode: 0o700 });
 
     // ---- acquire ----------------------------------------------------------
     const acquireStart = performance.now();
@@ -371,7 +413,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       connector.connectorVersion, connector.parserVersion, connector.normalizationVersion,
     );
     const runLogger = logger.child({ runId });
-    const ctx: ConnectorContext = { logger: runLogger, source, mapping, runId };
+    const ctx: ConnectorContext = { logger: runLogger, source, mapping, runId, scratchDir: scratch };
 
     // ---- parse + validate (header only, so drift aborts early) -------------
     stage = 'parse';
@@ -389,9 +431,41 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     // ---- prepare the streaming estate --------------------------------------
     stage = 'normalize';
     const snapshotKey = makeSnapshotId(source.sourceId, acquiredRelease.referencePeriod);
-    const indexPath = join(varRoot, 'indexes', `${safeSegment(source.sourceId)}.idx`);
-    const priorIndex: SnapshotIndex = dryRun ? await readSnapshotIndex(indexPath) : await readSnapshotIndex(indexPath);
-    const nextIndex = new SnapshotIndexBuilder(Math.max(1024, priorIndex.size));
+    /**
+     * Snapshot indexes, one per identity partition.
+     *
+     * Parcel identity is county-scoped, so a statewide delivery touches 59 small
+     * indexes rather than one national one. Both sides are loaded lazily: a
+     * five-county delta reads five prior indexes and leaves the other 54 files
+     * alone, which is what makes a partial delivery cheap and its failure
+     * isolated. A source that declares no partition gets the single index it
+     * always had.
+     */
+    const indexRoot = join(varRoot, 'indexes');
+    const priorIndexes = new Map<string | null, SnapshotIndex>();
+    const nextIndexes = new Map<string | null, SnapshotIndexBuilder>();
+    // Rows the delivery declares, spread over however many partitions it turns
+    // out to touch. A first guess only: builders grow if it is low.
+    const declaredRows = session.declaredRowCount ?? 0;
+
+    const priorIndexFor = async (partition: string | null): Promise<SnapshotIndex> => {
+      const existing = priorIndexes.get(partition);
+      if (existing !== undefined) return existing;
+      const loaded = await readSnapshotIndex(snapshotIndexPath(indexRoot, source.sourceId, partition));
+      priorIndexes.set(partition, loaded);
+      return loaded;
+    };
+    const nextIndexFor = (partition: string | null, prior: SnapshotIndex): SnapshotIndexBuilder => {
+      const existing = nextIndexes.get(partition);
+      if (existing !== undefined) return existing;
+      // Sized from whichever count is known: what the last accepted snapshot for
+      // this partition held, or a share of what the delivery declares. Both beat
+      // growing from 1,024 by doubling.
+      const guess = Math.max(1024, prior.size, Math.floor(declaredRows / 64));
+      const builder = new SnapshotIndexBuilder(guess);
+      nextIndexes.set(partition, builder);
+      return builder;
+    };
 
     staged = dryRun ? null : await store.beginRun(runId);
     const contributionsPath = join(scratch, 'contributions.ndjson');
@@ -406,7 +480,14 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     const observedCountyCounts = new Map<string, number>();
     let producedOrganizationRows = false;
 
+    // Seeded with the contract, parser and normalizer versions, so a deliberate
+    // representation change produces a DIFFERENT digest rather than a failed
+    // replay. Those are opposite emergencies and must not look alike.
     const normalizedDigest = new MultisetDigest();
+    normalizedDigest.add(normalizationScope({
+      parserVersion: connector.parserVersion,
+      normalizationVersion: connector.normalizationVersion,
+    }));
     const observedAt = acquired.manifest.retrievedAt;
     const changeCounts: Record<SnapshotChangeKind, number> = {
       new_parcel_observed: 0, unchanged_parcel: 0, parcel_attributes_changed: 0,
@@ -415,7 +496,8 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     let validationErrorCount = 0;
     let processed = 0;
 
-    for await (const { parsed, issues } of session.records()) {
+    for await (const streamed of session.records()) {
+      const { parsed, issues } = streamed;
       metrics.rowsParsed += 1;
 
       if (issues.length > 0) {
@@ -430,8 +512,10 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       metrics.rowsValid += 1;
 
       const groupDigest = sha256(canonicalJson(parsed.fieldGroupDigests ?? {}));
-      const comparison = priorIndex.compareAndMark(parsed.sourceRecordId, parsed.contentDigest, groupDigest);
-      nextIndex.add(parsed.sourceRecordId, parsed.contentDigest, groupDigest);
+      const partition = streamed.partitionKey ?? null;
+      const prior = await priorIndexFor(partition);
+      const comparison = prior.compareAndMark(parsed.sourceRecordId, parsed.contentDigest, groupDigest);
+      nextIndexFor(partition, prior).add(parsed.sourceRecordId, parsed.contentDigest, groupDigest);
 
       const kind = comparison.kind === 'absent' ? 'new' : comparison.kind === 'unchanged' ? 'unchanged' : 'revised';
       changeCounts[SNAPSHOT_CHANGE_KIND[kind]] += 1;
@@ -530,6 +614,16 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       sourceSchemaDigest: summary.snapshot?.sourceSchemaDigest ?? null,
     };
 
+    // Reported, never fatal: the full-key check rejected them, so no false
+    // duplicate reached the estate. Worth logging precisely because it proves
+    // the check is load-bearing rather than decorative.
+    if ((summary.identityFingerprintCollisions ?? 0) > 0) {
+      runLogger.warn('identity.fingerprint_collisions', {
+        collisions: summary.identityFingerprintCollisions,
+        note: 'rejected by the full-key check; no false duplicate was reported',
+      });
+    }
+
     if (summary.driftReasons.length > 0) {
       await contributionsWriter.close();
       await staged?.abort();
@@ -545,10 +639,18 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     }
 
     // ---- absence -----------------------------------------------------------
-    const unseen = priorIndex.unseenKeyHashes();
-    metrics.rowsMissingFromSnapshot = unseen.length;
-    changeCounts.parcel_missing_from_latest_source = unseen.length;
-    if (unseen.length > 0 && staged) {
+    //
+    // Per partition, and only for partitions this delivery actually covered. A
+    // county the delivery never mentioned is not 400,000 missing parcels; it is
+    // one missing county, and conflating the two would bury a real signal under
+    // a synthetic one. Counties present in prior state and absent from this
+    // delivery are reported separately below.
+    let missingCount = 0;
+    for (const [partition, prior] of priorIndexes) {
+      const unseen = prior.unseenKeyHashes();
+      if (unseen.length === 0) continue;
+      missingCount += unseen.length;
+      if (!staged) continue;
       // Recorded by key hash: the absent row's full key lives in the prior
       // snapshot's own partition, and duplicating it here would put a
       // dataset-sized string table back into memory.
@@ -561,13 +663,32 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
           runId,
           observedAt,
           changeKind: 'parcel_missing_from_latest_source',
+          partitionKey: partition,
         });
       }
       runLogger.warn('stream.absences', {
+        partition,
         missing: unseen.length,
         note: 'absent from the latest snapshot; NOT interpreted as removed from the world',
       });
     }
+    metrics.rowsMissingFromSnapshot = missingCount;
+    changeCounts.parcel_missing_from_latest_source = missingCount;
+
+    // A partition that had prior state and produced no rows at all. Loud,
+    // because a whole county vanishing from a delivery is a delivery problem
+    // rather than a property one, and it is never treated as 400,000 absences.
+    const uncovered = (await listIndexedPartitions(indexRoot, source.sourceId))
+      .filter((partition: string | null) => !nextIndexes.has(partition))
+      .map((partition: string | null) => partition ?? '(unpartitioned)');
+    if (uncovered.length > 0) {
+      runLogger.warn('stream.partition_uncovered', {
+        partitions: uncovered,
+        note: 'these partitions had prior state and no rows in this delivery; their indexes are left untouched '
+          + 'and their parcels are NOT reported absent',
+      });
+    }
+    uncoveredPartitions = uncovered;
 
     await contributionsWriter.close();
 
@@ -582,7 +703,21 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     stage = 'emit';
     if (staged) {
       await staged.commit();
-      await writeSnapshotIndex(indexPath, nextIndex.build());
+      // Only here, after the canonical rows are committed. The index is the
+      // memory of what the last ACCEPTED snapshot held; activating one from a
+      // run that quarantined would make the next run report every parcel the
+      // rejected delivery omitted as absent. `activateSnapshotIndex` refuses
+      // anything that is not COMPLETE, so the ordering is enforced rather than
+      // merely observed.
+      for (const [partition, builder] of nextIndexes) {
+        await activateSnapshotIndex(
+          snapshotIndexPath(indexRoot, source.sourceId, partition),
+          builder.build(),
+        );
+      }
+    } else {
+      // A dry run built correct indexes and does not get to keep them.
+      for (const builder of nextIndexes.values()) builder.build().discard();
     }
 
     // ---- distribute contributions to their partitions -----------------------
@@ -717,7 +852,8 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
   ): StreamRunResult {
     return {
       run, artifact, snapshot, resolutions, conflicts, entityLinks,
-      partitionPlan, activations, globalDigest: estateDigest, countyCounts, timings, peakHeapBytes,
+      partitionPlan, activations, globalDigest: estateDigest, countyCounts, uncoveredPartitions,
+      timings, peakHeapBytes, memoryByStage,
     };
   }
 }
@@ -786,20 +922,44 @@ async function distributeContributions(
     return to === -1 ? '' : line.slice(from, to);
   };
 
-  const grouped = groupSorted(
-    externalSort(readLines(scratchFile), keyOf, sort),
-    keyOf,
-    (line: string) => line,
-  );
-  for await (const { key, items } of grouped) {
-    if (key === '') continue; // a contribution with no county cannot be placed
-    const partition = countyPartition('PROPERTY_RESOLUTION', key);
-    async function* lines(): AsyncGenerator<string> {
-      for (const item of items) yield item;
+  /**
+   * Walks the county-sorted stream and hands each county's run to its partition
+   * WITHOUT materialising it.
+   *
+   * The obvious implementation groups by county and writes the group — and that
+   * was the implementation until DF-0I profiled the emit stage. `groupSorted`
+   * collects a group into an array, and here a group is an entire county:
+   * Hennepin's 447,044 contribution lines, about 110 MB, resident at once. That
+   * single array was the largest term in the 967 MB peak DF-0H reported, and it
+   * scales with the biggest county rather than with a configured bound.
+   *
+   * The sorted stream already delivers a county's lines contiguously, so the
+   * group never needs to exist: the boundary is "the key changed", and each
+   * county is streamed straight through to its partition file. Peak memory
+   * becomes one line plus the external sort's own fixed chunk.
+   */
+  const sorted = externalSort(readLines(scratchFile), keyOf, sort)[Symbol.asyncIterator]();
+  let pending: IteratorResult<string> = await sorted.next();
+
+  while (!pending.done) {
+    const county = keyOf(pending.value);
+    if (county === '') {
+      // A contribution with no county cannot be placed in a partition.
+      pending = await sorted.next();
+      continue;
     }
-    await partitions.writeContributions(partition, runId, lines());
+
+    const partition = countyPartition('PROPERTY_RESOLUTION', county);
+    async function* countyLines(): AsyncGenerator<string> {
+      while (!pending.done && keyOf(pending.value) === county) {
+        yield pending.value;
+        pending = await sorted.next();
+      }
+    }
+    await partitions.writeContributions(partition, runId, countyLines());
     written.push(partitionId(partition));
   }
+
   return written;
 }
 
@@ -851,10 +1011,4 @@ async function promote(from: string, to: string): Promise<void> {
 
 function baseName(path: string): string {
   return path.split('/').pop() ?? path;
-}
-
-function safeSegment(value: string): string {
-  const cleaned = value.replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
-  if (!cleaned) fail('CONFIG', `path segment "${value}" is empty after sanitisation`);
-  return cleaned;
 }

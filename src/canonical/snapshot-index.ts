@@ -25,10 +25,27 @@
  * predecessor's digest, which almost certainly differs, so the row is classified
  * `changed` — the safe direction — and the real key is then also marked seen.
  * `ENTRY_BYTES` is exported so the width can be raised if a source ever needs it.
+ *
+ * ## Lifecycle
+ *
+ * An index is the memory of what the last accepted snapshot contained, so the
+ * next run can say which parcels vanished. Activating one from a run that was
+ * quarantined would make the *following* run diff against a snapshot nobody
+ * accepted, and report a county's worth of parcels as absent. The ordering in
+ * `stream-run.ts` already prevented that; `IndexLifecycle` makes it a rule the
+ * type system helps enforce rather than a property of statement order:
+ *
+ *     BUILDING ──build()──▶ COMPLETE ──activate()──▶ ACTIVATED
+ *        │                     │
+ *        └──────fail()─────────┴──▶ FAILED ──▶ (never written)
+ *                              └──discard()──▶ DISCARDED
+ *
+ * A FAILED or DISCARDED index cannot be written, and a COMPLETE one cannot take
+ * more entries.
  */
 import { createHash } from 'node:crypto';
-import { readFile, writeFile, mkdir, rename, rm } from 'node:fs/promises';
-import { dirname } from 'node:path';
+import { readFile, readdir, rename, rm, stat, writeFile, mkdir } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { fail } from '../core/errors.ts';
 
 export const ENTRY_BYTES = 24;
@@ -40,6 +57,16 @@ export type IndexEntry = {
   readonly contentDigest: bigint;
   readonly groupDigest: bigint;
 };
+
+/**
+ * Where an index is in its life.
+ *
+ * `DISCARDED` is distinct from `FAILED` on purpose: a discarded index was
+ * correct and is simply no longer wanted (a dry run, a superseded generation),
+ * while a failed one is not known to be correct at all. Collapsing them would
+ * lose the ability to tell "we threw this away" from "this went wrong".
+ */
+export type IndexLifecycleState = 'BUILDING' | 'COMPLETE' | 'ACTIVATED' | 'FAILED' | 'DISCARDED';
 
 export type KeyComparison =
   | { readonly kind: 'absent' }
@@ -59,12 +86,23 @@ export function shortHash(value: string): bigint {
 export class SnapshotIndexBuilder {
   private buffer: BigUint64Array;
   private count = 0;
+  private state: IndexLifecycleState = 'BUILDING';
 
+  /**
+   * @param expectedRows rows the source declares. Sizing from it avoids the
+   *   doubling reallocations: a 2.7-million-row delivery starting from the old
+   *   1,024-entry default copied the whole array twelve times on the way up.
+   */
   constructor(expectedRows = 1024) {
     this.buffer = new BigUint64Array(Math.max(3, expectedRows * 3));
   }
 
+  get lifecycle(): IndexLifecycleState {
+    return this.state;
+  }
+
   add(sourceRecordKey: string, contentDigestHex: string, groupDigestHex: string): void {
+    if (this.state !== 'BUILDING') fail('CONFIG', `a ${this.state} snapshot index cannot take more entries`);
     if ((this.count + 1) * 3 > this.buffer.length) {
       const grown = new BigUint64Array(this.buffer.length * 2);
       grown.set(this.buffer);
@@ -83,10 +121,24 @@ export class SnapshotIndexBuilder {
 
   /** Sorted, deduplicated-by-nothing snapshot of the accumulated entries. */
   build(): SnapshotIndex {
+    if (this.state !== 'BUILDING') fail('CONFIG', `a ${this.state} snapshot index cannot be built again`);
     const entries = new BigUint64Array(this.count * 3);
     entries.set(this.buffer.subarray(0, this.count * 3));
     sortTriples(entries, this.count);
-    return new SnapshotIndex(entries, this.count);
+    this.state = 'COMPLETE';
+    return new SnapshotIndex(entries, this.count, 'COMPLETE');
+  }
+
+  /**
+   * Abandons the index because the run did not succeed.
+   *
+   * Returns the index so a caller can record what it was going to be, but it can
+   * never be written: the next run must keep diffing against the last snapshot
+   * anybody accepted.
+   */
+  fail(): SnapshotIndex {
+    this.state = 'FAILED';
+    return new SnapshotIndex(new BigUint64Array(0), 0, 'FAILED');
   }
 }
 
@@ -96,14 +148,34 @@ export class SnapshotIndex {
   private readonly count: number;
   private readonly seen: Uint8Array;
 
-  constructor(entries: BigUint64Array, count: number) {
+  private state: IndexLifecycleState;
+
+  constructor(entries: BigUint64Array, count: number, state: IndexLifecycleState = 'COMPLETE') {
     this.entries = entries;
     this.count = count;
     this.seen = new Uint8Array(Math.ceil(Math.max(count, 1) / 8));
+    this.state = state;
   }
 
   static empty(): SnapshotIndex {
-    return new SnapshotIndex(new BigUint64Array(0), 0);
+    // An absent index is ACTIVATED and empty, not FAILED: a source's first run
+    // legitimately has no predecessor, and every key it sees is new.
+    return new SnapshotIndex(new BigUint64Array(0), 0, 'ACTIVATED');
+  }
+
+  get lifecycle(): IndexLifecycleState {
+    return this.state;
+  }
+
+  /** Marks the index live. Called by `activateSnapshotIndex` after the rename. */
+  markActivated(): void {
+    if (this.state !== 'COMPLETE') fail('CONFIG', `a ${this.state} snapshot index cannot be activated`);
+    this.state = 'ACTIVATED';
+  }
+
+  /** Abandons a correct index that is no longer wanted. Distinct from failure. */
+  discard(): void {
+    this.state = 'DISCARDED';
   }
 
   get size(): number {
@@ -180,11 +252,23 @@ export class SnapshotIndex {
     }
     const entries = new BigUint64Array(count * 3);
     for (let i = 0; i < count * 3; i++) entries[i] = buf.readBigUInt64BE(HEADER_BYTES + i * 8);
-    return new SnapshotIndex(entries, count);
+    // Read back from disk means it was activated by whichever run wrote it.
+    return new SnapshotIndex(entries, count, 'ACTIVATED');
   }
 }
 
-export async function writeSnapshotIndex(path: string, index: SnapshotIndex): Promise<void> {
+/**
+ * Writes an index and marks it live.
+ *
+ * Refuses anything that is not COMPLETE. That is the whole safety property: a
+ * quarantined run's index would make the next run diff against a snapshot that
+ * was never accepted, and every parcel the rejected delivery happened to omit
+ * would be reported absent.
+ */
+export async function activateSnapshotIndex(path: string, index: SnapshotIndex): Promise<void> {
+  if (index.lifecycle !== 'COMPLETE') {
+    fail('CONFIG', `refusing to activate a ${index.lifecycle} snapshot index`, { path });
+  }
   await mkdir(dirname(path), { recursive: true });
   const temp = `${path}.${process.pid}.tmp`;
   try {
@@ -194,6 +278,58 @@ export async function writeSnapshotIndex(path: string, index: SnapshotIndex): Pr
     await rm(temp, { force: true });
     throw error;
   }
+  index.markActivated();
+}
+
+/** Former name. Kept as an alias so callers read one way of saying this. */
+export const writeSnapshotIndex = activateSnapshotIndex;
+
+/**
+ * Where a source's snapshot index for one identity partition lives.
+ *
+ * Parcel identity is county-scoped, so the index is too: a delivery covering
+ * five counties reads and rewrites five small files rather than one national
+ * one, a failure is isolated to the counties it touched, and a county's absence
+ * detection is answered from that county's own prior state. `null` is the
+ * single index of a source whose identity is genuinely nation-scoped —
+ * organizations, for instance, where partitioning would be a lie about the
+ * identity space rather than a decomposition of it.
+ */
+export function snapshotIndexPath(root: string, sourceId: string, partitionKey: string | null): string {
+  const safe = (value: string): string => value.replace(/[^A-Za-z0-9._-]/g, '_');
+  if (partitionKey === null) return join(root, `${safe(sourceId)}.idx`);
+  // The filename IS the partition key: `listIndexedPartitions` reads it back to
+  // work out which partitions a delivery did not cover. A key that had to be
+  // rewritten to be a filename would not round-trip, and the mismatch would
+  // report a covered partition as uncovered. County FIPS are already safe; a
+  // connector inventing something else has to say so.
+  if (safe(partitionKey) !== partitionKey) {
+    fail('CONFIG', `partition key "${partitionKey}" is not usable as a file name`, {
+      remedy: 'use only letters, digits, dot, underscore and hyphen in a partition key',
+    });
+  }
+  return join(root, safe(sourceId), `${partitionKey}.idx`);
+}
+
+/**
+ * Partitions this source already has an index for.
+ *
+ * Used to notice a partition that had prior state and produced no rows in the
+ * current delivery. Returns `[null]` for a source stored as a single index.
+ */
+export async function listIndexedPartitions(root: string, sourceId: string): Promise<(string | null)[]> {
+  const safe = sourceId.replace(/[^A-Za-z0-9._-]/g, '_');
+  const out: (string | null)[] = [];
+  try {
+    await stat(join(root, `${safe}.idx`));
+    out.push(null);
+  } catch { /* no single index; the source is partitioned or new */ }
+  try {
+    for (const name of await readdir(join(root, safe))) {
+      if (name.endsWith('.idx')) out.push(name.slice(0, -4));
+    }
+  } catch { /* no partition directory; the source is unpartitioned or new */ }
+  return out.sort((a, b) => String(a).localeCompare(String(b)));
 }
 
 export async function readSnapshotIndex(path: string): Promise<SnapshotIndex> {
@@ -221,7 +357,10 @@ function sortTriples(entries: BigUint64Array, count: number): void {
   const order = new Uint32Array(count);
   for (let i = 0; i < count; i++) order[i] = i;
   // Sorting an index permutation keeps the comparison cheap and the moves few.
-  const indices = Array.from(order);
+  // Sorted in place in the Uint32Array: an earlier version copied it into a
+  // plain Array first, which for 2.7 million rows is ~22 MB of boxed numbers on
+  // the heap this module exists to keep empty.
+  const indices = order;
   indices.sort((a, b) => {
     const ka = entries[a * 3] as bigint;
     const kb = entries[b * 3] as bigint;

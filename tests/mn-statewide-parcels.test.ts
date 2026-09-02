@@ -12,9 +12,9 @@
  */
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
-import { canonicalJson } from '../src/core/hash.ts';
+import { canonicalJson, sha256 } from '../src/core/hash.ts';
 import { isFabricError } from '../src/core/errors.ts';
 import { propertyIdFromCountyParcel } from '../src/canonical/models.ts';
 import { countyPartition, partitionId } from '../src/canonical/partitions.ts';
@@ -305,21 +305,57 @@ test('a delta touching four counties leaves the fifth untouched', async () => {
   assert.equal(after[dakota], before[dakota], 'Dakota was rewritten and must not have been');
 });
 
-test('new, changed, missing and reappeared are each reported as themselves', async () => {
+test('new and changed are each reported as themselves', async () => {
   const h = streamHarness();
   await h.runStatewide(BASE);
   const september = await h.runStatewide(mnStatewideFixture('five-county-2026-09.bundle'), { period: '2026-09' });
   assert.equal(september.run.metrics.rowsNew, 1, 'Carver CV-0002');
   assert.equal(september.run.metrics.rowsRevised, 2, 'Ramsey assessment, Anoka owner');
-  assert.ok(september.run.metrics.rowsMissingFromSnapshot >= 1, 'Dakota DK-0001');
+});
+
+test('a parcel missing from a county the delivery covered is reported absent', async () => {
+  // Anoka is in this delivery and AN-0002 is not. That parcel is genuinely
+  // absent from the snapshot, and the county's own index is what says so.
+  const h = streamHarness();
+  await h.runStatewide(BASE);
+  const partial = await h.runStatewide(
+    mnStatewideFixture('five-county-2026-09-partial-anoka.bundle'), { period: '2026-09-partial' },
+  );
+  assert.equal(partial.run.metrics.rowsMissingFromSnapshot, 1, 'AN-0002');
 
   const absences = (await h.rows('absences')) as Row[];
-  assert.ok(absences.length >= 1);
+  assert.equal(absences.length, 1);
+  assert.equal((absences[0] as { partitionKey?: string }).partitionKey, ANOKA);
   // Absent from a delivery is not deleted from the world.
   for (const absence of absences) assert.ok(!/deleted|removed/i.test(canonicalJson(absence)));
+});
 
+test('a county the delivery never mentions is one finding, not a county of absences', async () => {
+  // Dakota produces no rows in September. Under the old single national index
+  // its whole prior population would have been walked and reported parcel by
+  // parcel — which at statewide scale means 40,000 "parcel missing"
+  // observations for what is actually one delivery defect.
+  const h = streamHarness();
+  await h.runStatewide(BASE);
+  const september = await h.runStatewide(mnStatewideFixture('five-county-2026-09.bundle'), { period: '2026-09' });
+
+  assert.deepEqual(september.uncoveredPartitions, [DAKOTA]);
+  assert.equal(september.run.metrics.rowsMissingFromSnapshot, 0);
+  assert.equal((await h.rows('absences')).length, 0);
+});
+
+test("an uncovered county's prior state survives untouched", async () => {
+  // And because Dakota's index was never rewritten, October compares DK-0001
+  // against the state it was last seen in rather than treating a parcel that
+  // was never gone as new.
+  const h = streamHarness();
+  await h.runStatewide(BASE);
+  await h.runStatewide(mnStatewideFixture('five-county-2026-09.bundle'), { period: '2026-09' });
   const october = await h.runStatewide(mnStatewideFixture('five-county-2026-10.bundle'), { period: '2026-10' });
-  assert.ok(october.run.metrics.rowsNew >= 1, 'Dakota reappears');
+
+  assert.deepEqual(october.uncoveredPartitions, []);
+  assert.equal(october.run.metrics.rowsUnchanged, 9, 'all nine rows, including DK-0001, which never actually changed');
+  assert.equal(october.run.metrics.rowsNew, 0);
 });
 
 test('reordering the delivery changes nothing but the run identity', async () => {
@@ -333,8 +369,11 @@ test('reordering the delivery changes nothing but the run identity', async () =>
 });
 
 test('the sort chunk size changes nothing', async () => {
+  // 1 forces a spill per line and a merge of as many run files as there are
+  // rows, which is the path the multi-pass merge and the shared read-buffer
+  // budget live on. 5000 fits everything in one chunk and never touches disk.
   const digests = new Set<string>();
-  for (const chunkLines of [1, 3, 5000]) {
+  for (const chunkLines of [1, 3, 50, 500, 5000]) {
     const h = streamHarness();
     const r = await h.runStatewide(BASE, { batch: { sortChunkLines: chunkLines } } as never);
     digests.add(`${r.run.normalizedDigest}|${r.globalDigest}`);
@@ -373,6 +412,51 @@ test('a changed publisher field set quarantines the run before any row is read',
   assert.equal(result.run.status, 'quarantined');
   assert.equal(result.run.failureKind, 'SCHEMA_DRIFT');
   assert.equal(result.run.metrics.rowsValid, 0);
+});
+
+test('a quarantined run leaves every prior snapshot index byte-identical', async () => {
+  // The index is the memory of what the last ACCEPTED delivery held. If a
+  // rejected one could overwrite it, the *next* run would diff against a
+  // snapshot nobody accepted and report every parcel the rejected file happened
+  // to omit as absent.
+  const h = streamHarness();
+  await h.runStatewide(BASE);
+
+  const indexRoot = join(h.varRoot, 'indexes');
+  const digestIndexes = async (): Promise<Record<string, string>> => {
+    const out: Record<string, string> = {};
+    for (const dir of await readdir(indexRoot, { withFileTypes: true })) {
+      if (!dir.isDirectory()) continue;
+      for (const file of await readdir(join(indexRoot, dir.name))) {
+        out[`${dir.name}/${file}`] = sha256(await readFile(join(indexRoot, dir.name, file)));
+      }
+    }
+    return out;
+  };
+
+  const before = await digestIndexes();
+  assert.ok(Object.keys(before).length >= 5, 'one index per county, not one per source');
+
+  const drifted = await h.runStatewide(mnStatewideFixture('fault-field-drift.bundle'), { period: '2026-08-drift' });
+  assert.equal(drifted.run.status, 'quarantined');
+  assert.deepEqual(await digestIndexes(), before);
+});
+
+test('a run leaves no scratch directory behind, quarantined or not', async () => {
+  const h = streamHarness();
+  await h.runStatewide(BASE);
+  await h.runStatewide(mnStatewideFixture('fault-field-drift.bundle'), { period: '2026-08-drift' });
+
+  // Sort spills and the run's contributions file hold source rows verbatim.
+  // They are removed on the way out of every run, however it ended. The scratch
+  // root itself stays; what must not stay is anything inside it.
+  assert.deepEqual(await readdir(join(h.varRoot, 'scratch')), []);
+
+  const spills: string[] = [];
+  for (const entry of await readdir(h.root, { withFileTypes: true, recursive: true })) {
+    if (/^sort-|\.ndjson\.tmp$|^identity-/.test(entry.name)) spills.push(entry.name);
+  }
+  assert.deepEqual(spills, []);
 });
 
 // ===========================================================================
@@ -428,7 +512,7 @@ test('both sources keep their own evidence; neither overwrites the other', async
 test('a field only one source populates is preferred, and said to be', () => {
   const onlyAggregation: FieldAgreement = {
     field: 'finished_square_feet', bothPopulated: 0, exactMatch: 0, normalizedMatch: 0,
-    conflict: 0, onlyDirect: 0, onlyAggregation: 400, neither: 0,
+    equivalentMatch: 0, conflict: 0, incomparable: 0, onlyDirect: 0, onlyAggregation: 400, neither: 0,
   };
   const decision = deriveVerdict(onlyAggregation, {
     directSourceId: 'a', aggregationSourceId: 'b', decidedAt: 'T',
@@ -439,7 +523,7 @@ test('a field only one source populates is preferred, and said to be', () => {
 
 test('near-total agreement is coequal, not a winner', () => {
   const decision = deriveVerdict(
-    { field: 'x', bothPopulated: 1000, exactMatch: 1000, normalizedMatch: 0, conflict: 0, onlyDirect: 0, onlyAggregation: 0, neither: 0 },
+    { field: 'x', bothPopulated: 1000, exactMatch: 1000, normalizedMatch: 0, equivalentMatch: 0, conflict: 0, incomparable: 0, onlyDirect: 0, onlyAggregation: 0, neither: 0 },
     { directSourceId: 'a', aggregationSourceId: 'b', decidedAt: 'T' },
   );
   assert.equal(decision.verdict, 'COEQUAL_OBSERVATIONS');
@@ -447,7 +531,7 @@ test('near-total agreement is coequal, not a winner', () => {
 
 test('wholesale disagreement is semantic difference, not staleness', () => {
   const decision = deriveVerdict(
-    { field: 'x', bothPopulated: 1000, exactMatch: 100, normalizedMatch: 0, conflict: 900, onlyDirect: 0, onlyAggregation: 0, neither: 0 },
+    { field: 'x', bothPopulated: 1000, exactMatch: 100, normalizedMatch: 0, equivalentMatch: 0, conflict: 900, incomparable: 0, onlyDirect: 0, onlyAggregation: 0, neither: 0 },
     { directSourceId: 'a', aggregationSourceId: 'b', decidedAt: 'T' },
   );
   assert.equal(decision.verdict, 'SEMANTICALLY_DIFFERENT');
@@ -455,7 +539,7 @@ test('wholesale disagreement is semantic difference, not staleness', () => {
 
 test('partial disagreement stays UNRESOLVED rather than being guessed', () => {
   const decision = deriveVerdict(
-    { field: 'x', bothPopulated: 1000, exactMatch: 800, normalizedMatch: 0, conflict: 200, onlyDirect: 0, onlyAggregation: 0, neither: 0 },
+    { field: 'x', bothPopulated: 1000, exactMatch: 800, normalizedMatch: 0, equivalentMatch: 0, conflict: 200, incomparable: 0, onlyDirect: 0, onlyAggregation: 0, neither: 0 },
     { directSourceId: 'a', aggregationSourceId: 'b', decidedAt: 'T' },
   );
   assert.equal(decision.verdict, 'UNRESOLVED');

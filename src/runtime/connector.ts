@@ -134,6 +134,17 @@ export type ConnectorContext = {
   readonly source: SourceDefinition;
   readonly mapping: SourceJurisdictionMapping;
   readonly runId: string;
+  /**
+   * A private, run-scoped scratch directory, mode 0700.
+   *
+   * External sorts spill here rather than sorting a dataset in memory. The
+   * runtime creates it, keeps it out of the artifact and derived trees, and
+   * removes it when the run ends, whether the run succeeded or failed. Files
+   * written into it hold source rows verbatim — including contact-shaped columns
+   * the connector has not yet routed to the restricted plane — so nothing here
+   * is group- or world-readable.
+   */
+  readonly scratchDir?: string;
 };
 
 export type Connector = {
@@ -289,6 +300,17 @@ import type { ValidationIssue as StreamValidationIssue } from '../schema/xsd.ts'
 export type StreamedRecord = {
   readonly parsed: ParsedRecord;
   readonly issues: readonly StreamValidationIssue[];
+  /**
+   * The identity partition this row belongs to — a county FIPS for a
+   * parcel source, absent for a source whose identity is nation-scoped.
+   *
+   * Snapshot indexes are kept per partition, so a delivery covering five
+   * counties reads and rewrites five small indexes instead of one national one,
+   * and a county's absence detection is answered from that county's own prior
+   * state. Only the connector can say which partition a row is in; the runtime
+   * cannot read a county out of an opaque identity string.
+   */
+  readonly partitionKey?: string;
 };
 
 /**
@@ -306,6 +328,16 @@ export type StreamSummary = {
     readonly sourceSchemaDigest: string | null;
     readonly sourceChangedDuringRead: boolean;
   };
+  /**
+   * Fingerprint hits the duplicate index rejected after checking the full key.
+   *
+   * Reported, never a drift reason. A rejected collision is the exactness check
+   * doing its job: no false duplicate was produced, and quarantining a
+   * multi-million-row delivery because two sha256 prefixes matched would be a
+   * manufactured failure. Zero is the expected value; a non-zero one is worth
+   * seeing precisely because it proves the check is load-bearing.
+   */
+  readonly identityFingerprintCollisions?: number;
 };
 
 /**
@@ -320,6 +352,14 @@ export type StreamingParseSession = {
   readonly schemaDigest: string;
   /** Non-empty means: quarantine now, do not read records. */
   readonly earlyDriftReasons: readonly string[];
+  /**
+   * Rows the delivery declares, when it declares any.
+   *
+   * Advisory: it sizes buffers before the first row is read, and is never used
+   * to decide whether a run is complete — that is the trailer's job, from the
+   * count the publisher reported at the end.
+   */
+  readonly declaredRowCount?: number;
   records(): AsyncGenerator<StreamedRecord>;
   /** Valid only after `records()` is exhausted. */
   finish(): StreamSummary;

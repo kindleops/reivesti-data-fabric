@@ -1,0 +1,20 @@
+# tools/
+
+Measurement scripts. Not part of the runtime, not imported by it, and not run by
+`npm test` — they exist so the numbers in `docs/OFF-HEAP-INDEXING.md` can be
+reproduced rather than believed.
+
+| Script | Answers |
+|---|---|
+| `memprofile.ts` | how many bytes of **heap** each dataset-sized structure retains per row, measured one structure at a time |
+| `orgprofile.ts` | what the nation-scoped organization fold costs, since it is the one projection whose input is not partitioned by county |
+| `synthbundle.ts` | builds a deterministic synthetic delivery in the real statewide bundle shape, at any row count |
+| `scale-ladder.sh` | streams those deliveries end to end under a 1 GB heap and reports peak heap and RSS |
+
+`memprofile.ts` and `orgprofile.ts` need `--expose-gc`: `heapUsed` without a
+forced collection measures garbage as well as retention, and a number that can
+come out negative cannot tell the two apart.
+
+Every row these scripts generate is invented. They read no source artifact and
+no register, and they are the reason the scale proofs do not require committing
+real parcel data.

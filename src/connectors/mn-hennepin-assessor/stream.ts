@@ -14,7 +14,7 @@
 import type { StreamingParseSession } from '../../runtime/connector.ts';
 import { openArcGisSnapshotStream } from '../../runtime/arcgis-session.ts';
 import { HENNEPIN_FIELD_MAP } from './field-map.ts';
-import { parseHennepinFeature, type ParsedParcel } from './parse.ts';
+import { parseHennepinFeature, type ParsedParcel, HENNEPIN_COUNTY_FIPS } from './parse.ts';
 import { fieldGroupsOf } from './groups.ts';
 
 const KNOWN_FIELDS: ReadonlySet<string> = new Set(HENNEPIN_FIELD_MAP.map((f) => f.field));
@@ -36,5 +36,9 @@ export async function openHennepinStream(
     fieldGroups: (record) => fieldGroupsOf(record),
     identityPath: '/PID',
     identityOf: (record) => `parcel ${record.pid}`,
+    // One county, and it is this one. Naming it keeps the index in the same
+    // per-county layout as every other parcel source rather than making
+    // single-county sources a special case.
+    partitionOf: () => HENNEPIN_COUNTY_FIPS,
   });
 }

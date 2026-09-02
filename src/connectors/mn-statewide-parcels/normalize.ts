@@ -49,6 +49,13 @@ import {
 } from '../../canonical/snapshot.ts';
 import { contactObservationId, type ContactObservation } from '../../contact/contact-plane.ts';
 import { contentDigest } from '../../core/hash.ts';
+import { canonicalAddress } from '../../canonical/address.ts';
+import {
+  NORMALIZATION_CONTRACT_VERSION,
+  canonicalArea,
+  canonicalDate,
+  canonicalMoney,
+} from '../../canonical/normalization-contract.ts';
 import { countyJurisdictionId } from '../../registry/jurisdictions.ts';
 import type { MnStatewideParcelRecord } from './parse.ts';
 
@@ -60,7 +67,7 @@ export type MnNormalizeContext = {
   readonly changedFieldGroups: readonly string[];
 };
 
-export const MN_STATEWIDE_NORMALIZATION_VERSION = 'mn_statewide_normalizer_1';
+export const MN_STATEWIDE_NORMALIZATION_VERSION = 'mn_statewide_normalizer_2';
 
 /**
  * A sale the county assessor reported on its parcel roll.
@@ -233,6 +240,9 @@ export function normalizeMnStatewideParcel(
       heating: record.heating,
       cooling: record.cooling,
       situs_address: situs,
+      // Canonical, contract-governed representations. These are the comparison
+      // surface; the source values above remain exactly as published.
+      ...canonicalFacts(record),
       school_district: record.schoolDistrict,
       watershed_district: record.watershedDistrict,
       ctu_name: record.ctuName,
@@ -251,6 +261,7 @@ export function normalizeMnStatewideParcel(
       source_export_date: record.exportDate,
       source_object_id: record.sourceObjectId,
       source_state_pin: record.statePin,
+      normalization_contract: NORMALIZATION_CONTRACT_VERSION,
     },
     evidence,
   }];
@@ -391,6 +402,60 @@ function nonTransactionFor(
         + 'observations, not transfer economics, and they do not replace eCRV.',
     },
     evidence,
+  };
+}
+
+/**
+ * Contract-governed values for the fields two sources actually compare on.
+ *
+ * The adapter's job is done by the time this is called: it has already decided
+ * that `acres_poly` is acreage and that `sale_date` is a sale date padded to the
+ * first of the month. The contract decides how those are represented.
+ */
+function canonicalFacts(record: MnStatewideParcelRecord): Readonly<Record<string, unknown>> {
+  // MnGeo publishes acreage. The contract stores square feet and keeps the acres.
+  const area = canonicalArea(record.acresPolygon, 'acres');
+  const address = canonicalAddress({
+    houseNumber: record.houseNumber === null ? null : String(record.houseNumber),
+    houseNumberPrefix: record.houseNumberPrefix,
+    houseNumberSuffix: record.houseNumberSuffix,
+    preDirectional: record.streetPreDirection,
+    preType: record.streetPreType,
+    streetName: record.streetName,
+    postType: record.streetPostType,
+    postDirectional: record.streetPostDirection,
+    unitType: record.unitType,
+    unitId: record.unitId,
+    city: record.ctuName ?? record.postalCommunity,
+    state: 'MN',
+    postalCode: record.zip,
+    postalCodeExtension: record.zip4,
+  });
+  // Every one of MnGeo's 390,589 Hennepin sale dates ends in -01: the day is
+  // padding, so the source states a MONTH. Declared here because only the
+  // adapter can know that.
+  const saleDate = canonicalDate(record.saleDate, 'SALE_DATE', 'month');
+  const saleValue = canonicalMoney(record.saleValue, 'major_units');
+  // total_tax is an integer column, so the source carries whole dollars.
+  const taxTotal = canonicalMoney(record.totalTax, 'major_units');
+
+  return {
+    canonical_area_square_feet: area.present ? area.squareFeet : null,
+    canonical_area_source_unit: area.present ? area.sourceUnit : null,
+    canonical_area_source_value: area.present ? area.sourceValue : null,
+    canonical_area_absent_reason: area.present ? null : area.reason,
+    // The comparison KEY only — street and unit. The display string is
+    // deliberately not stored: `situs_address` above already carries a
+    // human-readable form, and a second one that concatenates city, state and
+    // ZIP can reproduce a taxpayer mailing line verbatim. The components are
+    // public situs data either way, but a canonical field that is
+    // byte-identical to a restricted value defeats leak scanning, and a scan
+    // that cries wolf is a scan nobody reads.
+    canonical_address_key: address.present ? address.comparisonKey : null,
+    canonical_sale_date: saleDate.present ? saleDate.date : null,
+    canonical_sale_date_precision: saleDate.present ? saleDate.precision : null,
+    canonical_sale_value_minor: saleValue.present ? saleValue.amountMinor.toString() : null,
+    canonical_tax_total_minor: taxTotal.present ? taxTotal.amountMinor.toString() : null,
   };
 }
 

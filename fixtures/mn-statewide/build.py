@@ -14,6 +14,7 @@ Run:  python3 fixtures/mn-statewide/build.py
 """
 import json
 import os
+import zlib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -52,27 +53,46 @@ def header(fields=None, run='2026-08-06', count=None, rows=None):
 
 def parcel(county, pin, owner=None, taxpayer=None, emv_total=None, emv_land=None,
            year_built=None, sale_date=None, sale_value=None, street="1 Synthetic Ave",
-           mkt_year=2026, tax_year=2026, total_tax=None, own_mail=None, acres=1.5):
-    """One parcel row. Every name and mailing line is invented."""
+           mkt_year=2026, tax_year=2026, total_tax=None, own_mail=None, acres=1.5,
+           st_name=None, st_pos_typ=None, st_pos_dir=None, unit_type=None, unit_id=None,
+           anumber=None, zip_cd="55401", ctu_name=None):
+    """One parcel row. Every name and mailing line is invented.
+
+    The `st_*` arguments exist because MnGeo publishes the street in the address
+    standard's separate components, while Hennepin packs the same street into one
+    column. Reproducing that split is the whole point of the overlap fixture.
+    """
     house, _, name = street.partition(" ")
     row = {
-        "objectid": abs(hash(county + pin)) % 10_000_000,
+        # crc32, not hash(): Python randomises str hashing per process, so the
+        # previous version of this script emitted a different objectid on every
+        # run and the "regenerate the fixtures" instruction in the docstring
+        # produced a diff every time.
+        "objectid": zlib.crc32((county + pin).encode()) % 10_000_000,
         "co_code": county,
         "co_name": NAMES.get(county, "Unknown"),
         "state_code": "MN",
         "county_pin": pin,
         "state_pin": f"{county}-{pin}",
-        "anumber": int(house) if house.isdigit() else None,
-        "st_name": name.rsplit(" ", 1)[0] if " " in name else name,
-        "st_pos_typ": name.rsplit(" ", 1)[1] if " " in name else None,
-        "ctu_name": f"{NAMES.get(county, 'Somewhere')} City",
-        "zip": "55401",
+        "anumber": anumber if anumber is not None else (int(house) if house.isdigit() else None),
+        "st_name": st_name if st_name is not None else (name.rsplit(" ", 1)[0] if " " in name else name),
+        "st_pos_typ": st_pos_typ if st_pos_typ is not None else (name.rsplit(" ", 1)[1] if " " in name else None),
+        "ctu_name": ctu_name if ctu_name is not None else f"{NAMES.get(county, 'Somewhere')} City",
+        "zip": zip_cd,
         "acres_poly": acres,
         "mkt_year": mkt_year,
         "tax_year": tax_year,
         "n_standard": 1,
         "edit_date": "2026-07-01T00:00:00.000Z",
     }
+    # Only when supplied: an explicit null column is a different row to the
+    # converter than an absent one, and the other fixtures are pinned by digest.
+    if st_pos_dir is not None:
+        row["st_pos_dir"] = st_pos_dir
+    if unit_type is not None:
+        row["sub_type1"] = unit_type
+    if unit_id is not None:
+        row["sub_id1"] = unit_id
     if owner is not None:
         row["owner_name"] = owner
     if taxpayer is not None:
@@ -193,5 +213,49 @@ OVERLAP = [
     parcel(HENNEPIN, "0202824410098", owner="AVERY FICTITIOUS", emv_total=310000, year_built=1963),
 ]
 write(os.path.join(HERE, "hennepin-overlap.bundle"), OVERLAP)
+
+# --- a covered county that loses one parcel --------------------------------
+# September, but Anoka keeps AN-0001 and drops AN-0002. Anoka is still covered,
+# so that parcel really is absent from the delivery and must be reported as one.
+# Contrast with Dakota, which produces no rows at all: an uncovered county is a
+# delivery problem, not 40,000 missing parcels.
+PARTIAL_ANOKA = [BASE[0], BASE[1], BASE[2], BASE[3], BASE[4], BASE[6], BASE[7]]
+write(os.path.join(HERE, "five-county-2026-09-partial-anoka.bundle"), PARTIAL_ANOKA)
+
+# --- Hennepin overlap: the representation differences -------------------------
+# The state aggregation's view of the two parcels in
+# fixtures/hennepin/v2-overlap-representation.ndjson. The value pairs reproduce
+# the four differences the DF-0I audit found on real parcel 0102724110003 —
+# acres against square feet, an integer tax column, a padded sale day, and a
+# split street — on invented parcels.
+#
+# The second parcel disagrees for real, so a comparator that folded everything
+# into agreement would fail the test rather than pass it more impressively.
+REPRESENTATION = [
+    parcel(HENNEPIN, "0202824410097", owner="NORTHSTAR HOMES LLC", taxpayer="NORTHSTAR HOMES LLC",
+           emv_total=250000, emv_land=88000, year_built=1909,
+           # 1.83 acres is 79,714.8 square feet; Hennepin says 79902.43. The
+           # difference is MnGeo rounding acreage to two decimals.
+           acres=1.83,
+           # An integer column: the 88 cents Hennepin publishes cannot fit.
+           total_tax=109673,
+           # Every one of MnGeo's real Hennepin sale dates ends in -01. The day
+           # is padding, not a day.
+           sale_date="2014-12-01T00:00:00.000Z", sale_value=245000,
+           anumber=2901, st_name="78th", st_pos_typ="Street", st_pos_dir="East",
+           zip_cd="55425", ctu_name="Bloomington"),
+    parcel(HENNEPIN, "0202824410098", owner="AVERY FICTITIOUS", taxpayer="AVERY FICTITIOUS",
+           emv_total=310000, emv_land=120000, year_built=1962,
+           # 2 acres against Hennepin's 5,000 square feet. No rounding explains
+           # a 17x difference.
+           acres=2.0,
+           total_tax=5100,
+           # A different month, not a coarser one.
+           sale_date="2023-11-01T00:00:00.000Z", sale_value=512000,
+           anumber=14, st_name="Cedar Lake", st_pos_typ="Road", st_pos_dir="South",
+           # Unit 102 against Hennepin's 101: the same street, two homes.
+           unit_type="UNIT", unit_id="102", zip_cd="55416", ctu_name="Minneapolis"),
+]
+write(os.path.join(HERE, "hennepin-overlap-representation.bundle"), REPRESENTATION)
 
 print("wrote fixtures to", HERE)

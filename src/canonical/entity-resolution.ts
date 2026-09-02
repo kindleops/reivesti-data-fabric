@@ -21,7 +21,7 @@
  * decision never happened.
  */
 import { fail } from '../core/errors.ts';
-import { externalSort, groupSorted, type SortOptions } from '../core/external-sort.ts';
+import { externalSort, groupSorted, groupSortedStreaming, type SortOptions } from '../core/external-sort.ts';
 import { deterministicId } from '../core/hash.ts';
 import type { ResolutionState } from './models.ts';
 
@@ -111,6 +111,14 @@ export type EntityLinkDecision = {
   readonly evidence: readonly ResolutionEvidence[];
   /** Every entity considered. Retained even when the decision is ambiguous. */
   readonly candidateEntityIds: readonly string[];
+  /**
+   * True when more registrations shared this name than the join keeps.
+   *
+   * The decision is unchanged — a name that common cannot resolve to one
+   * registration anyway — but the candidate list is a sample rather than the
+   * whole set, and a reader must not mistake one for the other.
+   */
+  readonly candidatesTruncated?: boolean;
   readonly resolverVersion: string;
   readonly decidedAt: string;
   /** Why it is not resolved, when it is not. */
@@ -149,6 +157,16 @@ export type ResolutionRules = {
  * That is a conservative starting point by design: the collision audit has not
  * been run against real data, because the licensed delivery has not arrived.
  */
+/**
+ * Registrations kept per join key.
+ *
+ * A normalized name shared by more registrations than this cannot resolve to one
+ * of them under any rule requiring statewide uniqueness, so holding the rest
+ * cannot change a verdict. 64 is generous for a real register — the point of the
+ * cap is the pathological key, not the merely common one.
+ */
+const MAX_CANDIDATES_PER_KEY = 64;
+
 export const DEFAULT_RULES: ResolutionRules = {
   allowUniqueLegalName: false,
   requireAddressCorroboration: true,
@@ -395,6 +413,8 @@ export type ResolutionSummary = {
   readonly provisional: number;
   readonly ambiguous: number;
   readonly unresolved: number;
+  /** Observations whose candidate list was capped. Zero is the expected value. */
+  readonly candidatesTruncated: number;
 };
 
 /**
@@ -429,22 +449,47 @@ export async function resolveOrganizations(
 
   // ---- pass 1: join on every lookup key -----------------------------------
 
+  /**
+   * The join key, with a side marker so entities sort before observations.
+   *
+   * The side has to be in the sort key rather than merely in the line, because
+   * the join below streams observations past a held set of entities and can
+   * only do that if the entities have already gone by. Relying on `"s":"e"`
+   * happening to sort before `"s":"o"` inside the JSON would be true today and
+   * silently wrong the first time the line shape changes.
+   */
+  // DEL. JSON.stringify passes it through unescaped, so it survives into the
+  // serialized key that `extract` reads back, and it sorts after every printable
+  // character so it cannot reorder two different names. \u0001 was the first
+  // choice and was wrong: JSON escapes it to the six characters `\u0001`, which
+  // `extract` returns verbatim, so entity and observation keys never matched and
+  // the join silently produced nothing.
+  const SIDE = String.fromCharCode(127);
+  const joinKey = (line: string): string => extract(line, '"j":"');
+  const groupKey = (line: string): string => {
+    const key = joinKey(line);
+    // Last, not first: the marker is appended, and a name containing the
+    // separator must still group with itself.
+    const at = key.lastIndexOf(SIDE);
+    return at === -1 ? key : key.slice(0, at);
+  };
+
   async function* keyed(): AsyncGenerator<string> {
     for await (const line of entities()) {
       const row = JSON.parse(line) as EntityCandidateRow;
       for (const key of entityKeys(row)) {
-        yield JSON.stringify({ k: key, s: 'e', v: row });
+        yield JSON.stringify({ j: `${key}${SIDE}0`, s: 'e', v: row });
       }
     }
     for await (const line of observations()) {
       const obs = JSON.parse(line) as OrganizationObservation;
       for (const key of observationKeys(obs)) {
-        yield JSON.stringify({ k: key, s: 'o', v: obs });
+        yield JSON.stringify({ j: `${key}${SIDE}1`, s: 'o', v: obs });
       }
     }
   }
 
-  type KeyedLine = { k: string; s: 'e' | 'o'; v: EntityCandidateRow | OrganizationObservation };
+  type KeyedLine = { j: string; s: 'e' | 'o'; v: EntityCandidateRow | OrganizationObservation };
 
   async function* pairs(): AsyncGenerator<string> {
     // Every observation, matched or not, so pass 2 sees all of them.
@@ -453,36 +498,50 @@ export async function resolveOrganizations(
       yield JSON.stringify({ o: obs.o, obs });
     }
 
-    const grouped = groupSorted(
-      externalSort(keyed(), (l) => extract(l, '"k":"'), sort),
-      (l) => extract(l, '"k":"'),
+    // Streamed, not grouped into an array. A key here is a normalized
+    // organization name, and a placeholder name — the register has them, and so
+    // does every assessor file — can appear on a hundred thousand parcels. The
+    // observation side of one key is therefore unbounded, which is exactly the
+    // shape that has bitten this repository twice before.
+    const grouped = groupSortedStreaming(
+      externalSort(keyed(), joinKey, sort),
+      groupKey,
       (l) => JSON.parse(l) as KeyedLine,
     );
     for await (const { items } of grouped) {
       const ents: EntityCandidateRow[] = [];
-      const obs: OrganizationObservation[] = [];
-      for (const item of items) {
-        if (item.s === 'e') ents.push(item.v as EntityCandidateRow);
-        else obs.push(item.v as OrganizationObservation);
-      }
-      // A key nothing was observed under costs nothing to skip, which is the
-      // usual case: most of the register is never mentioned by a county record.
-      if (ents.length === 0 || obs.length === 0) continue;
-      for (const o of obs) {
-        for (const e of ents) yield JSON.stringify({ o: o.o, cand: e });
+      let truncated = false;
+
+      for await (const item of items) {
+        if (item.s === 'e') {
+          // The entity side is capped. A name shared by more than this many
+          // registrations cannot resolve under any rule that requires statewide
+          // uniqueness, so further candidates cannot change the verdict — they
+          // can only lengthen the evidence list and the memory bill. The cap is
+          // recorded on every pair so the decision can say it was hit rather
+          // than quietly presenting a truncated candidate set as complete.
+          if (ents.length < MAX_CANDIDATES_PER_KEY) ents.push(item.v as EntityCandidateRow);
+          else truncated = true;
+          continue;
+        }
+        // Entities for this key have all gone past by now; observations stream.
+        if (ents.length === 0) continue;
+        const o = item.v as OrganizationObservation;
+        for (const e of ents) yield JSON.stringify({ o: o.o, cand: e, t: truncated });
       }
     }
   }
 
   // ---- pass 2: one observation with all its candidates ---------------------
 
-  type PairLine = { o: string; obs?: OrganizationObservation; cand?: EntityCandidateRow };
+  type PairLine = { o: string; obs?: OrganizationObservation; cand?: EntityCandidateRow; t?: boolean };
 
   let resolved = 0;
   let provisional = 0;
   let ambiguous = 0;
   let unresolved = 0;
   let count = 0;
+  let truncatedCount = 0;
 
   const byObservation = groupSorted(
     externalSort(pairs(), (l) => extract(l, '"o":"'), sort),
@@ -492,9 +551,11 @@ export async function resolveOrganizations(
 
   for await (const { key, items } of byObservation) {
     let observation: OrganizationObservation | null = null;
+    let truncated = false;
     const candidates = new Map<string, EntityCandidateRow>();
     for (const item of items) {
       if (item.obs !== undefined) observation = item.obs;
+      if (item.t === true) truncated = true;
       // Deduped: an entity found by both its name and its compact key is one
       // candidate, not two.
       if (item.cand !== undefined) candidates.set(item.cand.i, item.cand);
@@ -507,7 +568,9 @@ export async function resolveOrganizations(
     const observed: OrganizationObservation = observation;
 
     count += 1;
-    const decision = decide(observed, [...candidates.values()], rules, decidedAt);
+    if (truncated) truncatedCount += 1;
+    const base = decide(observed, [...candidates.values()], rules, decidedAt);
+    const decision: EntityLinkDecision = truncated ? { ...base, candidatesTruncated: true } : base;
     if (decision.state === 'resolved') resolved += 1;
     else if (decision.state === 'provisional') provisional += 1;
     else if (decision.state === 'ambiguous') ambiguous += 1;
@@ -516,7 +579,7 @@ export async function resolveOrganizations(
     await emit(decision);
   }
 
-  return { observations: count, resolved, provisional, ambiguous, unresolved };
+  return { observations: count, resolved, provisional, ambiguous, unresolved, candidatesTruncated: truncatedCount };
 }
 
 /** The keys an entity can be found by. Empty keys are skipped, never joined on. */

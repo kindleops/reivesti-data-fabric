@@ -329,6 +329,69 @@ what was retrieved **and** that count did not move during the crawl. A layer tha
 changed underneath a long read is quarantined rather than presented as a
 consistent snapshot.
 
+## 10b. Canonical normalization (DF-0I)
+
+Hennepin's layer writes three things down in ways that need interpretation before
+they can be compared with any other source. That interpretation lives in this
+connector, not in the shared contract, because only someone reading Hennepin's
+own layer knows it is needed:
+
+| Column | What it is | Where it is handled |
+|---|---|---|
+| `STREET_NM` | name, type and directional packed into one space-padded field: `'78TH ST E           '` | `street.ts` → `splitPackedStreet()` |
+| `SALE_DATE` | `'YYYYMM'` — a year and a month, with **no day** | declared as `month` precision to `canonicalDate` |
+| `PARCEL_AREA` | square feet, two decimals | `canonicalArea(..., 'square_feet')` |
+| `TAX_TOT` | dollars and cents, scaled to minor units | `canonicalMoney(..., 'minor_units')` |
+
+`splitPackedStreet` reads from the end — an optional trailing directional, then
+an optional street type, and whatever remains is the name — and is deliberately
+conservative. A trailing token becomes a directional or a street type only when
+it is unambiguously one, and `PARK` is absent from the street-type table because
+"Lyndale Park" is a street name. Anything it cannot confidently split stays in
+the street name, which still compares correctly against another source that also
+failed to split it. Missing an equivalence is recoverable; inventing one is not.
+
+### Measured against the retained artifact, not guessed
+
+Running the splitter over the first 100,000 rows of the retained 447,044-row
+artifact recognised a street type in **82.5%** of non-blank values. The trailing
+tokens it could not place, most common first:
+
+| Token | Count | Verdict |
+|---|---:|---|
+| `LA` | 3,067 | the county's abbreviation for Lane — **added** |
+| `UNASSIGNED` | 1,967 | part of `ADDRESS UNASSIGNED`; a placeholder, not a street |
+| `TR` | 954 | Trail — **added** |
+| `CUR` | 382 | Curve — **added** |
+| `BROADWAY` | 281 | a street name every time — **left alone** |
+| `PENDING` | 138 | placeholder |
+
+Adding `LA`, `TR` and `CUR` took recognition to about 87%. `LA` is safe as a
+*trailing* token even though "LA SALLE AVE" exists, because a leading `LA` is
+never examined.
+
+`ADDRESS UNASSIGNED` appears 2,420 times in 120,000 rows, always with a null
+`HOUSE_NO`, and is now mapped to **absent**. Treated as a street name, every one
+of those parcels would share one canonical address key and an overlap audit would
+report them as agreeing on their address. They agree on having none.
+
+Three more facts from the same pass, each of which the contract depends on:
+
+| Field | Measured over 100,000 rows |
+|---|---|
+| `SALE_DATE` as `YYYYMM` | 88,412 — a month, with no day |
+| `SALE_DATE` blank | 10,816, as **spaces** rather than null |
+| `PARCEL_AREA` fractional square feet | 99,949 of 100,000 |
+| `TAX_TOT` a whole number of dollars | 5,122 (5.1%) |
+
+That last figure is the DF-0H tax mystery: the audit measured 5.91% agreement
+against MnGeo's integer tax column, and 5.1% of Hennepin parcels have no cents.
+Same population, no data-quality problem.
+
+The connector's `normalizationVersion` moved to `mn_hennepin_norm_2` when these
+landed, and every row now carries `normalization_contract`. See
+`docs/CANONICAL-NORMALIZATION.md`.
+
 ## 11. Activating full ingestion
 
 Live access needs no approval — the gate is operational, not legal.

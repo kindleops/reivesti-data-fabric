@@ -175,3 +175,49 @@ test('unbounded submitter free text is isolated rather than published', async ()
   assert.ok(!JSON.stringify(result.bundles).includes(comment), 'submitter free text leaked into canonical output');
   assert.ok(h.contactPlane.read('operator').some((c) => c.value === comment));
 });
+
+// ===========================================================================
+// Scratch files
+//
+// DF-0I moved dataset-sized state off the JS heap, which mostly means moving it
+// onto disk: sort spills, contribution files, per-run scratch. Those hold source
+// rows verbatim — including the owner names and taxpayer mailing lines the
+// contact plane exists to separate — for as long as the run takes. An audit of
+// the new paths found spill files inheriting the process umask, so they are
+// pinned here.
+// ===========================================================================
+
+test('an external sort spills to owner-only files in an owner-only directory', async () => {
+  const { externalSort } = await import('../src/core/external-sort.ts');
+  const scratchDir = tempRoot('df-sortperm-');
+  const rows = Array.from({ length: 400 }, (_, i) => `{"k":"${String(999 - i).padStart(4, '0')}","owner":"A FICTITIOUS NAME"}`);
+
+  // Held open mid-iteration: the spill files only exist while the sort runs.
+  const sorted = externalSort(
+    (async function* () { for (const row of rows) yield row; })(),
+    (line) => line.slice(6, 10),
+    { scratchDir, chunkLines: 50 },
+  )[Symbol.asyncIterator]();
+  await sorted.next();
+
+  const dirs = readdirSync(scratchDir).map((name) => join(scratchDir, name));
+  assert.ok(dirs.length > 0, 'the sort should have spilled');
+  for (const dir of dirs) {
+    assert.equal(statSync(dir).mode & 0o777, 0o700, `${dir} is not owner-only`);
+    for (const file of readdirSync(dir)) {
+      assert.equal(statSync(join(dir, file)).mode & 0o777, 0o600, `${dir}/${file} is not owner-only`);
+    }
+  }
+  // Drain, so the sort cleans up after itself.
+  while (!(await sorted.next()).done) { /* drain */ }
+});
+
+test('a run leaves no scratch behind, and none of it was world-readable', async () => {
+  const { createFileLineWriter } = await import('../src/core/lines.ts');
+  const root = tempRoot('df-scratchperm-');
+  const path = join(root, 'contributions.ndjson');
+  const writer = await createFileLineWriter(path);
+  await writer.write('{"owner":"A FICTITIOUS NAME"}');
+  await writer.close();
+  assert.equal(statSync(path).mode & 0o777, 0o600);
+});

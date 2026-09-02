@@ -25,6 +25,7 @@
  */
 import { fail } from '../core/errors.ts';
 import { contentDigest, sha256 } from '../core/hash.ts';
+import { createIdentityIndex, type IdentityIndex, type IdentityIndexStats } from './identity-index.ts';
 import type {
   StreamSummary,
   StreamedRecord,
@@ -66,6 +67,14 @@ export type ArcGisSessionOptions<R> = {
   /** Human-readable identity, for the duplicate message. */
   identityOf(record: R): string;
   /**
+   * The identity partition a record belongs to — a county FIPS for parcels.
+   *
+   * Omit it for a source whose identity is not county-scoped; its snapshot
+   * index then stays a single one, which is the honest representation of a
+   * single identity space.
+   */
+  partitionOf?(record: R): string | null;
+  /**
    * Accepts bundles produced by an acquisition path other than the live crawl —
    * a publisher's own bulk distribution, converted to the same bundle contract.
    */
@@ -83,6 +92,15 @@ export type ArcGisSessionOptions<R> = {
    * still loud: it shows up as a quarantine count in the millions, not as silence.
    */
   readonly quarantineUnparseableRows?: boolean;
+  /** Largest single identity-index allocation. Segments, not a total budget. */
+  readonly identitySegmentBytes?: number;
+  /**
+   * Rows the caller expects.
+   *
+   * Sizes the identity index's first segment. Defaults to the count the bundle
+   * header declares, so most sources never need to pass it.
+   */
+  readonly expectedRows?: number;
 };
 
 export async function openArcGisSnapshotStream<R>(
@@ -115,30 +133,33 @@ export async function openArcGisSnapshotStream<R>(
 
   const unknownFields = new Set<string>();
   /**
-   * Identities already seen, as 53-bit fingerprints rather than strings.
+   * Identities already seen, in an off-heap index.
    *
-   * The obvious implementation is `Map<sourceRecordId, firstIndex>`, and it was
-   * the implementation until DF-0H ran 2.7 million rows through it: holding a
-   * string key and a boxed index per row grew the heap from 180 MB at 400,000
-   * rows to 402 MB at 1,175,000, on a trajectory to exhaust a 1 GB cap before
-   * the end of the state.
+   * Two earlier shapes both scaled with the source on the JS heap:
+   * `Map<recordId, index>` in DF-0F, then `Set<number>` of fingerprints in
+   * DF-0H, measured at 37 bytes of heap per row — 100 MB for Minnesota and
+   * 204 MB projected for New York. The index now keeps fingerprints and keys in
+   * ArrayBuffers, which V8 accounts as external rather than heap.
    *
-   * A numeric fingerprint costs about 16 bytes per row instead of ~120, which
-   * turns "bounded by distinct record count" from approximately true into
-   * actually true. The trade is the first-seen index in the duplicate message,
-   * which is worth far less than the ability to finish.
-   *
-   * Two independent 32-bit hashes are combined, giving a 53-bit space. At 2.7
-   * million identities the chance of a false duplicate is about one in 2,500 —
-   * and a false duplicate quarantines one row with a stated reason rather than
-   * corrupting anything, which is the right way round for a cheap guard.
+   * Exactness is unchanged: a fingerprint hit is confirmed against the full key,
+   * so a collision reports a non-match rather than a false duplicate.
    */
-  const seen = new Set<number>();
+  // The header already declares how many features the publisher reported, so a
+  // caller does not have to know its own size to get a single allocation.
+  const declaredRows = options.expectedRows
+    ?? (typeof header.sourceReportedCount === 'number' && header.sourceReportedCount > 0
+      ? header.sourceReportedCount
+      : undefined);
+  const seen: IdentityIndex = await createIdentityIndex({
+    ...(declaredRows !== undefined ? { expectedRows: declaredRows } : {}),
+    ...(options.identitySegmentBytes !== undefined ? { segmentBytes: options.identitySegmentBytes } : {}),
+  });
   let duplicateCount = 0;
   let unparseableCount = 0;
   let recordCount = 0;
   let trailer: StreamingSnapshotTrailer | null = null;
   let exhausted = false;
+  let identityStats: IdentityIndexStats | null = null;
 
   async function* records(): AsyncGenerator<StreamedRecord> {
     // One line of lookahead: the last line of a v2 bundle is the trailer, and it
@@ -158,15 +179,19 @@ export async function openArcGisSnapshotStream<R>(
         fail('PARSE', `snapshot trailer appears at line ${index + 2}, before the end of the bundle`);
       }
 
-      yield readFeature(line, index);
+      yield await readFeature(line, index);
       index += 1;
       pending = next;
     }
 
     exhausted = true;
+    identityStats = seen.stats();
+    // The spill is scratch state, not evidence. Released as soon as the stream
+    // is done with it, on the success path and on the failure path alike.
+    await seen.close();
   }
 
-  function readFeature(line: string, index: number): StreamedRecord {
+  async function readFeature(line: string, index: number): Promise<StreamedRecord> {
     const origin = `feature[${index}]`;
     let attributes: Record<string, unknown>;
     try {
@@ -198,8 +223,7 @@ export async function openArcGisSnapshotStream<R>(
     }
     const issues: ValidationIssue[] = [];
 
-    const fingerprint = fingerprintOf(parsed.sourceRecordId);
-    if (seen.has(fingerprint)) {
+    if (await seen.add(parsed.sourceRecordId)) {
       duplicateCount += 1;
       issues.push({
         code: 'cardinality',
@@ -207,9 +231,9 @@ export async function openArcGisSnapshotStream<R>(
         message: `duplicate ${options.identityOf(parsed.record)}, already read earlier in this bundle`,
       });
     }
-    seen.add(fingerprint);
     recordCount += 1;
 
+    const partitionKey = options.partitionOf?.(parsed.record) ?? null;
     return {
       parsed: {
         sourceRecordId: parsed.sourceRecordId,
@@ -218,11 +242,13 @@ export async function openArcGisSnapshotStream<R>(
         rawFragmentDigest: sha256(line),
         fieldGroupDigests: options.fieldGroups(parsed.record),
       },
+      ...(partitionKey !== null ? { partitionKey } : {}),
       issues,
     };
   }
 
   return {
+    ...(declaredRows !== undefined ? { declaredRowCount: declaredRows } : {}),
     schemaVersion: options.schemaVersion,
     schemaDigest: header.sourceSchemaDigest ?? '',
     earlyDriftReasons,
@@ -264,6 +290,12 @@ export async function openArcGisSnapshotStream<R>(
 
       return {
         driftReasons: [...new Set(driftReasons)].sort(),
+        // Reported, never a drift reason. A collision the full-key check
+        // rejected is the exactness guarantee working; quarantining a
+        // multi-million-row delivery because two sha256 prefixes matched would
+        // be a manufactured failure. An earlier draft of this file pushed it
+        // onto `driftReasons`, which does exactly that.
+        identityFingerprintCollisions: identityStats?.fingerprintCollisions ?? 0,
         unknownFields: [...unknownFields].sort(),
         missingFields: [],
         snapshot: {
@@ -276,25 +308,6 @@ export async function openArcGisSnapshotStream<R>(
       };
     },
   };
-}
-
-/**
- * A 53-bit fingerprint of a record identity.
- *
- * Two FNV-1a variants with different offset bases, combined. Cheap enough to run
- * on every one of 2.7 million rows without showing up in the profile.
- */
-function fingerprintOf(value: string): number {
-  let a = 0x811c9dc5;
-  let b = 0x01000193;
-  for (let i = 0; i < value.length; i++) {
-    const c = value.charCodeAt(i);
-    a = Math.imul(a ^ c, 0x01000193) >>> 0;
-    b = Math.imul(b ^ c, 0x85ebca6b) >>> 0;
-  }
-  // 21 bits from one hash, 32 from the other: 53 bits, which is every integer a
-  // JavaScript number represents exactly.
-  return (a % 0x200000) * 0x100000000 + b;
 }
 
 /** True for the trailer line, which is the only line whose `kind` is the trailer kind. */
