@@ -385,6 +385,15 @@ function emptyTransactionFor(
     countyFips,
     transferDate: null,
     instrumentTypeCode: null,
+    // DF-0J added these general transfer-declaration facts for Wisconsin RETR.
+    // Null here is the honest answer: this source either does not state them, or
+    // states them on a different canonical row (the recorder's document number
+    // belongs to its instrument, which is the authority for it).
+    recordingDate: null,
+    recordedDocumentNumber: null,
+    conveyanceTypeCode: null,
+    ownershipTypeCode: null,
+    rightsRetainedCode: null,
     totalConsideration: null,
     downPayment: null,
     sellerPaidPoints: null,

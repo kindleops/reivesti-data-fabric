@@ -312,13 +312,21 @@ test('the national report counts jurisdictions with a verified core source, not 
   const registry = defaultRegistry();
   const report = nationalCoverageReport(registry, buildCoverage(registry), AT);
   assert.equal(report.activeJurisdictions, ACTIVE_COUNTY_EQUIVALENTS.length);
-  // DF-0H activated the statewide aggregation: 59 counties, plus Hennepin from
-  // its own direct source — which is the same county, so 59 distinct.
-  assert.equal(report.jurisdictionsWithCoreSource, 59);
+  // DF-0H activated the statewide parcel aggregation: 59 Minnesota counties,
+  // plus Hennepin from its own direct source — the same county, so 59 distinct.
+  // DF-0J added Wisconsin RETR across all 72 Wisconsin counties.
+  assert.equal(report.jurisdictionsWithCoreSource, 59 + 72);
   assert.equal(report.sources.paidOptional, 1);
   assert.ok(report.byCapability.length === TRACKED_CAPABILITIES.length);
+
+  // Wisconsin brought TRANSFER coverage and nothing else. Parcel coverage is
+  // untouched at Minnesota's 59: a transfer declaration states the parcel the
+  // parties named, which is not an assessor's roll and does not cover a county
+  // for parcel data.
   const parcel = report.byCapability.find((c) => c.capability === 'parcel');
   assert.equal(parcel?.covered, 59);
+  const transfer = report.byCapability.find((c) => c.capability === 'transfer');
+  assert.equal(transfer?.covered, 72, 'Wisconsin RETR, and eCRV is still blocked on access');
 });
 
 test('coverage gaps name the states where leverage is', () => {

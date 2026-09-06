@@ -375,6 +375,15 @@ function nonTransactionFor(
     countyFips: record.countyFips,
     transferDate: null,
     instrumentTypeCode: null,
+    // DF-0J added these general transfer-declaration facts for Wisconsin RETR.
+    // Null here is the honest answer: this source either does not state them, or
+    // states them on a different canonical row (the recorder's document number
+    // belongs to its instrument, which is the authority for it).
+    recordingDate: null,
+    recordedDocumentNumber: null,
+    conveyanceTypeCode: null,
+    ownershipTypeCode: null,
+    rightsRetainedCode: null,
     // Null, and the sale echo below does not fill it. An assessor's recollection
     // of a price is not a stated consideration.
     totalConsideration: null,

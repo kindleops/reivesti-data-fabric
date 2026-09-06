@@ -434,6 +434,45 @@ report every parcel the rejected delivery omitted as absent.
 
 See `docs/OFF-HEAP-INDEXING.md`.
 
+## 5n. Transfer state, and why it is not sale state
+
+DF-0D through DF-0I built **property state**: what a parcel is, who the assessor
+says owns it, what it is worth. DF-0J added the first statewide source of
+**transfer state**: who conveyed it to whom, when, and for what.
+
+A state transfer declaration — a Wisconsin RETR, a Minnesota eCRV — is filed
+with the county at recording. It is the richest transfer evidence available for
+free, and the easiest to misread, because roughly a third of the returns any
+state receives are gifts, inheritances, divorces, corrections and foreclosures,
+and every one of them carries a value field.
+
+Three separations keep that straight, and they are structural rather than
+advisory:
+
+**A transfer observation is not a sale.** `transfer_classifications` records
+what the publisher said the conveyance WAS — market sale, gift, relationship,
+foreclosure, partial interest, exempt — with the field and value each reading
+came from. There is no `is_arms_length` column, because that is a conclusion and
+the table holds evidence. Several classifications apply at once in real data and
+all of them are kept.
+
+**A transfer observation is not a recorded instrument.** A declaration reports a
+recording document number; that is evidence an instrument exists, not the
+instrument. No deed is created from a document number, and
+`recorded_document_number` is what a recorder source later joins on.
+
+**Money fields are kinded.** `transfer_considerations` keys every figure by what
+it IS — sale price, estimated value, transfer *tax*, personal-property
+adjustments — so a query cannot add a tax to a price. Amounts are exact minor
+units, and a figure is either present or carries the reason it is absent.
+
+Reused rather than duplicated: `transaction_events`, `transaction_parties` and
+`transaction_parcels` already modelled a transfer with many parties and many
+parcels, so Wisconsin extended them instead of adding a parallel Wisconsin-shaped
+table. One transfer with four parcels is one transaction and four links.
+
+See `docs/WISCONSIN-RETR.md`.
+
 ## 6. Change detection
 
 | Case | Result |

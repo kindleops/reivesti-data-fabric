@@ -28,6 +28,7 @@ test('migrations exist and are ordered', () => {
   '0007_data_fabric_zero_cost_national.sql',
   '0008_data_fabric_field_authority.sql',
     '0009_data_fabric_normalization_contract.sql',
+    '0010_data_fabric_transfer_declarations.sql',
   ]);
 });
 

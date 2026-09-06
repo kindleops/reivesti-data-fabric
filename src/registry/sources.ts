@@ -21,6 +21,8 @@ export const HENNEPIN_RECORDER_ADAPTER_KEY = 'mn_hennepin_recorder';
 export const MN_SOS_SOURCE_ID = 'mn_sos_business_entities';
 export const MN_SOS_ADAPTER_KEY = 'mn_sos_business';
 export const MN_STATEWIDE_SOURCE_ID = 'mn_statewide_parcels';
+export const WI_RETR_SOURCE_ID = 'wi_dor_retr_historical';
+export const WI_RETR_ADAPTER_KEY = 'wi_retr';
 export const MN_STATEWIDE_ADAPTER_KEY = 'mn_statewide_parcels';
 
 export const SOURCES: readonly SourceDefinition[] = [
@@ -266,6 +268,72 @@ export const SOURCES: readonly SourceDefinition[] = [
       + '3009. NOT eCRV-grade transfer economics. Geometry is available and deliberately not ingested.',
   },
   {
+    sourceId: WI_RETR_SOURCE_ID,
+    sourceAuthority: 'Wisconsin Department of Revenue',
+    sourceProgram: 'Real Estate Transfer Return — historical data',
+    sourceFamily: 'state_transfer_declaration',
+    sourceName: 'Wisconsin Real Estate Transfer Return (RETR) historical data',
+    sourceHomepage: 'https://www.revenue.wi.gov/Pages/RETr/Home.aspx',
+    accessType: 'bulk_download',
+    /**
+     * A human clicks; the connector ingests what they saved.
+     *
+     * The download is a JavaScript-generated file behind a liability
+     * disclaimer, not an addressable URL — there is nothing for a fetcher to
+     * GET. DOR's only sanctioned programmatic route is the RETR web services,
+     * which are for approved filing-software providers and are explicitly not
+     * a public bulk interface. Driving the portal would therefore be automating
+     * an interactive UI the publisher has not offered for that purpose, so the
+     * connector does not: it accepts the file a person downloaded.
+     */
+    automationStatus: 'manual_only',
+    termsStatus: 'reviewed_permitted',
+    // Wisconsin public records. The disclaimer disclaims liability and asserts
+    // no rights over the data; no attribution or use restriction is stated.
+    licenseStatus: 'public_domain',
+    costModel: 'free',
+    /** A file a human downloads from a public page. No account, no fee. */
+    costClass: 'FREE_PUBLIC_DOWNLOAD',
+    role: 'CORE_CANONICAL_SOURCE',
+    accessRequest: {
+      state: 'NOT_REQUIRED', contact: 'RETR@wisconsin.gov', basis: null, requestedAt: null,
+      lastUpdatedAt: '2026-09-05', quotedFeeUsd: 0, notes:
+        'No account, no credentials, no fee. The only gate is a liability disclaimer with Agree/Disagree, '
+        + 'which claims no rights over the data and imposes no restriction on use or redistribution.',
+    },
+    /**
+     * Five years, rolling. The tool offers the current year plus five, by
+     * month; anything older is referred to the county register of deeds, which
+     * is 72 separate offices and not a bulk source.
+     */
+    historicalDepth: '5 years rolling, by month',
+    expectedRefreshFrequency: 'monthly',
+    sourcePriority: 1,
+    active: true,
+    /**
+     * Grantor, grantee, agent and tax-bill MAILING ADDRESSES are published, and
+     * for an individual grantor that is a home address. Public record does not
+     * mean unrestricted product field.
+     */
+    carriesRestrictedContact: true,
+    /**
+     * A transfer declaration states the parcel the parties said was conveyed.
+     * That is a claim about a parcel, not the assessor's roll, so RETR does not
+     * get to define parcel identity — it creates provisional properties that a
+     * future Wisconsin parcel source can corroborate.
+     */
+    authoritativeForParcelIdentity: false,
+    notes:
+      'Wisconsin\'s analogue of Minnesota eCRV, and the estate\'s first real statewide TRANSFER source. '
+      + '78 published fields covering conveyance, parties, parcels, consideration, exemptions, recording and '
+      + 'financing flags, across all 72 counties. Two distributions per month: CSV, which the publisher warns '
+      + '"can only show one grantor, one grantee, and one parcel", and XML, which "can show all grantors, '
+      + 'grantees, and parcels" — so XML is the faithful one and CSV is lossy by design. Identity is '
+      + 'county + recorded document number; the public dataset carries no RETR receipt number. Moved into My '
+      + 'Tax Account in 2026, which changed the ACCESS mechanics; whether it changed the published schema is '
+      + 'an open question until two eras are compared on real files.',
+  },
+  {
     sourceId: 'tx_dallas_foreclosure_notices',
     sourceAuthority: 'Dallas County, Texas',
     sourceProgram: 'County Clerk foreclosure notice postings',
@@ -390,6 +458,38 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
       schemaStandard: 'MnGAC Parcel Data Standard v1.1.3',
       aggregationRunDate: '2026-08-06',
       termsVerifiedAt: '2026-08-31',
+    },
+  },
+  {
+    /**
+     * One mapping, 72 counties. A RETR is filed per county — a transfer
+     * spanning two counties is two returns — so county is a property of the
+     * record and never has to be inferred.
+     */
+    mappingId: 'wi_retr__all_wi_counties',
+    sourceId: WI_RETR_SOURCE_ID,
+    scope: { kind: 'all_counties_in_states', stateCodes: ['WI'] },
+    /**
+     * `transfer` only.
+     *
+     * NOT `deed`: RETR reports a recording document number, which is evidence
+     * that a deed exists, not the deed. NOT `mortgage` or `foreclosure_notice`:
+     * the financing fields are five yes/no flags with no amounts, and a
+     * foreclosure conveyance type is a transfer that followed a foreclosure,
+     * not the notice or the judgment. Claiming those would overstate what the
+     * source can answer.
+     */
+    capabilities: ['transfer'],
+    coverageStart: null,
+    coverageEnd: null,
+    status: 'active',
+    adapterKey: WI_RETR_ADAPTER_KEY,
+    config: {
+      downloadPage: 'https://tap.revenue.wi.gov/RETRHistoric',
+      distribution: 'xml',
+      schemaDocumentedAt: '2026-09-05',
+      termsVerifiedAt: '2026-09-05',
+      publicationEra: 'mta_2026',
     },
   },
   {

@@ -261,3 +261,27 @@ field-level decision — see `source_field_authority`.
 - **The organization fold is still estate-wide.** Partitioned for atomicity and
   digests, not yet for cost.
 - **Coverage for 3,221 jurisdictions.** Honestly reported as `UNVERIFIED`.
+
+---
+
+## Wisconsin transfer coverage (DF-0J)
+
+72 county-equivalents gained the `transfer` capability from a single source,
+`wi_dor_retr_historical`. That is the largest single-source jurisdiction gain in
+the estate so far, and it is a **different capability** from everything before
+it: DF-0D through DF-0I built property state, and this is the first statewide
+source of transfer state.
+
+Parcel coverage is **unchanged at 59** Minnesota counties. A transfer
+declaration states the parcel the parties named; it is not an assessor's roll,
+and it does not cover a county for parcel data. The coverage graph enforces
+that distinction rather than trusting anyone to remember it.
+
+| Capability | Covered county-equivalents |
+|---|---|
+| `parcel`, `assessor`, `ownership`, `tax` | 59 (Minnesota) |
+| `transfer` | 72 (Wisconsin) |
+
+Minnesota's own transfer source, eCRV, remains `blocked_on_access`: free by
+data request, not yet requested. Wisconsin therefore carries transfer coverage
+alone, and the two states currently cover disjoint capabilities.

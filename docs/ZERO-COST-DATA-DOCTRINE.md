@@ -204,3 +204,32 @@ coverage still resolves, Hennepin is still `ACTIVE`. Separately:
 
 The point is not that paid sources are forbidden. It is that removing them can
 never be a breaking change.
+
+---
+
+## Wisconsin RETR: free, public, and still `manual_only` (DF-0J)
+
+Wisconsin's Real Estate Transfer Return historical data is the doctrine's
+cleanest illustration that **cost and automation are different questions**.
+
+| Question | Answer |
+|---|---|
+| Source-data fee | **$0** |
+| Account or credentials | none |
+| CAPTCHA on the download path | none |
+| Terms | a liability disclaimer that asserts no rights over the data |
+| Automatable | **no** |
+
+The month links are JavaScript routes, not URLs — the file is generated
+server-side, so there is nothing for a fetcher to address. The only sanctioned
+programmatic route DOR offers is the RETR web services, which are approval-gated
+interfaces for filing-software providers, not a public bulk API.
+
+So it is `FREE_PUBLIC_DOWNLOAD` with `automationStatus: manual_only`, and it is
+**CORE_ELIGIBLE**. A human clicks once a month; the connector ingests the saved
+file automatically forever after. Nothing about the doctrine required weakening:
+the cost gate asks what the data costs, and the answer is nothing.
+
+The opposite mistake was available and refused. "Retrieve RETR" appears in DOR's
+web-services list, and reading that as public bulk retrieval would have promoted
+a source on a misreading of an approval-gated filing interface.

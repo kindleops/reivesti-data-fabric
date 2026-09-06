@@ -218,3 +218,26 @@ three; which is *preferred* is a field-level decision recorded in
 **Coverage is now reportable nationally.** 3,222 active county-equivalents, of
 which exactly one has a core-eligible source. See
 [NATIONAL-COVERAGE.md](NATIONAL-COVERAGE.md) and `df coverage`.
+
+---
+
+## `wi_dor_retr_historical` (DF-0J)
+
+Wisconsin Department of Revenue, Real Estate Transfer Return historical data.
+The estate's first statewide **transfer** source.
+
+| | |
+|---|---|
+| costClass | `FREE_PUBLIC_DOWNLOAD` — $0, no account, no CAPTCHA on the download path |
+| automationStatus | `manual_only` — the download is a JS route, not a URL |
+| termsStatus | `reviewed_permitted` — liability disclaimer only, no rights asserted |
+| licenseStatus | `public_domain` |
+| role | `CORE_CANONICAL_SOURCE` |
+| capabilities | `transfer` only |
+| jurisdictions | 72 Wisconsin counties, one mapping |
+| historicalDepth | 5 years rolling, by month |
+| carriesRestrictedContact | **true** — grantor, grantee, agent and tax-bill mailing addresses |
+| authoritativeForParcelIdentity | **false** — a declaration states a parcel; it is not the roll |
+
+Deliberately not claimed: `deed`, `mortgage`, `foreclosure_notice`. See
+`docs/WISCONSIN-RETR.md` §13 for why each was refused.

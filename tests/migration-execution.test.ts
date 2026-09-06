@@ -63,6 +63,7 @@ if (!server) {
         '0007_data_fabric_zero_cost_national.sql',
         '0008_data_fabric_field_authority.sql',
         '0009_data_fabric_normalization_contract.sql',
+        '0010_data_fabric_transfer_declarations.sql',
       ]);
     });
 
@@ -135,6 +136,8 @@ if (!server) {
         'data_fabric.transaction_events',
         'data_fabric.transaction_parcels',
         'data_fabric.transaction_parties',
+        'data_fabric.transfer_classifications',
+        'data_fabric.transfer_considerations',
         'data_fabric_restricted.contact_observations',
       ]);
     });
@@ -276,7 +279,7 @@ if (!server) {
         select n.nspname || '.' || c.relname as t, c.relrowsecurity, c.relforcerowsecurity
         from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname in ('data_fabric','data_fabric_restricted') and c.relkind = 'r'`);
-      assert.equal(r.rows.length, 52);
+      assert.equal(r.rows.length, 54);
       const bad = r.rows.filter((x) => !x.relrowsecurity || !x.relforcerowsecurity);
       assert.deepEqual(bad.map((x) => x.t), [], 'tables missing enabled+forced RLS');
     });
@@ -285,11 +288,11 @@ if (!server) {
       const r = await db.query(`
         select tablename, policyname, permissive, roles::text
         from pg_policies where schemaname in ('data_fabric','data_fabric_restricted')`);
-      assert.equal(r.rows.length, 52 * APP_ROLES.length);
+      assert.equal(r.rows.length, 54 * APP_ROLES.length);
       assert.ok(r.rows.every((x) => x.permissive === 'RESTRICTIVE'), 'policies must be RESTRICTIVE');
       for (const role of APP_ROLES) {
         const forRole = r.rows.filter((x) => x.roles.includes(role));
-        assert.equal(forRole.length, 52, `expected a deny policy per table for ${role}`);
+        assert.equal(forRole.length, 54, `expected a deny policy per table for ${role}`);
       }
     });
 
@@ -632,6 +635,83 @@ if (!server) {
         where schemaname = 'data_fabric' and tablename = 'snapshot_index_state'`)).rows
         .map((x) => x.indexdef).join(' ');
       assert.match(rows, /UNIQUE.*source_id, snapshot_id.*ACTIVATED/s);
+    });
+
+    test('a transfer classification cannot exist without the evidence for it', async () => {
+      // A classification whose basis nobody can check is an opinion. Both the
+      // field it was read from and the value read are NOT NULL.
+      const columns = (await db.query(`
+        select column_name, is_nullable from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'transfer_classifications'`)).rows;
+      for (const name of ['basis_field', 'basis_value', 'classification']) {
+        assert.equal(columns.find((c) => c.column_name === name)?.is_nullable, 'NO', name);
+      }
+      // And there is no is_arms_length boolean: that is a conclusion, and this
+      // table holds what the publisher said.
+      assert.equal(columns.find((c) => /arms?_length/.test(c.column_name)), undefined);
+
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.transfer_classifications'::regclass and contype = 'c'`)).rows
+        .map((x) => x.def).join(' ');
+      assert.match(defs, /MARKET_SALE_SUPPORTED/);
+      assert.match(defs, /FORECLOSURE_RELATED/);
+      assert.match(defs, /UNKNOWN_TRANSFER_TYPE/);
+
+      // Exactly one primary classification per transfer.
+      const indexes = (await db.query(`
+        select indexdef from pg_indexes
+        where schemaname = 'data_fabric' and tablename = 'transfer_classifications'`)).rows
+        .map((x) => x.indexdef).join(' ');
+      assert.match(indexes, /UNIQUE.*transaction_id.*is_primary/s);
+    });
+
+    test('a monetary figure is either present or explained, never both or neither', async () => {
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.transfer_considerations'::regclass and contype = 'c'`)).rows
+        .map((x) => x.def).join(' ');
+      // A transfer fee is a tax and a sale price is a price; the kind is
+      // constrained so a query cannot sum them by accident.
+      assert.match(defs, /SALE_PRICE/);
+      assert.match(defs, /TRANSFER_FEE/);
+      assert.match(defs, /ESTIMATED_VALUE/);
+      // NULL, BLANK and an explicit $0.00 stay three different statements.
+      assert.match(defs, /BLANK_SOURCE/);
+      assert.match(defs, /\(amount_minor IS NOT NULL\) AND \(absent_reason IS NULL\)/);
+
+      // Exact, never floating point.
+      const amount = (await db.query(`
+        select data_type, numeric_scale from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'transfer_considerations'
+          and column_name = 'amount_minor'`)).rows[0];
+      assert.equal(amount?.data_type, 'numeric');
+      assert.equal(Number(amount?.numeric_scale), 0);
+    });
+
+    test('one transfer may name many parcels but never the same one twice', async () => {
+      const indexes = (await db.query(`
+        select indexdef from pg_indexes
+        where schemaname = 'data_fabric' and tablename = 'transaction_parcels'`)).rows
+        .map((x) => x.indexdef).join(' ');
+      assert.match(indexes, /UNIQUE.*transaction_id.*property_identifier_observation_id/s);
+    });
+
+    test('the transfer event distinguishes recording from conveyance, and says what it could not see', async () => {
+      const columns = new Map((await db.query(`
+        select column_name, is_nullable from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'transaction_events'`)).rows
+        .map((c) => [c.column_name, c.is_nullable]));
+      // Two different dates, two different columns. A deed signed in December
+      // and recorded in January belongs to both months.
+      assert.ok(columns.has('transfer_date'));
+      assert.ok(columns.has('recording_date'));
+      // A document number is evidence an instrument exists, not the instrument.
+      assert.ok(columns.has('recorded_document_number'));
+      // Wisconsin's CSV shows only the first grantor, grantee and parcel, and a
+      // reader must be able to tell that from a genuinely single one.
+      assert.equal(columns.get('parties_may_be_incomplete'), 'NO');
+      assert.equal(columns.get('parcels_may_be_incomplete'), 'NO');
     });
 
     test('a source may only be retired with every condition proven', async () => {

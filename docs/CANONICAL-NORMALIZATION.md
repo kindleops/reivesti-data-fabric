@@ -315,6 +315,27 @@ alongside the canonical form. Every conversion records what it converted from.
 
 ---
 
+## 4a. The contract's second source family (DF-0J)
+
+Wisconsin RETR was the contract's first test against a source family it was not
+designed around: a transfer declaration rather than a parcel roll. It needed
+nothing added.
+
+| RETR fact | Contract feature it used |
+|---|---|
+| `$1,234,567.89` sale price | exact `bigint` minor units from decimal text |
+| a blank price vs a null price vs `$0.00` | `BLANK_SOURCE` / `NULL_SOURCE` / a real zero |
+| `Conveyance Date` vs `Recorded Date` vs `Date Filed` | `DateSemantic`, so three dates never collapse |
+| `MM-dd-yyyy` | a source format declared by the adapter, parsed by the contract |
+| `Square Feet` and `Acres` on the same parcel | one area, two source units |
+| parcel numbers with leading zeros, tab-prefixed | identifiers are strings, and stay strings |
+
+The one thing that belonged to the adapter and not the contract was the tab
+prefix: Wisconsin prepends a literal tab to every parcel number so Excel will
+not strip the leading zeros. Only someone reading Wisconsin's own documentation
+could know that, so `stripParcelGuard()` lives in the connector — the same
+boundary that put Hennepin's packed street field in its adapter.
+
 ## 5. What changed in the Hennepin overlap audit
 
 The audit now runs in two modes over the same rows — `'literal'`, which is

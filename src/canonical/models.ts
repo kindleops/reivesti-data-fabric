@@ -186,8 +186,40 @@ export type TransactionEvent = {
   readonly countyFips: string;
   /** The transfer date the source states. Null when the source does not state one. */
   readonly transferDate: string | null;
+  /**
+   * When the county recorded the conveyance, if the source states it.
+   *
+   * A different fact from `transferDate` and never collapsed into it: a deed
+   * signed in December and recorded in January belongs to both months, for
+   * different purposes. Sources that state only one leave the other null.
+   */
+  readonly recordingDate: string | null;
+  /**
+   * The recording document number the source reports, if any.
+   *
+   * Evidence of a recorded instrument, and NOT itself one. A document number
+   * here means "the declaration says it was recorded as this"; it does not
+   * establish an instrument's type, parties or content, and no instrument is
+   * created from it. It is what a future recorder source joins on.
+   */
+  readonly recordedDocumentNumber: string | null;
   /** Source's own instrument label, unmapped. e.g. eCRV deedTypeCde "QUITCLAIM". */
   readonly instrumentTypeCode: string | null;
+  /**
+   * The source's own label for the KIND of conveyance, unmapped.
+   *
+   * Distinct from `instrumentTypeCode`: Wisconsin publishes both, and they
+   * answer different questions. "Warranty deed" is the paper that was filed;
+   * "Parent/child or grandparent/grandchild - part sale/part gift" is what
+   * happened. The second is what decides whether this was a market sale.
+   */
+  readonly conveyanceTypeCode: string | null;
+  /**
+   * How much of the grantor's interest moved, as the source states it, and what
+   * the grantor kept. Null where a source does not ask.
+   */
+  readonly ownershipTypeCode: string | null;
+  readonly rightsRetainedCode: string | null;
   readonly totalConsideration: Money | null;
   readonly downPayment: Money | null;
   readonly sellerPaidPoints: Money | null;
@@ -206,6 +238,60 @@ export type TransactionEvent = {
    */
   readonly analyticalMetadata: Readonly<Record<string, unknown>>;
   readonly evidence: SourceEvidence;
+};
+
+/**
+ * What the source says about the KIND of transfer, with the evidence for it.
+ *
+ * A transfer declaration — a Minnesota eCRV, a Wisconsin RETR — proves a
+ * conveyance was filed. It does not prove a property sold at a market price:
+ * gifts, inheritances, divorces, corrections, foreclosures and transfers between
+ * related entities all produce one, and all carry a value field. A row here is
+ * always a reading of a stated source value, never an inference, and `basis`
+ * names the field it was read from so any classification can be argued with.
+ *
+ * Several apply at once in real data. A part-sale to a child with a retained
+ * life estate is a relationship transfer AND a gift AND a partial interest, and
+ * the estate records all three rather than choosing.
+ */
+export type TransferClassificationRow = {
+  readonly transactionId: string;
+  /** e.g. MARKET_SALE_SUPPORTED, GIFT_TRANSFER, FORECLOSURE_RELATED. */
+  readonly classification: string;
+  /** True for the one classification that most governs how to read the transfer. */
+  readonly primary: boolean;
+  /** The publisher field the classification was read from. */
+  readonly basisField: string;
+  /** The publisher value, verbatim. */
+  readonly basisValue: string;
+};
+
+/**
+ * One monetary figure a transfer declaration states, labelled with what it IS.
+ *
+ * Kept as separate rows rather than columns because the set of monetary facts
+ * differs by source and confusing two of them is the most damaging error
+ * available: a Wisconsin RETR publishes a sale price, an estimated value, a
+ * transfer TAX and two personal-property adjustments, and only the first is a
+ * price. Amounts are exact minor units held as decimal strings — `bigint` does
+ * not survive JSON, and a float would not survive arithmetic.
+ */
+export type TransferConsideration = {
+  readonly transactionId: string;
+  /** SALE_PRICE, ESTIMATED_VALUE, TRANSFER_FEE, PERSONAL_PROPERTY_EXCLUDED, … */
+  readonly kind: string;
+  /** Exact minor units as a decimal string. Null when the source stated none. */
+  readonly amountMinor: string | null;
+  /** Why it is absent, when it is: NULL_SOURCE, BLANK_SOURCE, INVALID. */
+  readonly absentReason: string | null;
+  readonly currency: 'USD';
+  /** The publisher's field name, so a reader can get back to the source. */
+  readonly sourceField: string;
+  /**
+   * Set only on a value Reivesti computed rather than read, naming the
+   * derivation. An observed figure always outranks a derived one.
+   */
+  readonly derivationVersion: string | null;
 };
 
 export type TransactionParty = {
