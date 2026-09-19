@@ -6,6 +6,27 @@ that says who sold to whom and for how much.
 Authority: **Wisconsin Department of Revenue**. Source id
 `wi_dor_retr_historical`. Mapping `wi_retr__all_wi_counties`, all 72 counties.
 
+> ## ⚠ DORMANT — not a core source (DF-0J.1A, 2026-09-19)
+>
+> This connector is **complete, tested and switched off**. `acquisitionClass:
+> MANUAL_ONLY`, `role: DEFERRED`, mapping `status: fixture_only`. It contributes
+> **zero** coverage, and the 72 Wisconsin counties it once counted are now
+> reported as a gap.
+>
+> Nothing about the data or the terms changed. RETR is still free, still public
+> domain, still permitted. What changed is the standard: a source only a human
+> can retrieve is not a production source. There is no fetchable URL behind the
+> download — see §2.1 — and no second distribution exists.
+>
+> Everything below §2.1 remains accurate and is kept so this can be switched on
+> the day Wisconsin publishes an automated distribution. Do not delete it, and do
+> not ask an operator to download the files by hand.
+>
+> For Wisconsin **parcel** coverage, see the Statewide Parcel Map instead: a
+> public ArcGIS FeatureServer carrying 3,574,646 parcels, fetchable anonymously.
+> It is not a substitute — a parcel roll cannot say who sold to whom for how much
+> — but it is retrievable, and RETR is not.
+
 ---
 
 ## 1. What a RETR is, and what it is not
@@ -29,7 +50,59 @@ distinction right is most of what this connector does; see §6.
 Everything below was read from the publisher's own pages on **2026-09-05**.
 
 | | |
+|
+### 2.1 Why it cannot be automated (DF-0J.1A, probed 2026-09-19)
+
+DF-0J concluded `manual_only` from the UI: month links are JavaScript hash
+routes, blank tabs open, nothing lands in `~/Downloads`. DF-0J.1A tested the
+transport directly, without a browser, to see whether the UI was hiding an
+ordinary HTTP request.
+
+It is not. `tap.revenue.wi.gov/RETRHistoric` 302s to `/mta/?Link=RETRHistoric`,
+then to `/mta/_/` — My Tax Account, a **Fast Enterprises GenTax** single-page
+application. The served HTML shell contains no content whatsoever; it calls
+`FWDC.loadManager('InitPage')` and assembles every view by XHR.
+
+What each of those calls must carry:
+
+| Requirement | Evidence |
 |---|---|
+| Session cookie | `tap-session`, reissued on **every** response |
+| Server state token | `FAST_VERLAST__`, rotated per response, echoed on every action |
+| Script version | `FAST_SCRIPT_VER__` |
+| Session lifetime | 15 minutes (`Fast-Session-Idle`, and the footer says so) |
+| Stable month URL | **none** — the file is generated server-side per request |
+
+Request class: **E, session-bound.** There is no addressable resource for a
+scheduler to GET, so reaching the file means replaying a stateful UI protocol —
+which is automating an interactive portal the publisher has not offered for that
+purpose.
+
+**What is not claimed.** No control was circumvented and none was even tested
+against. `tap.revenue.wi.gov` serves no `robots.txt`; `www.revenue.wi.gov` serves
+one that disallows only SharePoint internals and says nothing about RETR. The
+terms prohibit nothing relevant. hCaptcha appears in the portal's CSP allowlist
+but did not fire on the anonymous path. **The finding is the absence of a
+mechanism, not the presence of a prohibition** — and the spec's own standard
+applies: absence of a machine API is not a prohibition, and absence of a
+prohibition is not sanction when the service plainly intends human use.
+
+**No alternative distribution exists.** Both legacy routes were checked and both
+now redirect into this same portal:
+
+- `revenue.wi.gov/Pages/ERETR/data-home.aspx` → `tap.revenue.wi.gov/RETRHistoric`
+- `propertyinfo.revenue.wi.gov/…/retransfer.htm` → `tap.revenue.wi.gov/RETRSearch`
+
+DOR's only sanctioned programmatic route remains the RETR **web services**, which
+are approval-gated to filing-software providers, scoped to filing and recording
+workflows, and offer no bulk historical retrieval. Requesting access as a
+filing-software provider would be a misrepresentation, and is refused.
+
+The forensics are recorded in the mapping's `config.acquisitionForensics` so a
+future phase can re-test these facts rather than re-derive them. The day any of
+them changes is the day RETR becomes acquirable.
+
+---|---|
 | Historical download | My Tax Account → *Download Historical RETR Data* (`tap.revenue.wi.gov/RETRHistoric`) |
 | Authentication | **None.** The link sits in MTA's unauthenticated public panel, beside *Log in* |
 | Account | Not required |

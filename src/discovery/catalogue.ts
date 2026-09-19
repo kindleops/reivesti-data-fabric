@@ -160,6 +160,16 @@ export const SOURCE_CANDIDATES: readonly SourceCandidate[] = [
         kind: 'official_authority',
       },
       {
+        claim: 'automation',
+        url: 'https://services3.arcgis.com/n6uYoouQZW75n5WI/arcgis/rest/services/'
+          + 'Wisconsin_Statewide_Parcels_DB/FeatureServer?f=pjson',
+        quote: '"layers":[{"id":0,"name":"V1200_WisconsinParcels_2026"}], "capabilities":"Query", '
+          + '"maxRecordCount":1000 — and /0/query?where=1=1&returnCountOnly=true returned {"count":3574646}, '
+          + 'anonymously, with no session cookie, state token, account or CAPTCHA',
+        retrievedAt: '2026-09-19',
+        kind: 'api_metadata',
+      },
+      {
         claim: 'terms',
         url: 'https://gis.data.mn.gov/api/feed/dcat-us/1.1.json',
         quote: 'None. Please check sources, scale, accuracy, currentness and other available information. … '
@@ -247,10 +257,13 @@ export const SOURCE_CANDIDATES: readonly SourceCandidate[] = [
     officialUrl: 'https://www.sco.wisc.edu/parcels/data/',
     accessHypothesis: 'bulk_download',
     costHypothesis: 'FREE_PUBLIC_DOWNLOAD',
-    automationHypothesis: 'unknown',
+    // Verified by probing the public endpoints on 2026-09-19: an anonymous
+    // ArcGIS query returned a statewide count, and the county archive served a
+    // range request. No session, no token, no account, no CAPTCHA.
+    automationHypothesis: 'sanctioned',
     licenseHypothesis: 'open_with_attribution',
     bulkAvailable: true,
-    apiAvailable: null,
+    apiAvailable: true,
     openDataPortal: true,
     // Annual versions V1 (2015) through V12 (2026): eleven years of statewide
     // history, which is rare and valuable for ownership-change work.
@@ -262,8 +275,11 @@ export const SOURCE_CANDIDATES: readonly SourceCandidate[] = [
     notes:
       'All 72 counties, aggregated by the state under the Parcel Initiative. Twelve annual versions are retained, '
       + 'which no other statewide parcel source found in this pass offers. Downloads are shapefile and file '
-      + 'geodatabase per county. Whether a queryable service exists, and what the download terms say about '
-      + 'automated retrieval, both still need reading — hence OFFICIAL_PAGE rather than VERIFIED.',
+      + 'geodatabase per county, and a public ArcGIS FeatureServer carries the same rolls as a queryable '
+      + 'layer: V1200_WisconsinParcels_2026, 3,574,646 parcels, answered anonymously. '
+      + 'DF-0J.1A promoted this to the leading Wisconsin candidate. It does NOT replace RETR — a parcel roll '
+      + 'is not a transfer declaration and cannot say who sold to whom for how much — but it is the only '
+      + 'Wisconsin source found in two passes that a scheduler can actually retrieve.',
     evidence: [
       {
         claim: 'coverage',

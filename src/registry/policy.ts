@@ -26,12 +26,13 @@
  */
 import type {
   AccessRequestState,
+  AcquisitionClass,
   CostClass,
   SourceDefinition,
   SourceRole,
 } from './types.ts';
 import { fail } from '../core/errors.ts';
-import { isZeroCost } from './types.ts';
+import { isAutomatedAcquisition, isZeroCost } from './types.ts';
 
 /**
  * The verdict. One value, and the first failing gate wins, so the answer always
@@ -54,6 +55,13 @@ export type ActivationVerdict =
   | 'BLOCKED_SCHEMA'
   /** Retrieval cannot be pinned, digested and replayed. */
   | 'BLOCKED_PROVENANCE'
+  /**
+   * Free, lawful, and reachable only by a human. Distinct from
+   * BLOCKED_AUTOMATION, which is a permission problem: this is a MECHANISM
+   * problem, and the remedy is a different distribution rather than a different
+   * reading of the terms.
+   */
+  | 'BLOCKED_MANUAL_ACQUISITION'
   /** Known, understood, and deliberately not pursued now. */
   | 'DEFERRED';
 
@@ -61,11 +69,13 @@ export type ActivationAssessment = {
   readonly sourceId: string;
   readonly verdict: ActivationVerdict;
   /** The gate that decided it. */
-  readonly gate: 'role' | 'cost' | 'automation' | 'terms' | 'access' | 'schema' | 'provenance' | 'none';
+  readonly gate: 'role' | 'cost' | 'automation' | 'acquisition' | 'terms' | 'access' | 'schema' | 'provenance' | 'none';
   readonly reason: string;
   /** What would have to change. Empty when the verdict is already CORE_ELIGIBLE. */
   readonly remedy: string | null;
   readonly costClass: CostClass;
+  /** How the bytes arrive. Surfaced so a report can say WHY a source is dormant. */
+  readonly acquisitionClass: AcquisitionClass;
   readonly role: SourceRole | null;
   readonly zeroCost: boolean;
 };
@@ -108,7 +118,8 @@ export function assessActivation(
   const role = source.role ?? null;
   const zeroCost = isZeroCost(costClass);
 
-  const base = { sourceId: source.sourceId, costClass, role, zeroCost };
+  const acquisitionClass: AcquisitionClass = source.acquisitionClass ?? 'UNKNOWN_AUTOMATION';
+  const base = { sourceId: source.sourceId, costClass, acquisitionClass, role, zeroCost };
 
   // Gate 0 — declared intent. A source declared as enrichment is not competing
   // for core status, and saying so first keeps the later gates about the source
@@ -118,7 +129,13 @@ export function assessActivation(
       return { ...base, verdict: 'DEFERRED', gate: 'role', reason: 'the source was considered and ruled out', remedy: null };
     }
     if (role === 'DEFERRED') {
-      return { ...base, verdict: 'DEFERRED', gate: 'role', reason: 'deliberately not pursued in the current phase', remedy: null };
+      // Say WHY it is deferred when the registry already knows. "Postponed" and
+      // "postponed because a person has to fetch it by hand" send a reader to
+      // two different places, and only one of them is the truth here.
+      const why = !isAutomatedAcquisition(acquisitionClass)
+        ? `deferred: ${acquisitionClass} — no unattended acquisition path exists`
+        : 'deliberately not pursued in the current phase';
+      return { ...base, verdict: 'DEFERRED', gate: 'role', reason: why, remedy: null };
     }
     return {
       ...base,
@@ -147,9 +164,7 @@ export function assessActivation(
     };
   }
 
-  // Gate 2 — acquisition. Free does not mean permitted. `manual_only` is not a
-  // failure here: a file an operator may lawfully receive is acquirable, and
-  // everything after delivery is automated regardless.
+  // Gate 2 — permission. Free does not mean permitted.
   if (source.automationStatus === 'prohibited') {
     return {
       ...base, verdict: 'BLOCKED_AUTOMATION', gate: 'automation',
@@ -196,11 +211,49 @@ export function assessActivation(
     return {
       ...base, verdict: 'BLOCKED_ACCESS', gate: 'access',
       reason: `the free access path is at "${requestState}"; no data has been delivered`,
-      remedy: 'complete the access request; everything after delivery is already automated',
+      remedy: 'complete the access request, and establish whether what is granted is a fetchable '
+        + 'endpoint or a file a person receives — the answer decides acquisitionClass',
     };
   }
 
-  // Gate 5 — schema. Reading a positional file against an unpinned layout is the
+  // Gate 5 — acquisition MECHANISM. Permission to automate is worthless without
+  // something to automate against, and this is the gate that says so.
+  //
+  // This gate exists because the previous one let a file through on the strength
+  // of "an operator may lawfully receive it". That reasoning is how Wisconsin
+  // RETR came to supply 72 counties of declared transfer coverage while the
+  // inbox it was supposed to arrive in stayed empty. A pipeline cannot tell the
+  // difference between a month with no transfers and a month nobody clicked, so
+  // a human retrieval step is treated as no retrieval step at all.
+  // FREE_MANUAL_DELIVERY says, in the cost field, that an operator receives the
+  // file by arrangement. That IS a manual acquisition, so it is treated as one
+  // no matter what the acquisition field claims — otherwise the two fields can
+  // be set to contradict each other and the more flattering one wins.
+  const acquisition: AcquisitionClass = costClass === 'FREE_MANUAL_DELIVERY' ? 'MANUAL_ONLY' : acquisitionClass;
+  if (!isAutomatedAcquisition(acquisition)) {
+    if (acquisition === 'UNKNOWN_AUTOMATION') {
+      return {
+        ...base, verdict: 'BLOCKED_MANUAL_ACQUISITION', gate: 'acquisition',
+        reason: 'no acquisition mechanism has been established, and unknown is not automated',
+        remedy: 'establish how the bytes arrive unattended and set acquisitionClass',
+      };
+    }
+    if (acquisition === 'PROHIBITED_AUTOMATION') {
+      return {
+        ...base, verdict: 'BLOCKED_AUTOMATION', gate: 'acquisition',
+        reason: 'the publisher forbids automated acquisition of this distribution',
+        remedy: 'obtain the same record from a publication that permits automated retrieval',
+      };
+    }
+    return {
+      ...base, verdict: 'BLOCKED_MANUAL_ACQUISITION', gate: 'acquisition',
+      reason: 'the only distribution requires a human to retrieve it, and a human is not a scheduler',
+      remedy: 'find an automated distribution of the same record — an API, a bulk archive, an open-data '
+        + 'endpoint, or an official recurring export — or keep this dormant until the publisher offers one',
+    };
+  }
+
+  // Gate 6 — schema. Reading a positional file against an unpinned layout is the
   // failure that must never be silent, so it blocks rather than warns.
   if (context.schemaPinned === false) {
     return {
@@ -210,7 +263,7 @@ export function assessActivation(
     };
   }
 
-  // Gate 6 — provenance.
+  // Gate 7 — provenance.
   if (context.provenanceReproducible === false) {
     return {
       ...base, verdict: 'BLOCKED_PROVENANCE', gate: 'provenance',

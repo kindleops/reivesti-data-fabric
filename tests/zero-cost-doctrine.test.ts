@@ -40,7 +40,7 @@ function source(over: Partial<SourceDefinition> = {}): SourceDefinition {
     automationStatus: 'sanctioned', termsStatus: 'reviewed_permitted', licenseStatus: 'public_domain',
     costModel: 'free', historicalDepth: null, expectedRefreshFrequency: 'monthly',
     sourcePriority: 1, active: true, carriesRestrictedContact: false,
-    costClass: 'FREE_API', role: 'CORE_CANONICAL_SOURCE', notes: '',
+    costClass: 'FREE_API', acquisitionClass: 'AUTOMATED_API', role: 'CORE_CANONICAL_SOURCE', notes: '',
     ...over,
   };
 }
@@ -50,8 +50,8 @@ function source(over: Partial<SourceDefinition> = {}): SourceDefinition {
 // ===========================================================================
 
 for (const costClass of ['FREE_BULK', 'FREE_API', 'FREE_OPEN_DATA', 'FREE_WEB_SERVICE',
-  'FREE_PUBLIC_DOWNLOAD', 'FREE_MANUAL_DELIVERY', 'FIRST_PARTY'] as CostClass[]) {
-  test(`${costClass} with sanctioned acquisition and reviewed terms is core eligible`, () => {
+  'FREE_PUBLIC_DOWNLOAD', 'FIRST_PARTY'] as CostClass[]) {
+  test(`${costClass} with an automated acquisition path and reviewed terms is core eligible`, () => {
     const assessment = assessActivation(source({ costClass }));
     assert.equal(assessment.verdict, 'CORE_ELIGIBLE');
     assert.equal(assessment.zeroCost, true);
@@ -59,14 +59,29 @@ for (const costClass of ['FREE_BULK', 'FREE_API', 'FREE_OPEN_DATA', 'FREE_WEB_SE
   });
 }
 
-test('FREE_DATA_REQUEST is core eligible once the file has actually been delivered', () => {
-  const pending = source({ costClass: 'FREE_DATA_REQUEST', automationStatus: 'manual_only' });
+// FREE_MANUAL_DELIVERY is zero-cost and still not core: the cost gate and the
+// acquisition gate ask different questions, and free has never implied fetchable.
+test('FREE_MANUAL_DELIVERY is zero-cost but never core eligible', () => {
+  const assessment = assessActivation(source({ costClass: 'FREE_MANUAL_DELIVERY' }));
+  assert.equal(assessment.zeroCost, true);
+  assert.equal(assessment.verdict, 'BLOCKED_MANUAL_ACQUISITION');
+  assert.equal(assessment.gate, 'acquisition');
+});
+
+test('FREE_DATA_REQUEST is core eligible once delivery is granted AND automatable', () => {
+  const pending = source({
+    costClass: 'FREE_DATA_REQUEST', automationStatus: 'manual_only',
+    acquisitionClass: 'AUTOMATED_BULK_DOWNLOAD',
+  });
   assert.equal(assessActivation(pending, { accessRequestState: 'NOT_REQUESTED' }).verdict, 'BLOCKED_ACCESS');
   assert.equal(assessActivation(pending, { accessRequestState: 'AWAITING_RESPONSE' }).verdict, 'BLOCKED_ACCESS');
-  // Publisher acquisition is manual; Reivesti ingestion is automated. Those are
-  // different questions, and only the second is the runtime's business.
   assert.equal(assessActivation(pending, { accessRequestState: 'DELIVERED' }).verdict, 'CORE_ELIGIBLE');
   assert.equal(assessActivation(pending, { accessRequestState: 'APPROVED' }).verdict, 'CORE_ELIGIBLE');
+
+  // Approval alone is not enough. If what the approval grants is a file a person
+  // collects, the source is still not something a scheduler can run.
+  const byHand = source({ costClass: 'FREE_DATA_REQUEST', acquisitionClass: 'MANUAL_ONLY' });
+  assert.equal(assessActivation(byHand, { accessRequestState: 'APPROVED' }).verdict, 'BLOCKED_MANUAL_ACQUISITION');
 });
 
 for (const costClass of ['PAID_OPTIONAL', 'PAID_SUBSCRIPTION', 'PAID_PER_RECORD'] as CostClass[]) {
@@ -314,19 +329,25 @@ test('the national report counts jurisdictions with a verified core source, not 
   assert.equal(report.activeJurisdictions, ACTIVE_COUNTY_EQUIVALENTS.length);
   // DF-0H activated the statewide parcel aggregation: 59 Minnesota counties,
   // plus Hennepin from its own direct source — the same county, so 59 distinct.
-  // DF-0J added Wisconsin RETR across all 72 Wisconsin counties.
-  assert.equal(report.jurisdictionsWithCoreSource, 59 + 72);
+  //
+  // DF-0J briefly counted Wisconsin RETR across all 72 Wisconsin counties. DF-0J.1A
+  // took them back. RETR is free, lawful, public and genuinely good data, and the
+  // only way to obtain it is for a person to work a fifteen-minute session in a
+  // tax portal. Counting those 72 said Reivesti could answer a question about a
+  // Wisconsin transfer, and Reivesti could not; a number that flatters us is worse
+  // than a smaller one that is true, because only the smaller one gets fixed.
+  assert.equal(report.jurisdictionsWithCoreSource, 59);
   assert.equal(report.sources.paidOptional, 1);
   assert.ok(report.byCapability.length === TRACKED_CAPABILITIES.length);
 
-  // Wisconsin brought TRANSFER coverage and nothing else. Parcel coverage is
-  // untouched at Minnesota's 59: a transfer declaration states the parcel the
-  // parties named, which is not an assessor's roll and does not cover a county
-  // for parcel data.
   const parcel = report.byCapability.find((c) => c.capability === 'parcel');
   assert.equal(parcel?.covered, 59);
+  // Zero transfer coverage, nationally. Both statewide transfer sources are real,
+  // free and parsed, and neither can be fetched: Wisconsin RETR needs a human in a
+  // portal, Minnesota eCRV needs a request nobody has sent. This is the estate's
+  // largest open gap and the report is required to keep saying so.
   const transfer = report.byCapability.find((c) => c.capability === 'transfer');
-  assert.equal(transfer?.covered, 72, 'Wisconsin RETR, and eCRV is still blocked on access');
+  assert.equal(transfer?.covered, 0, 'RETR needs a human; eCRV needs a request');
 });
 
 test('coverage gaps name the states where leverage is', () => {

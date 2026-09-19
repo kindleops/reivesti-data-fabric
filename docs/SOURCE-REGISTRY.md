@@ -42,6 +42,7 @@ terms. The fields that gate behaviour rather than merely describing it:
 | Field | Why it matters |
 |---|---|
 | `automationStatus` | `sanctioned` \| `manual_only` \| `prohibited` \| `unknown`. The runtime refuses any publisher-reaching transport unless this is `sanctioned`. `unknown` is treated as prohibited. |
+| `acquisitionClass` | **Whether there is anything to automate**, as opposed to whether automation is permitted. `AUTOMATED_API` \| `AUTOMATED_BULK_DOWNLOAD` \| `AUTOMATED_OPEN_DATA` \| `AUTOMATED_PUBLIC_HTTP` \| `AUTOMATED_BROWSER_ALLOWED` \| `MANUAL_ONLY` \| `PROHIBITED_AUTOMATION` \| `UNKNOWN_AUTOMATION`. Only the five `AUTOMATED_*` classes may carry core coverage; absence is `UNKNOWN_AUTOMATION` and is blocked. See [`AUTOMATED-ACQUISITION.md`](AUTOMATED-ACQUISITION.md). |
 | `carriesRestrictedContact` | Routes payloads to the restricted plane and labels the artifact manifest. |
 | `termsStatus` / `licenseStatus` | Recorded on every artifact manifest so a downstream consumer can see the terms the bytes arrived under. |
 | `sourcePriority` | 1 = highest. Ordering hint for later resolution when sources disagree. |
@@ -229,10 +230,11 @@ The estate's first statewide **transfer** source.
 | | |
 |---|---|
 | costClass | `FREE_PUBLIC_DOWNLOAD` — $0, no account, no CAPTCHA on the download path |
-| automationStatus | `manual_only` — the download is a JS route, not a URL |
+| automationStatus | `manual_only` — permitted, but there is no URL to fetch |
+| **acquisitionClass** | **`MANUAL_ONLY`** — session-bound portal, no addressable resource (DF-0J.1A) |
 | termsStatus | `reviewed_permitted` — liability disclaimer only, no rights asserted |
 | licenseStatus | `public_domain` |
-| role | `CORE_CANONICAL_SOURCE` |
+| **role** | **`DEFERRED`** — dormant; contributes no coverage |
 | capabilities | `transfer` only |
 | jurisdictions | 72 Wisconsin counties, one mapping |
 | historicalDepth | 5 years rolling, by month |

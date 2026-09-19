@@ -97,6 +97,60 @@ export type AutomationStatus =
   | 'prohibited' //            terms forbid automated retrieval
   | 'unknown'; //              not yet established; treated as prohibited by the runtime
 
+/**
+ * HOW the bytes actually arrive, and whether a machine can make them arrive.
+ *
+ * `AutomationStatus` above answers a question of PERMISSION — may we automate?
+ * This answers a question of MECHANISM — is there something to automate? The two
+ * are independent and both must pass. A publisher can warmly permit automated
+ * retrieval of a file that only exists behind a fifteen-minute session and a
+ * rotating state token, and a stable public URL can sit behind terms that
+ * forbid touching it. Collapsing the two is how a source nobody can fetch ends
+ * up counting as coverage.
+ *
+ * The distinction this type exists to enforce: **a human in the loop is not an
+ * acquisition mechanism.** A source whose retrieval step is "an operator opens
+ * a browser each month and saves a file into an inbox" is not a production
+ * source, however free, however lawful, however good the data. It will be
+ * skipped the month that operator is on leave, and nothing in the pipeline will
+ * know the difference between "no transfers recorded" and "nobody clicked".
+ */
+export type AcquisitionClass =
+  // --- Automated. A scheduled process retrieves this with no human present. ---
+  /** A documented programmatic interface: REST, SOAP, GraphQL, OGC. */
+  | 'AUTOMATED_API'
+  /** A published archive at a stable, fetchable URL. */
+  | 'AUTOMATED_BULK_DOWNLOAD'
+  /** An open-data platform with a machine endpoint: Socrata, CKAN, ArcGIS Hub. */
+  | 'AUTOMATED_OPEN_DATA'
+  /** A plain public HTTP resource — no session, no token, no negotiation. */
+  | 'AUTOMATED_PUBLIC_HTTP'
+  /**
+   * A headless browser, where the publisher has SAID that is acceptable.
+   * Deliberately the least preferred automated class and never the default: it
+   * is the most fragile to publisher change and the easiest to mistake for
+   * permission that was never given.
+   */
+  | 'AUTOMATED_BROWSER_ALLOWED'
+  // --- Not automated. None of these may carry core coverage. ---
+  /** Obtainable only by a human action. Lawful, free, and still not production. */
+  | 'MANUAL_ONLY'
+  /** The publisher forbids automated retrieval. */
+  | 'PROHIBITED_AUTOMATION'
+  /** Not yet established. Treated as ineligible, never as automated. */
+  | 'UNKNOWN_AUTOMATION';
+
+/** The classes that constitute an unattended acquisition path. */
+export const AUTOMATED_ACQUISITION_CLASSES: ReadonlySet<AcquisitionClass> = new Set<AcquisitionClass>([
+  'AUTOMATED_API', 'AUTOMATED_BULK_DOWNLOAD', 'AUTOMATED_OPEN_DATA',
+  'AUTOMATED_PUBLIC_HTTP', 'AUTOMATED_BROWSER_ALLOWED',
+]);
+
+/** True when a machine can acquire this source with nobody watching. */
+export function isAutomatedAcquisition(acquisition: AcquisitionClass): boolean {
+  return AUTOMATED_ACQUISITION_CLASSES.has(acquisition);
+}
+
 export type TermsStatus = 'reviewed_permitted' | 'reviewed_restricted' | 'not_reviewed';
 
 export type LicenseStatus = 'public_domain' | 'open_with_attribution' | 'licensed' | 'restricted' | 'unknown';
@@ -268,6 +322,12 @@ export type SourceDefinition = {
    * which is ineligible rather than free.
    */
   readonly costClass?: CostClass;
+  /**
+   * How the bytes arrive. Optional so pre-DF-0J.1A rows stay structurally valid;
+   * policy treats absence as UNKNOWN_AUTOMATION, which is ineligible rather than
+   * automated. Same posture as `costClass`: silence is never a yes.
+   */
+  readonly acquisitionClass?: AcquisitionClass;
   /** What the source is for. Absence is treated as undeclared, never as core. */
   readonly role?: SourceRole;
   /** Where a free access path has got to administratively. */

@@ -45,6 +45,13 @@ export const SOURCES: readonly SourceDefinition[] = [
     // charge. Free, but not yet in hand — which is an ACCESS state, not a cost
     // state, and the two are kept apart deliberately.
     costClass: 'FREE_DATA_REQUEST',
+    /**
+     * Unknown until the request is answered. The department may hand approved
+     * requesters a fetchable endpoint or may email a zip each week, and those
+     * are opposite answers to the only question that matters here. Recording it
+     * as unknown keeps eCRV out of core coverage until somebody knows.
+     */
+    acquisitionClass: 'UNKNOWN_AUTOMATION',
     role: 'CORE_CANONICAL_SOURCE',
     accessRequest: {
       state: 'NOT_REQUESTED',
@@ -86,6 +93,8 @@ export const SOURCES: readonly SourceDefinition[] = [
     // implementation of a core-eligible source: free, sanctioned, licence-clear,
     // and already proven end to end on 448,087 real parcels.
     costClass: 'FREE_OPEN_DATA',
+    /** An ArcGIS FeatureServer. A scheduler pages it; no human involved. */
+    acquisitionClass: 'AUTOMATED_OPEN_DATA',
     role: 'CORE_CANONICAL_SOURCE',
     accessRequest: { state: 'NOT_REQUIRED', contact: null, basis: null, requestedAt: null, lastUpdatedAt: '2026-08-31', quotedFeeUsd: null, notes: null },
     // The service publishes only the current compilation; no archive of prior
@@ -128,6 +137,8 @@ export const SOURCES: readonly SourceDefinition[] = [
     // so the source is zero-cost and blocked on ACCESS, not on money. A fee
     // quote on the request would move it to PAID_OPTIONAL.
     costClass: 'FREE_DATA_REQUEST',
+    /** RecordEASE terms forbid automated retrieval. Settled in DF-0E. */
+    acquisitionClass: 'PROHIBITED_AUTOMATION',
     role: 'CORE_CANONICAL_SOURCE',
     accessRequest: {
       state: 'NOT_REQUESTED',
@@ -184,6 +195,7 @@ export const SOURCES: readonly SourceDefinition[] = [
     // implemented, tested and inactive. It is not deleted and it is not a
     // dependency — a regression test proves the estate works without it.
     costClass: 'PAID_OPTIONAL',
+    acquisitionClass: 'MANUAL_ONLY',
     role: 'DEFERRED',
     // The file is a current-state export. It carries only names and addresses
     // active at generation time, so the register supplies no history of its own.
@@ -241,6 +253,8 @@ export const SOURCES: readonly SourceDefinition[] = [
     licenseStatus: 'open_with_attribution',
     costModel: 'free',
     costClass: 'FREE_OPEN_DATA',
+    /** A published archive at a stable URL on the state geospatial commons. */
+    acquisitionClass: 'AUTOMATED_BULK_DOWNLOAD',
     role: 'CORE_CANONICAL_SOURCE',
     accessRequest: {
       state: 'NOT_REQUIRED', contact: null, basis: null, requestedAt: null,
@@ -294,7 +308,35 @@ export const SOURCES: readonly SourceDefinition[] = [
     costModel: 'free',
     /** A file a human downloads from a public page. No account, no fee. */
     costClass: 'FREE_PUBLIC_DOWNLOAD',
-    role: 'CORE_CANONICAL_SOURCE',
+    /**
+     * MANUAL_ONLY, established by probing the public endpoint in DF-0J.1A.
+     *
+     * `tap.revenue.wi.gov/RETRHistoric` redirects into My Tax Account, a Fast
+     * Enterprises GenTax single-page application whose shell contains no
+     * content at all — every view, including the download, is assembled by
+     * XHR. Each of those calls must carry a `tap-session` cookie AND a
+     * `FAST_VERLAST__` server-state token, both of which the server reissues on
+     * every response, inside a session that expires after fifteen minutes.
+     * There is no month URL to fetch: the links are JavaScript hash routes and
+     * the file is generated server-side per request.
+     *
+     * So there is nothing here a scheduler can address. Reaching the file means
+     * replaying a stateful UI protocol, which is automating an interactive
+     * portal the publisher has not offered for that purpose — and DOR's one
+     * sanctioned programmatic route, the RETR web services, is approval-gated
+     * to filing-software providers and offers no historical bulk retrieval.
+     *
+     * Both legacy distributions were checked and are gone: the old eRETR data
+     * page and the propertyinfo.revenue.wi.gov sales search now 302 into this
+     * same portal. There is no second way in.
+     */
+    acquisitionClass: 'MANUAL_ONLY',
+    /**
+     * DEFERRED, not core. Reivesti does not depend on a source a person has to
+     * fetch: the connector, parser and semantics are finished and tested, and
+     * they stay dormant until Wisconsin publishes an automated distribution.
+     */
+    role: 'DEFERRED',
     accessRequest: {
       state: 'NOT_REQUIRED', contact: 'RETR@wisconsin.gov', basis: null, requestedAt: null,
       lastUpdatedAt: '2026-09-05', quotedFeeUsd: 0, notes:
@@ -348,6 +390,7 @@ export const SOURCES: readonly SourceDefinition[] = [
     // Not yet researched. Recorded as UNKNOWN_COST rather than assumed free,
     // which is what keeps it out of core coverage until someone reads the terms.
     costClass: 'UNKNOWN_COST',
+    acquisitionClass: 'UNKNOWN_AUTOMATION',
     // No role is declared. A source may only be called core once it is KNOWN to
     // be free, which mirrors the sources_core_role_is_zero_cost constraint in
     // migration 0007 and is asserted when the registry is built.
@@ -482,10 +525,42 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
     capabilities: ['transfer'],
     coverageStart: null,
     coverageEnd: null,
-    status: 'active',
+    /**
+     * `fixture_only`, not `active`. The parser, classifier, consideration model
+     * and 78-field layout are complete and tested, and every one of those tests
+     * runs against a synthetic fixture. No RETR file has ever been retrieved,
+     * and until one can be retrieved without a person, none will be.
+     *
+     * The mapping is kept rather than deleted so all 72 Wisconsin counties stay
+     * visible in the coverage matrix as a known, understood gap. Removing it
+     * would make Wisconsin indistinguishable from a state nobody has examined.
+     */
+    status: 'fixture_only',
     adapterKey: WI_RETR_ADAPTER_KEY,
     config: {
       downloadPage: 'https://tap.revenue.wi.gov/RETRHistoric',
+      /**
+       * Established by probing the public endpoint on 2026-09-19, and recorded
+       * so a future phase can re-test these facts rather than re-derive them.
+       * The day any of them changes is the day RETR becomes acquirable.
+       */
+      acquisitionForensics: {
+        probedAt: '2026-09-19',
+        platform: 'Fast Enterprises GenTax / My Tax Account (TAP)',
+        requestClass: 'E_SESSION_BOUND',
+        requiresSessionCookie: 'tap-session',
+        requiresRotatingStateToken: 'FAST_VERLAST__',
+        sessionIdleTimeoutMinutes: 15,
+        stableMonthUrl: false,
+        robotsTxt: 'absent on tap.revenue.wi.gov; www.revenue.wi.gov disallows only SharePoint internals',
+        termsProhibitAutomation: false,
+        legacyDistributionsRetired: [
+          'https://www.revenue.wi.gov/Pages/ERETR/data-home.aspx',
+          'https://propertyinfo.revenue.wi.gov/WisconsinProd/forms/htmlframe.aspx?mode=content/retransfer.htm',
+        ],
+        sanctionedProgrammaticRoute:
+          'RETR web services, approval-gated to filing-software providers; no bulk historical retrieval',
+      },
       distribution: 'xml',
       schemaDocumentedAt: '2026-09-05',
       termsVerifiedAt: '2026-09-05',

@@ -93,6 +93,12 @@ wrote down what it costs.
 `assessActivation()` returns exactly one verdict, and the **first failing gate
 wins** — so the answer always names the single thing that has to change.
 
+Gate order: role → cost → permission → licence → access → **acquisition
+mechanism** → schema → provenance. Access is asked before mechanism deliberately:
+for a source awaiting a data request, "nobody has asked yet" is the earlier and
+more actionable fact, and the mechanism the request grants is often unknowable
+until it is answered.
+
 | Verdict | Meaning |
 |---|---|
 | `CORE_ELIGIBLE` | free, sanctioned, licence-compatible |
@@ -101,6 +107,7 @@ wins** — so the answer always names the single thing that has to change.
 | `BLOCKED_AUTOMATION` | terms forbid, or have not sanctioned, automated retrieval |
 | `BLOCKED_TERMS` | the terms have not been read, or forbid the use |
 | `BLOCKED_ACCESS` | free and lawful; the file is not in hand |
+| `BLOCKED_MANUAL_ACQUISITION` | free and lawful; only a **human** can fetch it (DF-0J.1A) |
 | `BLOCKED_SCHEMA` | the layout is not pinned |
 | `BLOCKED_PROVENANCE` | retrieval cannot be archived, digested and replayed |
 | `DEFERRED` | known, understood, deliberately not pursued |
@@ -122,20 +129,37 @@ source ends up in a canonical position.
 
 ---
 
-## 6. Acquisition automation is not ingestion automation
+## 6. Acquisition automation IS required (revised, DF-0J.1A)
 
-These are different questions and the doctrine keeps them apart:
+> **This section previously said the opposite.** It held that a file arriving by
+> a lawful recurring request was core eligible, because "the operator's download
+> is one manual step; everything after delivery is automated regardless." That
+> reasoning is preserved here because it is the exact error the estate made, and
+> it is a persuasive one.
 
-- **Publisher acquisition automation** — may software fetch the bytes?
-- **Reivesti ingestion automation** — is everything after delivery automated?
+Three questions, kept apart:
 
-A file that arrives by a lawful recurring data request is **core eligible**. The
-operator's download is one manual step; archival, digesting, parsing,
-normalisation, resolution and replay are all automated regardless. Requiring an
-API would rule out a large fraction of American public records for no benefit.
+- **Acquisition permission** — *may* software fetch the bytes? (`automationStatus`)
+- **Acquisition mechanism** — *is there anything to fetch?* (`acquisitionClass`)
+- **Ingestion automation** — is everything after delivery automated?
 
-What is *not* acceptable is scraping something whose terms forbid it. `FREE` and
-`PROHIBITED` together is still refused — see Hennepin RecordEASE.
+The third was never in doubt and was never the problem. The second was missing
+entirely, and its absence let Wisconsin RETR — free, public, permitted, fully
+parsed, and impossible to retrieve — count as core coverage for 72 counties.
+
+**A human is not an acquisition mechanism.** A pipeline whose input arrives by
+hand cannot tell *"no transfers were recorded"* from *"nobody clicked"*, and
+those need opposite responses. So a source whose only distribution requires a
+person is `DEFERRED`, never core, however free and however lawful.
+
+The old objection — that requiring automation rules out a large fraction of
+American public records — is true and is accepted. The answer is that those
+records are not *covered*; calling them covered did not make them retrievable.
+
+`FREE` and `PROHIBITED` together is still refused, as it always was — see
+Hennepin RecordEASE. What is new is that `FREE` and `MANUAL_ONLY` is refused too.
+
+Full treatment: [`AUTOMATED-ACQUISITION.md`](AUTOMATED-ACQUISITION.md).
 
 ---
 
@@ -177,13 +201,15 @@ there. Reporting that as a cost blocker would send someone searching forever.
 
 ## 9. Current classification
 
-| Source | Cost | Role | Verdict |
-|---|---|---|---|
-| Hennepin County Parcels | `FREE_OPEN_DATA` | `CORE_CANONICAL_SOURCE` | **`CORE_ELIGIBLE`** |
-| MN eCRV Weekly Sales Extract | `FREE_DATA_REQUEST` | `CORE_CANONICAL_SOURCE` | `BLOCKED_ACCESS` — request not yet made |
-| Hennepin recorded instruments | `FREE_DATA_REQUEST` | `CORE_CANONICAL_SOURCE` | `BLOCKED_AUTOMATION` — RecordEASE terms |
-| MN SOS Business Bulk Data | `PAID_OPTIONAL` | `DEFERRED` | `DEFERRED` — $710, not purchased |
-| Dallas foreclosure notices | `UNKNOWN_COST` | *(undeclared)* | `BLOCKED_COST_UNKNOWN` |
+| Source | Cost | Acquisition | Role | Verdict |
+|---|---|---|---|---|
+| Hennepin County Parcels | `FREE_OPEN_DATA` | `AUTOMATED_OPEN_DATA` | `CORE_CANONICAL_SOURCE` | **`CORE_ELIGIBLE`** |
+| MN statewide parcels | `FREE_OPEN_DATA` | `AUTOMATED_BULK_DOWNLOAD` | `CORE_CANONICAL_SOURCE` | **`CORE_ELIGIBLE`** |
+| MN eCRV Weekly Sales Extract | `FREE_DATA_REQUEST` | `UNKNOWN_AUTOMATION` | `CORE_CANONICAL_SOURCE` | `BLOCKED_ACCESS` — request not yet made |
+| Hennepin recorded instruments | `FREE_DATA_REQUEST` | `PROHIBITED_AUTOMATION` | `CORE_CANONICAL_SOURCE` | `BLOCKED_AUTOMATION` — RecordEASE terms |
+| **WI DOR RETR historical** | `FREE_PUBLIC_DOWNLOAD` | `MANUAL_ONLY` | `DEFERRED` | `DEFERRED` — no unattended path (DF-0J.1A) |
+| MN SOS Business Bulk Data | `PAID_OPTIONAL` | `MANUAL_ONLY` | `DEFERRED` | `DEFERRED` — $710, not purchased |
+| Dallas foreclosure notices | `UNKNOWN_COST` | `UNKNOWN_AUTOMATION` | *(undeclared)* | `BLOCKED_COST_UNKNOWN` |
 
 Note what did **not** happen to the Minnesota SOS connector: it was not deleted.
 It remains implemented, tested and inactive, and a regression test proves the
@@ -207,10 +233,10 @@ never be a breaking change.
 
 ---
 
-## Wisconsin RETR: free, public, and still `manual_only` (DF-0J)
+## Wisconsin RETR: free, public, permitted — and withdrawn (DF-0J → DF-0J.1A)
 
-Wisconsin's Real Estate Transfer Return historical data is the doctrine's
-cleanest illustration that **cost and automation are different questions**.
+Wisconsin's RETR historical data is the doctrine's cleanest illustration that
+**cost, permission and mechanism are three different questions.**
 
 | Question | Answer |
 |---|---|
@@ -218,18 +244,35 @@ cleanest illustration that **cost and automation are different questions**.
 | Account or credentials | none |
 | CAPTCHA on the download path | none |
 | Terms | a liability disclaimer that asserts no rights over the data |
-| Automatable | **no** |
+| Terms prohibit automation | **no** |
+| `robots.txt` | absent on the portal host; nothing addresses RETR |
+| **Retrievable by a machine** | **no** |
 
-The month links are JavaScript routes, not URLs — the file is generated
-server-side, so there is nothing for a fetcher to address. The only sanctioned
-programmatic route DOR offers is the RETR web services, which are approval-gated
-interfaces for filing-software providers, not a public bulk API.
+DF-0J classified it `FREE_PUBLIC_DOWNLOAD` + `manual_only` and called it
+**CORE_ELIGIBLE**, reasoning that a human clicks once a month and the connector
+does the rest forever after. DF-0J.1A withdrew that.
 
-So it is `FREE_PUBLIC_DOWNLOAD` with `automationStatus: manual_only`, and it is
-**CORE_ELIGIBLE**. A human clicks once a month; the connector ingests the saved
-file automatically forever after. Nothing about the doctrine required weakening:
-the cost gate asks what the data costs, and the answer is nothing.
+Probing the public endpoint established why it cannot be automated.
+`tap.revenue.wi.gov/RETRHistoric` redirects into My Tax Account, a Fast
+Enterprises GenTax single-page application whose HTML shell contains no content
+at all — every view, the download included, is assembled by XHR. Each call must
+carry a `tap-session` cookie **and** a `FAST_VERLAST__` server-state token, both
+reissued on every response, inside a session that expires after fifteen minutes.
+There is no month URL: the links are JavaScript hash routes and the file is
+generated server-side per request.
 
-The opposite mistake was available and refused. "Retrieve RETR" appears in DOR's
-web-services list, and reading that as public bulk retrieval would have promoted
-a source on a misreading of an approval-gated filing interface.
+Both legacy distributions were checked and are gone — the old eRETR data page and
+the `propertyinfo.revenue.wi.gov` sales search now redirect into the same portal.
+There is no second way in. DOR's one sanctioned programmatic route, the RETR web
+services, is approval-gated to filing-software providers and offers no bulk
+historical retrieval.
+
+Nothing here is a prohibition, and nothing was circumvented. The finding is
+simply that **there is no mechanism**, and no amount of permission substitutes
+for one. RETR is now `MANUAL_ONLY` and `DEFERRED`. Its connector, parser,
+classifier and consideration model stay in the tree, tested against fixtures,
+dormant until Wisconsin publishes an automated distribution.
+
+The opposite mistake was available and refused twice. "Retrieve RETR" appears in
+DOR's web-services list, and reading that as public bulk retrieval would have
+promoted a source on a misreading of an approval-gated filing interface.

@@ -264,24 +264,40 @@ field-level decision — see `source_field_authority`.
 
 ---
 
-## Wisconsin transfer coverage (DF-0J)
+## Wisconsin transfer coverage: granted, then withdrawn (DF-0J → DF-0J.1A)
 
-72 county-equivalents gained the `transfer` capability from a single source,
-`wi_dor_retr_historical`. That is the largest single-source jurisdiction gain in
-the estate so far, and it is a **different capability** from everything before
-it: DF-0D through DF-0I built property state, and this is the first statewide
-source of transfer state.
+DF-0J gave 72 county-equivalents the `transfer` capability from a single source,
+`wi_dor_retr_historical` — the largest single-source jurisdiction gain in the
+estate, and its first statewide transfer state.
 
-Parcel coverage is **unchanged at 59** Minnesota counties. A transfer
-declaration states the parcel the parties named; it is not an assessor's roll,
-and it does not cover a county for parcel data. The coverage graph enforces
-that distinction rather than trusting anyone to remember it.
+**DF-0J.1A took all 72 back.** RETR is free, public domain and fully parsed, and
+the only way to obtain it is for a person to work a fifteen-minute session in a
+tax portal. Counting those counties asserted Reivesti could answer a question
+about a Wisconsin transfer; it could not. See
+[`AUTOMATED-ACQUISITION.md`](AUTOMATED-ACQUISITION.md).
 
 | Capability | Covered county-equivalents |
 |---|---|
-| `parcel`, `assessor`, `ownership`, `tax` | 59 (Minnesota) |
-| `transfer` | 72 (Wisconsin) |
+| `parcel`, `assessor`, `ownership`, `tax` | **59** (Minnesota) |
+| `transfer` | **0** |
 
-Minnesota's own transfer source, eCRV, remains `blocked_on_access`: free by
-data request, not yet requested. Wisconsin therefore carries transfer coverage
-alone, and the two states currently cover disjoint capabilities.
+Declared core coverage: **59 jurisdictions**, down from a briefly-reported 131.
+
+**Transfer is the estate's largest open gap.** Both statewide transfer sources
+are real, free and parsed, and neither is reachable — for different reasons
+needing different work:
+
+- **WI RETR** — `MANUAL_ONLY`. Needs an automated distribution that does not
+  exist today. Nothing to do but re-test periodically.
+- **MN eCRV** — `BLOCKED_ACCESS`. Needs a request nobody has sent, to
+  `ecrv.support@state.mn.us`. The mechanism it grants is unknown until asked,
+  so it is `UNKNOWN_AUTOMATION` rather than assumed fetchable. **This is the
+  single highest-value unblocked action available**, and unlike RETR it depends
+  on asking rather than on a publisher changing its architecture.
+
+Wisconsin is not, however, out of reach. The **Wisconsin Statewide Parcel Map**
+is a public ArcGIS FeatureServer carrying `V1200_WisconsinParcels_2026` —
+3,574,646 parcels across all 72 counties, answered anonymously, with a
+range-capable ZIP archive beside it. It is `parcel`, not `transfer`, so it
+replaces nothing RETR would have supplied; it is simply the best-ranked
+zero-cost source that can actually be fetched.
