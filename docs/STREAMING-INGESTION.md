@@ -554,6 +554,19 @@ caller-supplied sort scratch went from 0755 to 0700, and spill and line-writer
 files from 0644 to 0600. `createFileLineWriter` now defaults to 0600 rather than
 taking an option callers remember to pass.
 
+## 6f. Inputs from a durable store (DF-0L)
+
+The runtime's input is still a content-addressed artifact in the workspace
+store; DF-0L only changes where that artifact can come from. `rehydrate`
+streams it from the durable store into the workspace, hashing as it goes, and
+restores the original retrieval manifest, so the run id, partition digests and
+global digest of a replay on a new machine equal the original's. Formats that
+need random access (ZIP) land on scratch first; NDJSON bundles stream. Nothing
+in the projection path talks to the object store. Execution checkpoints
+(ledger, sort spills, snapshot indexes) are EPHEMERAL_RESTARTABLE — a new worker
+rebuilds them from the durable raw artifact. See
+[`ARTIFACT-STORAGE.md`](ARTIFACT-STORAGE.md).
+
 ## 7. Limits
 
 1. **Absences are recorded by key hash**, not key. The full key lives in the prior

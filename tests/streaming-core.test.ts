@@ -386,7 +386,9 @@ test('a successful rerun atomically replaces the previous generation', async () 
 
 test('restricted rows are written to a separate root with owner-only permissions', async () => {
   const root = tempRoot('df-gen-');
-  const store = createGenerationStore(root);
+  // Pinned uncompressed: this test reads the file by name. The compressed
+  // layout is covered by tests/wi-statewide-parcels.test.ts.
+  const store = createGenerationStore(root, { compress: false });
   const run = await store.beginRun('run_a');
   await run.write('bundles', { n: 1 });
   await run.write('contacts', { value: '555-0100' });

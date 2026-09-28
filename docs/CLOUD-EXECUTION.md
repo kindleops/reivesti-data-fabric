@@ -1,0 +1,132 @@
+# Cloud execution
+
+**The execution machine is disposable.** A worker is a clone of this repository,
+a Node runtime, and environment configuration. It holds nothing that another
+worker cannot rebuild from the durable artifact store
+([`ARTIFACT-STORAGE.md`](ARTIFACT-STORAGE.md)) and, where the store has nothing
+yet, from the publisher. No step requires any particular laptop, container or
+person.
+
+## 1. What a worker needs
+
+| Need | Source |
+|---|---|
+| code | `git clone` of this repository at the release commit |
+| runtime | Node ≥ 22.18 (type stripping; no build step), `npm ci` |
+| scratch disk | `DF_VAR` — ≥ 12 GB for a Wisconsin release with `DF_DERIVED_GZIP=1` |
+| durable store | `DF_ARTIFACT_*` environment variables (§3) |
+| network | the publisher, when acquiring; the durable store; nothing else |
+
+Nothing else: no mounted home directory, no pre-seeded `var/`, no local database.
+
+## 2. Bootstrap
+
+```sh
+git clone https://github.com/kindleops/reivesti-data-fabric && cd reivesti-data-fabric
+npm ci
+export DF_VAR=/scratch/df DF_DERIVED_GZIP=1        # execution disk
+# DF_ARTIFACT_* come from the platform's secret store, never from a file in Git
+npm run df:doctor -- --probe                     # exit 0 or stop
+node src/cli/df.ts artifacts catalog --verify    # what the estate holds
+node src/cli/df.ts auto wi_statewide_parcels__all_wi_counties
+```
+
+`df doctor` checks Node, binaries, writable directories, disk, memory, the
+Postgres test binaries, the backend configuration and — with `--probe` — a
+PUT/HEAD/GET/re-hash round trip with the real credentials. Secrets are reported
+as `configured` / `absent`; a value never leaves the process.
+
+## 3. Runtime configuration
+
+| Variable | Meaning | Secret? |
+|---|---|---|
+| `DF_VAR` | execution scratch root | no |
+| `DF_ARCHIVE` | workspace artifact store (default `$DF_VAR/archive`) | no |
+| `DF_DERIVED_GZIP` | gzip the derived plane on disk | no |
+| `DF_LOG_LEVEL` | `error` … `debug` | no |
+| `DF_ARTIFACT_BACKEND` | `s3` or `local` | no |
+| `DF_ARTIFACT_DURABILITY` | `required` (default for `s3`) or `optional` | no |
+| `DF_ARTIFACT_PREFIX` | key prefix (default `reivesti-data-fabric`) | no |
+| `DF_ARTIFACT_S3_ENDPOINT` | S3-protocol endpoint | no |
+| `DF_ARTIFACT_S3_REGION` | signing region | no |
+| `DF_ARTIFACT_BUCKET` | private bucket | no |
+| `DF_ARTIFACT_ACCESS_KEY_ID` | credential | **yes** |
+| `DF_ARTIFACT_SECRET_ACCESS_KEY` | credential | **yes** |
+| `DF_ARTIFACT_LOCAL_ROOT`, `DF_ARTIFACT_LOCAL_DURABLE` | LOCAL backend on a persistent volume | no |
+
+Generic `AWS_*` variables are ignored on purpose (§ARTIFACT-STORAGE 2).
+
+## 4. The unattended cycle
+
+```
+discover → plan (durable release record? ledger?) → download → hash
+  → durable upload → re-read verify → register release → derive → project
+  → activate → durable run receipt
+```
+
+| Situation on a fresh worker | Behaviour | Publisher bytes fetched |
+|---|---|---|
+| release never seen | full cycle | 1 |
+| release registered in the durable store | **rehydrate** from the store, sha-verified, then derive and project (`REHYDRATED_AND_INGESTED`) | 0 |
+| same worker, next tick | **NOOP** | 0 |
+| durable commit refused (`required`) | run fails **before** any partition is activated | 1 |
+
+## 5. Recovery
+
+| Failure | State left | Next worker |
+|---|---|---|
+| container lost after acquisition, before projection | raw bytes DURABLE + REGISTERED | finds the release record, rehydrates, projects; no second download (tested: `durable-pipeline.test.ts`) |
+| container lost after projection, before anything else | raw DURABLE, run receipt durable | projection is disposable: replay from the durable raw rebuilds identical partitions and digests |
+| container lost mid-upload | multipart aborted or never completed → no object | re-uploads; content-addressed, so idempotent |
+| store unreachable, `required` | nothing activated | retries next tick |
+
+Execution checkpoints (ledger, sort spills, snapshot indexes) are
+EPHEMERAL_RESTARTABLE; only the raw artifact, its manifest, the release record
+and the run receipt are DURABLE_RESUMABLE.
+
+## 6. What does and does not go to GitHub
+
+| GitHub | Never GitHub |
+|---|---|
+| code, migrations (drafts marked as such), tests, docs | raw source artifacts (hundreds of MB – GB) |
+| `reference/` aggregate evidence: digests, counts, reports | derived bundles, projections, snapshot indexes |
+| `reference/artifact-catalog.json` (digests, sizes, public URLs) | owner names / mailing addresses (restricted plane) |
+| CI workflow | object-store credentials, `.env` files, signed URLs |
+| | database files, `var/`, `.s3env/` |
+
+`.gitignore` enforces the directory half; the portability test
+(`tests/artifact-storage.test.ts`) fails on machine-specific absolute paths in
+source; CI (`.github/workflows/ci.yml`) repeats that grep before installing
+anything.
+
+## 7. CI
+
+`.github/workflows/ci.yml`, on every push and pull request: portability grep →
+Node 22.18 → `npm ci` → moto test peer in `.s3env/` → `df doctor` →
+`tsc --noEmit` → `npm test` → the Postgres 17 migration chain twice on a fresh
+embedded cluster (the runner is unprivileged; each run prints the schema
+fingerprint). CI never
+receives production credentials; the S3 contract runs against the disposable
+IAM-enforcing peer.
+
+## 8. Provisioning the durable store (operator action)
+
+The repository cannot create credentials, and must not contain them. One-time:
+
+1. Create a **private** bucket (e.g. `data-fabric-artifacts`) in an
+   S3-compatible store. On the existing Supabase project this is Storage →
+   New bucket, *public off*; S3 access keys are created under Storage →
+   S3 Connection. Any S3-protocol store works; nothing in the code names a vendor.
+2. Grant the key only object read/write/list on that bucket where the store
+   supports scoping.
+3. Put the six `DF_ARTIFACT_*` values in the execution environment's secret
+   settings — not in chat, not in a file in the repository.
+4. On the next worker: `npm run df:doctor -- --probe`, then
+   `df artifacts reacquire --sha b22bfaad…` and `--sha e3d54ee1…`: each is
+   accepted only if the re-download's sha256 equals the catalogued one, and is
+   then committed durable. From then on no worker needs the publisher to replay.
+
+## 9. Cost
+
+Infrastructure, not source data: ~5.9 GB today, ~$0.13/month at S3-class
+prices; see [`ARTIFACT-STORAGE.md`](ARTIFACT-STORAGE.md) §11.

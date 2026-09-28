@@ -642,6 +642,22 @@ Property identity stays `county jurisdiction + normalized local parcel id`.
 Minnesota and Wisconsin share the partition store, the organization partition
 and the global digest; a Wisconsin run writes no Minnesota county partition.
 
+## 10b. The durable artifact estate (DF-0L)
+
+Invariant: **no authoritative source artifact may exist only on ephemeral
+execution storage.** Two storage planes: the execution disk (disposable) and a
+private, content-addressed durable store behind one backend interface
+(`LOCAL` | `S3_COMPATIBLE`, `src/archive/artifact-backend.ts`,
+`src/archive/s3-backend.ts`). Raw publisher bytes are committed
+STAGING → HASH_VERIFIED → DURABLE → REGISTERED (`src/archive/durable-artifacts.ts`)
+**before** any partition is activated; a write-once release record lets a fresh
+worker rehydrate instead of re-downloading. Credentials come only from
+`DF_ARTIFACT_*` environment variables; no signed URL is persisted. Draft
+migration 0011 adds `source_artifacts.artifact_role / content_encoding /
+derived_from_sha256` and `artifact_storage_copies` (not applied to production).
+Details: [`ARTIFACT-STORAGE.md`](ARTIFACT-STORAGE.md),
+[`CLOUD-EXECUTION.md`](CLOUD-EXECUTION.md).
+
 ## 11. Observability
 
 Structured JSON logs only. Every run emits `run.release_selected`,

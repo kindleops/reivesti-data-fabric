@@ -422,11 +422,16 @@ Automated-core parcel jurisdictions, derived by `buildCoverage`: **Minnesota
 
 ## 16. Retention
 
-In this session's artifact store: the publisher archive (sha256 `b22bfaad…`) and
-its manifest, and the derived bundle (`b622edfe…`, regenerable from the archive,
-proven byte-identical). In the repository, aggregate evidence only
-(`reference/wi-statewide/V12.0.0-2026/`): release discovery, run report with
-county counts, partition digests and the global digest, idempotency and replay
-comparisons, isolation diffs, quality report, PID-reuse audit. The container is
-ephemeral: publisher bytes are re-fetchable at the recorded URL and their sha256
-is pinned here, so a future re-acquisition proves or disproves identity.
+**Superseded by DF-0L:** the V12 publisher archive (sha256 `b22bfaad…`,
+759,926,092 bytes) is no longer meant to live only in a session's workspace. It
+is committed to the durable artifact store (all four phases, re-read verified),
+with its manifest and a release record for fingerprint `cb6813…`, so a fresh
+worker replays it without the publisher. The derived bundle (`b622edfe…`) is
+REGENERABLE and deliberately not stored durably (59 s to rebuild, proven
+byte-identical). In the repository, aggregate evidence only
+(`reference/wi-statewide/V12.0.0-2026/`) and the pinned catalog entry
+(`reference/artifact-catalog.json`). Whether the store itself outlives the
+certification container depends on the configured backend — see
+[`CLOUD-EXECUTION.md`](CLOUD-EXECUTION.md) §8. If every copy is lost,
+`df artifacts reacquire --sha b22bfaad…` re-downloads and accepts only the exact
+digest.

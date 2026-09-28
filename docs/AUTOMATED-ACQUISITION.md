@@ -163,3 +163,23 @@ Guarantees a scheduler can rely on:
 
 See also: [`ZERO-COST-DATA-DOCTRINE.md`](ZERO-COST-DATA-DOCTRINE.md),
 [`SOURCE-REGISTRY.md`](SOURCE-REGISTRY.md), [`WISCONSIN-RETR.md`](WISCONSIN-RETR.md).
+
+## Durable acquisition (DF-0L)
+
+With a durable store configured (`DF_ARTIFACT_*`, see
+[`CLOUD-EXECUTION.md`](CLOUD-EXECUTION.md)) the cycle gains three steps and one
+shortcut:
+
+| Step | What happens |
+|---|---|
+| plan | also asks the durable store: is a release record registered for this fingerprint? If so, **rehydrate** (sha-verified) instead of downloading |
+| durable commit | after hashing, the raw bytes are uploaded (multipart, per-part SHA-256), re-read end to end and re-hashed, and a write-once manifest stored — before derivation |
+| register | a write-once release record (fingerprint → publisher sha256, schema digest, acquisition class) |
+| receipt | after activation, a durable run receipt |
+
+`DF_ARTIFACT_DURABILITY=required` (the S3 default) makes a refused upload fail
+the run **before** anything is activated. A fresh worker on an already-acquired
+release fetches zero publisher bytes (ledger action `REHYDRATED_AND_INGESTED`);
+its next tick is a NOOP. Manual downloads remain absent: the only way bytes enter
+the estate is `df auto`, or `df artifacts reacquire`, which accepts a
+re-download as a restoration only on an equal sha256.
