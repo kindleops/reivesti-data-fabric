@@ -223,8 +223,9 @@ The per-county inventory is pinned in `counties.ts` and reconciled every release
   37,833. It is `assessmentYear` on the assessment observation, so two roll
   years are two observations, never a conflict. A blank or non-year stays null.
 - **Money** is read from the geodatabase's doubles through the contract's
-  decimal-string path into exact cents. One `ESTFMKVALUE` carries sub-cent float
-  noise and is refused as invalid, not rounded.
+  decimal-string path into exact cents. In V12 no routed row carries a money
+  value the contract refuses (0 invalid); a sub-cent value would be refused and
+  listed in `invalid_money_fields`, never rounded (tested).
 - **Classes** are comma-separated statutory codes (Wis. Stat. § 70.32) kept as
   ordered lists: 1 residential (2.14 M sole), 2 commercial, 3 manufacturing, 4
   agricultural, 5 undeveloped, 5M agricultural forest, 6 productive forest, 7
@@ -237,6 +238,195 @@ The per-county inventory is pinned in `counties.ts` and reconciled every release
 
 ---
 
-## 9–12. Measured run, proofs and performance
+## 9. The full statewide run (2026-09-28, live publisher, unattended)
 
-See the sections appended below from the DF-0K proof run.
+`df auto wi_statewide_parcels__all_wi_counties`, 1 GB heap cap, into an estate
+already holding Minnesota's 59 counties. Evidence retained (aggregate only) in
+`reference/wi-statewide/V12.0.0-2026/`.
+
+| | |
+|---|---:|
+| reported (FeatureServer witness) | 3,574,646 |
+| discovered (archive table header) | 3,574,646 |
+| read / downloaded (rows derived from the archive) | 3,574,646 |
+| parsed | 3,574,646 |
+| **accepted** | **3,513,111** |
+| quarantined | **61,535** = 58,201 feature labels + 1 unroutable county (`MENOMONIE`) + 3,333 duplicate (county, parcel) rows |
+| **reconciliation** | 3,513,111 + 61,535 = 3,574,646 — exact; witness difference **0** |
+| completeness | `complete` |
+| canonical properties (all `resolved`, `county_parcel_authoritative`) | **3,513,111** |
+| unresolved | 0 |
+| conflicts (same parcel, different situs) | 25,420 |
+| restricted contact observations | 3,444,181 |
+| canonical events | 11,632,019 |
+| rows without geometry | 2 |
+| partitions | 72 county + `organization/us`, all `activated` |
+| run id | `run_6a5d84da418a892d0322a504265ff1e5` |
+| normalized digest | `3e2ec68b545f333cc774d0a6dc0cfc318c2adb555faae8f03a9b14f76f989f36` |
+| **global estate digest (MN + WI)** | `5780f1ba36676254002c1d0428b7831df117038dcfe3cae4e8f09ed505b870eb` |
+| publisher archive | 759,926,092 bytes, sha256 `b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df` — identical to an independent `curl` of the same URL |
+| derived bundle | 2,724,190,106 bytes, sha256 `b622edfec5fb21f3b82ef740b4fee48c756b7bf776981d48a6ea39e6e5e3a909` |
+
+Accepted rows per county range from **2,219** (Menominee — half its rows are
+`TRIBAL` labels) to **280,327** (Milwaukee).
+
+### Performance
+
+| | Wisconsin V12 | Minnesota (same container) | Synthetic 5.5 M (DF-0I) |
+|---|---:|---:|---:|
+| rows | 3,574,646 | 2,710,201 | 5,500,000 |
+| discover | 0.95 s | — | — |
+| acquire (download 760 MB) | 37 s | (bundle pre-converted) | — |
+| derive (unzip 1.6 GB + read geodatabase) | 59 s | — | — |
+| parse + normalize | 2,179 s | 1,874 s | — |
+| project | 1,127 s | 588 s | — |
+| **total wall** | **3,410 s** | 2,484 s | 3,566 s |
+| **peak heap** | **149 MB** (1,024 MB cap) | 218 MB | 201 MB |
+| max RSS | 681 MB | 986 MB | 575 MB |
+| peak external / arrayBuffers | 635 / 625 MB | 876 / 867 MB | — |
+| snapshot indexes on disk | 81 MB (72 files) | 61 MB (59 files) | 129 MB |
+| end-to-end rows/s | 1,048 | 1,091 | 1,542 |
+
+No heap regression: 149 MB is the lowest peak of any statewide run. Both state
+runs in this session wrote their derived tables gzip-compressed
+(`STREAMING-INGESTION.md` §6e) — the uncompressed Minnesota estate alone filled
+the session's disk — which costs some CPU in the emit stage.
+
+## 10. Cross-state isolation
+
+`tools/estate-state.ts` hashed every file of every partition (bytes, size,
+mtime, CURRENT, manifest digests) before the Wisconsin run, after it, after the
+forced re-ingest and after the network-off replay.
+
+| | after ingest | after force | after replay |
+|---|---|---|---|
+| Minnesota county partitions unchanged | **59 / 59** | 59 / 59 | **59 / 59 vs. pre-Wisconsin** |
+| Minnesota snapshot index directory | unchanged | unchanged | unchanged |
+| Wisconsin county partitions | 72 added | 72 unchanged (skipped) | 72 rebuilt, digests equal |
+| changed | `organization/us` only | `organization/us` only | `organization/us` only |
+
+`organization/us` is nation-scoped by design (organization identity must not
+depend on which county an owner was seen in), so any run that observes an
+organization-shaped name recomputes it. Its digest after the replay equals its
+digest after the first run. **Minnesota property writes: zero.**
+
+### Same parcel string, different states
+
+Over all 6,161,211 county-parcel identifiers in the combined estate:
+
+| | |
+|---|---:|
+| parcel strings in several Wisconsin counties | 117,040 |
+| parcel strings in several Minnesota counties | 92,874 |
+| **parcel strings present in both MN and WI** | **30,988** |
+| punctuation-folded keys present in both | 32,970 |
+| **property ids naming more than one (county, parcel)** | **0** |
+
+Every one of the 30,988 shared strings resolves to a distinct property per
+county. Identity includes jurisdiction, and that is what keeps them apart.
+
+## 11. Unattended update behaviour, idempotency and replay
+
+| | Result |
+|---|---|
+| scheduled tick, same release | **`NOOP` in 2 s** — one HEAD + metadata, no download, no parse, no projection; ledger `NOOP_SAME_RELEASE` |
+| newer release (synthetic V13) | `ACQUIRE`, `NEW_RELEASE`, `schemaValidationRequired: true` (tested) |
+| same version republished | `ACQUIRE`, `REPUBLISHED_RELEASE` (tested) |
+| **forced re-ingest, same release** | 0 new · 0 revised · 0 missing · 0 reappeared · 3,513,111 unchanged; same run id, normalized and global digests; **72 county partitions skipped** |
+| **network-off replay** (`unshare --net`, derived WI estate deleted, archive only) | archive sha, bundle sha (byte-identical re-derivation), run id, normalized digest, global digest, 72 × input+output partition digests, counts — **all equal** |
+
+The forced run in the live proof re-downloaded the archive (deduplicated to the
+same sha256). That was wasteful and has been fixed: a forced re-ingest of an
+already-retained release now reads the retained archive and records `REPLAYED`.
+
+## 12. Source quality (aggregate, 3,574,645 routed rows)
+
+| Field | Statewide | County min | County median | County max | Counties < 50% |
+|---|---:|---:|---:|---:|---:|
+| parcel id (a real identifier) | 98.37% | 49.16% (Menominee) | 99.37% | 100% | 1 |
+| situs address | 69.82% | 30.07% (Buffalo) | 56.31% | 99.83% (Milwaukee) | **26** |
+| owner | 98.33% | 91.27% (Washburn) | 99.28% | 100% | 0 |
+| taxpayer | — not in the schema — | | | | |
+| mailing (restricted) | 96.45% | 54.03% | 97.57% | 100% | 0 |
+| parcel area (any acreage) | 99.23% | 91.27% | 100% | 100% | 0 |
+| property class | 88.26% | 48.94% | 88.03% | 95.82% | 1 |
+| assessment | 90.72% | 48.94% | 90.31% | 99.90% | 1 |
+| fair market value | 67.41% | 28.78% (Lafayette) | 56.39% | 95.80% | **23** |
+| net tax | 92.47% | 48.91% | 93.65% | 99.90% | 1 |
+| tax roll year | 98.94% | 91.27% | 99.92% | 100% | 0 |
+| coordinates | 99.77% | 90.70% | 99.96% | 100% | 0 |
+| ZIP | 65.59% | **0%** (Green Lake) | 53.80% | 100% | **32** |
+| year built · sale echo | — not in the schema — | | | | |
+
+The statewide source is **not uniformly complete**: situs address, fair market
+value and ZIP are below half in 23–32 counties, and one county publishes no ZIP
+at all. Invalid values among routed rows: 0 unparseable load dates, 65
+unparseable `PARCELDATE` strings (kept raw, not interpreted), 0 invalid money,
+0 unknown property-class or auxiliary-class codes.
+
+### Freshness is per county
+
+`LOADDATE` (when the SCO loaded each submission) is stored per row and per
+county; there is no single statewide freshness date.
+
+| | |
+|---|---|
+| oldest county | Portage (55097), loaded 2026-01-16 |
+| newest county | Price (55099), loaded 2026-04-20 |
+| median | 2026-03-05 |
+| counties > 120 days old at publication (2026-06-30) | 21 |
+| counties > 150 days old at publication | 5 |
+| counties with several loads | Calumet, Winnebago (multi-county city submissions) |
+
+## 13. Restricted data and security
+
+- `PSTLADRESS` is the only restricted field. It goes to the restricted plane as
+  `mailing_address`, `permittedUse: record_only`, attached to the primary owner's
+  observation; the restricted run tables are mode 0600, scratch 0700.
+- No canonical row has a field that could hold it; a party observation carries a
+  name and a role and `address: null`. The test suite scans a compressed estate —
+  decompressing — for any mailing string outside the restricted root.
+- The publisher archive and the derived bundle contain the public-record mailing
+  strings as published; they are evidence, retained read-only (0444) in the
+  artifact store, and are not a member-facing surface.
+- Fixtures are generated at test time from invented values; a `git grep` for the
+  live names seen during forensics finds nothing.
+
+## 14. RETR: the future convergence boundary
+
+There is still **no live RETR source** (`MANUAL_ONLY`, `DEFERRED`,
+`fixture_only`), and nothing here claims transfer corroboration. What DF-0K
+proves, on synthetic returns only, is the shape:
+
+- `retrParcelObservations()` (`src/connectors/wi-retr/property.ts`) turns a
+  return's parcels into `preliminary`, `provisional` county-parcel observations
+  computed with the **same** `wiParcelIdentity` the parcel map uses.
+- RETR first → provisional; parcel map arrives → **resolved**, authority
+  `wi_statewide_parcels`, both sources' evidence kept. Parcel map first → the
+  same property. Ingest order changes nothing (tested both ways).
+- A RETR parcel number punctuated differently from the roll does **not** force a
+  match. Its folded `parcelMatchKey` is a candidate for a later resolver that
+  checks uniqueness inside the county — the 11,411 Wisconsin fold collisions are
+  exactly why that check is required.
+
+Wisconsin transfer coverage after DF-0K: **zero**.
+
+## 15. Coverage graph
+
+Activated for 72 Wisconsin counties: `parcel`, `assessor`, `ownership`, `tax`.
+Not claimed: `transfer`, `deed`, `mortgage`, `mortgage_release`, `lien`,
+`foreclosure_notice`, `tax_delinquency`, and no assessor sale observation.
+
+Automated-core parcel jurisdictions, derived by `buildCoverage`: **Minnesota
+59 + Wisconsin 72 = 131.**
+
+## 16. Retention
+
+In this session's artifact store: the publisher archive (sha256 `b22bfaad…`) and
+its manifest, and the derived bundle (`b622edfe…`, regenerable from the archive,
+proven byte-identical). In the repository, aggregate evidence only
+(`reference/wi-statewide/V12.0.0-2026/`): release discovery, run report with
+county counts, partition digests and the global digest, idempotency and replay
+comparisons, isolation diffs, quality report, PID-reuse audit. The container is
+ephemeral: publisher bytes are re-fetchable at the recorded URL and their sha256
+is pinned here, so a future re-acquisition proves or disproves identity.

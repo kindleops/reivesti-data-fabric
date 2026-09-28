@@ -1,0 +1,937 @@
+{
+ "outcome": "INGESTED",
+ "plan": {
+  "action": "ACQUIRE",
+  "reason": "FIRST_RELEASE",
+  "schemaValidationRequired": false
+ },
+ "discovered": {
+  "referencePeriod": "V12.0.0-2026",
+  "releaseFingerprint": "cb6813016f6ed8e0e5c163b7fefd27b0dfbbd02931c32120e20a6bf34e532676",
+  "head": {
+   "url": "https://web.s3.wisc.edu/parcels/v12_parcels/V12.0.0_Wisconsin_Parcels_2026_10.3_Uncompressed.zip",
+   "etag": "\"eb1985c678037a0288beda1e02a1ef79-73\"",
+   "lastModified": "Tue, 30 Jun 2026 21:11:02 GMT",
+   "contentLength": 759926092,
+   "versionId": "0000019f-1a5f-05d1-f2b8-14a30909537e",
+   "acceptRanges": true
+  },
+  "archive": {
+   "url": "https://web.s3.wisc.edu/parcels/v12_parcels/V12.0.0_Wisconsin_Parcels_2026_10.3_Uncompressed.zip",
+   "filename": "V12.0.0_Wisconsin_Parcels_2026_10.3_Uncompressed.zip",
+   "major": 12,
+   "minor": 0,
+   "patch": 0,
+   "year": 2026,
+   "referencePeriod": "V12.0.0-2026",
+   "expectedLayerName": "V1200_WisconsinParcels_2026"
+  },
+  "access": {
+   "credentialsRequired": false,
+   "sessionRequired": false,
+   "captchaObserved": false,
+   "archiveAcceptsRanges": true
+  },
+  "serviceMatchesArchive": true,
+  "witness": {
+   "layerName": "V1200_WisconsinParcels_2026",
+   "count": 3574646,
+   "lastEditDate": "2026-06-30T21:21:29.649Z",
+   "dataLastEditDate": "2026-06-30T21:21:29.649Z",
+   "schemaLastEditDate": "2026-06-18T23:13:58.654Z",
+   "capabilities": "Query",
+   "maxRecordCount": 2000,
+   "supportsPagination": true,
+   "supportsOrderBy": true,
+   "objectIdField": "OBJECTID",
+   "geometryType": "esriGeometryPolygon",
+   "fields": 47,
+   "fieldSetDigest": "9da67281d552631b75e7c05284c6e0d78848334473d310e26f07aa396c9bb5cb",
+   "copyrightText": "Product of the Version 12 Statewide Parcel Map Database Project (V12). Created by: The Wisconsin State Cartographer's Office, Administrated by: The Wisconsin Land Information Program (WLIP) at the Department of Administration (DOA)"
+  }
+ },
+ "publisherArtifact": {
+  "sha256": "b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df",
+  "bytes": 759926092,
+  "filename": "V12.0.0_Wisconsin_Parcels_2026_10.3_Uncompressed.zip",
+  "url": "https://web.s3.wisc.edu/parcels/v12_parcels/V12.0.0_Wisconsin_Parcels_2026_10.3_Uncompressed.zip",
+  "retrievedAt": "2026-09-28T03:56:42.969Z",
+  "effectiveAt": "2026-06-30T21:11:02.000Z",
+  "path": "data-fabric/wi_statewide_parcels/V12.0.0-2026/sha256-b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df/source-original.zip"
+ },
+ "bundleArtifact": {
+  "sha256": "b622edfec5fb21f3b82ef740b4fee48c756b7bf776981d48a6ea39e6e5e3a909",
+  "bytes": 2724190106
+ },
+ "derivation": {
+  "tableName": "V1200_WisconsinParcels_2026",
+  "validRowCount": 3574646,
+  "rowsWritten": 3574646,
+  "rowsWithoutGeometry": 2,
+  "deletedSlots": 0,
+  "fields": 46,
+  "sourceSchemaDigest": "924538d03c25e57817d3f88611f3997ad0963093ad7a25794f1d552db0e6ffa4",
+  "geometry": {
+   "type": "polygon",
+   "spatialReference": "NAD_1983_HARN_Wisconsin_TM",
+   "hasZ": true,
+   "hasM": true
+  },
+  "extractMs": 11254,
+  "readMs": 47755
+ },
+ "crossCheck": {
+  "archiveRows": 3574646,
+  "serviceCount": 3574646,
+  "difference": 0,
+  "agrees": true,
+  "serviceLayerName": "V1200_WisconsinParcels_2026",
+  "archiveTable": "V1200_WisconsinParcels_2026",
+  "serviceMatchesArchive": true,
+  "onlyInService": [
+   "SITEADRESS_STAND"
+  ],
+  "onlyInArchive": []
+ },
+ "counties": {
+  "expected": 72,
+  "actual": 72,
+  "missing": [],
+  "extra": [],
+  "rowCountChanges": [
+   {
+    "fips": "55001",
+    "expected": 38489,
+    "actual": 38484
+   },
+   {
+    "fips": "55003",
+    "expected": 21352,
+    "actual": 21333
+   },
+   {
+    "fips": "55005",
+    "expected": 45011,
+    "actual": 42404
+   },
+   {
+    "fips": "55007",
+    "expected": 35897,
+    "actual": 35043
+   },
+   {
+    "fips": "55009",
+    "expected": 105679,
+    "actual": 105314
+   },
+   {
+    "fips": "55011",
+    "expected": 24414,
+    "actual": 24292
+   },
+   {
+    "fips": "55013",
+    "expected": 34015,
+    "actual": 32865
+   },
+   {
+    "fips": "55015",
+    "expected": 29685,
+    "actual": 28721
+   },
+   {
+    "fips": "55017",
+    "expected": 52868,
+    "actual": 50612
+   },
+   {
+    "fips": "55019",
+    "expected": 35567,
+    "actual": 35558
+   },
+   {
+    "fips": "55021",
+    "expected": 43719,
+    "actual": 43569
+   },
+   {
+    "fips": "55023",
+    "expected": 23135,
+    "actual": 23104
+   },
+   {
+    "fips": "55027",
+    "expected": 47987,
+    "actual": 47971
+   },
+   {
+    "fips": "55029",
+    "expected": 43560,
+    "actual": 41795
+   },
+   {
+    "fips": "55035",
+    "expected": 52015,
+    "actual": 51994
+   },
+   {
+    "fips": "55037",
+    "expected": 12168,
+    "actual": 11893
+   },
+   {
+    "fips": "55039",
+    "expected": 60408,
+    "actual": 58930
+   },
+   {
+    "fips": "55043",
+    "expected": 48765,
+    "actual": 48754
+   },
+   {
+    "fips": "55045",
+    "expected": 28052,
+    "actual": 27656
+   },
+   {
+    "fips": "55049",
+    "expected": 31740,
+    "actual": 31224
+   },
+   {
+    "fips": "55051",
+    "expected": 17963,
+    "actual": 17179
+   },
+   {
+    "fips": "55053",
+    "expected": 27652,
+    "actual": 26942
+   },
+   {
+    "fips": "55057",
+    "expected": 31381,
+    "actual": 31335
+   },
+   {
+    "fips": "55059",
+    "expected": 68499,
+    "actual": 67618
+   },
+   {
+    "fips": "55061",
+    "expected": 16750,
+    "actual": 16629
+   },
+   {
+    "fips": "55065",
+    "expected": 21562,
+    "actual": 21384
+   },
+   {
+    "fips": "55067",
+    "expected": 29492,
+    "actual": 29425
+   },
+   {
+    "fips": "55069",
+    "expected": 30616,
+    "actual": 30604
+   },
+   {
+    "fips": "55071",
+    "expected": 49744,
+    "actual": 49731
+   },
+   {
+    "fips": "55073",
+    "expected": 83708,
+    "actual": 83177
+   },
+   {
+    "fips": "55075",
+    "expected": 57986,
+    "actual": 57985
+   },
+   {
+    "fips": "55077",
+    "expected": 22030,
+    "actual": 21431
+   },
+   {
+    "fips": "55078",
+    "expected": 4514,
+    "actual": 2219
+   },
+   {
+    "fips": "55079",
+    "expected": 280676,
+    "actual": 280327
+   },
+   {
+    "fips": "55081",
+    "expected": 39367,
+    "actual": 39005
+   },
+   {
+    "fips": "55083",
+    "expected": 42142,
+    "actual": 42052
+   },
+   {
+    "fips": "55087",
+    "expected": 94426,
+    "actual": 86812
+   },
+   {
+    "fips": "55091",
+    "expected": 9693,
+    "actual": 9687
+   },
+   {
+    "fips": "55093",
+    "expected": 28378,
+    "actual": 27174
+   },
+   {
+    "fips": "55095",
+    "expected": 48937,
+    "actual": 45814
+   },
+   {
+    "fips": "55097",
+    "expected": 47509,
+    "actual": 45038
+   },
+   {
+    "fips": "55099",
+    "expected": 27890,
+    "actual": 26761
+   },
+   {
+    "fips": "55101",
+    "expected": 84569,
+    "actual": 81824
+   },
+   {
+    "fips": "55103",
+    "expected": 20907,
+    "actual": 20816
+   },
+   {
+    "fips": "55105",
+    "expected": 73143,
+    "actual": 73128
+   },
+   {
+    "fips": "55107",
+    "expected": 29163,
+    "actual": 28355
+   },
+   {
+    "fips": "55109",
+    "expected": 54900,
+    "actual": 54891
+   },
+   {
+    "fips": "55111",
+    "expected": 50762,
+    "actual": 50759
+   },
+   {
+    "fips": "55113",
+    "expected": 42906,
+    "actual": 41073
+   },
+   {
+    "fips": "55115",
+    "expected": 40318,
+    "actual": 39855
+   },
+   {
+    "fips": "55117",
+    "expected": 62042,
+    "actual": 59560
+   },
+   {
+    "fips": "55119",
+    "expected": 25650,
+    "actual": 25634
+   },
+   {
+    "fips": "55121",
+    "expected": 33157,
+    "actual": 31881
+   },
+   {
+    "fips": "55123",
+    "expected": 35555,
+    "actual": 34584
+   },
+   {
+    "fips": "55125",
+    "expected": 49901,
+    "actual": 47029
+   },
+   {
+    "fips": "55127",
+    "expected": 69231,
+    "actual": 65721
+   },
+   {
+    "fips": "55129",
+    "expected": 34927,
+    "actual": 31877
+   },
+   {
+    "fips": "55131",
+    "expected": 63682,
+    "actual": 63142
+   },
+   {
+    "fips": "55133",
+    "expected": 164715,
+    "actual": 162818
+   },
+   {
+    "fips": "55135",
+    "expected": 43171,
+    "actual": 41642
+   },
+   {
+    "fips": "55139",
+    "expected": 80772,
+    "actual": 78944
+   }
+  ],
+  "matches": true
+ },
+ "reconciliation": {
+  "sourceReportedCount": 3574646,
+  "downloadedCount": 3574646,
+  "parsed": 3574646,
+  "accepted": 3513111,
+  "quarantined": 61535,
+  "duplicates": 3333,
+  "new": 3513111,
+  "unchanged": 0,
+  "revised": 0,
+  "missingFromSnapshot": 0,
+  "completeness": "complete"
+ },
+ "canonical": {
+  "normalizedDigest": "3e2ec68b545f333cc774d0a6dc0cfc318c2adb555faae8f03a9b14f76f989f36",
+  "globalDigest": "5780f1ba36676254002c1d0428b7831df117038dcfe3cae4e8f09ed505b870eb",
+  "resolved": 3513111,
+  "conflicts": 25420,
+  "contactObservations": 3444181,
+  "canonicalEvents": 11632019
+ },
+ "partitions": {
+  "planned": 73,
+  "activations": [
+   {
+    "partitionId": "organization/us",
+    "state": "activated",
+    "generation": "gen-mukr7zbm-x88xvs"
+   },
+   {
+    "partitionId": "property/us-county-55001",
+    "state": "activated",
+    "generation": "gen-mukrt8x9-cuj62l"
+   },
+   {
+    "partitionId": "property/us-county-55003",
+    "state": "activated",
+    "generation": "gen-mukrt9kv-sqzbk2"
+   },
+   {
+    "partitionId": "property/us-county-55005",
+    "state": "activated",
+    "generation": "gen-mukrt9zt-k5gd8i"
+   },
+   {
+    "partitionId": "property/us-county-55007",
+    "state": "activated",
+    "generation": "gen-mukrtaqf-fs4j32"
+   },
+   {
+    "partitionId": "property/us-county-55009",
+    "state": "activated",
+    "generation": "gen-mukrtbje-56x7ln"
+   },
+   {
+    "partitionId": "property/us-county-55011",
+    "state": "activated",
+    "generation": "gen-mukrtdvu-2sq9al"
+   },
+   {
+    "partitionId": "property/us-county-55013",
+    "state": "activated",
+    "generation": "gen-mukrtear-7fdq8p"
+   },
+   {
+    "partitionId": "property/us-county-55015",
+    "state": "activated",
+    "generation": "gen-mukrtetx-0460q0"
+   },
+   {
+    "partitionId": "property/us-county-55017",
+    "state": "activated",
+    "generation": "gen-mukrtffx-fj6s1v"
+   },
+   {
+    "partitionId": "property/us-county-55019",
+    "state": "activated",
+    "generation": "gen-mukrtgf9-q8tju4"
+   },
+   {
+    "partitionId": "property/us-county-55021",
+    "state": "activated",
+    "generation": "gen-mukrth17-nqsszd"
+   },
+   {
+    "partitionId": "property/us-county-55023",
+    "state": "activated",
+    "generation": "gen-mukrthrk-1b8yvx"
+   },
+   {
+    "partitionId": "property/us-county-55025",
+    "state": "activated",
+    "generation": "gen-mukrtikz-o5ncsq"
+   },
+   {
+    "partitionId": "property/us-county-55027",
+    "state": "activated",
+    "generation": "gen-mukrtn5z-wj4miy"
+   },
+   {
+    "partitionId": "property/us-county-55029",
+    "state": "activated",
+    "generation": "gen-mukrto0h-zw6acj"
+   },
+   {
+    "partitionId": "property/us-county-55031",
+    "state": "activated",
+    "generation": "gen-mukrtoru-xnzbzb"
+   },
+   {
+    "partitionId": "property/us-county-55033",
+    "state": "activated",
+    "generation": "gen-mukrtplc-xnihi3"
+   },
+   {
+    "partitionId": "property/us-county-55035",
+    "state": "activated",
+    "generation": "gen-mukrtq8a-9vd73r"
+   },
+   {
+    "partitionId": "property/us-county-55037",
+    "state": "activated",
+    "generation": "gen-mukrtr5u-a63ppw"
+   },
+   {
+    "partitionId": "property/us-county-55039",
+    "state": "activated",
+    "generation": "gen-mukrtrgk-t36r95"
+   },
+   {
+    "partitionId": "property/us-county-55041",
+    "state": "activated",
+    "generation": "gen-mukrtsjh-3nomt4"
+   },
+   {
+    "partitionId": "property/us-county-55043",
+    "state": "activated",
+    "generation": "gen-mukrtsy2-wz27ly"
+   },
+   {
+    "partitionId": "property/us-county-55045",
+    "state": "activated",
+    "generation": "gen-mukrttsg-0q8wyi"
+   },
+   {
+    "partitionId": "property/us-county-55047",
+    "state": "activated",
+    "generation": "gen-mukrtu9b-yy8vfl"
+   },
+   {
+    "partitionId": "property/us-county-55049",
+    "state": "activated",
+    "generation": "gen-mukrtun4-6dpzyd"
+   },
+   {
+    "partitionId": "property/us-county-55051",
+    "state": "activated",
+    "generation": "gen-mukrtv60-7lz79b"
+   },
+   {
+    "partitionId": "property/us-county-55053",
+    "state": "activated",
+    "generation": "gen-mukrtvi1-r1wv60"
+   },
+   {
+    "partitionId": "property/us-county-55055",
+    "state": "activated",
+    "generation": "gen-mukrtw1a-ajjmje"
+   },
+   {
+    "partitionId": "property/us-county-55057",
+    "state": "activated",
+    "generation": "gen-mukrtwx1-l1qifg"
+   },
+   {
+    "partitionId": "property/us-county-55059",
+    "state": "activated",
+    "generation": "gen-mukrtxnr-7hgi23"
+   },
+   {
+    "partitionId": "property/us-county-55061",
+    "state": "activated",
+    "generation": "gen-mukrtz7i-iqjvn3"
+   },
+   {
+    "partitionId": "property/us-county-55063",
+    "state": "activated",
+    "generation": "gen-mukrtzme-qstuj2"
+   },
+   {
+    "partitionId": "property/us-county-55065",
+    "state": "activated",
+    "generation": "gen-mukru0tw-eti7pe"
+   },
+   {
+    "partitionId": "property/us-county-55067",
+    "state": "activated",
+    "generation": "gen-mukru18h-fbkt04"
+   },
+   {
+    "partitionId": "property/us-county-55069",
+    "state": "activated",
+    "generation": "gen-mukru1su-bowkps"
+   },
+   {
+    "partitionId": "property/us-county-55071",
+    "state": "activated",
+    "generation": "gen-mukru2gf-gf6n7k"
+   },
+   {
+    "partitionId": "property/us-county-55073",
+    "state": "activated",
+    "generation": "gen-mukru3im-t6xcr0"
+   },
+   {
+    "partitionId": "property/us-county-55075",
+    "state": "activated",
+    "generation": "gen-mukru5cn-fm3bzq"
+   },
+   {
+    "partitionId": "property/us-county-55077",
+    "state": "activated",
+    "generation": "gen-mukru6fw-1qmo2z"
+   },
+   {
+    "partitionId": "property/us-county-55078",
+    "state": "activated",
+    "generation": "gen-mukru6s2-tas0je"
+   },
+   {
+    "partitionId": "property/us-county-55079",
+    "state": "activated",
+    "generation": "gen-mukru7gh-tnq9ji"
+   },
+   {
+    "partitionId": "property/us-county-55081",
+    "state": "activated",
+    "generation": "gen-mukrudkw-dpmm0z"
+   },
+   {
+    "partitionId": "property/us-county-55083",
+    "state": "activated",
+    "generation": "gen-mukrue9h-b1hi0j"
+   },
+   {
+    "partitionId": "property/us-county-55085",
+    "state": "activated",
+    "generation": "gen-mukruf0x-bf8km7"
+   },
+   {
+    "partitionId": "property/us-county-55087",
+    "state": "activated",
+    "generation": "gen-mukrug8c-p1xdb2"
+   },
+   {
+    "partitionId": "property/us-county-55089",
+    "state": "activated",
+    "generation": "gen-mukrui1j-lbpwhl"
+   },
+   {
+    "partitionId": "property/us-county-55091",
+    "state": "activated",
+    "generation": "gen-mukruiq0-hrbtzv"
+   },
+   {
+    "partitionId": "property/us-county-55093",
+    "state": "activated",
+    "generation": "gen-mukruiwz-xxaymu"
+   },
+   {
+    "partitionId": "property/us-county-55095",
+    "state": "activated",
+    "generation": "gen-mukrujfm-dkadqc"
+   },
+   {
+    "partitionId": "property/us-county-55097",
+    "state": "activated",
+    "generation": "gen-mukruk90-axcry8"
+   },
+   {
+    "partitionId": "property/us-county-55099",
+    "state": "activated",
+    "generation": "gen-mukrul0o-zip79x"
+   },
+   {
+    "partitionId": "property/us-county-55101",
+    "state": "activated",
+    "generation": "gen-mukrullh-7ga9v4"
+   },
+   {
+    "partitionId": "property/us-county-55103",
+    "state": "activated",
+    "generation": "gen-mukrunk0-xntwzx"
+   },
+   {
+    "partitionId": "property/us-county-55105",
+    "state": "activated",
+    "generation": "gen-mukruo1c-wptsax"
+   },
+   {
+    "partitionId": "property/us-county-55107",
+    "state": "activated",
+    "generation": "gen-mukrupmi-xar1mr"
+   },
+   {
+    "partitionId": "property/us-county-55109",
+    "state": "activated",
+    "generation": "gen-mukruq6c-pjzsbj"
+   },
+   {
+    "partitionId": "property/us-county-55111",
+    "state": "activated",
+    "generation": "gen-mukrurc1-m5drpk"
+   },
+   {
+    "partitionId": "property/us-county-55113",
+    "state": "activated",
+    "generation": "gen-mukrusfy-q75dxy"
+   },
+   {
+    "partitionId": "property/us-county-55115",
+    "state": "activated",
+    "generation": "gen-mukrut82-l1dk0n"
+   },
+   {
+    "partitionId": "property/us-county-55117",
+    "state": "activated",
+    "generation": "gen-mukruu1d-vela7d"
+   },
+   {
+    "partitionId": "property/us-county-55119",
+    "state": "activated",
+    "generation": "gen-mukruvd9-97lt3t"
+   },
+   {
+    "partitionId": "property/us-county-55121",
+    "state": "activated",
+    "generation": "gen-mukruvu4-m1mpa9"
+   },
+   {
+    "partitionId": "property/us-county-55123",
+    "state": "activated",
+    "generation": "gen-mukruwfj-ksal2a"
+   },
+   {
+    "partitionId": "property/us-county-55125",
+    "state": "activated",
+    "generation": "gen-mukrux4l-x4dr47"
+   },
+   {
+    "partitionId": "property/us-county-55127",
+    "state": "activated",
+    "generation": "gen-mukruy1s-wfpt0b"
+   },
+   {
+    "partitionId": "property/us-county-55129",
+    "state": "activated",
+    "generation": "gen-mukruza7-10yets"
+   },
+   {
+    "partitionId": "property/us-county-55131",
+    "state": "activated",
+    "generation": "gen-mukruzwd-t79b39"
+   },
+   {
+    "partitionId": "property/us-county-55133",
+    "state": "activated",
+    "generation": "gen-mukrv1mu-xlcus4"
+   },
+   {
+    "partitionId": "property/us-county-55135",
+    "state": "activated",
+    "generation": "gen-mukrv58p-tlzdd8"
+   },
+   {
+    "partitionId": "property/us-county-55137",
+    "state": "activated",
+    "generation": "gen-mukrv5yc-a945fq"
+   },
+   {
+    "partitionId": "property/us-county-55139",
+    "state": "activated",
+    "generation": "gen-mukrv6mi-pjwkos"
+   },
+   {
+    "partitionId": "property/us-county-55141",
+    "state": "activated",
+    "generation": "gen-mukrv89u-aatbrr"
+   }
+  ],
+  "uncovered": []
+ },
+ "countyCounts": {
+  "55001": 38484,
+  "55003": 21333,
+  "55005": 42404,
+  "55007": 35043,
+  "55009": 105314,
+  "55011": 24292,
+  "55013": 32865,
+  "55015": 28721,
+  "55017": 50612,
+  "55019": 35558,
+  "55021": 43569,
+  "55023": 23104,
+  "55025": 218857,
+  "55027": 47971,
+  "55029": 41795,
+  "55031": 47729,
+  "55033": 36011,
+  "55035": 51994,
+  "55037": 11893,
+  "55039": 58930,
+  "55041": 21022,
+  "55043": 48754,
+  "55045": 27656,
+  "55047": 19471,
+  "55049": 31224,
+  "55051": 17179,
+  "55053": 26942,
+  "55055": 45169,
+  "55057": 31335,
+  "55059": 67618,
+  "55061": 16629,
+  "55063": 54142,
+  "55065": 21384,
+  "55067": 29425,
+  "55069": 30604,
+  "55071": 49731,
+  "55073": 83177,
+  "55075": 57985,
+  "55077": 21431,
+  "55078": 2219,
+  "55079": 280327,
+  "55081": 39005,
+  "55083": 42052,
+  "55085": 58355,
+  "55087": 86812,
+  "55089": 41165,
+  "55091": 9687,
+  "55093": 27174,
+  "55095": 45814,
+  "55097": 45038,
+  "55099": 26761,
+  "55101": 81824,
+  "55103": 20816,
+  "55105": 73128,
+  "55107": 28355,
+  "55109": 54891,
+  "55111": 50759,
+  "55113": 41073,
+  "55115": 39855,
+  "55117": 59560,
+  "55119": 25634,
+  "55121": 31881,
+  "55123": 34584,
+  "55125": 47029,
+  "55127": 65721,
+  "55129": 31877,
+  "55131": 63142,
+  "55133": 162818,
+  "55135": 41642,
+  "55137": 31328,
+  "55139": 78944,
+  "55141": 46484
+ },
+ "timings": {
+  "pipeline": {
+   "discover": 950,
+   "acquire": 37107,
+   "verify_archive": 614,
+   "derive": 59106,
+   "ingest": 3311651
+  },
+  "runtime": {
+   "acquire": 2226,
+   "parse_normalize": 2178852,
+   "project": 1127190
+  }
+ },
+ "memory": {
+  "pipelinePeakHeapMB": 147,
+  "pipelinePeakRssMB": 681,
+  "pipelinePeakExternalMB": 635,
+  "runtimePeakHeapMB": 149,
+  "byStage": {
+   "discover": {
+    "heapMB": 23,
+    "externalMB": 55,
+    "arrayBuffersMB": 45,
+    "rssMB": 195
+   },
+   "parse": {
+    "heapMB": 14,
+    "externalMB": 45,
+    "arrayBuffersMB": 35,
+    "rssMB": 191
+   },
+   "normalize": {
+    "heapMB": 51,
+    "externalMB": 631,
+    "arrayBuffersMB": 619,
+    "rssMB": 673
+   },
+   "emit": {
+    "heapMB": 149,
+    "externalMB": 635,
+    "arrayBuffersMB": 625,
+    "rssMB": 681
+   }
+  }
+ },
+ "ledger": {
+  "at": "2026-09-28T04:53:31.448Z",
+  "sourceId": "wi_statewide_parcels",
+  "referencePeriod": "V12.0.0-2026",
+  "releaseFingerprint": "cb6813016f6ed8e0e5c163b7fefd27b0dfbbd02931c32120e20a6bf34e532676",
+  "action": "ACQUIRED_AND_INGESTED",
+  "publisherSha256": "b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df",
+  "publisherBytes": 759926092,
+  "bundleSha256": "b622edfec5fb21f3b82ef740b4fee48c756b7bf776981d48a6ea39e6e5e3a909",
+  "runId": "run_6a5d84da418a892d0322a504265ff1e5",
+  "runStatus": "completed",
+  "normalizedDigest": "3e2ec68b545f333cc774d0a6dc0cfc318c2adb555faae8f03a9b14f76f989f36",
+  "estateDigest": "5780f1ba36676254002c1d0428b7831df117038dcfe3cae4e8f09ed505b870eb",
+  "note": "FIRST_RELEASE"
+ }
+}

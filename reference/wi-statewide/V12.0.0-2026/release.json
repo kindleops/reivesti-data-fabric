@@ -1,0 +1,52 @@
+{
+ "discovery": {
+  "referencePeriod": "V12.0.0-2026",
+  "releaseFingerprint": "cb6813016f6ed8e0e5c163b7fefd27b0dfbbd02931c32120e20a6bf34e532676",
+  "head": {
+   "url": "https://web.s3.wisc.edu/parcels/v12_parcels/V12.0.0_Wisconsin_Parcels_2026_10.3_Uncompressed.zip",
+   "etag": "\"eb1985c678037a0288beda1e02a1ef79-73\"",
+   "lastModified": "Tue, 30 Jun 2026 21:11:02 GMT",
+   "contentLength": 759926092,
+   "versionId": "0000019f-1a5f-05d1-f2b8-14a30909537e",
+   "acceptRanges": true
+  },
+  "archive": {
+   "url": "https://web.s3.wisc.edu/parcels/v12_parcels/V12.0.0_Wisconsin_Parcels_2026_10.3_Uncompressed.zip",
+   "filename": "V12.0.0_Wisconsin_Parcels_2026_10.3_Uncompressed.zip",
+   "major": 12,
+   "minor": 0,
+   "patch": 0,
+   "year": 2026,
+   "referencePeriod": "V12.0.0-2026",
+   "expectedLayerName": "V1200_WisconsinParcels_2026"
+  },
+  "access": {
+   "credentialsRequired": false,
+   "sessionRequired": false,
+   "captchaObserved": false,
+   "archiveAcceptsRanges": true
+  },
+  "serviceMatchesArchive": true,
+  "witness": {
+   "layerName": "V1200_WisconsinParcels_2026",
+   "count": 3574646,
+   "lastEditDate": "2026-06-30T21:21:29.649Z",
+   "dataLastEditDate": "2026-06-30T21:21:29.649Z",
+   "schemaLastEditDate": "2026-06-18T23:13:58.654Z",
+   "capabilities": "Query",
+   "maxRecordCount": 2000,
+   "supportsPagination": true,
+   "supportsOrderBy": true,
+   "objectIdField": "OBJECTID",
+   "geometryType": "esriGeometryPolygon",
+   "fields": 47,
+   "fieldSetDigest": "9da67281d552631b75e7c05284c6e0d78848334473d310e26f07aa396c9bb5cb",
+   "copyrightText": "Product of the Version 12 Statewide Parcel Map Database Project (V12). Created by: The Wisconsin State Cartographer's Office, Administrated by: The Wisconsin Land Information Program (WLIP) at the Department of Administration (DOA)"
+  }
+ },
+ "plan": {
+  "action": "ACQUIRE",
+  "reason": "FIRST_RELEASE",
+  "schemaValidationRequired": false
+ }
+}

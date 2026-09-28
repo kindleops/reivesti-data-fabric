@@ -1,0 +1,94 @@
+{
+ "force": {
+  "outcome": "INGESTED",
+  "reconciliation": {
+   "sourceReportedCount": 3574646,
+   "downloadedCount": 3574646,
+   "parsed": 3574646,
+   "accepted": 3513111,
+   "quarantined": 61535,
+   "duplicates": 3333,
+   "new": 0,
+   "unchanged": 3513111,
+   "revised": 0,
+   "missingFromSnapshot": 0,
+   "completeness": "complete"
+  },
+  "canonical": {
+   "normalizedDigest": "3e2ec68b545f333cc774d0a6dc0cfc318c2adb555faae8f03a9b14f76f989f36",
+   "globalDigest": "5780f1ba36676254002c1d0428b7831df117038dcfe3cae4e8f09ed505b870eb",
+   "resolved": 0,
+   "conflicts": 0,
+   "contactObservations": 3444181,
+   "canonicalEvents": 11632019
+  },
+  "timings": {
+   "pipeline": {
+    "discover": 834,
+    "acquire": 16969,
+    "verify_archive": 701,
+    "derive": 69790,
+    "ingest": 3308157
+   },
+   "runtime": {
+    "acquire": 2411,
+    "parse_normalize": 2225243,
+    "project": 1078627
+   }
+  },
+  "memory": {
+   "pipelinePeakHeapMB": 141,
+   "pipelinePeakRssMB": 748,
+   "pipelinePeakExternalMB": 694,
+   "runtimePeakHeapMB": 147,
+   "byStage": {
+    "discover": {
+     "heapMB": 14,
+     "externalMB": 50,
+     "arrayBuffersMB": 40,
+     "rssMB": 195
+    },
+    "parse": {
+     "heapMB": 14,
+     "externalMB": 47,
+     "arrayBuffersMB": 37,
+     "rssMB": 193
+    },
+    "normalize": {
+     "heapMB": 47,
+     "externalMB": 694,
+     "arrayBuffersMB": 684,
+     "rssMB": 748
+    },
+    "validate": {
+     "heapMB": 27,
+     "externalMB": 691,
+     "arrayBuffersMB": 681,
+     "rssMB": 745
+    },
+    "emit": {
+     "heapMB": 147,
+     "externalMB": 691,
+     "arrayBuffersMB": 681,
+     "rssMB": 745
+    }
+   }
+  },
+  "ledger": {
+   "at": "2026-09-28T05:50:17.940Z",
+   "sourceId": "wi_statewide_parcels",
+   "referencePeriod": "V12.0.0-2026",
+   "releaseFingerprint": "cb6813016f6ed8e0e5c163b7fefd27b0dfbbd02931c32120e20a6bf34e532676",
+   "action": "ACQUIRED_AND_INGESTED",
+   "publisherSha256": "b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df",
+   "publisherBytes": 759926092,
+   "bundleSha256": "b622edfec5fb21f3b82ef740b4fee48c756b7bf776981d48a6ea39e6e5e3a909",
+   "runId": "run_6a5d84da418a892d0322a504265ff1e5",
+   "runStatus": "completed",
+   "normalizedDigest": "3e2ec68b545f333cc774d0a6dc0cfc318c2adb555faae8f03a9b14f76f989f36",
+   "estateDigest": "5780f1ba36676254002c1d0428b7831df117038dcfe3cae4e8f09ed505b870eb",
+   "note": null
+  }
+ },
+ "activationStates": 72
+}

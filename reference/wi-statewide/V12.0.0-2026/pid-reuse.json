@@ -1,0 +1,9 @@
+{
+ "identifiers": 6161211,
+ "wiStringsInSeveralWiCounties": 117040,
+ "mnStringsInSeveralMnCounties": 92874,
+ "stringsInBothStates": 30988,
+ "foldedKeysInBothStates": 32970,
+ "propertyIdCollisions": 0,
+ "distinctPropertiesAcrossStateReuse": true
+}

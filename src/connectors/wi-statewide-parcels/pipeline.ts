@@ -147,6 +147,19 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
       return { outcome: 'NOOP', discovered, plan, ...empty, ledger: entry, timings, memory: memory.stop() };
     }
 
+    if (plan.action === 'NOOP' && plan.previous.publisherSha256 !== null) {
+      // Forced, and this exact release is already retained: re-ingest from the
+      // archive we hold. Forcing is a statement about OUR pipeline; it is no
+      // reason to make the publisher serve 760 MB again.
+      const retained = await locateRetainedArchive(options, discovered.referencePeriod, plan.previous.publisherSha256);
+      if (retained !== null) {
+        logger.info('wi.force_from_retained', { sha256: retained.sha256 });
+        return await deriveAndIngest(options, {
+          discovered, plan, publisher: retained, timings, memory, ledger, action: 'REPLAYED',
+        });
+      }
+    }
+
     // ---- acquire ---------------------------------------------------------------
     t = performance.now();
     const mapping = options.registry.mapping(WI_STATEWIDE_MAPPING_ID);
@@ -193,6 +206,24 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
  * nothing in this path holds a fetch, and the proof runs it inside a network
  * namespace with no interfaces.
  */
+async function locateRetainedArchive(
+  options: Pick<WiPipelineOptions, 'artifactStore'>,
+  referencePeriod: string,
+  sha256: string,
+): Promise<ArchivedArtifact | null> {
+  const dir = artifactDir(WI_STATEWIDE_SOURCE_ID, referencePeriod, sha256);
+  try {
+    const manifest = await options.artifactStore.readManifest({ manifestPath: `${dir}/manifest.json` });
+    const ext = manifest.originalFilename.slice(manifest.originalFilename.lastIndexOf('.')).toLowerCase();
+    return {
+      artifactId: `artifact_${sha256}`, sha256, byteLength: manifest.byteLength,
+      storagePath: `${dir}/source-original${ext}`, manifestPath: `${dir}/manifest.json`, created: false, manifest,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function replayWiFromArchive(
   options: Omit<WiPipelineOptions, 'http' | 'discovered' | 'discoverOnly' | 'mode'> & {
     readonly publisherSha256: string;
@@ -200,18 +231,10 @@ export async function replayWiFromArchive(
   },
 ): Promise<WiPipelineResult> {
   const source = options.registry.source(WI_STATEWIDE_SOURCE_ID);
-  const dir = artifactDir(source.sourceId, options.referencePeriod, options.publisherSha256);
-  const manifest = await options.artifactStore.readManifest({ manifestPath: `${dir}/manifest.json` });
-  const ext = manifest.originalFilename.slice(manifest.originalFilename.lastIndexOf('.')).toLowerCase();
-  const publisher: ArchivedArtifact = {
-    artifactId: `artifact_${options.publisherSha256}`,
-    sha256: options.publisherSha256,
-    byteLength: manifest.byteLength,
-    storagePath: `${dir}/source-original${ext}`,
-    manifestPath: `${dir}/manifest.json`,
-    created: false,
-    manifest,
-  };
+  const publisher = await locateRetainedArchive(options, options.referencePeriod, options.publisherSha256)
+    ?? fail('REPLAY', 'no retained archive with that sha256 for that release', {
+      sha256: options.publisherSha256, referencePeriod: options.referencePeriod,
+    });
   const memory = memorySampler();
   try {
     return await deriveAndIngest(options, {

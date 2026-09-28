@@ -680,6 +680,8 @@ test('a synthetic next release: new, assessment, owner, missing, reappeared — 
 test('forcing the same release again: no new, no lost, no revised, same ids and digests', async () => {
   const w = await ingestedBase();
   const again = await w.run({ mode: 'force' });
+  assert.equal(w.publisher.archiveGets(), 1, 'a forced re-ingest reads the retained archive, not the publisher');
+  assert.equal(again.ledger?.action, 'REPLAYED');
   const m = again.run!.run.metrics;
   assert.equal(m.rowsNew, 0);
   assert.equal(m.rowsRevised, 0);
