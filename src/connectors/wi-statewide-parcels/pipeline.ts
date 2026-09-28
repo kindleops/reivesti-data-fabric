@@ -19,6 +19,7 @@
  * all, from the retained archive.
  */
 import { mkdir, rm } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { artifactDir, type ArchivedArtifact, type StreamingArtifactStore } from '../../archive/artifact-store.ts';
@@ -39,6 +40,16 @@ import {
 import { createCheckpointStore } from '../../runtime/checkpoint.ts';
 import { runStreamingConnector, type BatchConfiguration, type StreamRunResult } from '../../runtime/stream-run.ts';
 import { deriveWiBundle, type BundleDerivation } from './bundle.ts';
+import {
+  commitDurable,
+  findRelease,
+  registerRelease,
+  rehydrate,
+  type DurableCommit,
+  type DurableStore,
+} from '../../archive/durable-artifacts.ts';
+import { NORMALIZATION_CONTRACT_VERSION } from '../../canonical/normalization-contract.ts';
+import { WI_STATEWIDE_PARSER_VERSION } from './index.ts';
 import { reconcileWiCounties, type CountyReconciliation } from './counties.ts';
 import {
   WI_PINNED_REFERENCE_PERIOD,
@@ -69,6 +80,24 @@ export type WiPipelineOptions = {
   readonly batch?: Partial<BatchConfiguration>;
   /** Fixture runs only. */
   readonly maxRows?: number;
+  /**
+   * The durable artifact store. When present, raw publisher bytes are made
+   * durable and verified BEFORE anything is derived or activated, the release
+   * is registered there, and a worker that finds the release already durable
+   * rehydrates it instead of asking the publisher again. When it is `required`
+   * and the commit fails, nothing is activated.
+   */
+  readonly durable?: DurableStore | null;
+};
+
+/** How this run's raw bytes were obtained and kept. */
+export type WiDurability = {
+  /** Where the raw archive came from for this run. */
+  readonly source: 'publisher' | 'workspace' | 'durable_store';
+  readonly commit: DurableCommit | null;
+  readonly releaseRegistered: boolean;
+  readonly rehydrateMs: number | null;
+  readonly receiptKey: string | null;
 };
 
 export type WiCrossCheck = {
@@ -96,6 +125,7 @@ export type WiPipelineResult = {
   readonly counties: CountyReconciliation | null;
   readonly run: StreamRunResult | null;
   readonly ledger: LedgerEntry | null;
+  readonly durability: WiDurability | null;
   readonly timings: Readonly<Record<string, number>>;
   readonly memory: { readonly peakHeapBytes: number; readonly peakRssBytes: number; readonly peakExternalBytes: number };
 };
@@ -132,7 +162,7 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
       counties: null, run: null,
     };
     if (options.discoverOnly) {
-      return { outcome: 'DISCOVERED', discovered, plan, ...empty, ledger: null, timings, memory: memory.stop() };
+      return { outcome: 'DISCOVERED', discovered, plan, ...empty, ledger: null, durability: null, timings, memory: memory.stop() };
     }
     if (plan.action === 'NOOP' && (options.mode ?? 'scheduled') === 'scheduled') {
       const entry: LedgerEntry = {
@@ -144,7 +174,7 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
       };
       await ledger.append(entry);
       logger.info('wi.noop', { reason: plan.reason });
-      return { outcome: 'NOOP', discovered, plan, ...empty, ledger: entry, timings, memory: memory.stop() };
+      return { outcome: 'NOOP', discovered, plan, ...empty, ledger: entry, durability: null, timings, memory: memory.stop() };
     }
 
     if (plan.action === 'NOOP' && plan.previous.publisherSha256 !== null) {
@@ -155,7 +185,26 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
       if (retained !== null) {
         logger.info('wi.force_from_retained', { sha256: retained.sha256 });
         return await deriveAndIngest(options, {
-          discovered, plan, publisher: retained, timings, memory, ledger, action: 'REPLAYED',
+          discovered, plan, publisher: retained, timings, memory, ledger, action: 'REPLAYED', source: 'workspace',
+        });
+      }
+    }
+
+    // ---- durable store: this exact release may already be kept ------------------
+    // A fresh worker has an empty ledger and an empty workspace. If the durable
+    // store holds a release record for this fingerprint, its bytes are fetched
+    // from there by digest — the publisher is not asked again.
+    if (options.durable) {
+      const known = await findRelease(options.durable, source.sourceId, discovered.referencePeriod, discovered.releaseFingerprint);
+      if (known !== null) {
+        t = performance.now();
+        const local = await locateRetainedArchive(options, known.referencePeriod, known.publisherSha256);
+        const restored = local ?? (await rehydrate(options.durable, options.artifactStore, known.publisherSha256)).artifact;
+        timings['rehydrate'] = Math.round(performance.now() - t);
+        logger.info('wi.rehydrated', { sha256: restored.sha256, from: local ? 'workspace' : 'durable_store' });
+        return await deriveAndIngest(options, {
+          discovered, plan, publisher: restored, timings, memory, ledger, action: 'REHYDRATED_AND_INGESTED',
+          source: local ? 'workspace' : 'durable_store', rehydrateMs: local ? null : timings['rehydrate'] ?? null,
         });
       }
     }
@@ -183,7 +232,7 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
 
     return await deriveAndIngest(options, {
       discovered, plan, publisher: download.artifact, timings, memory, ledger,
-      action: 'ACQUIRED_AND_INGESTED',
+      action: 'ACQUIRED_AND_INGESTED', source: 'publisher',
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
@@ -231,15 +280,28 @@ export async function replayWiFromArchive(
   },
 ): Promise<WiPipelineResult> {
   const source = options.registry.source(WI_STATEWIDE_SOURCE_ID);
-  const publisher = await locateRetainedArchive(options, options.referencePeriod, options.publisherSha256)
-    ?? fail('REPLAY', 'no retained archive with that sha256 for that release', {
+  const timings: Record<string, number> = {};
+  const local = await locateRetainedArchive(options, options.referencePeriod, options.publisherSha256);
+  let publisher = local;
+  let rehydrateMs: number | null = null;
+  if (publisher === null && options.durable) {
+    // A fresh machine: the workspace is empty, the bytes are in the durable store.
+    const restored = await rehydrate(options.durable, options.artifactStore, options.publisherSha256);
+    publisher = restored.artifact;
+    rehydrateMs = restored.ms;
+    timings['rehydrate'] = restored.ms;
+  }
+  if (publisher === null) {
+    fail('REPLAY', 'no retained archive with that sha256 for that release, in the workspace or a durable store', {
       sha256: options.publisherSha256, referencePeriod: options.referencePeriod,
     });
+  }
   const memory = memorySampler();
   try {
     return await deriveAndIngest(options, {
-      discovered: null, plan: null, publisher, timings: {}, memory,
+      discovered: null, plan: null, publisher, timings, memory,
       ledger: createAcquisitionLedger(options.varRoot, source.sourceId), action: 'REPLAYED',
+      source: local ? 'workspace' : 'durable_store', rehydrateMs,
     });
   } finally {
     memory.stop();
@@ -255,7 +317,9 @@ type DeriveContext = {
   readonly timings: Record<string, number>;
   readonly memory: ReturnType<typeof memorySampler>;
   readonly ledger: ReturnType<typeof createAcquisitionLedger>;
-  readonly action: 'ACQUIRED_AND_INGESTED' | 'REPLAYED';
+  readonly action: 'ACQUIRED_AND_INGESTED' | 'REHYDRATED_AND_INGESTED' | 'REPLAYED';
+  readonly source: WiDurability['source'];
+  readonly rehydrateMs?: number | null;
 };
 
 async function deriveAndIngest(
@@ -272,6 +336,20 @@ async function deriveAndIngest(
   let t = performance.now();
   await options.artifactStore.verify(publisher);
   timings['verify_archive'] = Math.round(performance.now() - t);
+
+  // ---- durable commit: raw bytes before anything derived ---------------------
+  // Priority one is the publisher's exact archive. It becomes DURABLE (uploaded,
+  // re-read, re-hashed) and REGISTERED before a row is derived or a partition
+  // activated. Bytes that just came FROM the durable store are already there.
+  let commit: DurableCommit | null = null;
+  if (options.durable && ctx.source !== 'durable_store' && options.maxRows === undefined) {
+    t = performance.now();
+    commit = await commitDurable(options.durable, options.artifactStore, publisher, {
+      role: 'publisher_raw', contentType: 'application/zip', now: () => clock.now(),
+    });
+    timings['durable_commit'] = Math.round(performance.now() - t);
+    logger.info('wi.durable', { sha256: commit.sha256, created: commit.created, key: commit.key });
+  }
 
   // ---- derive ----------------------------------------------------------------
   t = performance.now();
@@ -320,6 +398,35 @@ async function deriveAndIngest(
 
   // ---- cross-check against the FeatureServer witness ---------------------------
   const crossCheck = ctx.discovered === null ? null : crossCheckOf(ctx.discovered, derived);
+
+  // ---- register the release, durably, before activation ------------------------
+  let releaseRegistered = false;
+  if (options.durable && ctx.discovered !== null && options.maxRows === undefined
+    && (crossCheck === null || crossCheck.agrees)) {
+    const mapping = options.registry.mapping(WI_STATEWIDE_MAPPING_ID);
+    await registerRelease(options.durable, {
+      recordVersion: 1,
+      sourceId: source.sourceId,
+      referencePeriod,
+      releaseId: publisher.manifest.releaseId,
+      releaseFingerprint: ctx.discovered.releaseFingerprint,
+      publisherSha256: publisher.sha256,
+      publisherBytes: publisher.byteLength,
+      publisherUrl: publisher.manifest.originalUrl,
+      publisherFilename: publisher.manifest.originalFilename,
+      retrievedAt: publisher.manifest.retrievedAt,
+      publicationAt: publisher.manifest.effectiveAt,
+      schemaDigest: derived.sourceSchemaDigest,
+      parserVersion: WI_STATEWIDE_PARSER_VERSION,
+      normalizationContract: NORMALIZATION_CONTRACT_VERSION,
+      acquisitionClass: source.acquisitionClass ?? 'UNKNOWN_AUTOMATION',
+      termsStatus: source.termsStatus,
+      licenseStatus: source.licenseStatus,
+      jurisdictionIds: options.registry.expand(mapping).map((j) => j.jurisdictionId),
+      finality: 'final',
+    });
+    releaseRegistered = true;
+  }
 
   // ---- ingest ----------------------------------------------------------------
   // The runtime's own resume mechanism: a verified checkpoint naming the
@@ -379,6 +486,23 @@ async function deriveAndIngest(
   // believe a release was acquired that the ledger never saw acquired.
   await ctx.ledger.append(entry);
 
+  // A durable receipt, written before anything is reported: if this machine
+  // vanishes now, what happened — inputs, counts, digests — is still known.
+  let receiptKey: string | null = null;
+  if (options.durable && options.maxRows === undefined) {
+    const receipt = {
+      receiptVersion: 1,
+      ...entry,
+      counts: {
+        parsed: run.run.metrics.rowsParsed, accepted: run.run.metrics.rowsValid,
+        quarantined: run.run.metrics.rowsQuarantined, duplicates: run.run.duplicateCount,
+      },
+      partitions: run.activations.map((a) => ({ partitionId: a.partitionId, state: a.state, generation: a.generation })),
+    };
+    receiptKey = `${options.durable.prefix}/receipts/${source.sourceId}/${run.run.runId}/${createHash('sha256').update(JSON.stringify(receipt)).digest('hex')}.json`;
+    await options.durable.backend.putJson(receiptKey, receipt);
+  }
+
   return {
     outcome: completed ? 'INGESTED' : 'FAILED',
     discovered: ctx.discovered,
@@ -390,6 +514,9 @@ async function deriveAndIngest(
     counties,
     run,
     ledger: entry,
+    durability: {
+      source: ctx.source, commit, releaseRegistered, rehydrateMs: ctx.rehydrateMs ?? null, receiptKey,
+    },
     timings,
     memory: ctx.memory.stop(),
   };

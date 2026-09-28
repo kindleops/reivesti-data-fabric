@@ -78,7 +78,11 @@ export type LedgerEntry = {
    * A truncated smoke run is recorded as what it is, so it can never stand in
    * for an ingestion of the release it sampled.
    */
-  readonly action: 'ACQUIRED_AND_INGESTED' | 'NOOP_SAME_RELEASE' | 'REPLAYED' | 'TRUNCATED_SMOKE_RUN' | 'FAILED';
+  readonly action:
+    | 'ACQUIRED_AND_INGESTED'
+    /** A fresh worker found the release durable and ingested it without touching the publisher. */
+    | 'REHYDRATED_AND_INGESTED'
+    | 'NOOP_SAME_RELEASE' | 'REPLAYED' | 'TRUNCATED_SMOKE_RUN' | 'FAILED';
   readonly publisherSha256: string | null;
   readonly publisherBytes: number | null;
   readonly bundleSha256: string | null;
@@ -88,6 +92,8 @@ export type LedgerEntry = {
   readonly estateDigest: string | null;
   readonly note: string | null;
 };
+
+const INGESTED: ReadonlySet<LedgerEntry['action']> = new Set(['ACQUIRED_AND_INGESTED', 'REHYDRATED_AND_INGESTED']);
 
 export type AcquisitionLedger = {
   entries(): Promise<readonly LedgerEntry[]>;
@@ -114,7 +120,7 @@ export function createAcquisitionLedger(varRoot: string, sourceId: string): Acqu
     },
     async completedFor(fingerprint) {
       const done = (await entries()).filter((e) =>
-        e.releaseFingerprint === fingerprint && e.action === 'ACQUIRED_AND_INGESTED' && e.runStatus === 'completed');
+        e.releaseFingerprint === fingerprint && INGESTED.has(e.action) && e.runStatus === 'completed');
       return done.at(-1) ?? null;
     },
   };
@@ -153,8 +159,8 @@ export async function planAcquisition(
     };
   }
   const all = await ledger.entries();
-  const seenPeriod = all.some((e) => e.referencePeriod === release.referencePeriod && e.action === 'ACQUIRED_AND_INGESTED');
-  const anyIngested = all.some((e) => e.action === 'ACQUIRED_AND_INGESTED');
+  const seenPeriod = all.some((e) => e.referencePeriod === release.referencePeriod && INGESTED.has(e.action));
+  const anyIngested = all.some((e) => INGESTED.has(e.action));
   return {
     action: 'ACQUIRE',
     reason: seenPeriod ? 'REPUBLISHED_RELEASE' : anyIngested ? 'NEW_RELEASE' : 'FIRST_RELEASE',

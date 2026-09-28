@@ -50,6 +50,8 @@ import {
   wiStatewideDispositionCounts,
 } from '../connectors/wi-statewide-parcels/field-map.ts';
 import { replayWiFromArchive, runWiStatewidePipeline, type WiPipelineResult } from '../connectors/wi-statewide-parcels/pipeline.ts';
+import { durableStoreFromEnv } from '../archive/durable-artifacts.ts';
+import { catalog, doctor, pullArtifact, pushArtifact, reacquire, verifyDurable, type CatalogEntry } from './cloud.ts';
 import { defaultRegistry } from '../registry/sources.ts';
 import { assessActivation } from '../registry/policy.ts';
 import {
@@ -72,6 +74,8 @@ import { createGenerationStore } from '../runtime/staged-store.ts';
 import { createRateLimiter } from '../runtime/retry.ts';
 
 const VAR_ROOT = process.env['DF_VAR'] ?? 'var';
+/** The repository this CLI runs from — never a machine path. */
+const REPO_ROOT = new URL('../..', import.meta.url).pathname.replace(/\/$/, '');
 const ARCHIVE_ROOT_DIR = process.env['DF_ARCHIVE'] ?? `${VAR_ROOT}/archive`;
 
 type Args = { readonly command: string; readonly positional: readonly string[]; readonly flags: Readonly<Record<string, string | boolean>> };
@@ -543,6 +547,8 @@ async function main(): Promise<number> {
         varRoot: VAR_ROOT,
         clock: systemClock,
         logger: createLogger(),
+        // Explicit, from DF_ARTIFACT_*; null when no durable store is configured.
+        durable: durableStoreFromEnv(),
         ...(typeof flags['max'] === 'string' ? { maxRows: Number(flags['max']) } : {}),
       };
       let result: WiPipelineResult;
@@ -563,6 +569,62 @@ async function main(): Promise<number> {
       }
       out(summarizeWiPipeline(result));
       return result.outcome === 'FAILED' ? 1 : 0;
+    }
+
+    case 'doctor': {
+      const report = await doctor({
+        varRoot: VAR_ROOT, archiveRoot: ARCHIVE_ROOT_DIR, repoRoot: REPO_ROOT, probe: flags['probe'] === true,
+      });
+      out(report);
+      return report.ready ? 0 : 1;
+    }
+
+    case 'artifacts': {
+      const sub = positional[0];
+      const workspace = createStreamingArtifactStore(createStreamingFilesystemObjectStore(ARCHIVE_ROOT_DIR));
+      const store = durableStoreFromEnv();
+      const sha = typeof flags['sha'] === 'string' ? (flags['sha'] as string) : '';
+      const { readFileSync } = await import('node:fs');
+      const pinned = (JSON.parse(readFileSync(`${REPO_ROOT}/reference/artifact-catalog.json`, 'utf8')) as { entries: CatalogEntry[] }).entries;
+      if (sub === 'catalog') {
+        out(await catalog({ repoRoot: REPO_ROOT, store, workspace, verify: flags['verify'] === true }));
+        return 0;
+      }
+      if (sub === 'reacquire') {
+        const entry = pinned.find((e) => e.sha256 === sha);
+        if (!entry) { process.stderr.write('reacquire needs --sha of a catalogued publisher_raw artifact\n'); return 2; }
+        const result = await reacquire(entry, workspace, systemClock.now().toISOString());
+        let commit = null;
+        if (result.restored && store) {
+          commit = await pushArtifact(store, workspace, result.artifact, 'publisher_raw', entry.contentType ?? 'application/octet-stream', null);
+        }
+        out({ restored: result.restored, expected: result.expected, actual: result.actual, bytes: result.bytes, durableCommit: commit,
+          verdict: result.restored ? 'EXACT_BYTES_RESTORED' : 'DIFFERENT_BYTES: a new release, NOT a restoration' });
+        return result.restored ? 0 : 1;
+      }
+      if (!store) { process.stderr.write('no durable artifact backend is configured (DF_ARTIFACT_BACKEND)\n'); return 2; }
+      if (!/^[0-9a-f]{64}$/.test(sha)) { process.stderr.write(`usage: df artifacts ${sub ?? '<push|pull|verify|catalog|reacquire>'} --sha <sha256>\n`); return 2; }
+      if (sub === 'push') {
+        const entry = pinned.find((e) => e.sha256 === sha);
+        const sourceId = typeof flags['source'] === 'string' ? (flags['source'] as string) : entry?.sourceId ?? '';
+        const period = typeof flags['period'] === 'string' ? (flags['period'] as string) : entry?.referencePeriod ?? '';
+        const artifact = await locateArtifact(createArtifactStore(createStreamingFilesystemObjectStore(ARCHIVE_ROOT_DIR)), sourceId, period, sha);
+        const role = entry?.role === 'derived_bundle' ? 'derived_bundle' : 'publisher_raw';
+        out(await pushArtifact(store, workspace, artifact, role, entry?.contentType ?? 'application/octet-stream', null));
+        return 0;
+      }
+      if (sub === 'pull') {
+        const restored = await pullArtifact(store, workspace, sha);
+        out({ sha256: restored.artifact.sha256, bytes: restored.artifact.byteLength, ms: restored.ms, storagePath: restored.artifact.storagePath, role: restored.manifest.role });
+        return 0;
+      }
+      if (sub === 'verify') {
+        const v = await verifyDurable(store, sha);
+        out(v);
+        return v.state === 'DURABLE' ? 0 : 1;
+      }
+      process.stderr.write(`unknown "df artifacts" subcommand "${sub}"\n`);
+      return 2;
     }
 
     case 'checkpoints': {
@@ -843,6 +905,10 @@ async function main(): Promise<number> {
           '  df verify --artifact <sha256> [--source <id>] [--period <label>]',
           '  df runs                                           run history',
           '  df auto <mappingId> [--discover-only] [--force]   unattended discover → NOOP | acquire → derive → ingest',
+          '  df doctor [--probe]                               is this machine ready to work alone? (secrets: yes/no only)',
+          '  df artifacts catalog [--verify]                   known artifacts vs workspace vs durable store',
+          '  df artifacts push|pull|verify --sha <sha256>      durable store operations, by digest',
+          '  df artifacts reacquire --sha <sha256>             re-download a catalogued raw artifact; exact sha or it is not a restoration',
           '  df auto <mappingId> --replay <sha256> --period <l>   re-derive and re-ingest from the retained archive, no network',
           '',
           `  DF_VAR=${VAR_ROOT}  DF_ARCHIVE=${ARCHIVE_ROOT_DIR}`,

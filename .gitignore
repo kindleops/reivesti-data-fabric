@@ -13,3 +13,7 @@ pg-sandbox/
 # Downloaded source snapshots. Live county data is never committed.
 snapshots/
 *.ndjson.live
+
+# Local moto install for the S3 contract tests (never committed).
+.s3env/
+.s3env

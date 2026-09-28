@@ -1,0 +1,61 @@
+# Cloud-portability CI for the Data Fabric.
+#
+# Proves, on a machine that has never seen this project, that a clone alone is
+# enough: install, typecheck, every unit test, the S3-compatible storage
+# contract against an auth-enforcing peer, and the real-PostgreSQL migration
+# chain. It downloads no source artifact — routine CI never pulls gigabytes.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # No durable backend in CI: the storage tests bring their own disposable
+      # S3 peer, and nothing may fall back to a real bucket.
+      DF_ARTIFACT_BACKEND: ''
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No machine-specific paths
+        run: |
+          if grep -rInE '/Users/|/home/user\b|/opt/homebrew|~/Desktop|~/Downloads' \
+               --include='*.ts' --include='*.json' --include='*.sh' --include='*.sql' \
+               src tests tools db package.json tsconfig.json \
+               | grep -v 'tests/artifact-storage.test.ts'; then
+            echo "machine-specific path found"; exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Disposable S3-compatible peer (moto, IAM-enforcing)
+        run: |
+          python3 -m venv .s3env
+          .s3env/bin/pip install --quiet 'moto[server]'
+
+      - name: Doctor (no secrets required, none printed)
+        run: npm run -s df:doctor || true
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit, storage-contract and durable-pipeline tests
+        run: npm test
+
+      - name: PostgreSQL 17 migration chain (twice, fingerprint printed)
+        run: |
+          npm run test:pg
+          npm run test:pg
