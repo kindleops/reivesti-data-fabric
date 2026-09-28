@@ -1,0 +1,175 @@
+{
+  "mission": "DF-0L fresh-worker certification",
+  "date": "2026-09-28",
+  "worker": {
+    "startedFrom": "git clone of claude/wisconsin-parcel-ingestion-1zz3r9 from GitHub (1ae1461; replay-write fix 7627669 pulled from GitHub before the WI replay)",
+    "sharedWithPreviousWorker": "nothing but the durable store coordinates/credentials supplied as environment variables",
+    "previousWorkerEstate": "deleted before the proof (container-loss simulation)"
+  },
+  "doctor": {
+    "ready": true,
+    "checks": [
+      {
+        "check": "node >= 22.18",
+        "ok": true
+      },
+      {
+        "check": "binary git",
+        "ok": true
+      },
+      {
+        "check": "binary unzip",
+        "ok": true
+      },
+      {
+        "check": "var root writable",
+        "ok": true
+      },
+      {
+        "check": "workspace archive writable",
+        "ok": true
+      },
+      {
+        "check": "disk free >= 12 GB",
+        "ok": true
+      },
+      {
+        "check": "memory >= 2 GB",
+        "ok": true
+      },
+      {
+        "check": "postgres test binaries",
+        "ok": true
+      },
+      {
+        "check": "artifact backend",
+        "ok": true
+      },
+      {
+        "check": "artifact backend round trip",
+        "ok": true
+      },
+      {
+        "check": "network mode",
+        "ok": true
+      }
+    ],
+    "secrets": {
+      "DF_ARTIFACT_BACKEND": "configured",
+      "DF_ARTIFACT_DURABILITY": "absent",
+      "DF_ARTIFACT_PREFIX": "configured",
+      "DF_ARTIFACT_LOCAL_ROOT": "absent",
+      "DF_ARTIFACT_LOCAL_DURABLE": "absent",
+      "DF_ARTIFACT_S3_ENDPOINT": "configured",
+      "DF_ARTIFACT_S3_REGION": "configured",
+      "DF_ARTIFACT_BUCKET": "configured",
+      "DF_ARTIFACT_ACCESS_KEY_ID": "configured",
+      "DF_ARTIFACT_SECRET_ACCESS_KEY": "configured"
+    }
+  },
+  "durableStore": {
+    "kind": "S3_COMPATIBLE",
+    "peer": "moto server, IAM-enforcing, private bucket, least-privilege key \u2014 disposable, IN THIS CONTAINER",
+    "offContainerDurability": "NOT PROVEN: no production object-store credentials in this environment"
+  },
+  "catalog": [
+    {
+      "sha256": "b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df",
+      "sha256Prefix": null,
+      "sourceId": "wi_statewide_parcels",
+      "role": "publisher_raw",
+      "bytes": 759926092,
+      "durableCopy": "DURABLE",
+      "state": "DURABLE"
+    },
+    {
+      "sha256": "b622edfec5fb21f3b82ef740b4fee48c756b7bf776981d48a6ea39e6e5e3a909",
+      "sha256Prefix": null,
+      "sourceId": "wi_statewide_parcels",
+      "role": "derived_bundle",
+      "bytes": 2724190106,
+      "durableCopy": "MISSING_BYTES",
+      "state": "REGENERABLE"
+    },
+    {
+      "sha256": "e3d54ee1900a15f3e93cf38cce49c89bd988bb5bbe70a962bfe762f8daf30f08",
+      "sha256Prefix": null,
+      "sourceId": "mn_statewide_parcels",
+      "role": "publisher_raw",
+      "bytes": 2610774016,
+      "durableCopy": "DURABLE",
+      "state": "DURABLE"
+    },
+    {
+      "sha256": "24b35d8a6c7ed14c912449da9d06f1d1a77b6f2c108e514cf2abb7d03b58e708",
+      "sha256Prefix": null,
+      "sourceId": "mn_statewide_parcels",
+      "role": "derived_bundle",
+      "bytes": 2526486899,
+      "durableCopy": "DURABLE",
+      "state": "DURABLE"
+    },
+    {
+      "sha256": "31a5f1c3a32919e242e1d14b7499c8a7eaea2b6f6b3d138b801d9733468a5232",
+      "sha256Prefix": null,
+      "sourceId": "mn_statewide_parcels",
+      "role": "publisher_raw",
+      "bytes": 2624212992,
+      "durableCopy": "MISSING_BYTES",
+      "state": "LOST_EXACT_BYTES"
+    },
+    {
+      "sha256": null,
+      "sha256Prefix": "5f9251f9",
+      "sourceId": "mn_statewide_parcels",
+      "role": "derived_bundle",
+      "bytes": 2526658472,
+      "durableCopy": "DIGEST_INCOMPLETE",
+      "state": "LOST_EXACT_BYTES"
+    },
+    {
+      "sha256": "8ec2d7a7bff176ee90d244febf33c310415873d6c8d2e463ba8a49e0f84f13a5",
+      "sha256Prefix": null,
+      "sourceId": "mn_hennepin_county_parcels",
+      "role": "publisher_raw",
+      "bytes": 1108716098,
+      "durableCopy": "MISSING_BYTES",
+      "state": "LOST_EXACT_BYTES"
+    }
+  ],
+  "networkNamespace": "unshare --net: publisher unreachable (NET-DOWN), durable store unreachable (STORE-DOWN) during both replays",
+  "replayMinnesota": {
+    "artifact": "24b35d8a6c7ed14c912449da9d06f1d1a77b6f2c108e514cf2abb7d03b58e708",
+    "wallSeconds": 2694,
+    "reconciliation": {
+      "parsed": 2710201,
+      "accepted": 2648100,
+      "quarantined": 62101,
+      "duplicates": 43639
+    },
+    "canonicalDigest": "c0cdc535b6d77cde9cbe12847c73c933543ade720ac17cb5a920dc0400e6528f",
+    "df0kCanonicalDigest": "c0cdc535b6d77cde9cbe12847c73c933543ade720ac17cb5a920dc0400e6528f"
+  },
+  "replayWisconsin": {
+    "publisherSha256": "b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df",
+    "bundleSha256": "b622edfec5fb21f3b82ef740b4fee48c756b7bf776981d48a6ea39e6e5e3a909",
+    "wallSeconds": 3562,
+    "reconciliation": {
+      "parsed": 3574646,
+      "accepted": 3513111,
+      "quarantined": 61535
+    },
+    "runId": "run_6a5d84da418a892d0322a504265ff1e5",
+    "normalizedDigest": "3e2ec68b545f333cc774d0a6dc0cfc318c2adb555faae8f03a9b14f76f989f36",
+    "globalDigest": "5780f1ba36676254002c1d0428b7831df117038dcfe3cae4e8f09ed505b870eb",
+    "countyCountsEqualDf0k": true,
+    "publisherContacted": false
+  },
+  "partitionComparison": {
+    "reference": "reference/wi-statewide/V12.0.0-2026/partition-digests.json",
+    "partitions": 132,
+    "identicalInputOutputAndRows": 132,
+    "differing": 0
+  },
+  "firstAttemptFinding": "The first WI replay exited in 5 s with 'fetch failed': a replay tried to write the raw archive and a receipt to the (unreachable) durable store. Fixed in 7627669 (replay never writes durably) with a regression test; the re-run is the result above."
+}

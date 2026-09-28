@@ -130,3 +130,23 @@ The repository cannot create credentials, and must not contain them. One-time:
 
 Infrastructure, not source data: ~5.9 GB today, ~$0.13/month at S3-class
 prices; see [`ARTIFACT-STORAGE.md`](ARTIFACT-STORAGE.md) §11.
+
+## 10. Certified (2026-09-28)
+
+A worker cloned from GitHub, sharing nothing with the previous one (whose
+estate was deleted) except durable-store environment variables, ran doctor
+(ready), the suite, the PG chain, `artifacts catalog --verify`, pulled MN and WI
+by digest, and replayed both inside `unshare --net` — publisher and store both
+unreachable. Minnesota: canonical digest `c0cdc535…`, 2,648,100 / 62,101, equal
+to DF-0K. Wisconsin: publisher `b22bfaad…` → bundle `b622edfe…`, 3,513,111
+accepted / 61,535 quarantined, normalized `3e2ec68b…`, global `5780f1ba…`, same
+run id, **132 / 132 partitions identical** in input digest, output digest and
+rows. Evidence: `reference/durable/df-0l-fresh-worker.json`.
+
+The first WI attempt failed in 5 s: a replay tried to write the archive and a
+receipt to the unreachable store. Replays are now write-free (regression test in
+`durable-pipeline.test.ts`).
+
+**Caveat, stated plainly:** the durable store in that proof was a disposable
+S3-compatible peer inside the same container. The mechanics are certified; the
+estate's survival beyond this container is not, until §8 is done.
