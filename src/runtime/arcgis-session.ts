@@ -62,6 +62,15 @@ export type ArcGisSessionOptions<R> = {
   parseFeature(attributes: Record<string, unknown>, origin: string): { sourceRecordId: string; record: R };
   /** Per-group digests, so a snapshot run can say what KIND of thing changed. */
   fieldGroups(record: R): Readonly<Record<string, string>>;
+  /**
+   * What change detection digests. Defaults to the whole record.
+   *
+   * A source whose publisher renumbers its row ids every release (Wisconsin's
+   * geodatabase OBJECTID is the row's position) must leave them out, or every
+   * parcel reads as revised on every re-release and the change counts measure
+   * the publisher's numbering instead of the parcels.
+   */
+  contentOf?(record: R): unknown;
   /** Where a duplicate identity lives, for the validation issue's path. */
   readonly identityPath: string;
   /** Human-readable identity, for the duplicate message. */
@@ -238,7 +247,7 @@ export async function openArcGisSnapshotStream<R>(
       parsed: {
         sourceRecordId: parsed.sourceRecordId,
         record: parsed.record as unknown as Readonly<Record<string, unknown>>,
-        contentDigest: contentDigest(parsed.record),
+        contentDigest: contentDigest(options.contentOf ? options.contentOf(parsed.record) : parsed.record),
         rawFragmentDigest: sha256(line),
         fieldGroupDigests: options.fieldGroups(parsed.record),
       },

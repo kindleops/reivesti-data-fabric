@@ -621,6 +621,27 @@ enumerated, now resolves.
 
 ---
 
+## 10a. The second statewide estate (DF-0K)
+
+Wisconsin added the first source whose acquisition is a scheduled program from
+end to end (`df auto`, `docs/AUTOMATED-ACQUISITION.md`), and three pieces of
+general machinery that the next state reuses unchanged:
+
+| Reusable | Where |
+|---|---|
+| Streaming random-access ZIP reader (ZIP64, CRC-verified per entry) | `src/core/zip-file.ts` |
+| Dependency-free File Geodatabase reader (catalogue, field descriptors, rows via the offset index, geometry located and skipped) | `src/core/filegdb.ts` |
+| Bulk acquisition: release fingerprint, ledger, NOOP planning, streamed download into the artifact store | `src/runtime/bulk-acquisition.ts` |
+| Parcel identifier schemes (contract extension) | `src/canonical/normalization-contract.ts` |
+| Reappearance tombstones, skip-unchanged partitions, volatile-row-id exclusion, compressed derived plane | `src/runtime/stream-run.ts`, `snapshot-index.ts`, `arcgis-session.ts`, `staged-store.ts` |
+
+Source-specific, and deliberately so: the field map, CONAME routing, the
+non-parcel-label rule, value-type semantics, discovery of the SCO landing page.
+
+Property identity stays `county jurisdiction + normalized local parcel id`.
+Minnesota and Wisconsin share the partition store, the organization partition
+and the global digest; a Wisconsin run writes no Minnesota county partition.
+
 ## 11. Observability
 
 Structured JSON logs only. Every run emits `run.release_selected`,

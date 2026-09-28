@@ -13,7 +13,8 @@ import { createReadStream, createWriteStream } from 'node:fs';
 import { mkdir, rename, rm } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { once } from 'node:events';
-import type { Writable } from 'node:stream';
+import type { Readable, Writable } from 'node:stream';
+import { createGunzip } from 'node:zlib';
 import { fail } from './errors.ts';
 
 const DEFAULT_HIGH_WATER_MARK = 1 << 20; // 1 MiB
@@ -29,10 +30,12 @@ export async function* readLines(
   path: string,
   options: { highWaterMark?: number } = {},
 ): AsyncGenerator<string> {
-  const stream = createReadStream(path, {
-    encoding: 'utf8',
-    highWaterMark: options.highWaterMark ?? DEFAULT_HIGH_WATER_MARK,
-  });
+  // A `.gz` path is decompressed on the fly: the derived plane can be stored
+  // compressed (DF-0K) without any reader knowing or caring.
+  const raw = createReadStream(path, { highWaterMark: options.highWaterMark ?? DEFAULT_HIGH_WATER_MARK });
+  const stream: Readable = path.endsWith('.gz') ? raw.pipe(createGunzip()) : raw;
+  stream.setEncoding('utf8');
+  if (stream !== raw) raw.on('error', (e) => stream.destroy(e));
   let carry = '';
   try {
     for await (const chunk of stream) {
@@ -53,6 +56,7 @@ export async function* readLines(
     if (carry.length > 0) yield carry;
   } finally {
     stream.destroy();
+    raw.destroy();
   }
 }
 

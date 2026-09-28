@@ -12,6 +12,7 @@
  *   df replay <mappingId> --artifact <sha256> [--period <label>]
  *   df verify --artifact <sha256>     re-verify retained evidence against its manifest
  *   df runs                           run history
+ *   df auto <mappingId>               unattended: discover → NOOP | acquire → derive → ingest
  */
 import { createArtifactStore, createStreamingArtifactStore, artifactDir, type ArchivedArtifact } from '../archive/artifact-store.ts';
 import { createFilesystemObjectStore, createStreamingFilesystemObjectStore } from '../archive/object-store.ts';
@@ -41,6 +42,14 @@ import {
   createMnStatewideParcelConnector,
 } from '../connectors/mn-statewide-parcels/index.ts';
 import { convertGpkgToBundle } from '../connectors/mn-statewide-parcels/gpkg.ts';
+import {
+  WI_ABSENT_CONCEPTS,
+  WI_ARCGIS_ONLY_FIELDS,
+  WI_NOT_INGESTED,
+  WI_STATEWIDE_FIELD_MAP,
+  wiStatewideDispositionCounts,
+} from '../connectors/wi-statewide-parcels/field-map.ts';
+import { replayWiFromArchive, runWiStatewidePipeline, type WiPipelineResult } from '../connectors/wi-statewide-parcels/pipeline.ts';
 import { defaultRegistry } from '../registry/sources.ts';
 import { assessActivation } from '../registry/policy.ts';
 import {
@@ -294,6 +303,19 @@ async function main(): Promise<number> {
     }
 
     case 'fields': {
+      if (flags['source'] === 'wi') {
+        out({
+          source: 'wi_statewide_parcels',
+          layer: 'V1200_WisconsinParcels_2026 (File Geodatabase, V12.0.0)',
+          publishedFields: WI_STATEWIDE_FIELD_MAP.length,
+          dispositions: wiStatewideDispositionCounts(),
+          fields: WI_STATEWIDE_FIELD_MAP,
+          notIngested: WI_NOT_INGESTED,
+          onlyInFeatureServer: WI_ARCGIS_ONLY_FIELDS,
+          notInThisSchema: WI_ABSENT_CONCEPTS,
+        });
+        return 0;
+      }
       if (flags['source'] === 'hennepin') {
         out({
           source: 'mn_hennepin_county_parcels',
@@ -498,6 +520,49 @@ async function main(): Promise<number> {
         batchConfiguration: result.run.batchConfiguration,
       });
       return result.run.status === 'completed' ? 0 : 1;
+    }
+
+    case 'auto': {
+      // The unattended path. A scheduler runs this with no arguments beyond the
+      // mapping; it decides for itself whether there is anything to do.
+      const mappingId = positional[0];
+      if (!mappingId) {
+        process.stderr.write('usage: df auto <mappingId> [--discover-only] [--force] [--replay <sha256> --period <label>]\n');
+        return 2;
+      }
+      const mapping = registry.mapping(mappingId);
+      if (mapping.adapterKey !== 'wi_statewide_parcels') {
+        process.stderr.write(`adapter "${mapping.adapterKey}" has no unattended acquisition pipeline\n`);
+        return 2;
+      }
+      const objects = createStreamingFilesystemObjectStore(ARCHIVE_ROOT_DIR);
+      const common = {
+        registry,
+        artifactStore: createStreamingArtifactStore(objects),
+        contactPlane: createContactPlane({ maxRetained: 1000 }),
+        varRoot: VAR_ROOT,
+        clock: systemClock,
+        logger: createLogger(),
+        ...(typeof flags['max'] === 'string' ? { maxRows: Number(flags['max']) } : {}),
+      };
+      let result: WiPipelineResult;
+      if (typeof flags['replay'] === 'string') {
+        const sha = flags['replay'] as string;
+        const period = typeof flags['period'] === 'string' ? (flags['period'] as string) : '';
+        if (!/^[0-9a-f]{64}$/.test(sha) || !period) {
+          process.stderr.write('--replay needs the publisher archive sha256 and --period\n');
+          return 2;
+        }
+        result = await replayWiFromArchive({ ...common, publisherSha256: sha, referencePeriod: period });
+      } else {
+        result = await runWiStatewidePipeline({
+          ...common,
+          mode: flags['force'] === true ? 'force' : 'scheduled',
+          discoverOnly: flags['discover-only'] === true,
+        });
+      }
+      out(summarizeWiPipeline(result));
+      return result.outcome === 'FAILED' ? 1 : 0;
     }
 
     case 'checkpoints': {
@@ -777,6 +842,8 @@ async function main(): Promise<number> {
           '  df overlap-audit --direct <sourceId> --aggregation <sourceId> [--county <fips>]',
           '  df verify --artifact <sha256> [--source <id>] [--period <label>]',
           '  df runs                                           run history',
+          '  df auto <mappingId> [--discover-only] [--force]   unattended discover → NOOP | acquire → derive → ingest',
+          '  df auto <mappingId> --replay <sha256> --period <l>   re-derive and re-ingest from the retained archive, no network',
           '',
           `  DF_VAR=${VAR_ROOT}  DF_ARCHIVE=${ARCHIVE_ROOT_DIR}`,
           '',
@@ -785,6 +852,74 @@ async function main(): Promise<number> {
       return command === 'help' ? 0 : 2;
     }
   }
+}
+
+function summarizeWiPipeline(result: WiPipelineResult): unknown {
+  const run = result.run;
+  const mb = (n: number) => Math.round(n / 1048576);
+  return {
+    outcome: result.outcome,
+    plan: result.plan,
+    discovered: result.discovered === null ? null : {
+      referencePeriod: result.discovered.referencePeriod,
+      releaseFingerprint: result.discovered.releaseFingerprint,
+      head: result.discovered.head,
+      archive: result.discovered.archive,
+      access: result.discovered.access,
+      serviceMatchesArchive: result.discovered.serviceMatchesArchive,
+      witness: { ...result.discovered.witness, fields: result.discovered.witness.fields.length },
+    },
+    publisherArtifact: result.publisherArtifact && {
+      sha256: result.publisherArtifact.sha256, bytes: result.publisherArtifact.byteLength,
+      filename: result.publisherArtifact.manifest.originalFilename, url: result.publisherArtifact.manifest.originalUrl,
+      retrievedAt: result.publisherArtifact.manifest.retrievedAt, effectiveAt: result.publisherArtifact.manifest.effectiveAt,
+      path: result.publisherArtifact.storagePath,
+    },
+    bundleArtifact: result.bundleArtifact && { sha256: result.bundleArtifact.sha256, bytes: result.bundleArtifact.byteLength },
+    derivation: result.derivation && { ...result.derivation, fields: result.derivation.fields.length },
+    crossCheck: result.crossCheck,
+    counties: result.counties,
+    report: run ? runReport(run.run) : null,
+    reconciliation: run ? {
+      sourceReportedCount: run.run.sourceReportedCount,
+      downloadedCount: run.run.downloadedCount,
+      parsed: run.run.metrics.rowsParsed,
+      accepted: run.run.metrics.rowsValid,
+      quarantined: run.run.metrics.rowsQuarantined,
+      duplicates: run.run.duplicateCount,
+      new: run.run.metrics.rowsNew,
+      unchanged: run.run.metrics.rowsUnchanged,
+      revised: run.run.metrics.rowsRevised,
+      missingFromSnapshot: run.run.metrics.rowsMissingFromSnapshot,
+      completeness: run.run.snapshotCompleteness,
+    } : null,
+    canonical: run ? {
+      normalizedDigest: run.run.normalizedDigest,
+      globalDigest: run.globalDigest,
+      resolved: run.run.metrics.rowsResolved,
+      conflicts: run.run.metrics.rowsConflicted,
+      contactObservations: run.run.metrics.contactObservations,
+      canonicalEvents: run.run.metrics.canonicalEvents,
+    } : null,
+    partitions: run ? {
+      planned: run.partitionPlan.partitions.length,
+      activations: run.activations.map((a) => ({ partitionId: a.partitionId, state: a.state, generation: a.generation })),
+      uncovered: run.uncoveredPartitions,
+    } : null,
+    countyCounts: run?.countyCounts ?? null,
+    timings: { pipeline: result.timings, runtime: run?.timings ?? null },
+    memory: {
+      pipelinePeakHeapMB: mb(result.memory.peakHeapBytes),
+      pipelinePeakRssMB: mb(result.memory.peakRssBytes),
+      pipelinePeakExternalMB: mb(result.memory.peakExternalBytes),
+      runtimePeakHeapMB: run ? mb(run.peakHeapBytes) : null,
+      byStage: run ? Object.fromEntries(Object.entries(run.memoryByStage).map(([stage, m]) => [stage, {
+        heapMB: mb(m.peakHeapBytes), externalMB: mb(m.peakExternalBytes),
+        arrayBuffersMB: mb(m.peakArrayBufferBytes), rssMB: mb(m.peakRssBytes),
+      }])) : null,
+    },
+    ledger: result.ledger,
+  };
 }
 
 async function locateArtifact(

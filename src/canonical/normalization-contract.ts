@@ -585,6 +585,78 @@ export function identifierComparisonKey(id: IdentifierValue): string | null {
 }
 
 // ---------------------------------------------------------------------------
+// Extension: parcel identifier schemes (parcel_identifier_scheme_1, DF-0K)
+// ---------------------------------------------------------------------------
+
+/**
+ * The versioned extension a parcel identity rule belongs to.
+ *
+ * Recorded on every canonical row that uses a scheme, beside
+ * `normalization_contract`, so a later scheme is a visible representation
+ * change and never a silent one.
+ */
+export const PARCEL_IDENTIFIER_EXTENSION = 'parcel_identifier_scheme_1';
+
+/**
+ * How a jurisdiction's parcel identifiers become an identity key.
+ *
+ * v1 of the contract had one rule — fold case AND punctuation — and described
+ * it as reversible. It is reversible only where no two real identifiers differ
+ * by punctuation alone, which is a property of a jurisdiction's numbering, not
+ * of parcel identifiers in general. Minnesota's counties satisfy it, and its
+ * convergence depends on it: eCRV writes `02-028-24-41-0097` for the parcel
+ * Hennepin writes `0202824410097`.
+ *
+ * Wisconsin does not. Measured over all 3,574,646 V12 rows, folding
+ * punctuation merges **11,411 pairs of distinct identifiers inside the same
+ * county** — Brown County's `1-1109` and `11-109` are different parcels. A rule
+ * that merges them gives two properties one canonical id, which is exactly the
+ * identity failure county scoping exists to prevent.
+ *
+ * So the rule is a declared, per-jurisdiction choice with evidence behind it:
+ *
+ *   PUNCTUATION_FOLDED      v1 behaviour, unchanged. Case and punctuation
+ *                           folded. Only for jurisdictions where folding has
+ *                           been shown injective. Minnesota's ids are untouched.
+ *   PUNCTUATION_PRESERVING  Outer whitespace trimmed and case folded, nothing
+ *                           else. Leading zeros, dashes, dots and internal
+ *                           spaces all survive. Injective on every Wisconsin
+ *                           county (0 case-only collisions measured).
+ *
+ * Neither scheme is Wisconsin-specific; a jurisdiction chooses one, and the
+ * choice is measured rather than assumed. The folded form is still useful as a
+ * MATCH key for a source that punctuates differently — but it is a candidate
+ * link to be checked for ambiguity, never an identity.
+ */
+export type ParcelIdentifierScheme = 'PUNCTUATION_FOLDED' | 'PUNCTUATION_PRESERVING';
+
+export function canonicalParcelIdentifier(
+  raw: unknown,
+  scheme: ParcelIdentifierScheme,
+  jurisdictionScope: string | null = null,
+): IdentifierValue {
+  if (scheme === 'PUNCTUATION_FOLDED') return canonicalIdentifier(raw, jurisdictionScope);
+  const missing = absenceOf(raw);
+  if (missing) return missing;
+  const text = String(raw).trim();
+  if (text === '') return absent('BLANK_SOURCE', String(raw));
+  const normalized = text.toUpperCase();
+  if (!/[A-Z0-9]/.test(normalized)) return absent('INVALID', text);
+  return { present: true, raw: text, normalized, jurisdictionScope };
+}
+
+/**
+ * The punctuation-folded form of an identifier, for candidate matching only.
+ *
+ * Equal folded keys mean "possibly the same parcel". Whether that possibility is
+ * unique inside the county is a fact about the county's roll, and the caller
+ * must check it before treating the match as anything more.
+ */
+export function parcelMatchKey(raw: string): string {
+  return raw.toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
+// ---------------------------------------------------------------------------
 // Digest scoping
 // ---------------------------------------------------------------------------
 

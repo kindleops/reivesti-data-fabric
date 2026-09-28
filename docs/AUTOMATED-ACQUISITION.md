@@ -121,5 +121,45 @@ If the honest answer to the first is "a person downloads it", the source may sti
 be worth building a connector for — RETR's is finished and tested — but it is
 `DEFERRED`, not core, and it does not count toward coverage.
 
+## The first source built to the gate: Wisconsin statewide parcels (DF-0K)
+
+DF-0J.1A took Wisconsin's 72 counties out of core coverage because nothing
+could fetch RETR. DF-0K puts 72 back for **parcel** coverage — and this time the
+acquisition is a program, not a person:
+
+```
+df auto wi_statewide_parcels__all_wi_counties
+```
+
+| Step | What happens | Network |
+|---|---|---|
+| gate | `assessActivation` must return `CORE_ELIGIBLE` from registry facts, or nothing is requested | none |
+| discover | SCO landing page → newest `V*_Uncompressed.zip` link; HEAD it; FeatureServer layer metadata + count as a witness | 3 GET + 1 HEAD |
+| plan | the acquisition ledger: this exact release fingerprint (URL, ETag, length, Last-Modified, object version) already ingested? → **NOOP**, stop | none |
+| acquire | one streamed GET into the content-addressed artifact store; length and ETag checked; a short or changed body leaves no artifact | 1 GET |
+| derive | archive → File Geodatabase → snapshot bundle, from the **retained** bytes, deterministically | none |
+| ingest | the streaming runtime; 72 county partitions activated independently | none |
+| record | ledger line; the next tick is a NOOP | none |
+
+The generic half — ledger, fingerprint, NOOP planning, HEAD, streamed download
+into the artifact store — is `src/runtime/bulk-acquisition.ts` and knows nothing
+about Wisconsin. The Wisconsin half is discovery (`release.ts`) and derivation
+(`bundle.ts`).
+
+Guarantees a scheduler can rely on:
+
+- **Same release → NOOP.** No download, no parse, no projection. Measured on the
+  live publisher: see `WISCONSIN-STATEWIDE-PARCELS.md` §11.
+- **New release → planned**, with `schemaValidationRequired` when it is not the
+  release the field map was pinned against. It is then ingested only if the
+  pinned field-set digest still matches; a changed schema quarantines the run
+  before a row is read and activates nothing.
+- **Republished release** (same version, new bytes) → planned as
+  `REPUBLISHED_RELEASE`.
+- **A truncated smoke run** (`--max`) is ledgered as `TRUNCATED_SMOKE_RUN` and can
+  never make a later tick believe the release was ingested.
+- **Replay** (`--replay <sha256> --period <label>`) re-derives and re-ingests from
+  the retained archive with no network at all.
+
 See also: [`ZERO-COST-DATA-DOCTRINE.md`](ZERO-COST-DATA-DOCTRINE.md),
 [`SOURCE-REGISTRY.md`](SOURCE-REGISTRY.md), [`WISCONSIN-RETR.md`](WISCONSIN-RETR.md).

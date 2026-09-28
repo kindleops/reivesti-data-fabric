@@ -301,3 +301,30 @@ is a public ArcGIS FeatureServer carrying `V1200_WisconsinParcels_2026` —
 range-capable ZIP archive beside it. It is `parcel`, not `transfer`, so it
 replaces nothing RETR would have supplied; it is simply the best-ranked
 zero-cost source that can actually be fetched.
+
+## Wisconsin parcel coverage, earned this time (DF-0K)
+
+DF-0J.1A removed 72 Wisconsin counties from core coverage because the source
+behind them, RETR, can only be fetched by a person. DF-0K adds 72 Wisconsin
+counties back — for **parcel, assessor, ownership and tax**, from a different
+source that a scheduler retrieves with nobody present: the Wisconsin Statewide
+Parcel Map, one archive at a stable public URL.
+
+| | DF-0J.1A | DF-0K |
+|---|---:|---:|
+| Minnesota automated-core parcel jurisdictions | 59 | 59 |
+| Wisconsin automated-core parcel jurisdictions | 0 | **72** |
+| **Total automated-core jurisdictions** | 59 | **131** |
+| National transfer coverage | 0 | **0** |
+
+The 131 is derived by `buildCoverage` from the registry, not typed in, and a
+test asserts it (`tests/wi-statewide-parcels.test.ts`). The difference from
+DF-0J's withdrawn 131 is the whole point of DF-0J.1A: that number claimed
+transfer coverage from a source nobody could fetch; this one claims parcel
+coverage from a source the pipeline fetched, hashed, retained, ingested and
+replayed with the network off.
+
+**Transfer is still zero.** The Wisconsin parcel map has no sale date, no sale
+price and no instrument field of any kind — not even the assessor's sale echo
+Minnesota's layer carries. Wisconsin transfer coverage waits on an automated
+RETR distribution, and the coverage report keeps saying so.

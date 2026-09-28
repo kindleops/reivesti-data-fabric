@@ -573,3 +573,41 @@ taking an option callers remember to pass.
    projection by jurisdiction and source before any multi-county rollout. DF-0E
    added a second source to the same county and did not degrade it materially,
    which is the condition under which this stays deferred.
+
+## 6e. Three refinements for an annual statewide roll (DF-0K)
+
+Wisconsin is the first source that restates a whole state once a year from a
+geodatabase whose row ids are positions. Three things the runtime could not
+express before, each opt-in and each measured on V12:
+
+**Volatile publisher row ids stay out of change detection.** `ArcGisSessionOptions.contentOf`
+lets a source say what change detection digests. Wisconsin's OBJECTID is the
+row's position in the geodatabase; drop one parcel and every later OBJECTID
+shifts. Digested, it made the synthetic next-release test report 5 revisions for
+2 real changes. It is retained on the row and excluded from the digest.
+
+**Reappearance is detected.** The snapshot index remembers only the previous
+snapshot, so a parcel dropped from one release and restored in the next looked
+brand new. Each county index now has an off-heap tombstone set beside it
+(`<county>.absent`: sorted 64-bit key hashes of parcels seen in some accepted
+snapshot and missing from the latest). A row absent from the prior index but in
+its tombstones is `parcel_reappeared`. Bounded by how many parcels a county has
+dropped, never by the county.
+
+**Unchanged partitions are left alone** (`skipUnchangedPartitions`). A statewide
+release restates all 72 counties. When every row a county delivered matched the
+last accepted snapshot and nothing in it went missing, its contributions are not
+redistributed, its projection is not recomputed and its index is not rewritten;
+the activation is recorded as `skipped` with its existing generation. The
+release's canonical observations are still emitted in full — the county WAS
+observed — only the projection is not redone. A forced re-ingest of the same
+release therefore rewrites zero county partitions.
+
+**The derived plane can be stored compressed** (`DF_DERIVED_GZIP=1` or
+`createGenerationStore(root, { compress: true })`). Canonical bundles repeat
+their evidence on every row: Minnesota's 2.65 M bundles were **14 GB**, and two
+statewide estates did not fit one session's disk. Run tables are written as
+`<table>.ndjson.gz` (gzip level 1) and every reader detects the suffix
+(`readLines` decompresses on the fly), so compressed and plain generations can
+coexist. Restricted tables keep mode 0600. The whole suite passes in both modes;
+a leak scan of a compressed estate must decompress, and the Wisconsin test does.

@@ -33,10 +33,12 @@ export type SnapshotChangeKind =
   | 'parcel_reappeared';
 
 /** How the runtime's generic change kinds map onto snapshot vocabulary. */
-export const SNAPSHOT_CHANGE_KIND: Readonly<Record<'new' | 'unchanged' | 'revised', SnapshotChangeKind>> = {
+export const SNAPSHOT_CHANGE_KIND: Readonly<Record<'new' | 'unchanged' | 'revised' | 'reappeared', SnapshotChangeKind>> = {
   new: 'new_parcel_observed',
   unchanged: 'unchanged_parcel',
   revised: 'parcel_attributes_changed',
+  // Absent from the previous accepted snapshot, present in an earlier one.
+  reappeared: 'parcel_reappeared',
 };
 
 export type SnapshotCompleteness = 'complete' | 'partial' | 'unverifiable';
