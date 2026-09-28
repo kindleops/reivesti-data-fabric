@@ -158,6 +158,34 @@ test('a worker lost after acquisition but before projection: the next worker res
   assert.equal(publisher.archiveGets(), 1, 'no second publisher download');
 });
 
+test('a replay with the bytes on local disk touches neither the publisher nor the durable store', async () => {
+  const publisher = fakePublisher();
+  publisher.publish(buildRelease({ version: V12, rows: rows() }));
+  const w = worker(durableStore(prefixOf()), publisher);
+  const first = await w.run();
+  // The store is now unreachable (a network namespace with no interfaces).
+  const unreachable = async () => { throw new Error('fetch failed'); };
+  const offline: DurableStore = {
+    prefix: 'p', required: true,
+    backend: {
+      ...createLocalBackend(tempRoot('df-offline-'), { durable: true }),
+      head: unreachable, putFile: unreachable, putJson: unreachable, getJson: unreachable, stream: unreachable, list: unreachable,
+    },
+  };
+  const replay = await replayWiFromArchive({
+    registry: defaultRegistry(), artifactStore: w.h.artifactStore, contactPlane: w.h.contactPlane,
+    varRoot: w.h.varRoot, clock: fixedClock('2031-01-01T00:00:00.000Z'), logger: captureLogger().logger,
+    publisherSha256: first.publisherArtifact!.sha256, referencePeriod: 'V12.0.0-2026',
+    batch: { sortChunkLines: 4 }, durable: offline,
+  });
+  assert.equal(replay.outcome, 'INGESTED');
+  assert.equal(replay.durability?.source, 'workspace');
+  assert.equal(replay.durability?.commit, null);
+  assert.equal(replay.durability?.receiptKey, null);
+  assert.equal(replay.run?.globalDigest, first.run?.globalDigest);
+  assert.equal(publisher.archiveGets(), 1);
+});
+
 test('when durability is required and the store refuses the bytes, nothing is activated', async () => {
   const publisher = fakePublisher();
   publisher.publish(buildRelease({ version: V12, rows: rows() }));

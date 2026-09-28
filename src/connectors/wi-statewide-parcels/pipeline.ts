@@ -341,8 +341,12 @@ async function deriveAndIngest(
   // Priority one is the publisher's exact archive. It becomes DURABLE (uploaded,
   // re-read, re-hashed) and REGISTERED before a row is derived or a partition
   // activated. Bytes that just came FROM the durable store are already there.
+  // A replay is a reproducibility proof and must run with no network at all:
+  // it may READ the durable store (rehydrate, above) but never writes to it.
+  // Making workspace bytes durable is acquisition's job, or `df artifacts push`.
+  const writesDurable = options.durable && ctx.action !== 'REPLAYED' && options.maxRows === undefined;
   let commit: DurableCommit | null = null;
-  if (options.durable && ctx.source !== 'durable_store' && options.maxRows === undefined) {
+  if (writesDurable && ctx.source !== 'durable_store') {
     t = performance.now();
     commit = await commitDurable(options.durable, options.artifactStore, publisher, {
       role: 'publisher_raw', contentType: 'application/zip', now: () => clock.now(),
@@ -489,7 +493,7 @@ async function deriveAndIngest(
   // A durable receipt, written before anything is reported: if this machine
   // vanishes now, what happened — inputs, counts, digests — is still known.
   let receiptKey: string | null = null;
-  if (options.durable && options.maxRows === undefined) {
+  if (writesDurable && options.durable) {
     const receipt = {
       receiptVersion: 1,
       ...entry,
