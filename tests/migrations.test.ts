@@ -30,6 +30,7 @@ test('migrations exist and are ordered', () => {
     '0009_data_fabric_normalization_contract.sql',
     '0010_data_fabric_transfer_declarations.sql',
     '0011_data_fabric_durable_artifacts.sql',
+    '0012_data_fabric_sale_observations.sql',
   ]);
 });
 

@@ -171,17 +171,28 @@ export type PlanInput = {
   readonly producedOrganizationRows: boolean;
   /** True when the run produced transaction-candidate inputs. */
   readonly producedTransactionRows: boolean;
+  /**
+   * The counties those transaction inputs belong to, when the run knows. A
+   * TRANSACTION partition is planned only for these; without it, for every
+   * observed county, as before.
+   */
+  readonly observedTransactionCountyFips?: Iterable<string>;
 };
 
 export function planPartitions(input: PlanInput): PartitionPlan {
   const counties = [...new Set(input.observedCountyFips)].filter((f) => f !== '').sort();
   const partitions = new Set<string>();
   const domains = new Set<ResolutionDomain>();
+  const transactionCounties = input.observedTransactionCountyFips === undefined
+    ? null
+    : new Set([...input.observedTransactionCountyFips].filter((f) => f !== ''));
 
   for (const fips of counties) {
     partitions.add(partitionId(countyPartition('PROPERTY_RESOLUTION', fips)));
     domains.add('PROPERTY_RESOLUTION');
-    if (input.producedTransactionRows) {
+  }
+  if (input.producedTransactionRows) {
+    for (const fips of transactionCounties === null ? counties : [...transactionCounties].sort()) {
       partitions.add(partitionId(countyPartition('TRANSACTION_RESOLUTION', fips)));
       domains.add('TRANSACTION_RESOLUTION');
     }

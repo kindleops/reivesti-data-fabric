@@ -51,6 +51,11 @@ import {
   wiStatewideDispositionCounts,
 } from '../connectors/wi-statewide-parcels/field-map.ts';
 import { replayWiFromArchive, runWiStatewidePipeline, type WiPipelineResult } from '../connectors/wi-statewide-parcels/pipeline.ts';
+import { replayFlRelease, runFlPipeline, type FlPipelineResult, type FlSourceSpec } from '../connectors/fl-dor/pipeline.ts';
+import { FL_NAL_SPEC } from '../connectors/fl-nal/index.ts';
+import { createFlNalLeakageAudit } from '../connectors/fl-nal/leakage.ts';
+import { FL_SDF_SPEC } from '../connectors/fl-sdf/index.ts';
+import { FL_CADASTRAL_SPEC } from '../connectors/fl-cadastral/index.ts';
 import { durableStoreFromEnv } from '../archive/durable-artifacts.ts';
 import { catalog, doctor, pullArtifact, pushArtifact, reacquire, verifyDurable, type CatalogEntry } from './cloud.ts';
 import { defaultRegistry } from '../registry/sources.ts';
@@ -536,6 +541,8 @@ async function main(): Promise<number> {
         return 2;
       }
       const mapping = registry.mapping(mappingId);
+      const flSpec = FL_SPECS[mapping.adapterKey];
+      if (flSpec !== undefined) return await runFlAuto(flSpec, flags);
       if (mapping.adapterKey !== 'wi_statewide_parcels') {
         process.stderr.write(`adapter "${mapping.adapterKey}" has no unattended acquisition pipeline\n`);
         return 2;
@@ -924,6 +931,89 @@ async function main(): Promise<number> {
       return command === 'help' ? 0 : 2;
     }
   }
+}
+
+/** The three Florida DOR sources, driven by one engine. */
+const FL_SPECS: Readonly<Record<string, FlSourceSpec>> = {
+  [FL_NAL_SPEC.sourceId]: FL_NAL_SPEC,
+  [FL_SDF_SPEC.sourceId]: FL_SDF_SPEC,
+  [FL_CADASTRAL_SPEC.sourceId]: FL_CADASTRAL_SPEC,
+};
+
+/**
+ * `df auto` for a Florida source.
+ *
+ *   df auto <mapping>                                   discover → NOOP or acquire → derive → ingest
+ *   df auto <mapping> --force                           re-ingest the current release from retained bytes
+ *   df auto <mapping> --discover-only                   list what the portal publishes, fetch nothing
+ *   df auto <mapping> --replay <manifest sha> --period <roll year>   no network at all
+ *   --dry-run                                           compute everything, write nothing
+ *   --retention digest_only                             keep projections, not canonical tables
+ *   --leakage-audit <n>                                 NAL: restricted-field audit, sentinel every n rows
+ */
+async function runFlAuto(spec: FlSourceSpec, flags: Record<string, string | boolean>): Promise<number> {
+  const registry = defaultRegistry();
+  const objects = createStreamingFilesystemObjectStore(ARCHIVE_ROOT_DIR);
+  const retention = flags['retention'] === 'digest_only' ? 'digest_only' as const
+    : flags['retention'] === 'full' ? 'full' as const : undefined;
+  const audit = typeof flags['leakage-audit'] === 'string' && spec.sourceId === FL_NAL_SPEC.sourceId
+    ? createFlNalLeakageAudit({ sentinelEvery: Number(flags['leakage-audit']), sourceId: spec.sourceId })
+    : null;
+  const common = {
+    registry,
+    artifactStore: createStreamingArtifactStore(objects),
+    contactPlane: createContactPlane({ maxRetained: 1000 }),
+    varRoot: VAR_ROOT,
+    clock: systemClock,
+    logger: createLogger(),
+    ...(typeof flags['max'] === 'string' ? { maxRows: Number(flags['max']) } : {}),
+    ...(flags['dry-run'] === true ? { dryRun: true } : {}),
+    ...(retention ? { canonicalRetention: retention } : {}),
+    ...(audit ? { inspect: audit.inspect } : {}),
+  };
+  let result: FlPipelineResult;
+  if (typeof flags['replay'] === 'string') {
+    const sha = flags['replay'] as string;
+    const period = typeof flags['period'] === 'string' ? (flags['period'] as string) : '';
+    if (!/^[0-9a-f]{64}$/.test(sha) || !period) {
+      process.stderr.write('--replay needs the release manifest sha256 and --period <roll year>\n');
+      return 2;
+    }
+    result = await replayFlRelease(spec, { ...common, releaseManifestSha256: sha, referencePeriod: period });
+  } else {
+    result = await runFlPipeline(spec, {
+      ...common,
+      mode: flags['force'] === true ? 'force' : 'scheduled',
+      discoverOnly: flags['discover-only'] === true,
+    });
+  }
+  const run = result.run;
+  out({
+    outcome: result.outcome,
+    sourceId: spec.sourceId,
+    release: result.release
+      ? { rollYear: result.release.rollYear, stages: result.release.stageCounts, files: result.release.files.length, fingerprint: result.release.releaseFingerprint, missingCounties: result.release.missingCounties }
+      : null,
+    manifest: result.manifestArtifact?.sha256 ?? null,
+    derived: { sha256: result.derivedSha256, lines: result.derivedLines, summary: result.derivation },
+    run: run === null ? null : {
+      status: run.run.status, runId: run.run.runId, failure: run.run.failureMessage, metrics: run.run.metrics,
+      snapshotCompleteness: run.run.snapshotCompleteness, sourceReportedCount: run.run.sourceReportedCount,
+      normalizedDigest: run.run.normalizedDigest, globalDigest: run.globalDigest, retention: run.canonicalRetention,
+      changeCounts: run.changeCounts, partitions: run.partitionPlan.partitions.length,
+      activations: run.activations.reduce((a: Record<string, number>, x) => { a[x.state] = (a[x.state] ?? 0) + 1; return a; }, {}),
+      skipped: run.skippedPartitions.length, countyCounts: run.countyCounts, uncovered: run.uncoveredPartitions,
+      timings: run.timings, peakHeapMB: Math.round(run.peakHeapBytes / 1048576),
+      memoryByStage: Object.fromEntries(Object.entries(run.memoryByStage).map(([stage, m]) => [stage, {
+        heapMB: Math.round(m.peakHeapBytes / 1048576), externalMB: Math.round(m.peakExternalBytes / 1048576), rssMB: Math.round(m.peakRssBytes / 1048576),
+      }])),
+    },
+    leakageAudit: audit?.report() ?? null,
+    ledger: result.ledger,
+    timings: result.timings,
+    memory: result.memory,
+  });
+  return result.outcome === 'FAILED' ? 1 : 0;
 }
 
 function summarizeWiPipeline(result: WiPipelineResult): unknown {

@@ -110,14 +110,14 @@ export async function projectResolutions(
   const byProperty = groupSorted(
     externalSort(contributions(), keyOfProperty, options.sort ?? {}),
     keyOfProperty,
-    (line) => JSON.parse(line) as ResolutionContribution,
+    parseTagged,
   );
 
   for await (const { items } of byProperty) {
     // Deterministic order inside the group, so the chosen authoritative
     // observation never depends on arrival order.
     items.sort((a, b) => (a.o < b.o ? -1 : a.o > b.o ? 1 : 0));
-    const anchor = items[0] as ResolutionContribution;
+    const anchor = items[0] as TaggedContribution;
 
     const authoritative = items.find((i) => options.authority.isAuthoritativeForParcelIdentity(i.s)) ?? null;
     const state: ResolutionState = authoritative
@@ -152,32 +152,46 @@ export async function projectResolutions(
       severity: PropertyConflict['severity'],
       detail: Record<string, unknown>,
       observationIds: readonly string[],
-    ): PropertyConflict => ({
-      conflictId: deterministicId('conflict', kind, anchor.c, anchor.n, options.runId),
-      propertyId: anchor.p,
-      countyFips: anchor.c,
-      normalizedParcel: anchor.n,
-      conflictKind: kind,
-      severity,
-      detail,
-      observationIds: [...observationIds].sort(),
-      detectedAt: options.detectedAt,
-      runId: options.runId,
-      status: 'open',
-    });
+    ): PropertyConflict => {
+      const detected = detectionOf(items.filter((i) => observationIds.includes(i.o)), options);
+      return {
+        conflictId: deterministicId('conflict', kind, anchor.c, anchor.n, detected.runId),
+        propertyId: anchor.p,
+        countyFips: anchor.c,
+        normalizedParcel: anchor.n,
+        conflictKind: kind,
+        severity,
+        detail,
+        observationIds: [...observationIds].sort(),
+        detectedAt: detected.at,
+        runId: detected.runId,
+        status: 'open',
+      };
+    };
 
     const addresses = [...new Set(items.map((i) => i.a).filter((a): a is string => a !== null))].sort();
     if (addresses.length > 1) {
       await emitConflict(conflict('same_pid_different_address', 'warn', { addresses }, items.map((i) => i.o)));
     }
 
-    const authoritativeRecords = new Set(
-      items.filter((i) => options.authority.isAuthoritativeForParcelIdentity(i.s)).map((i) => `${i.s} ${i.r}`),
-    );
-    if (authoritativeRecords.size > 1) {
+    // Two authoritative rows for one PID INSIDE ONE SOURCE are ambiguous source
+    // state. Two different authoritative sources stating the same PID are the
+    // opposite: convergence. Florida's parcel map and roll both name every
+    // parcel, and keying this check on (source, record) instead of per source
+    // would have flagged all ten million of them as blocking.
+    const recordsBySource = new Map<string, Set<string>>();
+    for (const i of items) {
+      if (!options.authority.isAuthoritativeForParcelIdentity(i.s)) continue;
+      const records = recordsBySource.get(i.s) ?? new Set<string>();
+      records.add(i.r);
+      recordsBySource.set(i.s, records);
+    }
+    const duplicatedSources = [...recordsBySource].filter(([, records]) => records.size > 1).map(([source]) => source);
+    if (duplicatedSources.length > 0) {
+      const involved = items.filter((i) => duplicatedSources.includes(i.s));
       await emitConflict(conflict('duplicate_authoritative_row', 'blocking',
-        { sourceRecordIds: [...authoritativeRecords].sort() },
-        items.filter((i) => options.authority.isAuthoritativeForParcelIdentity(i.s)).map((i) => i.o)));
+        { sourceRecordIds: [...new Set(involved.map((i) => `${i.s} ${i.r}`))].sort() },
+        involved.map((i) => i.o)));
     }
 
     if (!authoritative && items.some((i) => i.st === 'provisional')) {
@@ -189,22 +203,23 @@ export async function projectResolutions(
   // --- pass 2: group by address -------------------------------------------
   const withAddress = async function* (): AsyncGenerator<string> {
     for await (const line of contributions()) {
-      if ((JSON.parse(line) as ResolutionContribution).a !== null) yield line;
+      if (parseTagged(line).a !== null) yield line;
     }
   };
 
   const byAddress = groupSorted(
     externalSort(withAddress(), keyOfAddress, options.sort ?? {}),
     keyOfAddress,
-    (line) => JSON.parse(line) as ResolutionContribution,
+    parseTagged,
   );
 
   for await (const { items } of byAddress) {
     const properties = [...new Set(items.map((i) => i.p))].sort();
     if (properties.length <= 1) continue;
-    const anchor = items[0] as ResolutionContribution;
+    const anchor = items[0] as TaggedContribution;
+    const detected = detectionOf(items, options);
     await emitConflict({
-      conflictId: deterministicId('conflict', 'address_matches_different_pid', anchor.c, anchor.a ?? '', options.runId),
+      conflictId: deterministicId('conflict', 'address_matches_different_pid', anchor.c, anchor.a ?? '', detected.runId),
       propertyId: null,
       countyFips: anchor.c,
       normalizedParcel: null,
@@ -212,13 +227,48 @@ export async function projectResolutions(
       severity: 'info',
       detail: { address: anchor.a, propertyIds: properties },
       observationIds: items.map((i) => i.o).sort(),
-      detectedAt: options.detectedAt,
-      runId: options.runId,
+      detectedAt: detected.at,
+      runId: detected.runId,
       status: 'open',
     });
   }
 
   return { propertyCount, resolvedCount, provisionalCount, unresolvedCount, conflictCount };
+}
+
+/** A contribution plus, when the partition store supplied it, the run whose file it came from. */
+type TaggedContribution = ResolutionContribution & { readonly u: string | null };
+
+/**
+ * Contribution lines may arrive tagged with their run: `<runId>\t<json>`.
+ *
+ * The partition store tags them from the file each line was read from, so a
+ * conflict can name the run whose EVIDENCE made it observable instead of the
+ * run that happened to recompute the partition. That is what makes the fold a
+ * pure function of its inputs: with several sources writing one county, the
+ * recomputing run depends on arrival order, and the evidence does not.
+ * Untagged lines — tests, legacy callers — keep the caller's run and time.
+ */
+function parseTagged(line: string): TaggedContribution {
+  if (line.startsWith('{')) return { ...(JSON.parse(line) as ResolutionContribution), u: null };
+  const tab = line.indexOf('\t');
+  return { ...(JSON.parse(line.slice(tab + 1)) as ResolutionContribution), u: line.slice(0, tab) };
+}
+
+/**
+ * The detection provenance of a conflict: the newest evidence involved, and
+ * the run that observed it. Ties on time are broken by run id, never by order.
+ */
+function detectionOf(
+  items: readonly TaggedContribution[],
+  options: ProjectionOptions,
+): { readonly runId: string; readonly at: string } {
+  let latest: TaggedContribution | null = null;
+  for (const item of items) {
+    if (item.u === null) continue;
+    if (latest === null || item.t > latest.t || (item.t === latest.t && item.u > (latest.u as string))) latest = item;
+  }
+  return latest === null ? { runId: options.runId, at: options.detectedAt } : { runId: latest.u as string, at: latest.t };
 }
 
 /**

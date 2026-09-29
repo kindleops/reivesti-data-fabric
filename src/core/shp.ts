@@ -50,6 +50,8 @@ export type ShpReader = {
 };
 
 const POLYGON_TYPES: ReadonlySet<number> = new Set([5, 15, 25]);
+/** Point, PointZ, PointM. */
+const POINT_TYPES: ReadonlySet<number> = new Set([1, 11, 21]);
 const MAX_RECORD_BYTES = 256 * 1024 * 1024;
 
 export async function openShp(chunks: AsyncIterable<Buffer>): Promise<ShpReader> {
@@ -89,8 +91,16 @@ function summarise(recordNumber: number, content: Buffer): ShpSummary {
   if (shapeType === 0) {
     return { recordNumber, shapeType, nullShape: true, parts: 0, points: 0, bbox: null, area: null, centroid: null, ringsClosed: true };
   }
+  if (POINT_TYPES.has(shapeType)) {
+    // A point is its own centroid and has no area. Florida's condominium unit
+    // tables are point shapefiles, one point per unit, beside the parcel polygons.
+    if (content.length < 20) fail('PARSE', `shapefile record ${recordNumber} is too short for a point`);
+    const x = content.readDoubleLE(4);
+    const y = content.readDoubleLE(12);
+    return { recordNumber, shapeType, nullShape: false, parts: 0, points: 1, bbox: [x, y, x, y], area: 0, centroid: [x, y], ringsClosed: true };
+  }
   if (!POLYGON_TYPES.has(shapeType)) {
-    fail('PARSE', `shapefile record ${recordNumber} has shape type ${shapeType}; only polygons are summarised`);
+    fail('PARSE', `shapefile record ${recordNumber} has shape type ${shapeType}; only points and polygons are summarised`);
   }
   if (content.length < 44) fail('PARSE', `shapefile record ${recordNumber} is too short for a polygon`);
   const bbox: [number, number, number, number] = [

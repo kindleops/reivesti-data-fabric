@@ -370,7 +370,7 @@ test('a partition manifest records its inputs, outputs, resolver and counts', as
   assert.equal(m.scopeId, 'us-county-27053');
   assert.match(m.inputDigest, /^[0-9a-f]{64}$/);
   assert.match(m.outputDigest, /^[0-9a-f]{64}$/);
-  assert.equal(m.resolverVersion, 'property_resolver_1');
+  assert.equal(m.resolverVersion, 'property_resolver_2');
   assert.equal(m.inputRowCount, 2);
   assert.equal(m.rowCount, 2);
   assert.equal(m.activatedAt, AT);

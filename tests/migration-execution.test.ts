@@ -65,6 +65,7 @@ if (!server) {
         '0009_data_fabric_normalization_contract.sql',
         '0010_data_fabric_transfer_declarations.sql',
         '0011_data_fabric_durable_artifacts.sql',
+        '0012_data_fabric_sale_observations.sql',
       ]);
     });
 
@@ -121,6 +122,8 @@ if (!server) {
         // somewhere unexpected. Consolidating the two is a tracked cleanup.
         'data_fabric.recorded_instruments',
         'data_fabric.run_partition_activations',
+        'data_fabric.sale_observations',
+        'data_fabric.sale_resolutions',
         'data_fabric.snapshot_index_state',
         'data_fabric.source_artifacts',
         'data_fabric.source_candidate_evidence',
@@ -281,7 +284,7 @@ if (!server) {
         select n.nspname || '.' || c.relname as t, c.relrowsecurity, c.relforcerowsecurity
         from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname in ('data_fabric','data_fabric_restricted') and c.relkind = 'r'`);
-      assert.equal(r.rows.length, 55);
+      assert.equal(r.rows.length, 57);
       const bad = r.rows.filter((x) => !x.relrowsecurity || !x.relforcerowsecurity);
       assert.deepEqual(bad.map((x) => x.t), [], 'tables missing enabled+forced RLS');
     });
@@ -290,11 +293,11 @@ if (!server) {
       const r = await db.query(`
         select tablename, policyname, permissive, roles::text
         from pg_policies where schemaname in ('data_fabric','data_fabric_restricted')`);
-      assert.equal(r.rows.length, 55 * APP_ROLES.length);
+      assert.equal(r.rows.length, 57 * APP_ROLES.length);
       assert.ok(r.rows.every((x) => x.permissive === 'RESTRICTIVE'), 'policies must be RESTRICTIVE');
       for (const role of APP_ROLES) {
         const forRole = r.rows.filter((x) => x.roles.includes(role));
-        assert.equal(forRole.length, 55, `expected a deny policy per table for ${role}`);
+        assert.equal(forRole.length, 57, `expected a deny policy per table for ${role}`);
       }
     });
 
@@ -741,6 +744,63 @@ if (!server) {
       assert.equal(supporting?.data_type, 'ARRAY');
       const preferred = columns.find((c) => c.column_name === 'preferred_source_id');
       assert.equal(preferred?.is_nullable ?? 'YES', 'YES', 'null preference is the honest default');
+    });
+
+    test('a doc-stamp-derived price has its own consideration kind', async () => {
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.transfer_considerations'::regclass and contype = 'c'`)).rows
+        .map((x) => x.def).join(' ');
+      assert.match(defs, /SALE_PRICE_DOC_STAMP_DERIVED/);
+      // Replaced by name, never stacked: exactly one kind constraint remains.
+      const kinds = (await db.query(`
+        select count(*)::int n from pg_constraint
+        where conrelid = 'data_fabric.transfer_considerations'::regclass and contype = 'c'
+          and pg_get_constraintdef(oid) like '%kind%'`)).rows[0].n;
+      assert.equal(kinds, 1);
+    });
+
+    test('every Florida qualification classification is an allowed name, and nothing invents a gift or foreclosure', async () => {
+      const { FL_CLASSIFICATION_NAMES } = await import('../src/connectors/fl-dor/qualification.ts');
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.transfer_classifications'::regclass and contype = 'c'`)).rows
+        .map((x) => x.def).join(' ');
+      for (const name of FL_CLASSIFICATION_NAMES) assert.ok(defs.includes(`'${name}'`), `${name} is not allowed by the CHECK list`);
+      for (const name of FL_CLASSIFICATION_NAMES) {
+        assert.ok(!/^(GIFT|FORECLOSURE)/.test(name), `${name}: no Florida code says gift or foreclosure`);
+      }
+    });
+
+    test('the restricted plane accepts mailing and care-of blocks and still refuses anything else', async () => {
+      const def = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric_restricted.contact_observations'::regclass and conname = 'contact_observations_contact_type_check'`)).rows[0]?.def ?? '';
+      assert.match(def, /mailing_address/);
+      assert.match(def, /care_of_block/);
+      assert.doesNotMatch(def, /skip_trace|phone_append|email_append/);
+    });
+
+    test('a sale observation states a month or nothing, and a price or why not', async () => {
+      const defs = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.sale_observations'::regclass and contype = 'c'`)).rows
+        .map((x) => x.def).join(' ');
+      assert.match(defs, /sale_month/);
+      assert.match(defs, /\(price_minor IS NOT NULL\) AND \(price_absent_reason IS NULL\)/);
+      assert.match(defs, /SALE_PRICE_DOC_STAMP_DERIVED/);
+      assert.match(defs, /ASSESSOR_SALE_ECHO/);
+      const month = (await db.query(`
+        select data_type from information_schema.columns
+        where table_schema = 'data_fabric' and table_name = 'sale_observations' and column_name = 'sale_month'`)).rows[0];
+      // A month is text, never a date that would need a day.
+      assert.equal(month?.data_type, 'text');
+      const resolution = (await db.query(`
+        select pg_get_constraintdef(oid) as def from pg_constraint
+        where conrelid = 'data_fabric.sale_resolutions'::regclass and contype = 'c'`)).rows
+        .map((x) => x.def).join(' ');
+      assert.match(resolution, /SUPPORTED_MATCH/);
+      assert.match(resolution, /ECHO_ONLY/);
     });
 
     test('no recorder-sourced sale event type exists', async () => {

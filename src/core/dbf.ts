@@ -51,6 +51,8 @@ export type DbfReader = {
   records(): AsyncGenerator<DbfRecord>;
   /** Character fields whose bytes were not valid in the declared encoding. */
   decodeReplacements(): number;
+  /** Releases the underlying stream when the caller stops early — after the header, say. */
+  close(): Promise<void>;
 };
 
 /** Pulls exact byte counts out of an async chunk stream. One pending chunk of memory. */
@@ -64,6 +66,13 @@ export class ByteCursor {
 
   constructor(chunks: AsyncIterable<Buffer>) {
     this.iterator = chunks[Symbol.asyncIterator]();
+  }
+
+  /** Stops reading and lets the source release what it holds (a file handle, an inflater). */
+  async close(): Promise<void> {
+    if (this.done) return;
+    this.done = true;
+    await this.iterator.return?.(undefined);
   }
 
   /** Exactly `n` bytes, or null at a clean end of stream. A partial read fails. */
@@ -187,5 +196,5 @@ export async function openDbf(
     await cursor.drain();
   }
 
-  return { header, records, decodeReplacements: () => replacements };
+  return { header, records, decodeReplacements: () => replacements, close: () => cursor.close() };
 }

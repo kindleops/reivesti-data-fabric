@@ -19,6 +19,7 @@ import { silentLogger } from '../core/logging.ts';
 import type { SortOptions } from '../core/external-sort.ts';
 import { parsePartitionId, type PartitionManifest } from '../canonical/partitions.ts';
 import { projectResolutions } from '../canonical/resolution-projection.ts';
+import { SALE_RESOLVER_VERSION, projectSales } from '../canonical/sale-projection.ts';
 import type { ParcelAuthority, PropertyConflict, PropertyResolution } from '../canonical/property-resolution.ts';
 import { projectOrganizationLinks } from '../canonical/organization-projection.ts';
 import { DEFAULT_RULES, RESOLVER_VERSION, type EntityLinkDecision } from '../canonical/entity-resolution.ts';
@@ -31,7 +32,8 @@ import type { PartitionActivation, PartitionStore } from './partition-store.ts';
  * partitions that need recomputing, rather than as two partitions quietly
  * disagreeing about the same county because one was folded by older code.
  */
-export const PROPERTY_RESOLVER_VERSION = 'property_resolver_1';
+export const PROPERTY_RESOLVER_VERSION = 'property_resolver_2';
+export { SALE_RESOLVER_VERSION };
 export const ORGANIZATION_RESOLVER_VERSION = RESOLVER_VERSION;
 
 export type OrganizationInputs = {
@@ -66,6 +68,8 @@ export type RecomputeResult = {
   readonly resolvedCount: number;
   readonly conflictCount: number;
   readonly linkCount: number;
+  /** Canonical sales the TRANSACTION_RESOLUTION partitions hold after this recomputation. */
+  readonly saleCount: number;
 };
 
 export async function recomputePartitions(options: RecomputeOptions): Promise<RecomputeResult> {
@@ -81,20 +85,59 @@ export async function recomputePartitions(options: RecomputeOptions): Promise<Re
   let resolvedCount = 0;
   let conflictCount = 0;
   let linkCount = 0;
+  let saleCount = 0;
 
   for (const id of options.partitionIds) {
     const key = parsePartitionId(id);
     const started = performance.now();
 
     try {
-      if (key.domain === 'PROPERTY_RESOLUTION' || key.domain === 'TRANSACTION_RESOLUTION') {
+      if (key.domain === 'TRANSACTION_RESOLUTION') {
+        const { digest: inputDigest, rowCount: inputRowCount } = await options.partitions.contributionDigest(key);
+        const writer = await options.partitions.beginProjection(key, options.runId);
+        const output = new MultisetDigest();
+        let rows = 0;
+        try {
+          const result = await projectSales(
+            () => options.partitions.readContributions(key),
+            {
+              async resolution(row) {
+                output.add(canonicalJson(row));
+                rows += 1;
+                await writer.write('resolutions', row);
+              },
+              async conflict(row) {
+                output.add(canonicalJson(row));
+                await writer.write('conflicts', row);
+              },
+            },
+            { sort },
+          );
+          saleCount += result.saleCount;
+          manifests.push(await writer.commit({
+            inputDigest,
+            outputDigest: output.value(),
+            resolverVersion: SALE_RESOLVER_VERSION,
+            rowCount: rows,
+            inputRowCount,
+            activatedAt: options.detectedAt,
+            runId: options.runId,
+          }));
+          activations.push({ partitionId: id, state: 'activated', generation: writer.generation, reason: null });
+        } catch (e) {
+          await writer.abort();
+          throw e;
+        }
+      } else if (key.domain === 'PROPERTY_RESOLUTION') {
         const { digest: inputDigest, rowCount: inputRowCount } = await options.partitions.contributionDigest(key);
         const writer = await options.partitions.beginProjection(key, options.runId);
         const output = new MultisetDigest();
         let rows = 0;
         try {
           const result = await projectResolutions(
-            () => options.partitions.readContributions(key),
+            // Tagged with their run, so conflict provenance is read from the
+            // evidence rather than from whichever run recomputes the county.
+            () => options.partitions.readContributionsTagged(key),
             {
               async resolution(row) {
                 output.add(canonicalJson(row));
@@ -197,7 +240,7 @@ export async function recomputePartitions(options: RecomputeOptions): Promise<Re
     logger.info('partition.projected', { partitionId: id, ms: Math.round(performance.now() - started) });
   }
 
-  return { activations, manifests, resolutions, conflicts, entityLinks, resolvedCount, conflictCount, linkCount };
+  return { activations, manifests, resolutions, conflicts, entityLinks, resolvedCount, conflictCount, linkCount, saleCount };
 }
 
 /** Passes a stream through while digesting it, so the input digest costs no extra pass. */

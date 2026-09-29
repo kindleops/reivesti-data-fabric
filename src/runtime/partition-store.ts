@@ -75,6 +75,12 @@ export type PartitionStore = {
   writeContributions(key: PartitionKey, runId: string, lines: AsyncIterable<string>): Promise<number>;
   /** Every contribution the partition holds, across every run. */
   readContributions(key: PartitionKey): AsyncGenerator<string>;
+  /**
+   * The same lines, each prefixed with the run whose file it came from:
+   * `<runId>\t<line>`. What a projection reads when a conflict must name the
+   * run whose evidence produced it rather than the run recomputing it.
+   */
+  readContributionsTagged(key: PartitionKey): AsyncGenerator<string>;
   /** Order-independent digest over a partition's whole input. */
   contributionDigest(key: PartitionKey): Promise<{ digest: string; rowCount: number }>;
   beginProjection(key: PartitionKey, runId: string): Promise<PartitionWriter>;
@@ -164,6 +170,14 @@ export function createPartitionStore(root: string, options: PartitionStoreOption
       const dir = contributionsDir(key);
       for (const file of await contributionFiles(key)) {
         yield* readLines(join(dir, file));
+      }
+    },
+
+    async *readContributionsTagged(key) {
+      const dir = contributionsDir(key);
+      for (const file of await contributionFiles(key)) {
+        const runId = file.replace(/\.ndjson(\.gz)?$/, '');
+        for await (const line of readLines(join(dir, file))) yield `${runId}\t${line}`;
       }
     },
 

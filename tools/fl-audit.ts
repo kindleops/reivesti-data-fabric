@@ -311,18 +311,34 @@ async function auditPar(): Promise<Record<string, unknown>> {
     const dbf = await openDbf(readZipEntry(path, dbfE), { encoding: cpg !== null && /1252|latin/i.test(cpg) ? 'latin1' : 'utf8' });
     const fieldSig = dbf.header.fields.map((x) => `${x.name}:${x.type}:${x.length}:${x.decimals}`).join('|');
     bump(fieldSets, createHash('sha256').update(fieldSig).digest('hex').slice(0, 16));
+    if (f.role === 'condo_related') {
+      // An auxiliary unit table beside the parcel polygons: counted, not interpreted.
+      let rows = 0; const types = new Map<string, number>();
+      const shapes = shpE ? (await openShp(readZipEntry(path, shpE))).records() : null;
+      for await (const _r of dbf.records()) {
+        rows += 1;
+        if (shapes) { const s = await shapes.next(); if (!s.done) bump(types, String(s.value.shapeType)); }
+      }
+      perFile.push({ dorCode: f.dorCode, countyFips: f.countyFips, role: f.role, file: f.name, bytes: f.bytes,
+        entries: entries.map((e) => e.name.replace(/^.*\//, '')).sort(), fields: dbf.header.fields.length, rows, shapeTypes: Object.fromEntries(types) });
+      process.stderr.write(`par ${f.dorCode} ${f.role} ${rows}\n`);
+      continue;
+    }
     const fi = (n: string) => dbf.header.fields.findIndex((x) => x.name === n);
     const iCo = fi('CO_NO'); const iPid = fi('PARCEL_ID'); const iNo = fi('PARCELNO');
     const shapes = shpE ? (await openShp(readZipEntry(path, shpE))).records() : null;
     let rows = 0; let deleted = 0; let unjoined = 0; let coMismatch = 0; let pidEqNo = 0; let pidNeNo = 0; let blankNo = 0;
     let nullShapes = 0; let openRings = 0; let zeroArea = 0; let multiPart = 0;
     const perNo = new Map<string, number>();
+    const perJoinedPid = new Map<string, number>();
+    const shapeTypes = new Map<string, number>();
     const coValues = new Map<string, number>();
     for await (const r of dbf.records()) {
       rows += 1;
       if (shapes) {
         const s = await shapes.next();
         if (s.done) throw new Error(`${f.name}: .shp shorter than .dbf`);
+        bump(shapeTypes, String(s.value.shapeType));
         if (s.value.nullShape) nullShapes += 1; if (!s.value.ringsClosed) openRings += 1;
         if (s.value.area === 0) zeroArea += 1; if (s.value.parts > 1) multiPart += 1;
       }
@@ -335,6 +351,7 @@ async function auditPar(): Promise<Record<string, unknown>> {
       if (no === null) blankNo += 1; else bump(perNo, no);
       if (county === null) { unjoined += 1; continue; }
       if (county.fips !== f.countyFips) coMismatch += 1;
+      if (pid !== null) bump(perJoinedPid, pid.toUpperCase());
       if (pid !== null && no !== null && pid === no) pidEqNo += 1; else pidNeNo += 1;
     }
     if (shapes) { const extra = await shapes.next(); if (!extra.done) throw new Error(`${f.name}: .shp longer than .dbf`); }
@@ -345,7 +362,9 @@ async function auditPar(): Promise<Record<string, unknown>> {
       unit: prj ? prjLinearUnitMetres(prj) : null, codePage: cpg, dbfLastUpdate: dbf.header.lastUpdate,
       fields: dbf.header.fields.length, rows, deleted, unjoined, coNoMismatchWithFile: coMismatch,
       parcelNo: { blank: blankNo, distinct: perNo.size, repeated: [...perNo.values()].filter((v) => v > 1).length, joinedWherePARCEL_IDEqualsPARCELNO: pidEqNo, joinedWhereTheyDiffer: pidNeNo },
-      geometry: shapes ? { nullShapes, openRings, zeroArea, multiPart } : null,
+      joinedParcelIds: { distinct: perJoinedPid.size, withMoreThanOnePolygon: [...perJoinedPid.values()].filter((v) => v > 1).length,
+        extraPolygons: [...perJoinedPid.values()].reduce((a, v) => a + Math.max(0, v - 1), 0) },
+      geometry: shapes ? { nullShapes, openRings, zeroArea, multiPart, shapeTypes: Object.fromEntries(shapeTypes) } : null,
       decodeReplacements: dbf.decodeReplacements(),
     });
     process.stderr.write(`par ${f.dorCode} ${f.role} ${rows}\n`);
@@ -357,10 +376,133 @@ async function auditPar(): Promise<Record<string, unknown>> {
 }
 
 // ---------------------------------------------------------------------------
+// cross: the cadastral file's joined roll columns against the NAL itself
+// ---------------------------------------------------------------------------
+
+/** The joined columns compared, PAR name → NAL name, with how each is read. */
+const CROSS_FIELDS: readonly { readonly par: string; readonly nal: string; readonly kind: 'number' | 'text' | 'code' }[] = [
+  { par: 'ASMNT_YR', nal: 'ASMNT_YR', kind: 'number' },
+  { par: 'DOR_UC', nal: 'DOR_UC', kind: 'code' },
+  { par: 'JV', nal: 'JV', kind: 'number' },
+  { par: 'AV_SD', nal: 'AV_SD', kind: 'number' },
+  { par: 'AV_NSD', nal: 'AV_NSD', kind: 'number' },
+  { par: 'TV_SD', nal: 'TV_SD', kind: 'number' },
+  { par: 'TV_NSD', nal: 'TV_NSD', kind: 'number' },
+  { par: 'LND_VAL', nal: 'LND_VAL', kind: 'number' },
+  { par: 'LND_SQFOOT', nal: 'LND_SQFOOT', kind: 'number' },
+  { par: 'ACT_YR_BLT', nal: 'ACT_YR_BLT', kind: 'number' },
+  { par: 'TOT_LVG_AR', nal: 'TOT_LVG_AREA', kind: 'number' },
+  { par: 'NO_RES_UNT', nal: 'NO_RES_UNTS', kind: 'number' },
+  { par: 'OWN_NAME', nal: 'OWN_NAME', kind: 'text' },
+  { par: 'PHY_ADDR1', nal: 'PHY_ADDR1', kind: 'text' },
+  { par: 'PHY_CITY', nal: 'PHY_CITY', kind: 'text' },
+  { par: 'PHY_ZIPCD', nal: 'PHY_ZIPCD', kind: 'number' },
+  { par: 'S_LEGAL', nal: 'S_LEGAL', kind: 'text' },
+  { par: 'SALE_PRC1', nal: 'SALE_PRC1', kind: 'number' },
+  { par: 'SALE_YR1', nal: 'SALE_YR1', kind: 'number' },
+  { par: 'SALE_MO1', nal: 'SALE_MO1', kind: 'code' },
+  { par: 'QUAL_CD1', nal: 'QUAL_CD1', kind: 'code' },
+  { par: 'OR_BOOK1', nal: 'OR_BOOK1', kind: 'text' },
+  { par: 'STATE_PAR_', nal: 'STATE_PAR_ID', kind: 'text' },
+];
+
+type Verdict = 'EQUAL' | 'BOTH_ABSENT' | 'DBF_ZERO_FOR_BLANK' | 'TRUNCATED_EQUAL' | 'DIFFERENT' | 'NAL_ONLY' | 'PAR_ONLY';
+
+function compareCross(kind: 'number' | 'text' | 'code', parRaw: string | null, nalRaw: string | undefined, width: number): Verdict {
+  const nal = (nalRaw ?? '').trim();
+  let par = (parRaw ?? '').trim();
+  if (kind === 'number') {
+    const p = par === '' ? '' : (par.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, ''));
+    par = p;
+    const n = nal === '' ? '' : String(Number(nal)) === 'NaN' ? nal : String(Number(nal));
+    if (p === '' && n === '') return 'BOTH_ABSENT';
+    // dBASE numerics cannot be blank: 0 is what the join wrote for an absent value.
+    if (n === '' && (p === '0' || p === '')) return 'DBF_ZERO_FOR_BLANK';
+    if (p === '' ) return 'NAL_ONLY';
+    return p === n || Number(p) === Number(n) ? 'EQUAL' : 'DIFFERENT';
+  }
+  const pu = par.toUpperCase();
+  const nu = nal.toUpperCase();
+  if (pu === '' && nu === '') return 'BOTH_ABSENT';
+  if (pu === '') return 'NAL_ONLY';
+  if (nu === '') return 'PAR_ONLY';
+  if (kind === 'code') return pu.replace(/^0+(?=.)/, '') === nu.replace(/^0+(?=.)/, '') ? 'EQUAL' : 'DIFFERENT';
+  if (pu === nu) return 'EQUAL';
+  // The dBASE column is narrower than the NAL's: a prefix of the right width is the same value.
+  if (nu.length > width && nu.slice(0, width).trim() === pu) return 'TRUNCATED_EQUAL';
+  return 'DIFFERENT';
+}
+
+async function auditCross(): Promise<Record<string, unknown>> {
+  const nalRel = latestManifest('fl_dor_nal');
+  const parRel = latestManifest('fl_statewide_cadastral');
+  const statewide: Record<string, Record<Verdict, number>> = {};
+  const perCounty: Record<string, unknown>[] = [];
+  let parJoined = 0; let matched = 0; let parOnly = 0; let nalRowsTotal = 0; let nalMatched = 0;
+  for (const pf of parRel.manifest.files.filter((f) => f.role === 'county_parcels')) {
+    const nf = nalRel.manifest.files.find((f) => f.countyFips === pf.countyFips);
+    if (nf === undefined) continue;
+    // One county's NAL, only the compared columns, keyed by PARCEL_ID.
+    const { header, rows } = await csvRows(artifactPath('fl_dor_nal', nf, nalRel.manifest.referencePeriod));
+    const ix = new Map(header.map((h, i) => [h, i] as const));
+    const nalBy = new Map<string, (string | undefined)[]>();
+    for await (const cells of rows) {
+      const pid = (cells[ix.get('PARCEL_ID') as number] ?? '').trim().toUpperCase();
+      nalBy.set(pid, CROSS_FIELDS.map((c) => cells[ix.get(c.nal) as number]));
+    }
+    nalRowsTotal += nalBy.size;
+    const path = artifactPath('fl_statewide_cadastral', pf, parRel.manifest.referencePeriod);
+    const entries = (await listZipFile(path)).filter((e) => !e.isDirectory);
+    const dbfE = entries.find((e) => e.name.toLowerCase().endsWith('.dbf')) as ZipFileEntry;
+    const dbf = await openDbf(readZipEntry(path, dbfE));
+    const fi = (n: string) => dbf.header.fields.findIndex((x) => x.name === n);
+    const widths = CROSS_FIELDS.map((c) => dbf.header.fields[fi(c.par)]?.length ?? 0);
+    const cols = CROSS_FIELDS.map((c) => fi(c.par));
+    const iCo = fi('CO_NO'); const iPid = fi('PARCEL_ID');
+    const county: Record<string, Record<Verdict, number>> = {};
+    const seen = new Set<string>();
+    let cJoined = 0; let cMatched = 0;
+    for await (const r of dbf.records()) {
+      const co = r.values[iCo] ?? null;
+      if (co === null || /^0+(\.0+)?$/.test(co)) continue;
+      cJoined += 1;
+      const pid = (r.values[iPid] ?? '').trim().toUpperCase();
+      const nal = nalBy.get(pid);
+      if (nal === undefined) { parOnly += 1; continue; }
+      if (seen.has(pid)) continue; // a second polygon of one parcel compares nothing new
+      seen.add(pid);
+      cMatched += 1;
+      CROSS_FIELDS.forEach((c, k) => {
+        const v = compareCross(c.kind, r.values[cols[k] as number] ?? null, nal[k], widths[k] as number);
+        const s = (statewide[c.par] ??= {} as Record<Verdict, number>); s[v] = (s[v] ?? 0) + 1;
+        const cc = (county[c.par] ??= {} as Record<Verdict, number>); cc[v] = (cc[v] ?? 0) + 1;
+      });
+    }
+    parJoined += cJoined; matched += cMatched; nalMatched += seen.size;
+    const rate = (f: string) => { const x = county[f] ?? ({} as Record<Verdict, number>); const t = Object.values(x).reduce((a, b) => a + b, 0); return t === 0 ? null : Math.round(10000 * ((x.EQUAL ?? 0) + (x.BOTH_ABSENT ?? 0) + (x.TRUNCATED_EQUAL ?? 0) + (x.DBF_ZERO_FOR_BLANK ?? 0)) / t) / 100; };
+    perCounty.push({ dorCode: pf.dorCode, countyFips: pf.countyFips, nalStage: nf.stage, parJoinedPolygons: cJoined, matchedParcels: cMatched,
+      nalRows: nalBy.size, nalWithoutPolygon: nalBy.size - seen.size, agreementPct: Object.fromEntries(CROSS_FIELDS.map((c) => [c.par, rate(c.par)])) });
+    process.stderr.write(`cross ${pf.dorCode} ${cMatched}/${nalBy.size}\n`);
+  }
+  const agreement = Object.fromEntries(Object.entries(statewide).map(([f, v]) => {
+    const t = Object.values(v).reduce((a, b) => a + b, 0);
+    const ok = (v.EQUAL ?? 0) + (v.BOTH_ABSENT ?? 0) + (v.TRUNCATED_EQUAL ?? 0) + (v.DBF_ZERO_FOR_BLANK ?? 0);
+    return [f, { compared: t, agreePct: Math.round(10000 * ok / t) / 100, verdicts: v }];
+  }));
+  return {
+    nalReleaseManifestSha256: nalRel.sha256, parReleaseManifestSha256: parRel.sha256,
+    parJoinedPolygons: parJoined, matchedParcels: matched, parJoinedWithoutNalRow: parOnly,
+    nalRows: nalRowsTotal, nalParcelsWithPolygon: nalMatched, nalParcelsWithoutPolygon: nalRowsTotal - nalMatched,
+    agreement, perCounty,
+  };
+}
+
+// ---------------------------------------------------------------------------
 
 const out: Record<string, unknown> = {};
 if (what === 'nal' || what === 'all') { out['nal'] = await auditNal(); writeFileSync(join(OUT, 'audit-nal.json'), `${JSON.stringify(out['nal'], null, 1)}\n`); }
 if (what === 'sdf' || what === 'all') { out['sdf'] = await auditSdf(); writeFileSync(join(OUT, 'audit-sdf.json'), `${JSON.stringify(out['sdf'], null, 1)}\n`); }
 if (what === 'par' || what === 'all') { out['par'] = await auditPar(); writeFileSync(join(OUT, 'audit-par.json'), `${JSON.stringify(out['par'], null, 1)}\n`); }
+if (what === 'cross' || what === 'all') { out['cross'] = await auditCross(); writeFileSync(join(OUT, 'audit-cross.json'), `${JSON.stringify(out['cross'], null, 1)}\n`); }
 process.stdout.write(`${JSON.stringify(Object.fromEntries(Object.entries(out).map(([k, v]) => [k, { rows: (v as { totalRows?: number; totalRecords?: number }).totalRows ?? (v as { totalRecords?: number }).totalRecords }])))}\n`);
 void FL_DOR_COUNTIES;

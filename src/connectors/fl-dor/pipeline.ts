@@ -17,6 +17,7 @@
  * the gate, the ledger, the NOOP, the replay, the durability posture — is here
  * once. A replay names the release manifest's sha256 and touches no network.
  */
+import { createHash } from 'node:crypto';
 import { mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -32,9 +33,8 @@ import {
   type HttpDeps,
   type LedgerEntry,
 } from '../../runtime/bulk-acquisition.ts';
-import { createCheckpointStore } from '../../runtime/checkpoint.ts';
-import type { StreamingConnector } from '../../runtime/connector.ts';
-import { runStreamingConnector, type BatchConfiguration, type StreamRunResult } from '../../runtime/stream-run.ts';
+import type { SourceRelease, StreamingConnector } from '../../runtime/connector.ts';
+import { runStreamingConnector, type BatchConfiguration, type StreamRunOptions, type StreamRunResult } from '../../runtime/stream-run.ts';
 import {
   acquireFlRelease,
   accessOfSource,
@@ -46,7 +46,7 @@ import {
 } from './acquire.ts';
 import type { FlRollRelease } from './portal.ts';
 
-/** What a derivation hands the pipeline besides the bundle lines. */
+/** What a derivation hands the pipeline besides the snapshot lines. */
 export type FlDerivationSummary = {
   readonly rowsWritten: number;
   readonly sourceSchemaDigest: string;
@@ -65,17 +65,49 @@ export type FlDeriveInput = {
   readonly maxRows?: number;
 };
 
+/**
+ * A derivation: county files → snapshot lines, a pure function of retained
+ * bytes. Pulled by the runtime one line at a time; never stored.
+ */
+export type FlDerivation = {
+  readonly lines: AsyncIterable<string>;
+  /** Valid once `lines` is exhausted. */
+  summary(): FlDerivationSummary;
+};
+
 /** One Florida source, as the engine sees it. */
 export type FlSourceSpec = {
   readonly sourceId: string;
   readonly mappingId: string;
   readonly kind: FlRollRelease['kind'];
   discover(http: HttpDeps): Promise<FlRollRelease>;
-  derive(input: FlDeriveInput, write: (line: string) => Promise<void>): Promise<FlDerivationSummary>;
-  connector(referencePeriod: string): StreamingConnector;
-  /** The bundle's own filename in the artifact store. */
-  readonly bundleFilename: string;
+  derive(input: FlDeriveInput): FlDerivation;
+  connector(manifest: FlReleaseManifest): StreamingConnector;
 };
+
+/**
+ * The release the runtime records for a Florida roll.
+ *
+ * The roll year alone is not a release: a county moving from preliminary to
+ * final, or re-submitting a corrected file, changes the release inside the same
+ * year. The period therefore carries the release fingerprint, so each release
+ * is its own snapshot and its observations never collide with the previous
+ * one's — while the storage period of the files stays the roll year.
+ */
+export function flRuntimeRelease(sourceId: string, sourceName: string, manifest: FlReleaseManifest): SourceRelease {
+  const referencePeriod = `${manifest.rollYear}-${manifest.releaseFingerprint.slice(0, 12)}`;
+  return {
+    releaseId: `${sourceId}__${referencePeriod}`,
+    sourceId,
+    releaseLabel: `${sourceName} ${manifest.rollYear} (${Object.entries(manifest.stageCounts).map(([k, v]) => `${v} ${k}`).join(', ')})`,
+    referencePeriod,
+    publicationAt: manifest.files.map((f) => f.lastModified).filter((x): x is string => x !== null).sort().at(-1) ?? null,
+    // Finality is per county and travels on every row; the release as a whole
+    // is final only when every county's file is.
+    finality: Object.keys(manifest.stageCounts).every((k) => k === 'FINAL') ? 'final' : 'provisional',
+    sourceVersion: String(manifest.rollYear),
+  };
+}
 
 export type FlPipelineOptions = {
   readonly registry: Registry;
@@ -97,6 +129,10 @@ export type FlPipelineOptions = {
   readonly maxRows?: number;
   /** A dry run computes every change count and writes nothing: the idempotency probe. */
   readonly dryRun?: boolean;
+  /** See `StreamRunOptions.canonicalRetention`. Statewide certification runs use `digest_only`. */
+  readonly canonicalRetention?: 'full' | 'digest_only';
+  /** Sees every normalized row: the in-stream leakage audit. */
+  readonly inspect?: StreamRunOptions['inspect'];
 };
 
 export type FlPipelineResult = {
@@ -104,7 +140,9 @@ export type FlPipelineResult = {
   readonly release: FlRollRelease | null;
   readonly acquisition: FlAcquisition | null;
   readonly manifestArtifact: ArchivedArtifact | null;
-  readonly bundleArtifact: ArchivedArtifact | null;
+  /** Digest and line count of the derived snapshot stream, when it was read to the end. */
+  readonly derivedSha256: string | null;
+  readonly derivedLines: number;
   readonly derivation: FlDerivationSummary | null;
   readonly run: StreamRunResult | null;
   readonly ledger: LedgerEntry | null;
@@ -120,7 +158,7 @@ export async function runFlPipeline(spec: FlSourceSpec, options: FlPipelineOptio
   const timings: Record<string, number> = {};
   const memory = memorySampler();
   let release: FlRollRelease | null = options.discovered ?? null;
-  const empty = { acquisition: null, manifestArtifact: null, bundleArtifact: null, derivation: null, run: null };
+  const empty = { acquisition: null, manifestArtifact: null, derivedSha256: null, derivedLines: 0, derivation: null, run: null };
 
   try {
     const gate = assessActivation(source);
@@ -262,66 +300,44 @@ async function deriveAndIngest(
   for (const f of ctx.files) await options.artifactStore.verify(f.artifact);
   timings['verify'] = Math.round(performance.now() - t);
 
-  // ---- derive: county files → one statewide bundle, a pure function of them ----
+  // ---- derive + ingest: county files → snapshot lines → runtime, nothing stored ----
   t = performance.now();
   const scratch = join(options.varRoot, 'scratch', `fl-derive-${Date.now().toString(36)}`);
   await mkdir(scratch, { recursive: true, mode: 0o700 });
-  let derivation: FlDerivationSummary | null = null;
-  const bundle = await options.artifactStore.archiveStream(
-    {
-      sourceAuthority: source.sourceAuthority,
-      sourceProgram: source.sourceProgram,
-      sourceFamily: source.sourceFamily,
-      sourceId: source.sourceId,
-      releaseId: `${source.sourceId}__${manifest.referencePeriod}`,
-      referencePeriod: manifest.referencePeriod,
-      originalUrl: null,
-      originalFilename: spec.bundleFilename,
-      // The release manifest's retrieval instant, never "now": the bundle must
-      // be a pure function of retained evidence for a replay to be a proof.
-      retrievedAt: ctx.manifestArtifact.manifest.retrievedAt,
-      effectiveAt: null,
-      jurisdictionIds: ctx.manifestArtifact.manifest.jurisdictionIds,
-      access: accessOfSource(source),
-    },
-    async (sink) => {
-      derivation = await spec.derive({
-        manifest, files: ctx.files, artifactStore: options.artifactStore, scratchDir: scratch,
-        ...(options.maxRows !== undefined ? { maxRows: options.maxRows } : {}),
-      }, (line) => sink.write(`${line}\n`));
-    },
-  ).finally(() => rm(scratch, { recursive: true, force: true }));
-  timings['derive'] = Math.round(performance.now() - t);
-  const derived = derivation as FlDerivationSummary | null;
-  if (derived === null) fail('CONFIG', 'bundle derivation produced no summary');
-  logger.info('fl.derived', { bundle: bundle.sha256, rows: derived.rowsWritten });
-
-  // ---- ingest ---------------------------------------------------------------
-  await createCheckpointStore(options.varRoot).write({
-    version: 1,
-    sourceId: source.sourceId,
-    referencePeriod: manifest.referencePeriod,
-    releaseId: bundle.manifest.releaseId,
-    artifactId: bundle.artifactId,
-    sha256: bundle.sha256,
-    byteLength: bundle.byteLength,
-    storagePath: bundle.storagePath,
-    manifestPath: bundle.manifestPath,
-    completedAt: clock.now().toISOString(),
+  const derivation = spec.derive({
+    manifest, files: ctx.files, artifactStore: options.artifactStore, scratchDir: scratch,
+    ...(options.maxRows !== undefined ? { maxRows: options.maxRows } : {}),
   });
+  // The derived stream is digested as the runtime pulls it: the digest a
+  // stored bundle would have had, without storing it. A replay must reproduce it.
+  const digest = createHash('sha256');
+  let derivedLines = 0;
+  let exhausted = false;
+  async function* digested(): AsyncGenerator<string> {
+    for await (const line of derivation.lines) {
+      digest.update(line);
+      digest.update('\n');
+      derivedLines += 1;
+      yield line;
+    }
+    exhausted = true;
+  }
   const dryRun = options.dryRun === true || options.maxRows !== undefined;
-  t = performance.now();
   const run = await runStreamingConnector({
     registry: options.registry,
-    connector: spec.connector(manifest.referencePeriod),
+    connector: spec.connector(manifest),
     mappingId: spec.mappingId,
     artifactStore: options.artifactStore,
     contactPlane: options.contactPlane,
     varRoot: options.varRoot,
     clock,
     logger: options.logger ?? silentLogger(),
-    referencePeriod: manifest.referencePeriod,
-    resume: true,
+    derived: {
+      artifact: ctx.manifestArtifact,
+      release: flRuntimeRelease(source.sourceId, source.sourceName, manifest),
+      lines: digested,
+      replay: ctx.action === 'REPLAYED',
+    },
     // A truncated smoke run or an idempotency probe computes everything and
     // replaces nothing: no live index, no absence, no activation.
     dryRun,
@@ -329,8 +345,13 @@ async function deriveAndIngest(
     // moved are recomputed.
     skipUnchangedPartitions: true,
     ...(options.batch ? { batch: options.batch } : {}),
-  });
-  timings['ingest'] = Math.round(performance.now() - t);
+    ...(options.canonicalRetention ? { canonicalRetention: options.canonicalRetention } : {}),
+    ...(options.inspect ? { inspect: options.inspect } : {}),
+  }).finally(() => rm(scratch, { recursive: true, force: true }));
+  timings['derive_and_ingest'] = Math.round(performance.now() - t);
+  const derived: FlDerivationSummary | null = exhausted ? derivation.summary() : null;
+  const derivedSha256 = exhausted ? digest.digest('hex') : null;
+  logger.info('fl.derived', { lines: derivedLines, sha256: derivedSha256, rows: derived?.rowsWritten ?? null });
 
   const completed = run.run.status === 'completed';
   const action: LedgerEntry['action'] = !completed ? 'FAILED'
@@ -345,7 +366,9 @@ async function deriveAndIngest(
     // The release manifest names every county file; its digest pins them all.
     publisherSha256: ctx.manifestArtifact.sha256,
     publisherBytes: manifest.files.reduce((sum, f) => sum + f.bytes, 0),
-    bundleSha256: bundle.sha256,
+    // The digest of the derived snapshot stream: what a stored bundle's sha256
+    // would have been. Recorded so a replay can be held to it.
+    bundleSha256: derivedSha256,
     runId: run.run.runId,
     runStatus: run.run.status,
     normalizedDigest: run.run.normalizedDigest,
@@ -360,7 +383,8 @@ async function deriveAndIngest(
     release: ctx.release,
     acquisition: ctx.acquisition,
     manifestArtifact: ctx.manifestArtifact,
-    bundleArtifact: bundle,
+    derivedSha256,
+    derivedLines,
     derivation: derived,
     run,
     ledger: entry,

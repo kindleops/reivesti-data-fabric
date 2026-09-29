@@ -28,7 +28,10 @@ export type ContactType =
   | 'unstructured_submitter_block'
   /** A taxpayer or owner mailing address. Useful for ownership resolution,
    *  personal enough that it lives here rather than on a canonical party. */
-  | 'mailing_address';
+  | 'mailing_address'
+  /** A care-of / fiduciary name-and-address block (Florida's FIDU_*): who
+   *  receives the owner's mail. Personal data about a third party; restricted. */
+  | 'care_of_block';
 
 /**
  * What the observation may lawfully be used for. `record_only` is the default
