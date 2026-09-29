@@ -366,6 +366,20 @@ test('23 the situs is kept as published, keyed with its city and ZIP, and never 
   assert.equal(address.propertyId, null);
 });
 
+test('23b a placeholder situs with no house number is kept as text and never compared', async () => {
+  const e = estate({ nal: { '44': [nalRow(LAFAYETTE, 'PH-1', { PHY_ADDR1: 'UNKNOWN' }), nalRow(LAFAYETTE, 'PH-2', { PHY_ADDR1: 'UNKNOWN' })] } });
+  const r = await e.run(FL_NAL_SPEC, { canonicalRetention: 'full' });
+  assert.equal(r.outcome, 'INGESTED');
+  const bundles = (await bundlesOf(e, FL_NAL_SOURCE_ID)).filter((b) => String(b.propertyIdentifiers[0].value).startsWith('PH-'));
+  assert.equal(bundles.length, 2);
+  for (const b of bundles) {
+    assert.ok(!b.propertyIdentifiers.some((p: { identifierType: string }) => p.identifierType === 'normalized_address'));
+    assert.equal(b.characteristics[0].characteristics.situs_address, 'UNKNOWN, MAYO, 32066');
+  }
+  const conflicts = await e.table('property', LAFAYETTE.fips, 'conflicts');
+  assert.ok(!conflicts.some((c) => c['conflictKind'] === 'address_matches_different_pid'));
+});
+
 test('24 null is not zero: a blank price is absent with its reason, a stated 0 is zero, a dBASE zero year states nothing', async () => {
   const { e } = await ingested();
   const sales = await bundlesOf(e, FL_SDF_SOURCE_ID);

@@ -453,11 +453,20 @@ function joinParts(parts: readonly (string | undefined)[]): string | null {
  * The situs: the address as published, plus the comparison key the resolution
  * fold uses. The key includes the city and ZIP, so "100 MAIN ST" in two towns
  * of one county is two addresses, not a shared-address conflict.
+ *
+ * A situs line with no digit in it gets no comparison key. The statewide audit
+ * found the largest shared situs values are placeholders, not addresses — a
+ * single seven-letter word on 40,356 Brevard parcels, others on 11,000–14,000
+ * in Martin, Marion and Monroe — on vacant, common-element, park and
+ * government land. Comparing those would report forty thousand parcels as
+ * rivals for one address. The text is kept verbatim on the characteristics
+ * observation; only the comparison is withheld.
  */
 function situsOf(f: Readonly<Record<string, string>>): { readonly text: string | null; readonly key: string | null; readonly canonicalKey: string | null } {
   const line1 = f['PHY_ADDR1'];
   if (line1 === undefined || !/[A-Z0-9]/i.test(line1)) return { text: null, key: null, canonicalKey: null };
   const text = joinParts([line1, f['PHY_ADDR2'], f['PHY_CITY'], f['PHY_ZIPCD']]) as string;
+  if (!/[0-9]/.test(line1)) return { text, key: null, canonicalKey: null };
   const canonical = canonicalAddress({
     houseNumber: null, houseNumberPrefix: null, houseNumberSuffix: null, preDirectional: null, preType: null,
     streetName: [line1, f['PHY_ADDR2']].filter((x) => x !== undefined).join(' '),
