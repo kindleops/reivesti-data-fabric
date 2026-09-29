@@ -229,6 +229,38 @@ test('the same version republished with new bytes is detected as a republication
   assert.equal(next.plan?.action === 'ACQUIRE' && next.plan.reason, 'REPUBLISHED_RELEASE');
 });
 
+test('a truncated smoke run on a live estate activates nothing and records no absence', async () => {
+  const w = await ingestedBase();
+  const state = async () => (await createPartitionStore(w.h.varRoot).manifests())
+    .map((m) => [m.partitionId, m.generation, m.outputDigest]);
+  const before = await state();
+  const smoke = await w.run({ maxRows: 3, mode: 'force' });
+  assert.equal(smoke.ledger?.action, 'TRUNCATED_SMOKE_RUN');
+  assert.deepEqual(await state(), before, 'no partition moved');
+  // Had the smoke run replaced the indexes, the parcels it did not read would
+  // now be "absent", and the next full run would report them as reappeared.
+  const full = await w.run({ mode: 'force' });
+  assert.equal(full.run?.run.status, 'completed');
+  assert.equal(full.run?.changeCounts.parcel_reappeared, 0);
+  assert.equal(full.run?.changeCounts.parcel_missing_from_latest_source, 0);
+  assert.equal(full.run?.run.metrics.rowsNew, 0);
+});
+
+test('a witness that disagrees with the archive activates nothing and names the release that failed', async () => {
+  const w = harness();
+  const built = release(baseRows());
+  w.publisher.publish(built, { serviceCount: BASE_VALID + 1 });
+  const result = await w.run();
+  assert.equal(result.outcome, 'FAILED');
+  assert.equal(result.run, null, 'the runtime never started');
+  assert.deepEqual(await createPartitionStore(w.h.varRoot).manifests(), [], 'no partition was activated');
+  const failed = (await createAcquisitionLedger(w.h.varRoot, WI_STATEWIDE_SOURCE_ID).entries()).at(-1);
+  assert.equal(failed?.action, 'FAILED');
+  assert.equal(failed?.runStatus, 'crosscheck_disagrees');
+  assert.equal(failed?.referencePeriod, 'V12.0.0-2026');
+  assert.equal(failed?.releaseFingerprint, result.discovered?.releaseFingerprint);
+});
+
 test('a truncated smoke run never counts as an ingestion of the release', async () => {
   const w = harness();
   w.publisher.publish(release(baseRows()));
@@ -308,7 +340,14 @@ test('the county inventory reconciles against the federal catalogue', async () =
   assert.equal(counties.expected, 72);
   assert.deepEqual(counties.extra, []);
   assert.ok(counties.missing.length > 0, 'a six-county fixture is missing counties, and says so');
-  assert.equal(reconcileWiCounties(new Map(WI_V12_COUNTY_INVENTORY.map((c) => [c.fips, c.sourceRows]))).matches, true);
+  const rawByConame = Object.fromEntries(WI_V12_COUNTY_INVENTORY.map((c) => [c.name, c.sourceRows]));
+  const reconciled = reconcileWiCounties(new Map(WI_V12_COUNTY_INVENTORY.map((c) => [c.fips, c.sourceRows - 1])), rawByConame);
+  assert.equal(reconciled.matches, true);
+  // Accepted counts below the raw inventory (placeholders quarantined) are not a change.
+  assert.deepEqual(reconciled.rowCountChanges, []);
+  // A real movement in the raw publisher rows of one county is.
+  const moved = reconcileWiCounties(new Map(WI_V12_COUNTY_INVENTORY.map((c) => [c.fips, 1])), { ...rawByConame, ADAMS: 38490 });
+  assert.deepEqual(moved.rowCountChanges, [{ fips: '55001', expected: 38489, actual: 38490 }]);
   assert.equal(WI_V12_COUNTY_INVENTORY.reduce((s, c) => s + c.sourceRows, 0), 3_574_645);
 });
 

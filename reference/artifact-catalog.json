@@ -1,6 +1,6 @@
 {
-  "catalogVersion": 1,
-  "note": "Every artifact Reivesti has certified against, including those whose bytes no longer exist. Git pins the expectation; `df artifacts catalog` reconciles it against the workspace and the durable store. States: DURABLE, EPHEMERAL_ONLY, MISSING_BYTES, REACQUIRABLE (exact bytes gone; the publisher still serves them, proven only by an equal sha256 on re-download), REGENERABLE (derived; rebuildable from a raw artifact), LOST_EXACT_BYTES (gone; the digest remains as evidence of what was certified).",
+  "catalogVersion": 2,
+  "note": "Every artifact Reivesti has certified against, including those whose bytes no longer exist. Git pins the expectation; `df artifacts catalog` reconciles it against the workspace and the durable store. States: DURABLE, EPHEMERAL_ONLY, MISSING_BYTES, REACQUIRABLE (exact bytes gone; the publisher still serves them, proven only by an equal sha256 on re-download), REGENERABLE (derived; rebuildable from a raw artifact), LOST_EXACT_BYTES (gone; the digest remains as evidence of what was certified). certifiedRetrieval, where present, is the certified manifest's retrieval facts: `df artifacts reacquire` restores them with exact bytes, so a replay reproduces the certified digests; without it a reacquisition of exact bytes is a NEW retrieval of those bytes. Status as of 2026-09-29: no production durable store exists (DF-0L production object storage is DEFERRED_INFRA); the DF-0L test store was disposable and died with its container.",
   "entries": [
     {
       "sha256": "b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df",
@@ -14,7 +14,96 @@
       "contentEncoding": "identity",
       "firstSeenAt": "2026-09-28T03:56:42.969Z",
       "expectedState": "REACQUIRABLE",
-      "note": "DF-0K certification input. Publisher ETag \"eb1985c678037a0288beda1e02a1ef79-73\", S3 version 0000019f-1a5f-05d1-f2b8-14a30909537e. If the workspace and durable copies are both gone, `df artifacts reacquire` re-downloads and accepts only this exact sha256."
+      "note": "DF-0K certification input. Publisher ETag \"eb1985c678037a0288beda1e02a1ef79-73\", S3 version 0000019f-1a5f-05d1-f2b8-14a30909537e. Retained on the active worker's execution disk only (no production durable store). If lost, `df artifacts reacquire` re-downloads, accepts only this exact sha256, and restores the certified manifest pinned here \u2014 proven by the DF-0L fresh-worker replay reproducing every certified digest from these bytes and this manifest.",
+      "certifiedRetrieval": {
+        "releaseId": "wi_statewide_parcels__V12.0.0-2026",
+        "retrievedAt": "2026-09-28T03:56:42.969Z",
+        "effectiveAt": "2026-06-30T21:11:02.000Z",
+        "sourceAuthority": "Wisconsin State Cartographer's Office / Wisconsin Land Information Program (DOA)",
+        "sourceProgram": "Statewide Parcel Map Initiative \u2014 annual statewide parcel database",
+        "sourceFamily": "state_parcel_aggregation",
+        "jurisdictionIds": [
+          "us-county-55001",
+          "us-county-55003",
+          "us-county-55005",
+          "us-county-55007",
+          "us-county-55009",
+          "us-county-55011",
+          "us-county-55013",
+          "us-county-55015",
+          "us-county-55017",
+          "us-county-55019",
+          "us-county-55021",
+          "us-county-55023",
+          "us-county-55025",
+          "us-county-55027",
+          "us-county-55029",
+          "us-county-55031",
+          "us-county-55033",
+          "us-county-55035",
+          "us-county-55037",
+          "us-county-55039",
+          "us-county-55041",
+          "us-county-55043",
+          "us-county-55045",
+          "us-county-55047",
+          "us-county-55049",
+          "us-county-55051",
+          "us-county-55053",
+          "us-county-55055",
+          "us-county-55057",
+          "us-county-55059",
+          "us-county-55061",
+          "us-county-55063",
+          "us-county-55065",
+          "us-county-55067",
+          "us-county-55069",
+          "us-county-55071",
+          "us-county-55073",
+          "us-county-55075",
+          "us-county-55077",
+          "us-county-55078",
+          "us-county-55079",
+          "us-county-55081",
+          "us-county-55083",
+          "us-county-55085",
+          "us-county-55087",
+          "us-county-55089",
+          "us-county-55091",
+          "us-county-55093",
+          "us-county-55095",
+          "us-county-55097",
+          "us-county-55099",
+          "us-county-55101",
+          "us-county-55103",
+          "us-county-55105",
+          "us-county-55107",
+          "us-county-55109",
+          "us-county-55111",
+          "us-county-55113",
+          "us-county-55115",
+          "us-county-55117",
+          "us-county-55119",
+          "us-county-55121",
+          "us-county-55123",
+          "us-county-55125",
+          "us-county-55127",
+          "us-county-55129",
+          "us-county-55131",
+          "us-county-55133",
+          "us-county-55135",
+          "us-county-55137",
+          "us-county-55139",
+          "us-county-55141"
+        ],
+        "access": {
+          "accessType": "bulk_download",
+          "automationStatus": "sanctioned",
+          "carriesRestrictedContact": true,
+          "licenseStatus": "open_with_attribution",
+          "termsStatus": "reviewed_permitted"
+        }
+      }
     },
     {
       "sha256": "b622edfec5fb21f3b82ef740b4fee48c756b7bf776981d48a6ea39e6e5e3a909",
@@ -28,7 +117,7 @@
       "contentEncoding": "identity",
       "firstSeenAt": "2026-09-28T03:56:42.969Z",
       "expectedState": "REGENERABLE",
-      "note": "Derived deterministically from b22bfaad…; DF-0K proved byte-identical re-derivation with the network off. Not uploaded: 59 s to rebuild."
+      "note": "Derived deterministically from b22bfaad\u2026; DF-0K proved byte-identical re-derivation with the network off. Not uploaded: 59 s to rebuild."
     },
     {
       "sha256": "e3d54ee1900a15f3e93cf38cce49c89bd988bb5bbe70a962bfe762f8daf30f08",
@@ -42,7 +131,7 @@
       "contentEncoding": "identity",
       "firstSeenAt": "2026-09-28T02:36:00Z",
       "expectedState": "REACQUIRABLE",
-      "note": "The GeoPackage the DF-0K Minnesota baseline was built from. Deleted from execution disk in DF-0K to free space — exactly the failure DF-0L removes. MnGeo republishes in place; reacquisition counts only on an equal sha256."
+      "note": "The GeoPackage the DF-0K Minnesota baseline was built from. Deleted from execution disk in DF-0K; re-downloaded in DF-0L with the SAME sha256 (exact bytes restored), then held only by the disposable DF-0L test store, which died with its container on 2026-09-29. The DF-0K retrieval instant was never pinned, so a reacquisition restores the exact bytes but is a new retrieval of them: the bundle derived from it would not be byte-identical to 24b35d8a\u2026. MnGeo republishes in place; reacquisition counts only on an equal sha256."
     },
     {
       "sha256": "24b35d8a6c7ed14c912449da9d06f1d1a77b6f2c108e514cf2abb7d03b58e708",
@@ -55,8 +144,8 @@
       "contentType": "application/x-ndjson",
       "contentEncoding": "identity",
       "firstSeenAt": "2026-09-28T02:39:00Z",
-      "expectedState": "EPHEMERAL_ONLY",
-      "note": "The converted bundle the DF-0K Minnesota estate was ingested from; derived from e3d54ee1…. Its header embeds a conversion time, so regeneration needs the same retrieval instant."
+      "expectedState": "LOST_EXACT_BYTES",
+      "note": "The converted bundle the DF-0K Minnesota estate was ingested from (derived from e3d54ee1\u2026); the DF-0L fresh worker replayed it network-off to the certified canonical digest c0cdc535\u2026. Its last copies were the disposable DF-0L test store (gone with its container, 2026-09-29) and that worker's workspace copy, deleted during the DF-0L Wisconsin replay to free disk on the mistaken premise that the test store would outlive the container. Its header embeds the DF-0K retrieval instant, which was never pinned, so it cannot be regenerated byte-identically. The digest and c0cdc535\u2026 remain the evidence."
     },
     {
       "sha256": "31a5f1c3a32919e242e1d14b7499c8a7eaea2b6f6b3d138b801d9733468a5232",
@@ -70,7 +159,7 @@
       "contentEncoding": "identity",
       "firstSeenAt": "2026-08-31T00:00:00Z",
       "expectedState": "LOST_EXACT_BYTES",
-      "note": "DF-0H/DF-0I certification input, on a prior container. MnGeo has since republished the same URL with different bytes (e3d54ee1…), so these exact bytes cannot be re-fetched. The digest is retained as evidence of what DF-0H certified."
+      "note": "DF-0H/DF-0I certification input, on a prior container. MnGeo has since republished the same URL with different bytes (e3d54ee1\u2026), so these exact bytes cannot be re-fetched. The digest is retained as evidence of what DF-0H certified."
     },
     {
       "sha256": null,

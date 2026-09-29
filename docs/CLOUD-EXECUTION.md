@@ -7,6 +7,40 @@ worker cannot rebuild from the durable artifact store
 yet, from the publisher. No step requires any particular laptop, container or
 person.
 
+## 0. Status (recorded 2026-09-29)
+
+| DF-0L | Status |
+|---|---|
+| ARCHITECTURE / IMPLEMENTATION | **PASS** |
+| PRODUCTION DURABLE STORE | **DEFERRED_INFRA** — provisioning deferred by the owner; not a blocker for source expansion |
+| LOCAL MAC REQUIRED | **NO** |
+| CLOUD EXECUTION | **ACTIVE** |
+
+### Standing interim policy (until a production durable store exists)
+
+1. Operate entirely from Claude cloud workers.
+2. GitHub is canonical for code, migrations, tests, schemas, docs and small
+   aggregate evidence.
+3. Nothing is required from anyone's local computer.
+4. Nobody downloads source data by hand.
+5. A new core source must be $0, official, lawfully automatable, fully
+   unattended and reproducible.
+6. Source artifacts are retained on the active worker's execution disk while it
+   lives.
+7. Every publisher artifact's sha256, byte count, release fingerprint, schema
+   digest and provenance are pinned in repository-safe metadata
+   (`reference/artifact-catalog.json`, `reference/<source>/…`), including the
+   certified manifest's retrieval facts (`certifiedRetrieval`).
+8. If a worker disappears: reacquire automatically from the official publisher
+   (`df artifacts reacquire`); only an exact sha256 match is a restoration, and
+   only then is the certified manifest restored with it; different bytes are
+   registered as a NEW release; historical byte identity is never fabricated.
+9. Completed phase code and aggregate evidence are pushed to GitHub promptly.
+10. Production durable object storage (§8) is a later infrastructure task.
+
+Under this policy `DF_ARTIFACT_BACKEND` is unset: acquisition keeps raw bytes in
+the workspace store, and no step pretends they are durable.
+
 ## 1. What a worker needs
 
 | Need | Source |
@@ -109,9 +143,11 @@ fingerprint). CI never
 receives production credentials; the S3 contract runs against the disposable
 IAM-enforcing peer.
 
-## 8. Provisioning the durable store (operator action)
+## 8. Provisioning the durable store (operator action — DEFERRED_INFRA)
 
-The repository cannot create credentials, and must not contain them. One-time:
+Deferred by the owner on 2026-09-29; recorded here so it can be done later
+without rediscovery. The repository cannot create credentials, and must not
+contain them. One-time:
 
 1. Create a **private** bucket (e.g. `data-fabric-artifacts`) in an
    S3-compatible store. On the existing Supabase project this is Storage →
@@ -149,4 +185,10 @@ receipt to the unreachable store. Replays are now write-free (regression test in
 
 **Caveat, stated plainly:** the durable store in that proof was a disposable
 S3-compatible peer inside the same container. The mechanics are certified; the
-estate's survival beyond this container is not, until §8 is done.
+estate's survival beyond this container is not, until §8 is done. The container
+restarted on 2026-09-29 and that peer died with it, taking the only remaining
+copy of the Minnesota bundle `24b35d8a…` (now `LOST_EXACT_BYTES` in the
+catalog): its workspace copy had been deleted during the Wisconsin replay to
+free disk, on the premise that the test store would outlive the container. That
+is the exact failure the invariant names, and why §0 item 7 pins certified
+retrieval facts in Git.

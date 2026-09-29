@@ -61,6 +61,12 @@ export type BundleDerivation = {
   readonly validRowCount: number;
   readonly rowsWritten: number;
   readonly rowsWithoutGeometry: number;
+  /**
+   * Every publisher row, grouped by the raw CONAME string (null as `(null)`),
+   * placeholders included — the basis the county inventory was measured on.
+   * Bounded by the number of distinct CONAME values, not by rows.
+   */
+  readonly rowsByConame: Readonly<Record<string, number>>;
   readonly deletedSlots: number;
   readonly fields: readonly { readonly name: string; readonly type: string; readonly length?: number }[];
   readonly sourceSchemaDigest: string;
@@ -157,11 +163,15 @@ export async function deriveWiBundle(
       let rowsWritten = 0;
       let rowsWithoutGeometry = 0;
       let lastObjectId = 0;
+      const byConame = new Map<string, number>();
       for await (const row of table.rows()) {
         if (input.maxRows !== undefined && rowsWritten >= input.maxRows) break;
         // Nulls are already omitted by the reader, exactly as the REST API omits
         // them, so a row digests the same whichever path delivered it.
         await write(JSON.stringify(row.attributes));
+        const coname = (row.attributes as Record<string, unknown>)['CONAME'];
+        const conameKey = typeof coname === 'string' ? coname : '(null)';
+        byConame.set(conameKey, (byConame.get(conameKey) ?? 0) + 1);
         if (row.geometryBytes === null) rowsWithoutGeometry += 1;
         rowsWritten += 1;
         lastObjectId = row.objectId;
@@ -185,6 +195,7 @@ export async function deriveWiBundle(
         validRowCount: info.validRowCount,
         rowsWritten,
         rowsWithoutGeometry,
+        rowsByConame: Object.fromEntries([...byConame].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))),
         deletedSlots: complete ? info.indexedRowCount - rowsWritten : 0,
         fields,
         sourceSchemaDigest,

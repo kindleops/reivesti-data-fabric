@@ -14,6 +14,7 @@
  *   df runs                           run history
  *   df auto <mappingId>               unattended: discover → NOOP | acquire → derive → ingest
  */
+import { fileURLToPath } from 'node:url';
 import { createArtifactStore, createStreamingArtifactStore, artifactDir, type ArchivedArtifact } from '../archive/artifact-store.ts';
 import { createFilesystemObjectStore, createStreamingFilesystemObjectStore } from '../archive/object-store.ts';
 import { createContactPlane } from '../contact/contact-plane.ts';
@@ -75,7 +76,7 @@ import { createRateLimiter } from '../runtime/retry.ts';
 
 const VAR_ROOT = process.env['DF_VAR'] ?? 'var';
 /** The repository this CLI runs from — never a machine path. */
-const REPO_ROOT = new URL('../..', import.meta.url).pathname.replace(/\/$/, '');
+const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url)).replace(/\/$/, '');
 const ARCHIVE_ROOT_DIR = process.env['DF_ARCHIVE'] ?? `${VAR_ROOT}/archive`;
 
 type Args = { readonly command: string; readonly positional: readonly string[]; readonly flags: Readonly<Record<string, string | boolean>> };
@@ -593,13 +594,18 @@ async function main(): Promise<number> {
       if (sub === 'reacquire') {
         const entry = pinned.find((e) => e.sha256 === sha);
         if (!entry) { process.stderr.write('reacquire needs --sha of a catalogued publisher_raw artifact\n'); return 2; }
-        const result = await reacquire(entry, workspace, systemClock.now().toISOString());
+        const result = await reacquire(entry, workspace, {
+          registry: defaultRegistry(), now: systemClock.now().toISOString(), scratchDir: `${VAR_ROOT}/scratch`,
+        });
         let commit = null;
         if (result.restored && store) {
           commit = await pushArtifact(store, workspace, result.artifact, 'publisher_raw', entry.contentType ?? 'application/octet-stream', null);
         }
-        out({ restored: result.restored, expected: result.expected, actual: result.actual, bytes: result.bytes, durableCommit: commit,
-          verdict: result.restored ? 'EXACT_BYTES_RESTORED' : 'DIFFERENT_BYTES: a new release, NOT a restoration' });
+        out({ restored: result.restored, manifestRestored: result.manifestRestored, expected: result.expected, actual: result.actual,
+          bytes: result.bytes, durableCommit: commit,
+          verdict: !result.restored ? 'DIFFERENT_BYTES: a new release, NOT a restoration'
+            : result.manifestRestored ? 'EXACT_BYTES_RESTORED: certified manifest restored; replay reproduces the certified digests'
+            : 'EXACT_BYTES_RESTORED: no certified manifest was pinned, so this is a new retrieval of the certified bytes' });
         return result.restored ? 0 : 1;
       }
       if (!store) { process.stderr.write('no durable artifact backend is configured (DF_ARTIFACT_BACKEND)\n'); return 2; }

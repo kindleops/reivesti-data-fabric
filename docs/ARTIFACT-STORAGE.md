@@ -108,20 +108,27 @@ downloaded to scratch; line-oriented bundles stream.
 ## 8. Catalog — what exists, including what doesn't
 
 `df artifacts catalog [--verify]` reconciles the Git catalog with the workspace
-and the durable store. As certified from a fresh worker on 2026-09-28:
+and the durable store. There is **no production durable store** (DF-0L
+production storage is `DEFERRED_INFRA`, see
+[`CLOUD-EXECUTION.md`](CLOUD-EXECUTION.md) §0); the DF-0L proof reported
+`DURABLE` only against a disposable in-container test store, which no longer
+exists. Pinned states as of 2026-09-29:
 
 | Artifact | Bytes | State |
 |---|---:|---|
-| WI V12 publisher archive `b22bfaad…` | 759,926,092 | **DURABLE** (re-hashed) |
+| WI V12 publisher archive `b22bfaad…` | 759,926,092 | **REACQUIRABLE** — retained on the active worker only; certified manifest pinned, so a reacquisition of exact bytes replays to the certified digests |
 | WI V12 derived bundle `b622edfe…` | 2,724,190,106 | REGENERABLE (59 s from the raw, byte-identical) |
-| MN GeoPackage `e3d54ee1…` (DF-0K baseline input) | 2,610,774,016 | **DURABLE** — deleted from disk in DF-0K, re-downloaded in DF-0L, **same sha256**, then made durable |
-| MN derived bundle `24b35d8a…` | 2,526,486,899 | **DURABLE** |
+| MN GeoPackage `e3d54ee1…` (DF-0K baseline input) | 2,610,774,016 | **REACQUIRABLE** — re-downloaded in DF-0L with the same sha256; its DF-0K retrieval instant was never pinned |
+| MN derived bundle `24b35d8a…` | 2,526,486,899 | **LOST_EXACT_BYTES** — its last copies were the test store and a workspace copy deleted to free disk; not byte-regenerable (header embeds the unpinned DF-0K instant) |
 | MN GeoPackage `31a5f1c3…` (DF-0H) | 2,624,212,992 | **LOST_EXACT_BYTES** — publisher has republished; digest retained |
 | MN bundle `5f9251f9…` (DF-0H) | 2,526,658,472 | **LOST_EXACT_BYTES** — only an 8-char prefix was ever recorded |
 | Hennepin crawl `8ec2d7a7…` (DF-0D) | 1,108,716,098 | **LOST_EXACT_BYTES** — a live-service crawl is not byte-reproducible |
 
 A re-download with a different digest is a **new release**, never a restoration
-(`df artifacts reacquire` reports `DIFFERENT_BYTES` and does not relabel).
+(`df artifacts reacquire` reports `DIFFERENT_BYTES`, stores the bytes under
+their own digest with that retrieval's own facts, and does not relabel). Exact
+bytes restore the pinned `certifiedRetrieval` manifest facts with them; where
+none were pinned, the result says it is a new retrieval of the certified bytes.
 
 ## 9. What is compressed, what is kept
 

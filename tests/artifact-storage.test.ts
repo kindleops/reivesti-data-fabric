@@ -32,6 +32,8 @@ import {
 import { createStreamingArtifactStore } from '../src/archive/artifact-store.ts';
 import { createStreamingFilesystemObjectStore } from '../src/archive/object-store.ts';
 import { isFabricError } from '../src/core/errors.ts';
+import { reacquire, type CatalogEntry } from '../src/cli/cloud.ts';
+import { defaultRegistry } from '../src/registry/sources.ts';
 import { startTestS3, type TestS3 } from './support/s3-server.ts';
 
 let s3: TestS3 | null = null;
@@ -373,4 +375,80 @@ test('no source, test, tool or config file depends on a specific machine path', 
   for (const dir of ['src', 'tests', 'tools', 'db', '.github']) walk(join(root, dir));
   for (const f of ['package.json', 'tsconfig.json']) if (forbidden.test(readFileSync(join(root, f), 'utf8'))) offenders.push(f);
   assert.deepEqual(offenders, []);
+});
+
+// ---------------------------------------------------------------------------
+// Reacquisition: exact bytes, and the certified manifest with them.
+
+function catalogEntry(bytes: Buffer, pinned: boolean): CatalogEntry {
+  return {
+    sha256: createHash('sha256').update(bytes).digest('hex'),
+    sourceId: 'wi_statewide_parcels', role: 'publisher_raw', bytes: bytes.length, referencePeriod: 'V12.0.0-2026',
+    publisherUrl: 'https://publisher.invalid/V12.zip', publisherFilename: 'V12.zip', contentType: 'application/zip',
+    contentEncoding: 'identity', firstSeenAt: '2026-09-28T03:56:42.969Z', expectedState: 'REACQUIRABLE', note: '',
+    ...(pinned ? {
+      certifiedRetrieval: {
+        releaseId: 'wi_statewide_parcels__V12.0.0-2026', retrievedAt: '2026-09-28T03:56:42.969Z',
+        effectiveAt: '2026-06-30T21:11:02.000Z', sourceAuthority: 'Certified Authority', sourceProgram: 'Certified Program',
+        sourceFamily: 'state_parcel_aggregation', jurisdictionIds: ['us-county-55001', 'us-county-55003'],
+        access: {
+          accessType: 'bulk_download', automationStatus: 'sanctioned', termsStatus: 'reviewed_permitted',
+          licenseStatus: 'open_with_attribution', carriesRestrictedContact: true,
+        },
+      },
+    } : {}),
+  };
+}
+
+const serving = (bytes: Buffer) => (async () => new Response(bytes)) as unknown as typeof fetch;
+const LATER = '2031-01-01T00:00:00.000Z';
+
+test('reacquired exact bytes get the certified manifest back, not a new retrieval time', async () => {
+  const bytes = randomBytes(64 * 1024);
+  const entry = catalogEntry(bytes, true);
+  const workspace = createStreamingArtifactStore(createStreamingFilesystemObjectStore(tmp('df-reacq-')));
+  const r = await reacquire(entry, workspace, { registry: defaultRegistry(), now: LATER, scratchDir: tmp('df-reacq-scr-'), fetchImpl: serving(bytes) });
+  assert.equal(r.restored, true);
+  assert.equal(r.manifestRestored, true);
+  const m = r.artifact.manifest;
+  const c = entry.certifiedRetrieval!;
+  assert.equal(m.retrievedAt, c.retrievedAt, 'the observation instant of every derived row');
+  assert.equal(m.effectiveAt, c.effectiveAt);
+  assert.equal(m.releaseId, c.releaseId);
+  assert.equal(m.sourceAuthority, c.sourceAuthority);
+  assert.deepEqual(m.jurisdictionIds, c.jurisdictionIds);
+  assert.deepEqual(m.access, c.access);
+});
+
+test('different bytes are a new release under their own digest, with this retrieval\'s own facts', async () => {
+  const entry = catalogEntry(randomBytes(4096), true);
+  const other = randomBytes(4096);
+  const workspace = createStreamingArtifactStore(createStreamingFilesystemObjectStore(tmp('df-reacq-')));
+  const r = await reacquire(entry, workspace, { registry: defaultRegistry(), now: LATER, scratchDir: tmp('df-reacq-scr-'), fetchImpl: serving(other) });
+  assert.equal(r.restored, false);
+  assert.equal(r.manifestRestored, false);
+  assert.notEqual(r.artifact.sha256, entry.sha256);
+  assert.equal(r.artifact.manifest.retrievedAt, LATER, 'never the certified instant: these are not the certified bytes');
+  assert.equal(r.artifact.manifest.sourceAuthority, defaultRegistry().source('wi_statewide_parcels').sourceAuthority);
+});
+
+test('exact bytes with no pinned certified manifest are a new retrieval of those bytes', async () => {
+  const bytes = randomBytes(4096);
+  const workspace = createStreamingArtifactStore(createStreamingFilesystemObjectStore(tmp('df-reacq-')));
+  const scratchDir = tmp('df-reacq-scr-');
+  const r = await reacquire(catalogEntry(bytes, false), workspace, { registry: defaultRegistry(), now: LATER, scratchDir, fetchImpl: serving(bytes) });
+  assert.equal(r.restored, true);
+  assert.equal(r.manifestRestored, false);
+  assert.equal(r.artifact.manifest.retrievedAt, LATER);
+  assert.deepEqual(readdirSync(scratchDir), [], 'scratch is cleaned up');
+});
+
+test('the pinned catalog carries the certified Wisconsin manifest', () => {
+  const pinned = JSON.parse(readFileSync(new URL('../reference/artifact-catalog.json', import.meta.url), 'utf8')) as { entries: CatalogEntry[] };
+  const wi = pinned.entries.find((e) => e.sha256 === 'b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df');
+  assert.equal(wi?.certifiedRetrieval?.retrievedAt, '2026-09-28T03:56:42.969Z');
+  assert.equal(wi?.certifiedRetrieval?.jurisdictionIds.length, 72);
+  for (const e of pinned.entries) {
+    assert.ok(['DURABLE', 'EPHEMERAL_ONLY', 'MISSING_BYTES', 'REACQUIRABLE', 'REGENERABLE', 'LOST_EXACT_BYTES'].includes(e.expectedState), e.expectedState);
+  }
 });

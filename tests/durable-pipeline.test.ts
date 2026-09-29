@@ -14,6 +14,7 @@ import { captureLogger } from '../src/core/logging.ts';
 import { createLocalBackend, artifactKey, manifestKey } from '../src/archive/artifact-backend.ts';
 import { createS3Backend } from '../src/archive/s3-backend.ts';
 import { findRelease, type DurableStore } from '../src/archive/durable-artifacts.ts';
+import { createAcquisitionLedger } from '../src/runtime/bulk-acquisition.ts';
 import { defaultRegistry } from '../src/registry/sources.ts';
 import { createPartitionStore } from '../src/runtime/partition-store.ts';
 import {
@@ -199,6 +200,29 @@ test('when durability is required and the store refuses the bytes, nothing is ac
   const w = worker(refusing, publisher);
   await assert.rejects(w.run(), /AccessDenied/);
   assert.deepEqual(await createPartitionStore(w.h.varRoot).listPartitions(), [], 'no partition was activated');
+  // A scheduled failure after discovery still names the release it was working on.
+  const failed = (await createAcquisitionLedger(w.h.varRoot, 'wi_statewide_parcels').entries()).at(-1);
+  assert.equal(failed?.action, 'FAILED');
+  assert.equal(failed?.referencePeriod, 'V12.0.0-2026');
+  assert.notEqual(failed?.releaseFingerprint, 'unknown');
+});
+
+test('when durability is OPTIONAL a refusing store is reported, and the run still completes on retained bytes', async () => {
+  const publisher = fakePublisher();
+  publisher.publish(buildRelease({ version: V12, rows: rows() }));
+  const refusing: DurableStore = {
+    prefix: 'p', required: false,
+    backend: {
+      ...createLocalBackend(tempRoot('df-refuse-'), { durable: true }),
+      putFile: async () => { throw Object.assign(new Error('503 SlowDown'), { kind: 'ACCESS_BLOCKED' }); },
+      putJson: async () => { throw Object.assign(new Error('503 SlowDown'), { kind: 'ACCESS_BLOCKED' }); },
+    },
+  };
+  const result = await worker(refusing, publisher).run();
+  assert.equal(result.outcome, 'INGESTED');
+  assert.equal(result.durability?.commit, null, 'never claimed durable');
+  assert.equal(result.durability?.releaseRegistered, false, 'a release whose bytes are not durable is not registered');
+  assert.equal(result.durability?.receiptKey, null);
 });
 
 test('the durable manifest says which bytes the digest is of', async () => {

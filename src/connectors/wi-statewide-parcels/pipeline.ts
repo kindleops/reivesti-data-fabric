@@ -138,6 +138,8 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
   const ledger = createAcquisitionLedger(options.varRoot, source.sourceId);
   const timings: Record<string, number> = {};
   const memory = memorySampler();
+  // Kept outside the try so a failure after discovery still names the release.
+  let discoveredRelease: WiDiscoveredRelease | null = options.discovered ?? null;
 
   try {
     // ---- gate: before any network --------------------------------------------
@@ -149,6 +151,7 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
     // ---- discover ------------------------------------------------------------
     let t = performance.now();
     const discovered = options.discovered ?? await discoverWiRelease(options.http);
+    discoveredRelease = discovered;
     timings['discover'] = Math.round(performance.now() - t);
     logger.info('wi.discovered', {
       release: discovered.referencePeriod, fingerprint: discovered.releaseFingerprint,
@@ -238,8 +241,8 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
     const message = error instanceof Error ? error.message : String(error);
     logger.error('wi.pipeline_failed', { message });
     const entry: LedgerEntry = {
-      at: clock.now().toISOString(), sourceId: source.sourceId, referencePeriod: options.discovered?.referencePeriod ?? 'unknown',
-      releaseFingerprint: options.discovered?.releaseFingerprint ?? 'unknown', action: 'FAILED',
+      at: clock.now().toISOString(), sourceId: source.sourceId, referencePeriod: discoveredRelease?.referencePeriod ?? 'unknown',
+      releaseFingerprint: discoveredRelease?.releaseFingerprint ?? 'unknown', action: 'FAILED',
       publisherSha256: null, publisherBytes: null, bundleSha256: null, runId: null, runStatus: 'failed',
       normalizedDigest: null, estateDigest: null, note: message,
     };
@@ -348,11 +351,19 @@ async function deriveAndIngest(
   let commit: DurableCommit | null = null;
   if (writesDurable && ctx.source !== 'durable_store') {
     t = performance.now();
-    commit = await commitDurable(options.durable, options.artifactStore, publisher, {
-      role: 'publisher_raw', contentType: 'application/zip', now: () => clock.now(),
-    });
+    try {
+      commit = await commitDurable(options.durable, options.artifactStore, publisher, {
+        role: 'publisher_raw', contentType: 'application/zip', now: () => clock.now(),
+      });
+      logger.info('wi.durable', { sha256: commit.sha256, created: commit.created, key: commit.key });
+    } catch (error) {
+      // `required` (the S3 default): nothing is activated without durable raw
+      // bytes. `optional`: the run continues on retained workspace bytes and
+      // says so — the store is never silently treated as having them.
+      if (options.durable.required) throw error;
+      logger.warn('wi.durable_commit_failed', { message: error instanceof Error ? error.message : String(error) });
+    }
     timings['durable_commit'] = Math.round(performance.now() - t);
-    logger.info('wi.durable', { sha256: commit.sha256, created: commit.created, key: commit.key });
   }
 
   // ---- derive ----------------------------------------------------------------
@@ -402,10 +413,34 @@ async function deriveAndIngest(
 
   // ---- cross-check against the FeatureServer witness ---------------------------
   const crossCheck = ctx.discovered === null ? null : crossCheckOf(ctx.discovered, derived);
+  if (crossCheck !== null && !crossCheck.agrees && options.maxRows === undefined) {
+    // Before the checkpoint and before the runtime: a release the pipeline
+    // would label failed must never become the live estate. The retained
+    // archive stays; the ledger records FAILED under this fingerprint, so the
+    // next tick plans the release again rather than trusting it.
+    logger.error('wi.witness_disagrees', {
+      archiveRows: crossCheck.archiveRows, serviceCount: crossCheck.serviceCount, difference: crossCheck.difference,
+    });
+    const entry: LedgerEntry = {
+      at: clock.now().toISOString(), sourceId: source.sourceId, referencePeriod,
+      releaseFingerprint: ctx.discovered?.releaseFingerprint ?? 'replay', action: 'FAILED',
+      publisherSha256: publisher.sha256, publisherBytes: publisher.byteLength, bundleSha256: bundle.sha256,
+      runId: null, runStatus: 'crosscheck_disagrees',
+      normalizedDigest: null, estateDigest: null,
+      note: `archive ${crossCheck.archiveRows} rows, FeatureServer witness ${crossCheck.serviceCount}: nothing activated`,
+    };
+    await ctx.ledger.append(entry);
+    return {
+      outcome: 'FAILED', discovered: ctx.discovered, plan: ctx.plan, publisherArtifact: publisher, bundleArtifact: bundle,
+      derivation: derived, crossCheck, counties: null, run: null, ledger: entry,
+      durability: { source: ctx.source, commit, releaseRegistered: false, rehydrateMs: ctx.rehydrateMs ?? null, receiptKey: null },
+      timings, memory: ctx.memory.stop(),
+    };
+  }
 
   // ---- register the release, durably, before activation ------------------------
   let releaseRegistered = false;
-  if (options.durable && ctx.discovered !== null && options.maxRows === undefined
+  if (writesDurable && options.durable && ctx.discovered !== null && (commit !== null || ctx.source === 'durable_store')
     && (crossCheck === null || crossCheck.agrees)) {
     const mapping = options.registry.mapping(WI_STATEWIDE_MAPPING_ID);
     await registerRelease(options.durable, {
@@ -461,6 +496,9 @@ async function deriveAndIngest(
     logger: options.logger ?? silentLogger(),
     referencePeriod,
     resume: true,
+    // A truncated smoke run proves the path end to end; it must never replace a
+    // live index, write absence for the rows it did not read, or activate.
+    dryRun: options.maxRows !== undefined,
     // A statewide release restates all 72 counties; only the ones whose
     // evidence moved are recomputed.
     skipUnchangedPartitions: true,
@@ -468,7 +506,7 @@ async function deriveAndIngest(
   });
   timings['ingest'] = Math.round(performance.now() - t);
 
-  const counties = reconcileWiCounties(new Map(Object.entries(run.countyCounts)));
+  const counties = reconcileWiCounties(new Map(Object.entries(run.countyCounts)), derived.rowsByConame);
   const completed = run.run.status === 'completed' && (crossCheck === null || crossCheck.agrees || options.maxRows !== undefined);
 
   const entry: LedgerEntry = {
@@ -503,8 +541,14 @@ async function deriveAndIngest(
       },
       partitions: run.activations.map((a) => ({ partitionId: a.partitionId, state: a.state, generation: a.generation })),
     };
-    receiptKey = `${options.durable.prefix}/receipts/${source.sourceId}/${run.run.runId}/${createHash('sha256').update(JSON.stringify(receipt)).digest('hex')}.json`;
-    await options.durable.backend.putJson(receiptKey, receipt);
+    const key = `${options.durable.prefix}/receipts/${source.sourceId}/${run.run.runId}/${createHash('sha256').update(JSON.stringify(receipt)).digest('hex')}.json`;
+    try {
+      await options.durable.backend.putJson(key, receipt);
+      receiptKey = key;
+    } catch (error) {
+      if (options.durable.required) throw error;
+      logger.warn('wi.durable_receipt_failed', { message: error instanceof Error ? error.message : String(error) });
+    }
   }
 
   return {

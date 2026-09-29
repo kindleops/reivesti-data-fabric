@@ -125,16 +125,26 @@ export type CountyReconciliation = {
  * inventory. Never fails a run on its own: a missing county is news an
  * operator must see, and the per-partition activation already keeps that
  * county's previous state live.
+ *
+ * Two different counts, never mixed: `acceptedByFips` (rows accepted into the
+ * estate, by routed county) decides which counties are present;
+ * `rawRowsByConame` (every publisher row, placeholders included, by the raw
+ * CONAME string) is compared with the inventory, which was measured the same
+ * way. Comparing accepted rows with raw rows would report a change in every
+ * county that has a placeholder, every release.
  */
-export function reconcileWiCounties(actualCounts: ReadonlyMap<string, number>): CountyReconciliation {
+export function reconcileWiCounties(
+  acceptedByFips: ReadonlyMap<string, number>,
+  rawRowsByConame: Readonly<Record<string, number>>,
+): CountyReconciliation {
   const expected = new Set(wiExpectedCountyFips());
-  const actual = new Set(actualCounts.keys());
+  const actual = new Set(acceptedByFips.keys());
   const missing = [...expected].filter((f) => !actual.has(f)).sort();
   const extra = [...actual].filter((f) => !expected.has(f)).sort();
   const rowCountChanges: { fips: string; expected: number; actual: number }[] = [];
   for (const county of WI_V12_COUNTY_INVENTORY) {
-    const n = actualCounts.get(county.fips);
-    if (n !== undefined && n !== county.sourceRows) rowCountChanges.push({ fips: county.fips, expected: county.sourceRows, actual: n });
+    const n = rawRowsByConame[county.name] ?? 0;
+    if (n !== county.sourceRows) rowCountChanges.push({ fips: county.fips, expected: county.sourceRows, actual: n });
   }
   return {
     expected: expected.size,

@@ -6,7 +6,9 @@
  * A value never leaves the process.
  */
 import { execFile } from 'node:child_process';
+import { createReadStream, createWriteStream } from 'node:fs';
 import { access, constants, mkdir, rm, statfs, writeFile } from 'node:fs/promises';
+import { once } from 'node:events';
 import { freemem, totalmem } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
@@ -24,7 +26,8 @@ import {
   rehydrate,
   type DurableStore,
 } from '../archive/durable-artifacts.ts';
-import type { StreamingArtifactStore, ArchivedArtifact } from '../archive/artifact-store.ts';
+import type { AccessMetadata, StreamingArtifactStore, ArchivedArtifact } from '../archive/artifact-store.ts';
+import type { Registry } from '../registry/registry.ts';
 import { artifactDir } from '../archive/artifact-store.ts';
 import { readFileSync } from 'node:fs';
 
@@ -148,6 +151,23 @@ export async function verifyDurable(store: DurableStore, sha256: string) {
   };
 }
 
+/**
+ * The retrieval facts of a certified artifact, exactly as its manifest held
+ * them. Pinned so that a restoration restores the manifest too: the manifest's
+ * retrieval instant is the observation time of every derived row, so exact
+ * bytes under a new retrieval time would replay to different digests.
+ */
+export type CertifiedRetrieval = {
+  readonly releaseId: string;
+  readonly retrievedAt: string;
+  readonly effectiveAt: string | null;
+  readonly sourceAuthority: string;
+  readonly sourceProgram: string;
+  readonly sourceFamily: string;
+  readonly jurisdictionIds: readonly string[];
+  readonly access: AccessMetadata;
+};
+
 export type CatalogEntry = {
   readonly sha256: string | null;
   readonly sourceId: string;
@@ -161,6 +181,8 @@ export type CatalogEntry = {
   readonly firstSeenAt: string | null;
   readonly expectedState: string;
   readonly note: string;
+  /** Absent when the certified manifest was never pinned (older certifications). */
+  readonly certifiedRetrieval?: CertifiedRetrieval;
 };
 
 /**
@@ -208,29 +230,79 @@ export async function catalog(options: {
 /**
  * Re-downloads a catalogued raw artifact from its publisher and accepts it as a
  * RESTORATION only if the sha256 is exactly the catalogued one. Different bytes
- * are a new release, kept under their own digest and reported as such — never
- * relabelled as the old one.
+ * are a new release, kept under their own digest with this retrieval's own
+ * facts, and reported as such — never relabelled as the old one.
+ *
+ * The bytes are hashed on scratch BEFORE the manifest is chosen, because the
+ * manifest is write-once: equal bytes get the pinned certified manifest (so a
+ * replay reproduces the certified digests); anything else gets a manifest that
+ * says, truthfully, when and from where these bytes were fetched.
  */
 export async function reacquire(
   entry: CatalogEntry,
   workspace: StreamingArtifactStore,
-  retrievedAt: string,
-  fetchImpl: typeof fetch = fetch,
-): Promise<{ restored: boolean; expected: string | null; actual: string; bytes: number; artifact: ArchivedArtifact }> {
+  options: {
+    readonly registry: Registry;
+    /** This retrieval's instant — used only when the bytes are NOT the certified ones, or nothing was pinned. */
+    readonly now: string;
+    readonly scratchDir: string;
+    readonly fetchImpl?: typeof fetch;
+  },
+): Promise<{
+  restored: boolean;
+  manifestRestored: boolean;
+  expected: string | null;
+  actual: string;
+  bytes: number;
+  artifact: ArchivedArtifact;
+}> {
   if (entry.role !== 'publisher_raw' || entry.publisherUrl === null || entry.referencePeriod === null) {
     throw new Error('only a catalogued publisher_raw artifact with a URL can be reacquired');
   }
   const url = entry.publisherUrl;
-  const artifact = await workspace.archiveStream({
-    sourceAuthority: entry.sourceId, sourceProgram: entry.sourceId, sourceFamily: 'reacquisition',
-    sourceId: entry.sourceId, releaseId: `${entry.sourceId}__${entry.referencePeriod}`, referencePeriod: entry.referencePeriod,
-    originalUrl: url, originalFilename: entry.publisherFilename ?? 'artifact', retrievedAt, effectiveAt: null,
-    jurisdictionIds: [],
-    access: { accessType: 'bulk_download', automationStatus: 'sanctioned', termsStatus: 'reviewed_permitted', licenseStatus: 'open_with_attribution', carriesRestrictedContact: true },
-  }, async (sink) => {
-    const r = await fetchImpl(url);
-    if (!r.ok || r.body === null) throw new Error(`GET ${url} returned ${r.status}`);
-    for await (const chunk of r.body as unknown as AsyncIterable<Uint8Array>) await sink.write(chunk);
-  });
-  return { restored: artifact.sha256 === entry.sha256, expected: entry.sha256, actual: artifact.sha256, bytes: artifact.byteLength, artifact };
+  const period = entry.referencePeriod;
+  await mkdir(options.scratchDir, { recursive: true, mode: 0o700 });
+  const scratch = join(options.scratchDir, `reacquire-${randomBytes(8).toString('hex')}`);
+  try {
+    const hash = createHash('sha256');
+    let bytes = 0;
+    const out = createWriteStream(scratch, { mode: 0o600 });
+    const response = await (options.fetchImpl ?? fetch)(url);
+    if (!response.ok || response.body === null) throw new Error(`GET ${url} returned ${response.status}`);
+    for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
+      hash.update(chunk);
+      bytes += chunk.length;
+      if (!out.write(chunk)) await once(out, 'drain');
+    }
+    await new Promise<void>((resolve, reject) => out.end((e?: Error | null) => (e ? reject(e) : resolve())));
+    const actual = hash.digest('hex');
+    const restored = actual === entry.sha256;
+    const certified = restored ? entry.certifiedRetrieval ?? null : null;
+    const source = options.registry.source(entry.sourceId);
+    const facts: CertifiedRetrieval = certified ?? {
+      releaseId: `${entry.sourceId}__${period}`,
+      retrievedAt: options.now,
+      effectiveAt: null,
+      sourceAuthority: source.sourceAuthority,
+      sourceProgram: source.sourceProgram,
+      sourceFamily: source.sourceFamily,
+      jurisdictionIds: [],
+      access: {
+        accessType: source.accessType, automationStatus: source.automationStatus, termsStatus: source.termsStatus,
+        licenseStatus: source.licenseStatus, carriesRestrictedContact: source.carriesRestrictedContact,
+      },
+    };
+    const artifact = await workspace.archiveStream({
+      sourceAuthority: facts.sourceAuthority, sourceProgram: facts.sourceProgram, sourceFamily: facts.sourceFamily,
+      sourceId: entry.sourceId, releaseId: facts.releaseId, referencePeriod: period,
+      originalUrl: url, originalFilename: entry.publisherFilename ?? 'artifact',
+      retrievedAt: facts.retrievedAt, effectiveAt: facts.effectiveAt,
+      jurisdictionIds: facts.jurisdictionIds, access: facts.access,
+    }, async (sink) => {
+      for await (const chunk of createReadStream(scratch)) await sink.write(chunk as Uint8Array);
+    });
+    return { restored, manifestRestored: certified !== null, expected: entry.sha256, actual, bytes, artifact };
+  } finally {
+    await rm(scratch, { force: true });
+  }
 }

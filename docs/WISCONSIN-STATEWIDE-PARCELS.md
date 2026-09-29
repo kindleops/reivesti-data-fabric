@@ -422,16 +422,15 @@ Automated-core parcel jurisdictions, derived by `buildCoverage`: **Minnesota
 
 ## 16. Retention
 
-**Superseded by DF-0L:** the V12 publisher archive (sha256 `b22bfaad…`,
-759,926,092 bytes) is no longer meant to live only in a session's workspace. It
-is committed to the durable artifact store (all four phases, re-read verified),
-with its manifest and a release record for fingerprint `cb6813…`, so a fresh
-worker replays it without the publisher. The derived bundle (`b622edfe…`) is
-REGENERABLE and deliberately not stored durably (59 s to rebuild, proven
-byte-identical). In the repository, aggregate evidence only
-(`reference/wi-statewide/V12.0.0-2026/`) and the pinned catalog entry
-(`reference/artifact-catalog.json`). Whether the store itself outlives the
-certification container depends on the configured backend — see
-[`CLOUD-EXECUTION.md`](CLOUD-EXECUTION.md) §8. If every copy is lost,
-`df artifacts reacquire --sha b22bfaad…` re-downloads and accepts only the exact
-digest.
+The V12 publisher archive (sha256 `b22bfaad…`, 759,926,092 bytes) is retained on
+the active worker's execution disk. There is no production durable store yet
+(DF-0L production storage is `DEFERRED_INFRA`); the DF-0L proof committed it to
+a disposable in-container test store, which is gone. Its pinned catalog entry
+(`reference/artifact-catalog.json`) carries the sha256, size, publisher URL,
+ETag, S3 object version and the certified manifest's retrieval facts, so a
+worker that has lost it runs `df artifacts reacquire --sha b22bfaad…`: the
+publisher's bytes are accepted only on an exact sha256 match, the certified
+manifest is restored with them, and a replay reproduces every certified digest.
+Different bytes would be a new release, never this one. The derived bundle
+(`b622edfe…`) is REGENERABLE (59 s, proven byte-identical). In the repository,
+aggregate evidence only (`reference/wi-statewide/V12.0.0-2026/`).
