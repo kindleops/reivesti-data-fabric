@@ -276,6 +276,13 @@ export type StreamingArtifactStore = ArtifactStore & {
   readLinesVerified(
     artifact: Pick<ArchivedArtifact, 'storagePath' | 'sha256'>,
   ): AsyncGenerator<string>;
+
+  /**
+   * The artifact's path on local disk, for formats that need random access —
+   * a ZIP's central directory lives at its end. Read-only: retained objects are
+   * mode 0444, and a caller must `verify` before trusting what it reads.
+   */
+  localPath(artifact: Pick<ArchivedArtifact, 'storagePath'>): string;
 };
 
 export function createStreamingArtifactStore(store: StreamingObjectStore): StreamingArtifactStore {
@@ -342,6 +349,10 @@ export function createStreamingArtifactStore(store: StreamingObjectStore): Strea
     async *readLinesVerified(artifact) {
       await verify(artifact);
       yield* readLines(store.pathOf(artifact.storagePath));
+    },
+
+    localPath(artifact) {
+      return store.pathOf(artifact.storagePath);
     },
   };
 }

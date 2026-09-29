@@ -64,6 +64,7 @@ if (!server) {
         '0008_data_fabric_field_authority.sql',
         '0009_data_fabric_normalization_contract.sql',
         '0010_data_fabric_transfer_declarations.sql',
+        '0011_data_fabric_durable_artifacts.sql',
       ]);
     });
 
@@ -81,6 +82,7 @@ if (!server) {
         where table_schema in ('data_fabric','data_fabric_restricted') and table_type = 'BASE TABLE'
         order by 1`);
       assert.deepEqual(r.rows.map((x) => x.t), [
+        'data_fabric.artifact_storage_copies',
         'data_fabric.assessment_observations',
         'data_fabric.business_entities',
         'data_fabric.business_entity_addresses',
@@ -279,7 +281,7 @@ if (!server) {
         select n.nspname || '.' || c.relname as t, c.relrowsecurity, c.relforcerowsecurity
         from pg_class c join pg_namespace n on n.oid = c.relnamespace
         where n.nspname in ('data_fabric','data_fabric_restricted') and c.relkind = 'r'`);
-      assert.equal(r.rows.length, 54);
+      assert.equal(r.rows.length, 55);
       const bad = r.rows.filter((x) => !x.relrowsecurity || !x.relforcerowsecurity);
       assert.deepEqual(bad.map((x) => x.t), [], 'tables missing enabled+forced RLS');
     });
@@ -288,11 +290,11 @@ if (!server) {
       const r = await db.query(`
         select tablename, policyname, permissive, roles::text
         from pg_policies where schemaname in ('data_fabric','data_fabric_restricted')`);
-      assert.equal(r.rows.length, 54 * APP_ROLES.length);
+      assert.equal(r.rows.length, 55 * APP_ROLES.length);
       assert.ok(r.rows.every((x) => x.permissive === 'RESTRICTIVE'), 'policies must be RESTRICTIVE');
       for (const role of APP_ROLES) {
         const forRole = r.rows.filter((x) => x.roles.includes(role));
-        assert.equal(forRole.length, 54, `expected a deny policy per table for ${role}`);
+        assert.equal(forRole.length, 55, `expected a deny policy per table for ${role}`);
       }
     });
 
@@ -774,6 +776,27 @@ if (!server) {
       } finally {
         await second.end();
       }
+    });
+
+    test('DF-0L: a DURABLE copy must have been re-hashed to its own digest', async () => {
+      const sha = 'b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df';
+      await db.query(`insert into data_fabric.sources (source_id, source_authority, source_program, source_family, source_name,
+        source_homepage, access_type, automation_status, terms_status, license_status, cost_model, expected_refresh_frequency,
+        source_priority, active, carries_restricted_contact) values ('df0l_test','T','T','state_parcel_aggregation','T',
+        'https://example.test','bulk_download','sanctioned','reviewed_permitted','open_with_attribution','free','annual',1,true,true)
+        on conflict do nothing`).catch(() => undefined);
+      const insert = (state: string, verifiedSha: string | null, key = `p/artifacts/sha256/b2/${sha}`) => db.query(
+        `insert into data_fabric.artifact_storage_copies (copy_id, sha256, source_id, backend_kind, storage_location, storage_key,
+          byte_length, durability_state, first_seen_at, last_verified_at, last_verified_sha256)
+         select $1, $2, source_id, 'S3_COMPATIBLE', 's3://b', $3, 759926092, $4, now(), $5, $6
+         from data_fabric.sources limit 1`,
+        [`c-${state}-${Math.random()}`, sha, key, state, verifiedSha === null ? null : new Date(), verifiedSha]);
+      await assert.rejects(insert('DURABLE', null), /artifact_copy_durable_is_verified/);
+      await assert.rejects(insert('DURABLE', 'a'.repeat(64)), /artifact_copy_durable_is_verified/);
+      await insert('DURABLE', sha);
+      await assert.rejects(insert('EPHEMERAL_ONLY', null, 'p/artifacts/latest'), /content_addressed/);
+      await assert.rejects(insert('DURABLE', sha, `p/artifacts/${sha}?X-Amz-Signature=abc`), /storage_key/);
+      await insert('LOST_EXACT_BYTES', null, 'historical');
     });
 
     test('the schema signature covers columns, constraints, indexes, RLS and policies', async () => {

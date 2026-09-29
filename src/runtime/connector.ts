@@ -108,7 +108,8 @@ export type BatchValidation = {
  * its own: how it compares with the last time we saw it.
  */
 export type ChangeContext = {
-  readonly kind: 'new' | 'unchanged' | 'revised';
+  /** `reappeared` only from the streaming runtime, which keeps absence tombstones. */
+  readonly kind: 'new' | 'unchanged' | 'revised' | 'reappeared';
   readonly changedFieldGroups: readonly string[];
   readonly snapshotId: string | null;
 };

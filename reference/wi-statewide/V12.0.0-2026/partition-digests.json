@@ -1,0 +1,929 @@
+{
+ "globalDigest": "5780f1ba36676254002c1d0428b7831df117038dcfe3cae4e8f09ed505b870eb",
+ "partitions": [
+  {
+   "partitionId": "organization/us",
+   "current": "gen-mukvc8u4-eoi10x",
+   "inputDigest": "f54bc4deaae3685d92cf0f280cac25540b1ae62d0cb95464a2ddf02a9e6f4c76",
+   "outputDigest": "54955d9438e50316a2105aacc5491f5353ebba7c03f5a774e09b6a587616398e",
+   "rowCount": 1385779
+  },
+  {
+   "partitionId": "property/us-county-27001",
+   "current": "gen-mukphdbi-i8gmm9",
+   "inputDigest": "99bde6db70aeac2a1d05a3bf7f2d0c4cf0a87ddcab12cbd4830ae36e5f79e4d9",
+   "outputDigest": "f524db55e8f89568996d84c05863dbfe5aa5abcabf86af3bdfb4ae30834217ef",
+   "rowCount": 42944
+  },
+  {
+   "partitionId": "property/us-county-27003",
+   "current": "gen-mukphebq-7z0h64",
+   "inputDigest": "0430b5c17430ed6a48d5c4f735c16458ea448dc55c6119a4af801a67dd1c8d7e",
+   "outputDigest": "a5a2c9c71058d7a830c4af61964d756e4a4ad2ea5377eebd8f6cb630b5b4b546",
+   "rowCount": 139381
+  },
+  {
+   "partitionId": "property/us-county-27005",
+   "current": "gen-mukphh11-chfjiu",
+   "inputDigest": "d737b1a6786ed62acff652a2044241a62e76bfa0b18cfb94380cfa6c998ff5a3",
+   "outputDigest": "50c01ae95da4de5dc9686123d1bcac7943afa9269051fc3b5c0eef6116c61b62",
+   "rowCount": 32907
+  },
+  {
+   "partitionId": "property/us-county-27009",
+   "current": "gen-mukphhkd-h2i31z",
+   "inputDigest": "71fa3a05c7f3052335f9be3a6cc2e57f4d04b209475f7880060bf33bd057dea3",
+   "outputDigest": "510ebce89409159251f84d809298682794b22c312f39660190630702e96b1624",
+   "rowCount": 19982
+  },
+  {
+   "partitionId": "property/us-county-27011",
+   "current": "gen-mukphhup-z2qrcu",
+   "inputDigest": "1e10a4e196a15539a2e9fca1f4ff9fed2dd7f4c8fe0ada41fa8ada17cbdc69bb",
+   "outputDigest": "f12c78d141d9462c444185b896c456e344667d7f45e4749ebc0ee16b01594472",
+   "rowCount": 6960
+  },
+  {
+   "partitionId": "property/us-county-27017",
+   "current": "gen-mukphhzn-vh19nx",
+   "inputDigest": "37a1ef9100ca33285b107dd7734c5f8cda5fc6caaba4fc38bd5f08db0cb0f29b",
+   "outputDigest": "f7034177ea43f72372747f0f5796e6d33dc3ff0850316e0d2a0f84dab64671c4",
+   "rowCount": 32967
+  },
+  {
+   "partitionId": "property/us-county-27019",
+   "current": "gen-mukphij0-ld4esb",
+   "inputDigest": "c43d7bf6bbe18a9b6bbd9a3b46998ffdf67e9c311733a5acc4fdf9ceb325cd1e",
+   "outputDigest": "ce2e074de5a166194ebc9ee298cf429af130a48ce10b49106ceb2dfcf2ed7cce",
+   "rowCount": 47632
+  },
+  {
+   "partitionId": "property/us-county-27021",
+   "current": "gen-mukphjg0-1zm6xs",
+   "inputDigest": "800455b453c57d80f6e39eee0cff4e33982a459b16245a97c65cf5d54af4c449",
+   "outputDigest": "22441453ea25442b47e4ffeea8f70d6dd7daf551b1c5358f1ac12a253fd0e449",
+   "rowCount": 49398
+  },
+  {
+   "partitionId": "property/us-county-27023",
+   "current": "gen-mukphk7q-zjoh0u",
+   "inputDigest": "0160fdb9539c18cb0971e88d8437e8c503c1a57900ddf8960f0c9dc055ac7be8",
+   "outputDigest": "3d3f53763247d9c8dff804d1a1f48f8571b3d2dab8f7f7b29e12bc1a5487a086",
+   "rowCount": 11062
+  },
+  {
+   "partitionId": "property/us-county-27025",
+   "current": "gen-mukphkf7-pqdnd8",
+   "inputDigest": "3a114d0dc82ba76b1d8acb515f11769285090c73934b47140857deadc9b92271",
+   "outputDigest": "17800a865222686681dcf46b42e16b6ef0fb952599bd17fa32048a0d1de51791",
+   "rowCount": 29759
+  },
+  {
+   "partitionId": "property/us-county-27027",
+   "current": "gen-mukphkyi-bbu5d9",
+   "inputDigest": "77dc9e809c762c3f375792ccc40c6795e2bb795770360c6aaa88e72578ea3bb4",
+   "outputDigest": "ac8a5b08833f53c2b5002510016121061eedd0dc61c70b0a88b5648d0fb6f4fe",
+   "rowCount": 30563
+  },
+  {
+   "partitionId": "property/us-county-27029",
+   "current": "gen-mukphlg0-i112zh",
+   "inputDigest": "c63cd77102b28642e7e5ee8b593320823c324df42c899c94c947c4ad6c9b0b3f",
+   "outputDigest": "563a8573f651323efab7cf70b4c5b7d278933bf1222c007a8bff17d5f3bfd5a4",
+   "rowCount": 9097
+  },
+  {
+   "partitionId": "property/us-county-27031",
+   "current": "gen-mukphlm7-hsrorl",
+   "inputDigest": "293e4d9050b7f9cd161f430796c1eddf4d77336a5776b9b9c1835c997b39431e",
+   "outputDigest": "943bc2a5c51f86732fbfa0e3e8bcc9929728c9c85314f08ffd435cac22aadcf6",
+   "rowCount": 12533
+  },
+  {
+   "partitionId": "property/us-county-27035",
+   "current": "gen-mukphlzk-sm6mw3",
+   "inputDigest": "3fb13667f61c63c07e82244005c3e2e32d210f9426ccc2da26fc5e0bfbe8ba0c",
+   "outputDigest": "7f37b24014b5101258599943427d57d0daaf1aab4be7eb79142e695ee19fb425",
+   "rowCount": 76481
+  },
+  {
+   "partitionId": "property/us-county-27037",
+   "current": "gen-mukphnmw-qsm00a",
+   "inputDigest": "2bffdec02b4f541c46585a81d444b4c437d1048944412cf894e67082d5c5dc88",
+   "outputDigest": "5b96f232943778ef8d94d3d84b8587dfd90df55dccbc2672ce37dad53176b28e",
+   "rowCount": 148499
+  },
+  {
+   "partitionId": "property/us-county-27041",
+   "current": "gen-mukphqpe-bbgr16",
+   "inputDigest": "18b048943c05486398f1af451fe548966c451f6abb0a675cdfeb68f0c71febcc",
+   "outputDigest": "489e677909edf5a89fb686229bae720824fc91d9e54ea5c44182419e8f00a434",
+   "rowCount": 30636
+  },
+  {
+   "partitionId": "property/us-county-27045",
+   "current": "gen-mukphrbk-01ml5y",
+   "inputDigest": "2442aa68148a0393ff726203bdcab1ecaa414a3cc8b6bdf6d338f09014f27d86",
+   "outputDigest": "90f474ef138cbde03caa18bc7f8e6cc989f40e35a0874bf108079538ce60c02d",
+   "rowCount": 20143
+  },
+  {
+   "partitionId": "property/us-county-27051",
+   "current": "gen-mukphrmh-21dhbs",
+   "inputDigest": "bbdc0f3d47a2ce7df5a551aad4732ed41b416086813c8625f00e829ff001ba46",
+   "outputDigest": "367a40eeaab75177e9831e55063002c2daf7127d4c8159dc4e0d20250494ec1c",
+   "rowCount": 7133
+  },
+  {
+   "partitionId": "property/us-county-27053",
+   "current": "gen-mukphspp-3qp3wn",
+   "inputDigest": "ac6592a7511964a99d322e70d007ebe82ed12c6db6437bc10ec0e63d0ce65ebb",
+   "outputDigest": "c0e0efd8fc8a0f9764854ba96abd30d89895e1a7456cfaa0f8172da68daf37ed",
+   "rowCount": 447044
+  },
+  {
+   "partitionId": "property/us-county-27055",
+   "current": "gen-mukpi2at-195mtt",
+   "inputDigest": "ade3b14b16202104e187d56c866e02f15e6f73b9e20cbd7e1fe46c3bdb5d0e88",
+   "outputDigest": "e1783aab71816a4481f8ad40cb4256f41b13f7467f70641a93fff6ef2d2afd10",
+   "rowCount": 16256
+  },
+  {
+   "partitionId": "property/us-county-27059",
+   "current": "gen-mukpi2ko-6fs4un",
+   "inputDigest": "4e476278fc9d09c014a86bc623820e202a4f3e8b21ee9fb492cde903eff28ca9",
+   "outputDigest": "1d624ee75d237902d3a2534f8c76373c509ab7599e7d01727a96b557c9931a43",
+   "rowCount": 23872
+  },
+  {
+   "partitionId": "property/us-county-27061",
+   "current": "gen-mukpi32m-gfeg4r",
+   "inputDigest": "5a5491020f84ae139a7b75a33b6152d2a16d327e7bf485ab49021025c1c1a8aa",
+   "outputDigest": "a17b7be8aa3b5435f02e06a48367a21c6f735510df3a76f6db910182939e8362",
+   "rowCount": 67479
+  },
+  {
+   "partitionId": "property/us-county-27063",
+   "current": "gen-mukpi45l-ijf8rg",
+   "inputDigest": "51da1c18039b77a07f0f181cfa2198aa3bc054f44707aad73f24eda28afb0f1c",
+   "outputDigest": "6e84c96428d791e8ccbbf455aee1400f75c8443999a222f0eaf6ab17c21785cb",
+   "rowCount": 10691
+  },
+  {
+   "partitionId": "property/us-county-27071",
+   "current": "gen-mukpi4eh-zqi9j4",
+   "inputDigest": "2c254ff41b17beb69c17191dd21c5970c534077a0ed783a821742f0b60069c07",
+   "outputDigest": "9ee52e8ee0a9b434dedb1be0ceb00cd1c6e10d737cc6de78a982b5ad3934201b",
+   "rowCount": 54708
+  },
+  {
+   "partitionId": "property/us-county-27073",
+   "current": "gen-mukpi54r-c9kq3i",
+   "inputDigest": "b965db888e37cb45a5df99731f3ec0c016d41ff701907005e261593c2d667839",
+   "outputDigest": "13d25fe00e42d9a37d4168adf968da505d01572444baf01fbbc2fb41ab81794d",
+   "rowCount": 8481
+  },
+  {
+   "partitionId": "property/us-county-27075",
+   "current": "gen-mukpi5b5-sf4bef",
+   "inputDigest": "479d6fbc6ec61c73cf0dd0c53c3b16dbf7b537584372f4c5db48239fd4e99080",
+   "outputDigest": "00623fe7bcb61c1733af5d9e4fd76c27b0180e44c8784de7e6ae0e9cb15a814d",
+   "rowCount": 46951
+  },
+  {
+   "partitionId": "property/us-county-27077",
+   "current": "gen-mukpi5y7-bhdgst",
+   "inputDigest": "83f0c930bbe5bfd8c13bffc0a4021fd277d79afc956bd616beafd62365ad9acb",
+   "outputDigest": "94bd2dcb5e8ad7a782633688c84a9d1dfd3e9f577ce6e9587b856cc89c7cd3fb",
+   "rowCount": 8893
+  },
+  {
+   "partitionId": "property/us-county-27083",
+   "current": "gen-mukpi643-vep0tm",
+   "inputDigest": "f4f5243e54d5389af6f247f9990ff0313c4dc7d440ecfc6fccf0c3c1781e69de",
+   "outputDigest": "6ad775010740ee7cf408ee2d98d10a209eeceed889add911c9d85ce3b9c36e99",
+   "rowCount": 16399
+  },
+  {
+   "partitionId": "property/us-county-27085",
+   "current": "gen-mukpi6e1-fodn57",
+   "inputDigest": "b43174155968f1c7d089604533a0814cfdf0d1e3665f7bb70a5c6b36728c0d94",
+   "outputDigest": "fd07a35fb2d90c0c9b8c3b0f48e7d812f550ed987a0030ae5b62f6850e9e0939",
+   "rowCount": 20447
+  },
+  {
+   "partitionId": "property/us-county-27089",
+   "current": "gen-mukpi6qa-kdhzlp",
+   "inputDigest": "4715cf79f9879e8016665cc3c0580cf7eac26c96f156851e70f767d074a57b1d",
+   "outputDigest": "3bd5c923bb13c3ffe3077deafd3ef5506c1bbf9d86511563da9ae94dbb0b8d13",
+   "rowCount": 14560
+  },
+  {
+   "partitionId": "property/us-county-27095",
+   "current": "gen-mukpi6yo-hny4a8",
+   "inputDigest": "82d2a7d2f968313a5a744527e56bbd48d23bc6ffa0b1a06b12d53415b492492d",
+   "outputDigest": "8b5d3ef057ff162d708e65cf7f9af7268a3552a2aad7a36176a3c8dc9efe9373",
+   "rowCount": 20085
+  },
+  {
+   "partitionId": "property/us-county-27097",
+   "current": "gen-mukpi7b1-2n5ypf",
+   "inputDigest": "c2c430ffac55ae892d1afc4bdfd8b8d3cd713f3d65f8ee40260d3cb469445270",
+   "outputDigest": "07213ceb995e5513b8272027dd09a3c83cbfe1093d07a1143d66a895aa7c313a",
+   "rowCount": 29842
+  },
+  {
+   "partitionId": "property/us-county-27099",
+   "current": "gen-mukpi7rj-kupy59",
+   "inputDigest": "78d93f9c0cbe13d1569f461dc3f65c4b31f26e35572455e5f503a60f99e12c7b",
+   "outputDigest": "23aa24e98a6ded8fc5ff5e69367496c79bcf9af3e0b1f3a87bb9c51dd938076c",
+   "rowCount": 22914
+  },
+  {
+   "partitionId": "property/us-county-27101",
+   "current": "gen-mukpi83p-hwa0jz",
+   "inputDigest": "36da143d49b9e73bf7206628e181c7aa94c46fdef472dba871cf5516c76de73f",
+   "outputDigest": "cd0e96a4667a04a807fd817ae7c63a3fb1ad8b2e8ed93c3bb4728cf6ecf02c05",
+   "rowCount": 10125
+  },
+  {
+   "partitionId": "property/us-county-27107",
+   "current": "gen-mukpi89u-c3n550",
+   "inputDigest": "2e6ff908c0a3f37f97ecc9dcebb00bdbf270175bfa523ac2cece4a7f5a3a297f",
+   "outputDigest": "9f8b243cbc9b1f91646eaf78a816e490a32d8117a92596b84721a1fe4a6b2dcf",
+   "rowCount": 9178
+  },
+  {
+   "partitionId": "property/us-county-27109",
+   "current": "gen-mukpi8jx-unxwni",
+   "inputDigest": "3fb543e07310769fd2939a4a3aad6dee6fc4eeb0289dd11c727e13ab3962b701",
+   "outputDigest": "d140232d2e6d9835c5ef46765d27d0db8d6d7cdee5748787d43e9aab7ba88ac9",
+   "rowCount": 75030
+  },
+  {
+   "partitionId": "property/us-county-27111",
+   "current": "gen-mukpia66-iuwm6m",
+   "inputDigest": "8c78a55c6b190578cd217e17c939af1433ffcf82025d7ba6a4e234d005bd13dd",
+   "outputDigest": "8f7f1eda9eae6c4104f7eef6225e033a90a989a7c3ac494523029f42f959087f",
+   "rowCount": 64807
+  },
+  {
+   "partitionId": "property/us-county-27113",
+   "current": "gen-mukpib8z-et5zsb",
+   "inputDigest": "41c0fce2c3c69908ede64286aa4ebb6818e3b77f7ee279c21eeb7b63cdd0535e",
+   "outputDigest": "7771b990ec6ae7f0dc897d4f16c2c90a9cdfd817ff7670b2fd973b1ec052a43c",
+   "rowCount": 9682
+  },
+  {
+   "partitionId": "property/us-county-27117",
+   "current": "gen-mukpibdy-eve9ib",
+   "inputDigest": "b7d68da655d3b77f3d36f1dc8f87174f79c707527b9b98bf959056e34bb10177",
+   "outputDigest": "5a1e2b3123978496efcd0e8413f04c941a21663dc1d40a06ee4986ef57a39f09",
+   "rowCount": 8300
+  },
+  {
+   "partitionId": "property/us-county-27119",
+   "current": "gen-mukpibkg-9myi7n",
+   "inputDigest": "3b554a1d5dacaf461743c6aaacbc4943814ea792308fb364dbe9db2eae6e398c",
+   "outputDigest": "2f6f79450b55d291a248942f31617c4452fd044c331932ba355e49c9bda7e45b",
+   "rowCount": 28539
+  },
+  {
+   "partitionId": "property/us-county-27121",
+   "current": "gen-mukpic23-gn2c53",
+   "inputDigest": "aea2bb1583ef34090d310cb31cdc4dbf44d83063854e3511b291b659bf9e246c",
+   "outputDigest": "cb3b2a5c54a0889558cbcbff7319b78a57ab9b45a69b0c18537113930b6cf6f6",
+   "rowCount": 12897
+  },
+  {
+   "partitionId": "property/us-county-27123",
+   "current": "gen-mukpickn-ep6cs6",
+   "inputDigest": "98ae1a8b7a3ac9281072214d5b4faab4885838a31df2d0187f151114f2317ea3",
+   "outputDigest": "2fec321b8a6b53f3050b0fa7aa87d6810eebf2622c527e574a952df2bdee027c",
+   "rowCount": 167794
+  },
+  {
+   "partitionId": "property/us-county-27125",
+   "current": "gen-mukpig8y-58s0l7",
+   "inputDigest": "4741dfc93f9800bf73a0d72b844d50f5f0c75ec8680568a077143cbc3332a46a",
+   "outputDigest": "390d76e79084c30def7d9aaeeb892e47cd9ee46a6d36b37ed3f4963ba67e35db",
+   "rowCount": 3884
+  },
+  {
+   "partitionId": "property/us-county-27129",
+   "current": "gen-mukpigbv-b84qj5",
+   "inputDigest": "42e24b3218008563423af5a606fcd249bf144d8f5de3e07711047dfbedfbb18b",
+   "outputDigest": "4219fb080ec87924502cb2d396de8396232351d27e3c324b152fb837742ceab9",
+   "rowCount": 15254
+  },
+  {
+   "partitionId": "property/us-county-27131",
+   "current": "gen-mukpiglp-ysg099",
+   "inputDigest": "9d19d44edc4eb019bd226aaf9b3f6a97878fb060163053a6bb15b3a6a244e277",
+   "outputDigest": "0cf99ecdc6c71761ada1977f03e929b81144ee2a28e66d2654b4f7fb46f7159a",
+   "rowCount": 28142
+  },
+  {
+   "partitionId": "property/us-county-27137",
+   "current": "gen-mukpihbw-npl1bk",
+   "inputDigest": "5748cc4ceec49d7fc066cf20a3cc45e18854260635e3d463c084954bfc03c996",
+   "outputDigest": "c185d7e56e5eb0c61f7257847e8fb5bffc554546ed4e39da8317730314419caa",
+   "rowCount": 184543
+  },
+  {
+   "partitionId": "property/us-county-27139",
+   "current": "gen-mukpikpp-ucc47e",
+   "inputDigest": "d7cbddc2f04e0e85608846d8dd6cbfd5d2f1c29f2515652e979cb4d26b5d2e86",
+   "outputDigest": "ef194809c708d8ce33ac83495d7c029da5a3c6bbf4784b341b29243503b5f5bf",
+   "rowCount": 61691
+  },
+  {
+   "partitionId": "property/us-county-27141",
+   "current": "gen-mukpily5-m5de49",
+   "inputDigest": "407913b3df345b9354729c4ca9f753c0b3886e897c1fb4cad9bf05410014d336",
+   "outputDigest": "9f5bdff1ab08248399172e2590a916351af682c9093fd0d6e205b5954258028c",
+   "rowCount": 42673
+  },
+  {
+   "partitionId": "property/us-county-27145",
+   "current": "gen-mukpimsy-7k0w4j",
+   "inputDigest": "91ce3f54d0efa7664623994b0136babd9162cf4b293f68816323e0c1907861ed",
+   "outputDigest": "ecb8cbc1b6dfa185aef0bd0c9ad388752302e846b1486bda03b3f88127b552c9",
+   "rowCount": 70535
+  },
+  {
+   "partitionId": "property/us-county-27147",
+   "current": "gen-mukpiod8-vdd5x3",
+   "inputDigest": "9dcf1231b626d350db0a8635b4e5a7d8c97f23b0630560edd58aa43a93b39926",
+   "outputDigest": "f39ad2d148aca47b6eda4105f59cca2ae990256d6d2e2b79890bc3caa49e3c70",
+   "rowCount": 20039
+  },
+  {
+   "partitionId": "property/us-county-27149",
+   "current": "gen-mukpioos-dzcp9t",
+   "inputDigest": "9b74b9b767d36f97cb3f062fbac41f1b7c294841635d74ddacac48d1b0459b0d",
+   "outputDigest": "98137d893c1141d9e15b3e23ef5660ef05e93a1264ed0034a9feffbcdd8c82bf",
+   "rowCount": 7980
+  },
+  {
+   "partitionId": "property/us-county-27155",
+   "current": "gen-mukpiott-cqcoyt",
+   "inputDigest": "b453bc4dfd2ce140b47960d06f66f20d0cffa253caf46a3e4bdbf739eb110ed4",
+   "outputDigest": "2d38e34663b082da4f27536aa919a53c9d57f15caa168c8216d22812abbd41a8",
+   "rowCount": 5993
+  },
+  {
+   "partitionId": "property/us-county-27157",
+   "current": "gen-mukpioxr-kqgzh0",
+   "inputDigest": "5a25c0d020a4327ac0b947d7e69cf971ca2bc8aa3ab8a8b9cf896502a35b2aa8",
+   "outputDigest": "d3d1eb29cf4c7ce2753da2f65f63c2b249a99cec8eda187ca2c6896a8263c85c",
+   "rowCount": 16764
+  },
+  {
+   "partitionId": "property/us-county-27161",
+   "current": "gen-mukpip78-9faiv0",
+   "inputDigest": "339a7bce194478ef96b5c109ded6323606281ecf39aa670cf29bb3902872e7ee",
+   "outputDigest": "6839d79c139376a7277c8ddfa80f056cdbe5dbf00a56ff30be0541e9752ed0f7",
+   "rowCount": 12091
+  },
+  {
+   "partitionId": "property/us-county-27163",
+   "current": "gen-mukpiplz-97d3h6",
+   "inputDigest": "e8e4a80d661f8402b531a588f88aca959ee5b1784be02b0daeec7cd88faf2105",
+   "outputDigest": "9bb1abec60191cc29c41c3b40929b623076191922db2fa6ef79c3dc5f3fb9b82",
+   "rowCount": 119055
+  },
+  {
+   "partitionId": "property/us-county-27167",
+   "current": "gen-mukpirz7-kxxa5f",
+   "inputDigest": "5b59e9b1b06bbdae6fcb3b02ede1eaac87f6e64d7183bc0a51b786a43555ad4c",
+   "outputDigest": "ce834071744dbdad2f79004b85900a09fcb808e818a536c94949f2d9da2e3e63",
+   "rowCount": 8209
+  },
+  {
+   "partitionId": "property/us-county-27169",
+   "current": "gen-mukpis53-spwl3w",
+   "inputDigest": "359cbaca64def09f47124ce26cb88327abaa6468bd18ab2d88eccadbcddf2d95",
+   "outputDigest": "3a251985cf21a26a5a06b702b0be9de07e5e374ab8b5b31a05f014f4bd14acc2",
+   "rowCount": 24736
+  },
+  {
+   "partitionId": "property/us-county-27171",
+   "current": "gen-mukpismy-whwzne",
+   "inputDigest": "4f83666f5b1c45dbb271cef34a7d8a2001ee3863572c880f295097b04b371b8f",
+   "outputDigest": "b1e51e908e14a05c0770f974872bd5ff3839c4b2754e1a4b4b2af266010d20b7",
+   "rowCount": 73138
+  },
+  {
+   "partitionId": "property/us-county-27173",
+   "current": "gen-mukpiu5k-vgw7di",
+   "inputDigest": "e4628bb8c0f963f958f91075f22cdd4ee0f40a724d16d68b37bbaba7d6703ba2",
+   "outputDigest": "4f23abfa55d011567aee6b9e520f48483e7da344464cc94913c355e1d7300455",
+   "rowCount": 10322
+  },
+  {
+   "partitionId": "property/us-county-55001",
+   "current": "gen-mukvznyr-4v47ah",
+   "inputDigest": "975c97a479d5ed4b14f40969fdda51ba6f16891167b6b5462a2cbe7e1165e14c",
+   "outputDigest": "d1e3335648e9b87e8febb4393c45e4af0dcdc528720cb64b014b30a7c30b0b68",
+   "rowCount": 38484
+  },
+  {
+   "partitionId": "property/us-county-55003",
+   "current": "gen-mukvzomw-0ckhtv",
+   "inputDigest": "a22ce9446ed0ea7fd886896fb27f9dd89a6bb6399dd1ba8ab57190fe308231b6",
+   "outputDigest": "69091e971d36096e6e8a0c6dfacdd367bf1be54394c155d8803dc7000e257c0c",
+   "rowCount": 21333
+  },
+  {
+   "partitionId": "property/us-county-55005",
+   "current": "gen-mukvzp31-k841ft",
+   "inputDigest": "cc53dcb5480e3139143746a51f21af4402bce97d9b1372d56f0eeb650e45ba47",
+   "outputDigest": "2c91dcccbd4c7f03606ef7aff6175cc018ced5695339bde22ca64a8cb672f5af",
+   "rowCount": 42404
+  },
+  {
+   "partitionId": "property/us-county-55007",
+   "current": "gen-mukvzpun-36ckva",
+   "inputDigest": "615fa8644b1c68ac29d4dd3142e27df5041968037afd8971cb25f3147be2f30d",
+   "outputDigest": "34f909594b016fbbb6abd1eb94ecce527cbd7bfc38f9ecec999e302e2f0f30d0",
+   "rowCount": 35043
+  },
+  {
+   "partitionId": "property/us-county-55009",
+   "current": "gen-mukvzqod-rvjh6g",
+   "inputDigest": "ca2a6070efeeb79d4ada3f03b224f8ed0735c2b4224c1fb1c24d5b327309be77",
+   "outputDigest": "8a7690d6eba5499fe693cc9d3bd0bf66624ccd65c2b28cff16399f647721fd75",
+   "rowCount": 105314
+  },
+  {
+   "partitionId": "property/us-county-55011",
+   "current": "gen-mukvzt1x-m65j56",
+   "inputDigest": "3a8c311b54a320d0e30673f45e08c567bcad4b92ccd13dc1a209dd95a3ea0b3f",
+   "outputDigest": "80376bd72875c2a9167a04ec5d8711ea90f024a279836e6c3f15abb9c93c8b51",
+   "rowCount": 24292
+  },
+  {
+   "partitionId": "property/us-county-55013",
+   "current": "gen-mukvztjl-546yxv",
+   "inputDigest": "5c045ba262d119b92ab9f71be6c2b770b1d7e5d2cf66e8ea8c9eec1bb4e0bfe5",
+   "outputDigest": "bf13f2e2cb262018b480cc0a379a66eddfd5c7341e7e01f105f00bad4c0aa144",
+   "rowCount": 32865
+  },
+  {
+   "partitionId": "property/us-county-55015",
+   "current": "gen-mukvzu7s-dx53pc",
+   "inputDigest": "76b36e53205c7a7c0ac98e15cb697384d8af93c83ea043df08b10886118346ef",
+   "outputDigest": "4e74b993b48209220d3073c3cf4785e67300604284b96deb040a06cc00ee36f7",
+   "rowCount": 28721
+  },
+  {
+   "partitionId": "property/us-county-55017",
+   "current": "gen-mukvzuup-ffdh8n",
+   "inputDigest": "8509c7c4760fde511ecfeccb092a8daa70e2f949c060d6dac962d355c75f56a4",
+   "outputDigest": "a3763feb7445f53bf26c4a5dfb9a91ce9f0b87abc03c5153705ac3e943c2dad3",
+   "rowCount": 50612
+  },
+  {
+   "partitionId": "property/us-county-55019",
+   "current": "gen-mukvzvsa-k7p5zy",
+   "inputDigest": "dfd66cbdd4981c48fc6cd51c5d089c5f4e91ffadb4e9a1ec4cb84e8134217b94",
+   "outputDigest": "69ba90287aa3a668e15d5cab034e9757cfd2c1619e84ec28bcb5714a8c7ea04f",
+   "rowCount": 35558
+  },
+  {
+   "partitionId": "property/us-county-55021",
+   "current": "gen-mukvzwgj-22kp6y",
+   "inputDigest": "3f4ff47b577b98b80075440e7f5e1c19079b336fd59dca7bfefaea812cc2b351",
+   "outputDigest": "309989acf9e5ae8cba66722b93f9cd7e2e384404f0f94d8958ea9ce3e68338b3",
+   "rowCount": 43569
+  },
+  {
+   "partitionId": "property/us-county-55023",
+   "current": "gen-mukvzx7t-h560xb",
+   "inputDigest": "54cad42760ce2179fdd7f88ac739d12f2270796ef1c2bac4650444709155a1c2",
+   "outputDigest": "ca7fb117f0212693da93bae7817b3d195d7f52a6ee8b69f8c09835b8841892dc",
+   "rowCount": 23104
+  },
+  {
+   "partitionId": "property/us-county-55025",
+   "current": "gen-mukvzy00-vihkty",
+   "inputDigest": "87f6efa350f6520b38e5bafd10ee91b3a602655259442f4c74b0de2d63e0b9ff",
+   "outputDigest": "6f9e5cbcd053f94f9ed9fd9be218075dd4384e5b577ee22aa569f3935acf84a1",
+   "rowCount": 218857
+  },
+  {
+   "partitionId": "property/us-county-55027",
+   "current": "gen-mukw02hn-vz15zq",
+   "inputDigest": "4d1675175f5f10225c6bec638cc0ca41b494e26e002202790d12b6eb3577b94f",
+   "outputDigest": "0794c64018102189227686a14bdbd8cc0895427b09cb0ecf085d14d050769c56",
+   "rowCount": 47971
+  },
+  {
+   "partitionId": "property/us-county-55029",
+   "current": "gen-mukw03cc-m7lgps",
+   "inputDigest": "fee24e2533b0272589f0dacbd1b0ef0e998f1cfa1e5eec5b531af9e476dd4c22",
+   "outputDigest": "6fa8bef1e8f9488eb7c4e0cea9d20405fff80a09f063bcd5bb36e118f1cc3010",
+   "rowCount": 41795
+  },
+  {
+   "partitionId": "property/us-county-55031",
+   "current": "gen-mukw0475-q716m0",
+   "inputDigest": "b928f683a58bc2f991623aa63b690a527a087a1f8c714be49e4fcb8e7a24d8cb",
+   "outputDigest": "c8aa7a81449f1f914deb436e7062e8f914a66648d89cbe47d1e6be6b03f675d5",
+   "rowCount": 47729
+  },
+  {
+   "partitionId": "property/us-county-55033",
+   "current": "gen-mukw051p-k9ncow",
+   "inputDigest": "b7328522debd951da7eefba9f3c8bc14717d951ee165c7155e0601f0db9462f3",
+   "outputDigest": "9d30d9e67511e252ac13f67ac6194031c3a7f92f8ad5d8e359507141e62dc54b",
+   "rowCount": 36011
+  },
+  {
+   "partitionId": "property/us-county-55035",
+   "current": "gen-mukw05qv-o5fero",
+   "inputDigest": "c3d482b022e429c1975a1a1ef9eaaf20f297105c6deaac67c2df37edc6683e3a",
+   "outputDigest": "d413aecb16e1bfdd1047753365b96f3cb63063071c6a9c7af6a6941473d99d06",
+   "rowCount": 51994
+  },
+  {
+   "partitionId": "property/us-county-55037",
+   "current": "gen-mukw06qj-xrtccm",
+   "inputDigest": "24ac6a790ce19f762c0464334b84dc71d9be6e069df8c89486ffae40755b6e71",
+   "outputDigest": "aa38ad7cba4b6eaf611d8664c8d8ab995aa839054512d3194e84cd29665de4eb",
+   "rowCount": 11893
+  },
+  {
+   "partitionId": "property/us-county-55039",
+   "current": "gen-mukw070q-qgqa0h",
+   "inputDigest": "9e2983f8fedc15d2379e9abbe067152a7eca1c750ff158e7dab9c882d12f0229",
+   "outputDigest": "05203568fe534593368fcc7c3aaaefada53f013bdf13679a1af25f62acb497a3",
+   "rowCount": 58930
+  },
+  {
+   "partitionId": "property/us-county-55041",
+   "current": "gen-mukw085r-lfvfu2",
+   "inputDigest": "317dc105ca200d511564a2c5ea2c21070e72b99a9fd9382109760eb8f7733ec2",
+   "outputDigest": "4ad5b453abc2c395ce7112c37ff2ad2cc2bb0db87b5990575526f1bb1b055c1c",
+   "rowCount": 21022
+  },
+  {
+   "partitionId": "property/us-county-55043",
+   "current": "gen-mukw08kn-7wj4xh",
+   "inputDigest": "820b03c9232e4736cee88e11c30f1f408989a8b562e16b34cbaa5605b869553f",
+   "outputDigest": "64711d5fbf7514eb9a6f7fc5212a21e92f7de2034664f36a3b5ba35f7ddd48ef",
+   "rowCount": 48754
+  },
+  {
+   "partitionId": "property/us-county-55045",
+   "current": "gen-mukw09ej-3m6imu",
+   "inputDigest": "9a1297ba59e33275d02253f77a3ab4eab9be1e159424901306b82cd5b3169fc3",
+   "outputDigest": "6a203865b77118a284cce34f28729254cd761463452b6c7fe22d8c436b00e67e",
+   "rowCount": 27656
+  },
+  {
+   "partitionId": "property/us-county-55047",
+   "current": "gen-mukw09wl-lxgvqg",
+   "inputDigest": "4fa6421664a5a9e1aebd7c1f8fd915f956d9738da35b4547168dc3fccc298331",
+   "outputDigest": "09742d4259809dad6bd2257b5510acf1e189bbc0d4d30b505e1d31fd8e9e5273",
+   "rowCount": 19471
+  },
+  {
+   "partitionId": "property/us-county-55049",
+   "current": "gen-mukw0a9h-s1pssa",
+   "inputDigest": "eedf05be2087d7d2af3f59700ff5ff44c2dd28adc4a4d42c92e3ad9fa1b6ae82",
+   "outputDigest": "4083809da24dbd1381a118e459af24a43c33703b7203fa9775c1d7e9954a3227",
+   "rowCount": 31224
+  },
+  {
+   "partitionId": "property/us-county-55051",
+   "current": "gen-mukw0arw-x3ow9t",
+   "inputDigest": "2e21787d9dfc28d5a437b01550cb514eeb56d56a233f7f760d013e04c3e07a32",
+   "outputDigest": "4fec8ba0c55f8418e50a2af66674ac44c83f0ce2800d99fd1c8c452389099f1b",
+   "rowCount": 17179
+  },
+  {
+   "partitionId": "property/us-county-55053",
+   "current": "gen-mukw0b2n-jobybj",
+   "inputDigest": "c3d886cec3e6ac92812dea083941457e30500edf7c48461dbc65d7f9e7ade424",
+   "outputDigest": "2dcd87b791b3c8280aabeec805e9bf029a06e386df0f19bcfb25aa58a1890978",
+   "rowCount": 26942
+  },
+  {
+   "partitionId": "property/us-county-55055",
+   "current": "gen-mukw0blz-1e3w4k",
+   "inputDigest": "e277a4d1d83daee813ba8e01b42a9446bd215387e1ed5a3da1ae4c0c101bbaf6",
+   "outputDigest": "2364be5a476290f7e39012970572d3d168c1dd1010d16bdd6a911bed757ed3ba",
+   "rowCount": 45169
+  },
+  {
+   "partitionId": "property/us-county-55057",
+   "current": "gen-mukw0cg3-3xg2oc",
+   "inputDigest": "7ea9b43a595d467f6e68a40da25581649128f0dc5e9b6e79efa1acf4af8f2c54",
+   "outputDigest": "220f75ffef479a8963dd3a96f3faa3982c89594307766e3019b369d6040a9840",
+   "rowCount": 31335
+  },
+  {
+   "partitionId": "property/us-county-55059",
+   "current": "gen-mukw0d48-53852h",
+   "inputDigest": "94cdee5d6f5d8196cde282fd19d886dc13e5670268aca6508a57516005543ecd",
+   "outputDigest": "b78b908307656d7d5a51eb4468318754bf7910704e9fc84f24a9e1be87af2fe2",
+   "rowCount": 67618
+  },
+  {
+   "partitionId": "property/us-county-55061",
+   "current": "gen-mukw0egz-zpytop",
+   "inputDigest": "0bf876396dacd31881cc1e85548edf8f8ffec6ff1aa48650da34c5caf68272f9",
+   "outputDigest": "6b6e7fbfb5c7a2d0fbec3367db2484e23f9d9459231bc816cc946dd0c6799dcd",
+   "rowCount": 16629
+  },
+  {
+   "partitionId": "property/us-county-55063",
+   "current": "gen-mukw0eua-jtd4ta",
+   "inputDigest": "c5c0e72817942db2e787acbfab9ee1111b13fe04b35e95622732c8fd89e93cd1",
+   "outputDigest": "ee4072527084fef6b56fb7e61f50acf401dd57f080200b9876f17c653232ef47",
+   "rowCount": 54142
+  },
+  {
+   "partitionId": "property/us-county-55065",
+   "current": "gen-mukw0g1k-bgd5e6",
+   "inputDigest": "5e8b842996d8819453d1cce217d4c55ddecb35aa11ba36f04fb845c66e7abe43",
+   "outputDigest": "fbeceb3ea25ca045d02b4eee55d797ee49cfc066984af0d802a702fa133aa539",
+   "rowCount": 21384
+  },
+  {
+   "partitionId": "property/us-county-55067",
+   "current": "gen-mukw0gfs-rej228",
+   "inputDigest": "838388d02529b03dfec4135ec3e2e529534a0f5c652a13b6ac200ed1a10bd0ac",
+   "outputDigest": "250ed6898379f0688d26bb405b9c6a9e0bbb85e99ef7ab2d045bffa8dfe2ad55",
+   "rowCount": 29425
+  },
+  {
+   "partitionId": "property/us-county-55069",
+   "current": "gen-mukw0h14-b4qdqg",
+   "inputDigest": "29ab0e32dc942f04e5df641276fe014ba041fc8c8d279fc5e4adea03a4b2ce50",
+   "outputDigest": "8134fa918bd7acb15ef6a9ded31f0f56f5700046558020f0943d94633a384dbb",
+   "rowCount": 30604
+  },
+  {
+   "partitionId": "property/us-county-55071",
+   "current": "gen-mukw0hn7-oziwib",
+   "inputDigest": "43c24899ad6ee69fac1ee473c83488a3301241744e8622ff4992498003110a4f",
+   "outputDigest": "e604af5294a3f04208832b6bfe34f5e34350fdcf38271c6427797c4747b72ad4",
+   "rowCount": 49731
+  },
+  {
+   "partitionId": "property/us-county-55073",
+   "current": "gen-mukw0ilq-h5cchr",
+   "inputDigest": "952302f5195b7387cd96bbfbbdab8dae6ce523634309bf90ea79618cff4269c5",
+   "outputDigest": "572f28d0fe9b9b26e19efc24f57a01158b50a810385b591c089d0d4a08aa7985",
+   "rowCount": 83177
+  },
+  {
+   "partitionId": "property/us-county-55075",
+   "current": "gen-mukw0kaj-18dsfc",
+   "inputDigest": "13d9968272d7cf654002734ca671862f2a9ef61a3053927d5622fc6710a038c6",
+   "outputDigest": "a53e4630e8d283350b9d0c91e49830ae3ddba6df38dd2d29d9315853770b05ee",
+   "rowCount": 57985
+  },
+  {
+   "partitionId": "property/us-county-55077",
+   "current": "gen-mukw0lbx-keawiy",
+   "inputDigest": "f1d277858fe0a122994a0055e9726cac7f76f0afcf4de472ceb00970c1b6150f",
+   "outputDigest": "c29d4b6efbaeea2c1632a21fc04ae34146da30cf491c142e45d2198441ec8485",
+   "rowCount": 21431
+  },
+  {
+   "partitionId": "property/us-county-55078",
+   "current": "gen-mukw0loj-2149zx",
+   "inputDigest": "8034a98578c608c0ab6b4486cf6f40b22bf70397c89ec72f41bea037d7d22fbf",
+   "outputDigest": "2611ddcbca0826989a7523dc6c9243a0e46f159ba5d143154939e1eedd55c781",
+   "rowCount": 2219
+  },
+  {
+   "partitionId": "property/us-county-55079",
+   "current": "gen-mukw0mcr-87idvv",
+   "inputDigest": "7fa90a7c29d7821833c889d8abff21c9a95ed25ae7adad85cf279d5b77eec19a",
+   "outputDigest": "617327f90afe960c06c858b070b1e58ab915444427e04263f16eeda29968ae1e",
+   "rowCount": 280327
+  },
+  {
+   "partitionId": "property/us-county-55081",
+   "current": "gen-mukw0sbr-y43gwc",
+   "inputDigest": "598f927a8bc4a994afbe593eca782355aca2152ffb52abd9f3f4acaedfc75499",
+   "outputDigest": "a559e93cbd5ca36103f33f2031c539d55450d9cd059ae6ae63ae6d2a81e5bf0a",
+   "rowCount": 39005
+  },
+  {
+   "partitionId": "property/us-county-55083",
+   "current": "gen-mukw0syj-k1q40r",
+   "inputDigest": "03b1fe11b420640ea7c470811dfacb3d19c8b52c31eca4385b280f6a4b26770c",
+   "outputDigest": "85f218a88d62e805305de8730d00aa8a54f986ac0cd01ab0f3808ec96640cf28",
+   "rowCount": 42052
+  },
+  {
+   "partitionId": "property/us-county-55085",
+   "current": "gen-mukw0tpf-3zkhc0",
+   "inputDigest": "4db01b247249771c3f305bf796ed1eeea8336af2eddc62248b2e93e929487be9",
+   "outputDigest": "c6fe53dfbec76328b35c4c53394770ec3c793e4f9a403c4f3505738ef653e5f1",
+   "rowCount": 58355
+  },
+  {
+   "partitionId": "property/us-county-55087",
+   "current": "gen-mukw0uw0-jgu51w",
+   "inputDigest": "904e9018dd4ce5d475137f6960ef725a08c1832481abf7f70607bee232213058",
+   "outputDigest": "d6bea8ea874f4c4164c5c433120fbdac5b9718176dbafdf485eeabc3b57981a2",
+   "rowCount": 86812
+  },
+  {
+   "partitionId": "property/us-county-55089",
+   "current": "gen-mukw0wo4-rqlkcg",
+   "inputDigest": "dc45b19ae13d755c835124c9c9ea0e70ec4183c1d3498678e09faa9a835770f9",
+   "outputDigest": "92c0a949c1c34d83b67ce8be590be6611704ba831b0579423fdd061dbf6f86bc",
+   "rowCount": 41165
+  },
+  {
+   "partitionId": "property/us-county-55091",
+   "current": "gen-mukw0xcq-7efxyo",
+   "inputDigest": "3f28ca22e2b806c13ca9eba4356ee48eca89b1b5dc120eaaf621dcd2ade5a17b",
+   "outputDigest": "b3450eb3ce908780f903ec15f63b4baef16dd505eb5c940b6c03526fe55163e6",
+   "rowCount": 9687
+  },
+  {
+   "partitionId": "property/us-county-55093",
+   "current": "gen-mukw0xjv-5mc1xb",
+   "inputDigest": "61b4e0babbf9f1347d1c40e4ac1e749c2263621822369a400a85f2174456b3b0",
+   "outputDigest": "a6a904904a7247ba33db4be3e058e757d27c4d31089d0bde8349cd0023a7abd5",
+   "rowCount": 27174
+  },
+  {
+   "partitionId": "property/us-county-55095",
+   "current": "gen-mukw0y1e-dto054",
+   "inputDigest": "35eb36528bc25476e1525184e78eb36d884bd96be5cdbd184f7a9f22b1d06362",
+   "outputDigest": "80f2de91f3992148991401cf6d4d05703e1938caffa5fd20d64f82355aad07be",
+   "rowCount": 45814
+  },
+  {
+   "partitionId": "property/us-county-55097",
+   "current": "gen-mukw0ytd-31m8oz",
+   "inputDigest": "82ae98529867ecb23e66b4783882c0effe7d0f8648bc1ecd6853aabe140d92c4",
+   "outputDigest": "510fb3944e21e90ee72774bf55f06fd313b674250f72849cb44c6a1fac5d0df2",
+   "rowCount": 45038
+  },
+  {
+   "partitionId": "property/us-county-55099",
+   "current": "gen-mukw0zlq-8u1fjm",
+   "inputDigest": "1b025134055cf28582d5092f7e43c6ca4b424549fd16f6bfa364a7c3ce949e3b",
+   "outputDigest": "ef8814fe938b0235fdf62a8c1c328caf61c89a1a58132f9878056f74e8a22d2a",
+   "rowCount": 26761
+  },
+  {
+   "partitionId": "property/us-county-55101",
+   "current": "gen-mukw107s-mos07r",
+   "inputDigest": "ce8178fe88ccf24a6e5763fc111d8df1462c941018d8d9502bfb41366da429be",
+   "outputDigest": "e1f8df5039489a53f4af2c7b4f938e3aba9fdbb191da2c17ef308aff0d007daf",
+   "rowCount": 81824
+  },
+  {
+   "partitionId": "property/us-county-55103",
+   "current": "gen-mukw11x7-1n06d4",
+   "inputDigest": "94cd9f7e1c9efe7dc7b5f9b21e56e37a3a26af469385f749a58cd57a05c8a5ea",
+   "outputDigest": "ac4dec52b4239930f948c47fd9a94944b4171fef9e973cdd73548c1f218cc01e",
+   "rowCount": 20816
+  },
+  {
+   "partitionId": "property/us-county-55105",
+   "current": "gen-mukw12e3-8wj1ud",
+   "inputDigest": "7575b0340465ed5adbdcaf15ac1d7ef71789b84db5c3345d09f6da59fdf0539c",
+   "outputDigest": "15654e607779783ccc07f66562de7ba6965fa65bd363550dedc17c1044658ba4",
+   "rowCount": 73128
+  },
+  {
+   "partitionId": "property/us-county-55107",
+   "current": "gen-mukw13ye-nruf4w",
+   "inputDigest": "aea5c2108e0811b09d6927c6345f16b658ac38f623a2caf698d6bc797e7af02e",
+   "outputDigest": "77c745b849cf33c67de12af18eedec006d336303286c7ecdef72790a8e507665",
+   "rowCount": 28355
+  },
+  {
+   "partitionId": "property/us-county-55109",
+   "current": "gen-mukw14j6-ndwvop",
+   "inputDigest": "36bf8612ff8f35c119fbc511a7a4dffa68bba79ee54d54302e1d82e36515c914",
+   "outputDigest": "90d70dd82c126e57019fab390df812ed26b928e90b742ef01d9a9bcea4c162a8",
+   "rowCount": 54891
+  },
+  {
+   "partitionId": "property/us-county-55111",
+   "current": "gen-mukw15k6-oagcxy",
+   "inputDigest": "cea6b27c30ea955fee07778758afc50d7f8c884c1fb04803c9a2ec57394b6069",
+   "outputDigest": "b3e2b27c5e845a3f0ce86003140489a13d9da99e5dd6f7b9fde4c03b60fe049a",
+   "rowCount": 50759
+  },
+  {
+   "partitionId": "property/us-county-55113",
+   "current": "gen-mukw16jl-igxyh2",
+   "inputDigest": "befc098e507143c2168a21ad718b4d701809bacb50ff6e6531269d8c17c88199",
+   "outputDigest": "328a5f8db92e50eedc026dd66886a05d589b8a187fb27e4e8a145b8ef780f867",
+   "rowCount": 41073
+  },
+  {
+   "partitionId": "property/us-county-55115",
+   "current": "gen-mukw178h-pb4cj6",
+   "inputDigest": "6a91f77f29d94eb19f9c4508c1e4247cc7b94a520b05fb9ae7c569d442dd2ab0",
+   "outputDigest": "5d8ae9e1f1d97362eb1adffcbdb341c9f6f607e8debfab1dc91686db76d07d3f",
+   "rowCount": 39855
+  },
+  {
+   "partitionId": "property/us-county-55117",
+   "current": "gen-mukw17yv-fabn3f",
+   "inputDigest": "d7ccd1de05ee4892a116a7a09308bdd34dcacc034392470bd4182b9ea702d726",
+   "outputDigest": "09804c279fbd3bf9818bfd301ae96c96d53ce3721a9b4b8062a6cd47509da4a4",
+   "rowCount": 59560
+  },
+  {
+   "partitionId": "property/us-county-55119",
+   "current": "gen-mukw197r-hygjvh",
+   "inputDigest": "3ec2d4a4d20d9f9da634c9f5262f2bb654ed49e0b7b75b5a050e007541c02505",
+   "outputDigest": "bbb9a3f13d695623b5576cb000952ba9cdd4a22c292bcd7155fe4d7449d76a45",
+   "rowCount": 25634
+  },
+  {
+   "partitionId": "property/us-county-55121",
+   "current": "gen-mukw19nm-dr5v1c",
+   "inputDigest": "a0ae6a3e417003e8ec6d52c5e303e61a4237a51428cdb3bc93d9f41c3a2b34c3",
+   "outputDigest": "468435c813bac27f0900347d55bddc56d1d7d999dfa800cc0c51c31cac01095d",
+   "rowCount": 31881
+  },
+  {
+   "partitionId": "property/us-county-55123",
+   "current": "gen-mukw1a7c-9e9vey",
+   "inputDigest": "326bdc7849189b0d9b4e49738173f33b83ecfcf7a2376544fca5b8a8171a06f3",
+   "outputDigest": "48b707f05f4f6631d0f1eac4a8a11a4a8f1ce0621b17fac70d4f99e02a424d42",
+   "rowCount": 34584
+  },
+  {
+   "partitionId": "property/us-county-55125",
+   "current": "gen-mukw1atk-r6278i",
+   "inputDigest": "0818b71cae206ff065c01966ca329183b7851a964e41f4e9868826a5e30ee541",
+   "outputDigest": "d957fd5fb7bcee8f57e354fb5c05d691edccff1b5f215bf063a1b2acbfd737b8",
+   "rowCount": 47029
+  },
+  {
+   "partitionId": "property/us-county-55127",
+   "current": "gen-mukw1bpo-n0qkm5",
+   "inputDigest": "ba429a49dd919d37ce062bfc46684f4e1c1749cc5b567d1fbd6c5a3e23f4519b",
+   "outputDigest": "c146226ec024deddc15d30327f0768123085516a944d59cbcc646b4d1133a30d",
+   "rowCount": 65721
+  },
+  {
+   "partitionId": "property/us-county-55129",
+   "current": "gen-mukw1cyr-h2tz51",
+   "inputDigest": "f377460c2735e630b1b76c7d528f462d31fd5bbe4fdfe6aeab7bacb61175f5e0",
+   "outputDigest": "34161275150c747d23bc45cf37a73cca0c004e4e310f6d540e190993115c6d8a",
+   "rowCount": 31877
+  },
+  {
+   "partitionId": "property/us-county-55131",
+   "current": "gen-mukw1dm7-4x7pu1",
+   "inputDigest": "94ee15a96b2de0406e0b682d908b7dc072469592fbdf6c9f1abcfe4b91c28231",
+   "outputDigest": "af0d39e3e4539e21f4708dd06a7923d1c524a881f026817b31a1036793b1eb5e",
+   "rowCount": 63142
+  },
+  {
+   "partitionId": "property/us-county-55133",
+   "current": "gen-mukw1f90-4i1u64",
+   "inputDigest": "a29872e7e3681ad7b5f5283c345fa79e5e7eb15e87e85e41bbde0187f937cbb2",
+   "outputDigest": "4f71b00eca399bc3845d0738e42087d6d592b86e0a2a9c5eb6693ec2ef241baf",
+   "rowCount": 162818
+  },
+  {
+   "partitionId": "property/us-county-55135",
+   "current": "gen-mukw1iii-nel5yp",
+   "inputDigest": "a29b1ec903fbeebc206c11fdae9f9abbcfe53fd0ad5cbf9aa7ebaaf9914977fe",
+   "outputDigest": "11a87af63b462866e13dc0cb7a200bed29b34c742ebd33d707755cd4df3c02ee",
+   "rowCount": 41642
+  },
+  {
+   "partitionId": "property/us-county-55137",
+   "current": "gen-mukw1j7x-ek6mla",
+   "inputDigest": "eee04b3de47a18c0c371e66eee2c3774e5d89aca2fe32da3d5029ef0b0b4d98c",
+   "outputDigest": "ce8e72f4c40b2cff950e6d535fd812794c5f77cd822cb950a2b79e016f5f8b2a",
+   "rowCount": 31328
+  },
+  {
+   "partitionId": "property/us-county-55139",
+   "current": "gen-mukw1jur-u9pdvc",
+   "inputDigest": "64127d152eb4ff41bc567f9f6d85f40dc00a3bf9552f3df8eda209ecef2d69b1",
+   "outputDigest": "8959af676dc5189757c9ee58090d275cff8f22c16083c5067f209e950cf4ccf6",
+   "rowCount": 78944
+  },
+  {
+   "partitionId": "property/us-county-55141",
+   "current": "gen-mukw1lgw-luaol3",
+   "inputDigest": "9d2d15af4924fa62dd9525dc6657d069c035b586e3e997f6041d46ff3d08d011",
+   "outputDigest": "db530a49ebe787933adbea399cd76ef9f03436bdd7147846fc513736854aff38",
+   "rowCount": 46484
+  }
+ ]
+}

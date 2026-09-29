@@ -205,6 +205,11 @@ export class SnapshotIndex {
     return { kind: 'changed', groupsChanged: (this.entries[at * 3 + 2] as bigint) !== truncateHex(groupDigestHex) };
   }
 
+  /** True when this index holds `keyHash`. Does not mark it seen. */
+  hasKeyHash(keyHash: bigint): boolean {
+    return this.find(keyHash) !== -1;
+  }
+
   /** Key hashes present in this index that were never marked by the current pass. */
   unseenKeyHashes(): readonly bigint[] {
     const out: bigint[] = [];
@@ -374,4 +379,113 @@ function sortTriples(entries: BigUint64Array, count: number): void {
     sorted[i * 3 + 2] = entries[from + 2] as bigint;
   }
   entries.set(sorted);
+}
+
+// ---------------------------------------------------------------------------
+// Absence tombstones (DF-0K)
+// ---------------------------------------------------------------------------
+
+const TOMBSTONE_MAGIC = 0x44465431; // "DFT1"
+
+/**
+ * Keys this partition has seen in some accepted snapshot and not in the latest.
+ *
+ * The snapshot index remembers only the previous snapshot, so a parcel that
+ * vanished from one release and came back in the next looked exactly like a
+ * brand-new parcel. For an annual statewide roll that is a real distinction —
+ * a county re-submitting a parcel it had dropped is not a new parcel — and it
+ * needs memory of more than one release.
+ *
+ * Stored off-heap and sorted, beside the index, one file per partition. Size is
+ * bounded by how many parcels a partition has dropped, not by the partition.
+ */
+export class TombstoneSet {
+  private readonly keys: BigUint64Array;
+
+  constructor(sortedUniqueKeys: BigUint64Array) {
+    this.keys = sortedUniqueKeys;
+  }
+
+  static empty(): TombstoneSet {
+    return new TombstoneSet(new BigUint64Array(0));
+  }
+
+  static fromUnsorted(keys: readonly bigint[] | BigUint64Array): TombstoneSet {
+    const sorted = BigUint64Array.from(keys).sort();
+    let unique = 0;
+    for (let i = 0; i < sorted.length; i++) {
+      if (i === 0 || sorted[i] !== sorted[i - 1]) sorted[unique++] = sorted[i] as bigint;
+    }
+    return new TombstoneSet(sorted.slice(0, unique));
+  }
+
+  get size(): number {
+    return this.keys.length;
+  }
+
+  has(keyHash: bigint): boolean {
+    let lo = 0;
+    let hi = this.keys.length - 1;
+    while (lo <= hi) {
+      const mid = (lo + hi) >>> 1;
+      const candidate = this.keys[mid] as bigint;
+      if (candidate === keyHash) return true;
+      if (candidate < keyHash) lo = mid + 1;
+      else hi = mid - 1;
+    }
+    return false;
+  }
+
+  /**
+   * The next tombstone set: prior tombstones not seen again, plus the keys the
+   * prior snapshot held that this one did not.
+   */
+  next(seenNow: SnapshotIndex, newlyAbsent: readonly bigint[]): TombstoneSet {
+    const carried: bigint[] = [];
+    for (const key of this.keys) if (!seenNow.hasKeyHash(key)) carried.push(key);
+    return TombstoneSet.fromUnsorted([...carried, ...newlyAbsent]);
+  }
+
+  toBytes(): Uint8Array {
+    const out = Buffer.allocUnsafe(HEADER_BYTES + this.keys.length * 8);
+    out.writeUInt32BE(TOMBSTONE_MAGIC, 0);
+    out.writeUInt32BE(8, 4);
+    out.writeBigUInt64BE(BigInt(this.keys.length), 8);
+    for (let i = 0; i < this.keys.length; i++) out.writeBigUInt64BE(this.keys[i] as bigint, HEADER_BYTES + i * 8);
+    return out;
+  }
+}
+
+export function tombstonePath(indexPath: string): string {
+  return indexPath.replace(/\.idx$/, '.absent');
+}
+
+export async function readTombstones(path: string): Promise<TombstoneSet> {
+  let bytes: Buffer;
+  try {
+    bytes = await readFile(path);
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === 'ENOENT') return TombstoneSet.empty();
+    throw e;
+  }
+  if (bytes.length < HEADER_BYTES || bytes.readUInt32BE(0) !== TOMBSTONE_MAGIC) {
+    fail('PARSE', 'tombstone file is not a Data Fabric absence set', { path });
+  }
+  const count = Number(bytes.readBigUInt64BE(8));
+  if (bytes.length !== HEADER_BYTES + count * 8) fail('PARSE', 'tombstone file is truncated', { path });
+  const keys = new BigUint64Array(count);
+  for (let i = 0; i < count; i++) keys[i] = bytes.readBigUInt64BE(HEADER_BYTES + i * 8);
+  return new TombstoneSet(keys);
+}
+
+/** Written only beside an activated index; an empty set removes the file. */
+export async function writeTombstones(path: string, set: TombstoneSet): Promise<void> {
+  if (set.size === 0) {
+    await rm(path, { force: true });
+    return;
+  }
+  await mkdir(dirname(path), { recursive: true });
+  const temp = `${path}.${process.pid}.tmp`;
+  await writeFile(temp, set.toBytes(), { mode: 0o600 });
+  await rename(temp, path);
 }

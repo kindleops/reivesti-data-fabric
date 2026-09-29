@@ -344,3 +344,40 @@ exactly the DF-0H comparison, and `'canonical'` — and
 how many conflicts the contract explains, how many remain, and the cause. The
 remaining conflicts are the finding. See `docs/MN-STATEWIDE-PARCELS.md` for the
 measured results.
+
+## 4b. The contract's first extension: parcel identifier schemes (DF-0K)
+
+Wisconsin exposed the one thing v1 could not represent: **a jurisdiction whose
+parcel numbering depends on punctuation.** v1's identifier rule folds case and
+punctuation, and its own docstring called that "reversible". It is reversible
+only where no two real identifiers differ by punctuation alone.
+
+Measured over all 3,574,646 rows of the Wisconsin Statewide Parcel Map V12:
+folding punctuation merges **11,411 pairs of distinct parcel identifiers inside
+the same county** (22,972 rows). Brown County's `1-1109` and `11-109` are two
+parcels. A rule that gives them one canonical property id is exactly the failure
+county scoping exists to prevent. Case folding, by contrast, merges nothing: 0
+case-only collisions in any county.
+
+So `parcel_identifier_scheme_1` makes the rule an explicit, per-jurisdiction,
+evidence-backed choice instead of a universal assumption:
+
+| Scheme | Rule | Used by |
+|---|---|---|
+| `PUNCTUATION_FOLDED` | v1 behaviour, byte for byte: case and punctuation folded | Minnesota — eCRV↔Hennepin convergence depends on it (`02-028-24-41-0097` ≡ `0202824410097`) |
+| `PUNCTUATION_PRESERVING` | outer whitespace trimmed, case folded, nothing else | Wisconsin — injective on every county |
+
+- `NORMALIZATION_CONTRACT_VERSION` is still `canonical_normalization_v1`, so no
+  Minnesota digest or property id moved. Wisconsin rows carry
+  `parcel_identifier_extension: parcel_identifier_scheme_1` and
+  `parcel_identifier_scheme: PUNCTUATION_PRESERVING` beside it.
+- The folded form survives as `parcelMatchKey()` — a **candidate** link for a
+  source that punctuates differently, to be checked for uniqueness inside the
+  county by whoever uses it. Never identity.
+- Neither scheme is Wisconsin-specific. A new jurisdiction picks one, and the
+  pick is measured.
+
+Everything else Wisconsin needed was already in v1: exact money from doubles via
+the decimal-string path (a sub-cent float is refused, not rounded — one such
+value exists in V12), acres → square feet with the source unit kept, `M/D/YYYY`
+load dates, a roll year as the time axis, and blank vs. zero kept apart.

@@ -621,6 +621,43 @@ enumerated, now resolves.
 
 ---
 
+## 10a. The second statewide estate (DF-0K)
+
+Wisconsin added the first source whose acquisition is a scheduled program from
+end to end (`df auto`, `docs/AUTOMATED-ACQUISITION.md`), and three pieces of
+general machinery that the next state reuses unchanged:
+
+| Reusable | Where |
+|---|---|
+| Streaming random-access ZIP reader (ZIP64, CRC-verified per entry) | `src/core/zip-file.ts` |
+| Dependency-free File Geodatabase reader (catalogue, field descriptors, rows via the offset index, geometry located and skipped) | `src/core/filegdb.ts` |
+| Bulk acquisition: release fingerprint, ledger, NOOP planning, streamed download into the artifact store | `src/runtime/bulk-acquisition.ts` |
+| Parcel identifier schemes (contract extension) | `src/canonical/normalization-contract.ts` |
+| Reappearance tombstones, skip-unchanged partitions, volatile-row-id exclusion, compressed derived plane | `src/runtime/stream-run.ts`, `snapshot-index.ts`, `arcgis-session.ts`, `staged-store.ts` |
+
+Source-specific, and deliberately so: the field map, CONAME routing, the
+non-parcel-label rule, value-type semantics, discovery of the SCO landing page.
+
+Property identity stays `county jurisdiction + normalized local parcel id`.
+Minnesota and Wisconsin share the partition store, the organization partition
+and the global digest; a Wisconsin run writes no Minnesota county partition.
+
+## 10b. The durable artifact estate (DF-0L)
+
+Invariant: **no authoritative source artifact may exist only on ephemeral
+execution storage.** Two storage planes: the execution disk (disposable) and a
+private, content-addressed durable store behind one backend interface
+(`LOCAL` | `S3_COMPATIBLE`, `src/archive/artifact-backend.ts`,
+`src/archive/s3-backend.ts`). Raw publisher bytes are committed
+STAGING → HASH_VERIFIED → DURABLE → REGISTERED (`src/archive/durable-artifacts.ts`)
+**before** any partition is activated; a write-once release record lets a fresh
+worker rehydrate instead of re-downloading. Credentials come only from
+`DF_ARTIFACT_*` environment variables; no signed URL is persisted. Draft
+migration 0011 adds `source_artifacts.artifact_role / content_encoding /
+derived_from_sha256` and `artifact_storage_copies` (not applied to production).
+Details: [`ARTIFACT-STORAGE.md`](ARTIFACT-STORAGE.md),
+[`CLOUD-EXECUTION.md`](CLOUD-EXECUTION.md).
+
 ## 11. Observability
 
 Structured JSON logs only. Every run emits `run.release_selected`,

@@ -10,6 +10,7 @@
  */
 import { createRegistry, type Registry } from './registry.ts';
 import { MN_STATEWIDE_PARTICIPATING_COUNTIES } from '../connectors/mn-statewide-parcels/participation.ts';
+import { WI_V12_COUNTIES } from '../connectors/wi-statewide-parcels/counties.ts';
 import type { SourceDefinition, SourceJurisdictionMapping } from './types.ts';
 
 export const MN_ECRV_SOURCE_ID = 'mn_dor_ecrv_weekly_sales_extract';
@@ -24,6 +25,8 @@ export const MN_STATEWIDE_SOURCE_ID = 'mn_statewide_parcels';
 export const WI_RETR_SOURCE_ID = 'wi_dor_retr_historical';
 export const WI_RETR_ADAPTER_KEY = 'wi_retr';
 export const MN_STATEWIDE_ADAPTER_KEY = 'mn_statewide_parcels';
+export const WI_STATEWIDE_SOURCE_ID = 'wi_statewide_parcels';
+export const WI_STATEWIDE_ADAPTER_KEY = 'wi_statewide_parcels';
 
 export const SOURCES: readonly SourceDefinition[] = [
   {
@@ -282,6 +285,58 @@ export const SOURCES: readonly SourceDefinition[] = [
       + '3009. NOT eCRV-grade transfer economics. Geometry is available and deliberately not ingested.',
   },
   {
+    sourceId: WI_STATEWIDE_SOURCE_ID,
+    sourceAuthority: 'Wisconsin State Cartographer\'s Office / Wisconsin Land Information Program (DOA)',
+    sourceProgram: 'Statewide Parcel Map Initiative — annual statewide parcel database',
+    sourceFamily: 'state_parcel_aggregation',
+    sourceName: 'Wisconsin Statewide Parcel Map',
+    sourceHomepage: 'https://www.sco.wisc.edu/parcels/data/',
+    accessType: 'bulk_download',
+    /**
+     * Published for anyone to download: "This data is provided free of charge".
+     * The archive sits at a stable public URL and the FeatureServer answers
+     * anonymously. Re-verified 2026-09-28 with no credential, cookie, token or
+     * CAPTCHA anywhere on either path.
+     */
+    automationStatus: 'sanctioned',
+    termsStatus: 'reviewed_permitted',
+    // No licence is imposed. The publisher asks users to complete a feedback
+    // form and credits the V12 project in the layer's copyright text; both are
+    // requests, not conditions, and neither restricts use.
+    licenseStatus: 'open_with_attribution',
+    costModel: 'free',
+    /** A published statewide archive, downloadable without payment. */
+    costClass: 'FREE_BULK',
+    /** One GET of a stable archive URL, discovered from the publisher's page. */
+    acquisitionClass: 'AUTOMATED_BULK_DOWNLOAD',
+    role: 'CORE_CANONICAL_SOURCE',
+    accessRequest: {
+      state: 'NOT_REQUIRED', contact: null, basis: null, requestedAt: null,
+      lastUpdatedAt: '2026-09-28', quotedFeeUsd: 0, notes: null,
+    },
+    /**
+     * Twelve annual versions are published (V1 2015 through V12 2026). Only the
+     * current release is ingested; the older archives are real history that a
+     * later phase may backfill, so depth is recorded as what the publisher
+     * offers rather than what Reivesti holds.
+     */
+    historicalDepth: '2015 (V1), annual',
+    expectedRefreshFrequency: 'annual',
+    sourcePriority: 1,
+    active: true,
+    // OWNERNME1/2 and PSTLADRESS, a full owner mailing address.
+    carriesRestrictedContact: true,
+    // The county and municipal rolls themselves, aggregated without re-keying.
+    authoritativeForParcelIdentity: true,
+    notes:
+      'V12.0.0 (2026): 3,574,646 rows across all 72 Wisconsin counties, one File Geodatabase in a 759,926,092-byte '
+      + 'archive, 44 attributes plus polygon geometry. Aggregated by the SCO from county and municipal submissions '
+      + 'loaded 2026-01-16 to 2026-04-20; V13 is announced for 2027-06-30. Carries owner names, owner mailing '
+      + 'address, assessed and estimated fair market values, net and gross tax, property class and three acreage '
+      + 'figures. Carries NO year built, NO structure detail and NO sale date or price: it is a parcel roll, not '
+      + 'a transfer source. A public FeatureServer serves the same release and is used as a witness, not crawled.',
+  },
+  {
     sourceId: WI_RETR_SOURCE_ID,
     sourceAuthority: 'Wisconsin Department of Revenue',
     sourceProgram: 'Real Estate Transfer Return — historical data',
@@ -501,6 +556,35 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
       schemaStandard: 'MnGAC Parcel Data Standard v1.1.3',
       aggregationRunDate: '2026-08-06',
       termsVerifiedAt: '2026-08-31',
+    },
+  },
+  {
+    /**
+     * One mapping, 72 counties — derived from the counties the V12 release
+     * actually contains, which is every catalogued Wisconsin county.
+     */
+    mappingId: 'wi_statewide_parcels__all_wi_counties',
+    sourceId: WI_STATEWIDE_SOURCE_ID,
+    scope: { kind: 'counties', countyFips: [...WI_V12_COUNTIES] },
+    /**
+     * Only what the layer carries. NOT `transfer`, `deed`, `mortgage`, `lien`
+     * or `foreclosure_notice`: the schema has no sale, instrument or financing
+     * field at all, and it carries no assessor sale echo either.
+     */
+    capabilities: ['parcel', 'assessor', 'ownership', 'tax'],
+    coverageStart: null,
+    coverageEnd: null,
+    status: 'active',
+    adapterKey: WI_STATEWIDE_ADAPTER_KEY,
+    config: {
+      landingPage: 'https://www.sco.wisc.edu/parcels/data/',
+      archiveUrl: 'https://web.s3.wisc.edu/parcels/v12_parcels/V12.0.0_Wisconsin_Parcels_2026_10.3_Uncompressed.zip',
+      serviceUrl: 'https://services3.arcgis.com/n6uYoouQZW75n5WI/arcgis/rest/services/Wisconsin_Statewide_Parcels_DB/FeatureServer',
+      layerId: 0,
+      release: 'V12.0.0-2026',
+      acquisition: 'unattended: discover → NOOP if ingested → download archive → derive bundle → ingest',
+      schemaDocumentation: 'https://www.sco.wisc.edu/parcels/data/assets/V12/V12_Wisconsin_Statewide_Parcels_Schema_Documentation.pdf',
+      termsVerifiedAt: '2026-09-28',
     },
   },
   {

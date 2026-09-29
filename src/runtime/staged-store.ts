@@ -21,7 +21,8 @@
  * generation directory, which `sweepAbandoned` removes.
  */
 import { createWriteStream } from 'node:fs';
-import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { createGzip, gzipSync } from 'node:zlib';
 import { join } from 'node:path';
 import { once } from 'node:events';
 import { canonicalJson } from '../core/hash.ts';
@@ -67,7 +68,23 @@ export type GenerationStore = {
   sweepAbandoned(): Promise<number>;
 };
 
-export function createGenerationStore(root: string): GenerationStore {
+export type GenerationStoreOptions = {
+  /**
+   * gzip each table as it is written (`<table>.ndjson.gz`).
+   *
+   * Canonical bundles repeat their evidence on every row, which is the right
+   * shape for provenance and costs ~5 KB per parcel: 14 GB for Minnesota
+   * alone. Compressed, the same rows are about a tenth of that, which is what
+   * lets two statewide estates share one disk. Readers detect the suffix, so a
+   * store may hold compressed and uncompressed generations side by side.
+   * Defaults to `DF_DERIVED_GZIP=1`, else off.
+   */
+  readonly compress?: boolean;
+};
+
+export function createGenerationStore(root: string, options: GenerationStoreOptions = {}): GenerationStore {
+  const compress = options.compress ?? process.env['DF_DERIVED_GZIP'] === '1';
+  const suffix = compress ? '.ndjson.gz' : '.ndjson';
   // Restricted rows live under a sibling root so a deployment has one directory
   // to lock down, exactly as in the buffered store.
   const dirFor = (table: StagedTable): string =>
@@ -100,17 +117,21 @@ export function createGenerationStore(root: string): GenerationStore {
         const dir = join(dirOfRun(table, runId), generation);
         await mkdir(dir, { recursive: true });
         const restricted = (RESTRICTED_TABLES as readonly string[]).includes(table);
-        const stream = createWriteStream(join(dir, `${table}.ndjson`), {
+        const file = createWriteStream(join(dir, `${table}${suffix}`), {
           mode: restricted ? 0o600 : 0o644,
           highWaterMark: 1 << 20,
         });
+        // Level 1: the point is disk, not ratio, and the emit stage is hot.
+        const gzip = compress ? createGzip({ level: 1 }) : null;
+        if (gzip) gzip.pipe(file);
+        const stream = gzip ?? file;
         const handle = {
           async write(line: string): Promise<void> {
             if (!stream.write(`${line}\n`)) await once(stream, 'drain');
           },
           async end(): Promise<void> {
             stream.end();
-            await once(stream, 'finish');
+            await once(file, 'finish');
           },
         };
         streams.set(table, handle);
@@ -139,7 +160,7 @@ export function createGenerationStore(root: string): GenerationStore {
             if (!streams.has(table)) {
               const dir = join(dirOfRun(table, runId), generation);
               await mkdir(dir, { recursive: true });
-              await writeFile(join(dir, `${table}.ndjson`), '', {
+              await writeFile(join(dir, `${table}${suffix}`), compress ? gzipSync('') : '', {
                 mode: (RESTRICTED_TABLES as readonly string[]).includes(table) ? 0o600 : 0o644,
               });
             }
@@ -183,7 +204,9 @@ export function createGenerationStore(root: string): GenerationStore {
       const base = dirOfRun(table, runId);
       const generation = await currentGeneration(base);
       if (!generation) return;
-      const path = join(base, generation, `${table}.ndjson`);
+      const plain = join(base, generation, `${table}.ndjson`);
+      const zipped = `${plain}.gz`;
+      const path = await access(zipped).then(() => zipped, () => plain);
       try {
         yield* readLines(path);
       } catch (e) {

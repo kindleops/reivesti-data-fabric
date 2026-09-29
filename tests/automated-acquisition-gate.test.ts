@@ -123,10 +123,11 @@ test('no manually-acquired source contributes to national core coverage', () => 
     if (isAutomatedAcquisition(s.acquisitionClass ?? 'UNKNOWN_AUTOMATION')) continue;
     assert.equal(isCoreActivatable(s, FULL), false, `${s.sourceId} is not automatically acquirable`);
   }
-  // Minnesota's 59 parcel counties are the whole of it, and transfer coverage is
-  // zero nationally. Both statewide transfer sources are parsed and neither is
-  // reachable — the gap the next phase has to close.
-  assert.equal(report.jurisdictionsWithCoreSource, 59);
+  // Minnesota's 59 parcel counties plus Wisconsin's 72 (DF-0K, a statewide
+  // parcel map a scheduler retrieves unattended), and transfer coverage is
+  // still zero nationally. Both statewide transfer sources are parsed and
+  // neither is reachable — the gap the next phase has to close.
+  assert.equal(report.jurisdictionsWithCoreSource, 131);
   assert.equal(report.byCapability.find((c) => c.capability === 'transfer')?.covered, 0);
 });
 

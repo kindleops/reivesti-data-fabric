@@ -47,10 +47,15 @@ import { organizationObservationOf } from '../canonical/organization-projection.
 import {
   SnapshotIndexBuilder,
   type SnapshotIndex,
+  type TombstoneSet,
   activateSnapshotIndex,
   listIndexedPartitions,
   readSnapshotIndex,
+  readTombstones,
+  shortHash,
   snapshotIndexPath,
+  tombstonePath,
+  writeTombstones,
 } from '../canonical/snapshot-index.ts';
 import { SNAPSHOT_CHANGE_KIND, type SnapshotChangeKind, type SourceSnapshot, reconcile, snapshotId as makeSnapshotId } from '../canonical/snapshot.ts';
 import type { ContactObservation, ContactPlane } from '../contact/contact-plane.ts';
@@ -123,6 +128,19 @@ export type StreamRunOptions = {
    * instead of a second 1.1 GB download.
    */
   readonly resume?: boolean;
+  /**
+   * Leave a county's partition alone when every row it delivered is unchanged
+   * and nothing it held went missing.
+   *
+   * A statewide release restates every county, so without this a re-release in
+   * which five counties moved recomputes all of them. With it, the partitions
+   * that recompute are exactly the ones whose evidence changed; the rest keep
+   * their activated generation, byte for byte, and are reported as skipped.
+   * The canonical observations of the release are still emitted in full — the
+   * release WAS observed — only the projection of an unchanged county is not
+   * redone. Off by default, so existing sources behave exactly as before.
+   */
+  readonly skipUnchangedPartitions?: boolean;
 };
 
 export type StreamRunResult = {
@@ -151,6 +169,10 @@ export type StreamRunResult = {
    * something about the parcels that is not known.
    */
   readonly uncoveredPartitions: readonly string[];
+  /** What happened to each accepted row relative to the last accepted snapshot. */
+  readonly changeCounts: Readonly<Record<SnapshotChangeKind, number>>;
+  /** Partitions left untouched because nothing in them changed. */
+  readonly skippedPartitions: readonly string[];
   readonly timings: Readonly<Record<string, number>>;
   readonly peakHeapBytes: number;
   /** Peak heap, external, arrayBuffers and RSS per pipeline stage. */
@@ -251,6 +273,11 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
   let staged: Awaited<ReturnType<GenerationStore['beginRun']>> | null = null;
   /** Partitions with prior state that this delivery did not cover. See the type. */
   let uncoveredPartitions: readonly string[] = [];
+  let skippedPartitions: readonly string[] = [];
+  const changeCounts: Record<SnapshotChangeKind, number> = {
+    new_parcel_observed: 0, unchanged_parcel: 0, parcel_attributes_changed: 0,
+    parcel_missing_from_latest_source: 0, parcel_reappeared: 0,
+  };
 
   try {
     if (mapping.adapterKey !== connector.adapterKey) {
@@ -489,10 +516,17 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       normalizationVersion: connector.normalizationVersion,
     }));
     const observedAt = acquired.manifest.retrievedAt;
-    const changeCounts: Record<SnapshotChangeKind, number> = {
-      new_parcel_observed: 0, unchanged_parcel: 0, parcel_attributes_changed: 0,
-      parcel_missing_from_latest_source: 0, parcel_reappeared: 0,
+    // Absence tombstones, loaded per partition on first touch. See TombstoneSet.
+    const priorTombstones = new Map<string | null, TombstoneSet>();
+    const tombstonesFor = async (partition: string | null): Promise<TombstoneSet> => {
+      const existing = priorTombstones.get(partition);
+      if (existing !== undefined) return existing;
+      const loaded = await readTombstones(tombstonePath(snapshotIndexPath(indexRoot, source.sourceId, partition)));
+      priorTombstones.set(partition, loaded);
+      return loaded;
     };
+    /** Partitions in which some row was new, revised or reappeared, or something went missing. */
+    const changedPartitions = new Set<string | null>();
     let validationErrorCount = 0;
     let processed = 0;
 
@@ -517,9 +551,17 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       const comparison = prior.compareAndMark(parsed.sourceRecordId, parsed.contentDigest, groupDigest);
       nextIndexFor(partition, prior).add(parsed.sourceRecordId, parsed.contentDigest, groupDigest);
 
-      const kind = comparison.kind === 'absent' ? 'new' : comparison.kind === 'unchanged' ? 'unchanged' : 'revised';
+      let kind: ChangeContext['kind'] = comparison.kind === 'absent'
+        ? 'new' : comparison.kind === 'unchanged' ? 'unchanged' : 'revised';
+      if (kind === 'new' && (await tombstonesFor(partition)).has(shortHash(parsed.sourceRecordId))) {
+        // Seen in an earlier accepted snapshot, absent from the last one.
+        kind = 'reappeared';
+      }
+      if (kind !== 'unchanged') changedPartitions.add(partition);
       changeCounts[SNAPSHOT_CHANGE_KIND[kind]] += 1;
-      if (kind === 'new') metrics.rowsNew += 1;
+      // rowsNew keeps its meaning — "not in the previous snapshot" — so it
+      // counts reappearances too; changeCounts tells the two apart.
+      if (kind === 'new' || kind === 'reappeared') metrics.rowsNew += 1;
       else if (kind === 'unchanged') metrics.rowsUnchanged += 1;
       else metrics.rowsRevised += 1;
 
@@ -646,9 +688,12 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     // a synthetic one. Counties present in prior state and absent from this
     // delivery are reported separately below.
     let missingCount = 0;
+    const newlyAbsent = new Map<string | null, readonly bigint[]>();
     for (const [partition, prior] of priorIndexes) {
       const unseen = prior.unseenKeyHashes();
       if (unseen.length === 0) continue;
+      newlyAbsent.set(partition, unseen);
+      changedPartitions.add(partition);
       missingCount += unseen.length;
       if (!staged) continue;
       // Recorded by key hash: the absent row's full key lives in the prior
@@ -692,6 +737,26 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
 
     await contributionsWriter.close();
 
+    // ---- which partitions actually changed -----------------------------------
+    const partitions = createPartitionStore(varRoot);
+    const skippedCounties = new Set<string>();
+    const skippedActivations: PartitionActivation[] = [];
+    if (options.skipUnchangedPartitions && !dryRun) {
+      for (const [partition, prior] of priorIndexes) {
+        if (partition === null || changedPartitions.has(partition) || prior.size === 0) continue;
+        // Only a partition with a live projection can be left as it is.
+        const manifest = await partitions.manifest(countyPartition('PROPERTY_RESOLUTION', partition));
+        if (manifest === null) continue;
+        skippedCounties.add(partition);
+        skippedActivations.push({
+          partitionId: manifest.partitionId, state: 'skipped', generation: manifest.generation,
+          reason: 'unchanged: every delivered row matched the last accepted snapshot and none went missing',
+        });
+      }
+      skippedPartitions = skippedActivations.map((a) => a.partitionId).sort();
+      if (skippedPartitions.length > 0) runLogger.info('stream.partitions_skipped', { count: skippedPartitions.length });
+    }
+
     // ---- activate canonical rows -------------------------------------------
     //
     // Canonical rows go live BEFORE the projections run, and deliberately so.
@@ -710,10 +775,16 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       // anything that is not COMPLETE, so the ordering is enforced rather than
       // merely observed.
       for (const [partition, builder] of nextIndexes) {
-        await activateSnapshotIndex(
-          snapshotIndexPath(indexRoot, source.sourceId, partition),
-          builder.build(),
-        );
+        const built = builder.build();
+        if (partition !== null && skippedCounties.has(partition)) {
+          // Identical content to the index already on disk; not rewritten.
+          built.discard();
+          continue;
+        }
+        const path = snapshotIndexPath(indexRoot, source.sourceId, partition);
+        await activateSnapshotIndex(path, built);
+        const tombstones = await tombstonesFor(partition);
+        await writeTombstones(tombstonePath(path), tombstones.next(built, newlyAbsent.get(partition) ?? []));
       }
     } else {
       // A dry run built correct indexes and does not get to keep them.
@@ -722,7 +793,6 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
 
     // ---- distribute contributions to their partitions -----------------------
     const projectStart = performance.now();
-    const partitions = createPartitionStore(varRoot);
     const authority = parcelAuthorityFor(
       options.registry.sources.filter((s) => s.authoritativeForParcelIdentity === true).map((s) => s.sourceId),
     );
@@ -736,7 +806,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
 
     const plan = planPartitions({
       runId,
-      observedCountyFips: observedCounties,
+      observedCountyFips: [...observedCounties].filter((c) => !skippedCounties.has(c)),
       producedOrganizationRows,
       // No connector produces transaction-candidate inputs through this path
       // yet. Declared rather than faked: an empty domain is honest, an invented
@@ -747,7 +817,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     if (!dryRun) {
       await distributeContributions(partitions, contributionsPath, runId, {
         chunkLines: batch.sortChunkLines, scratchDir: scratch,
-      });
+      }, skippedCounties);
 
       const recomputed = await recomputePartitions({
         partitions,
@@ -764,7 +834,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
           addresses: () => store.readTable('business_entity_addresses'),
         },
       });
-      activations.push(...recomputed.activations);
+      activations.push(...recomputed.activations, ...skippedActivations);
       resolutions.push(...recomputed.resolutions);
       conflicts.push(...recomputed.conflicts);
       entityLinks.push(...recomputed.entityLinks);
@@ -853,6 +923,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     return {
       run, artifact, snapshot, resolutions, conflicts, entityLinks,
       partitionPlan, activations, globalDigest: estateDigest, countyCounts, uncoveredPartitions,
+      changeCounts: { ...changeCounts }, skippedPartitions,
       timings, peakHeapBytes, memoryByStage,
     };
   }
@@ -912,6 +983,7 @@ async function distributeContributions(
   scratchFile: string,
   runId: string,
   sort: { chunkLines: number; scratchDir: string },
+  skipCounties: ReadonlySet<string> = new Set(),
 ): Promise<readonly string[]> {
   const written: string[] = [];
   const keyOf = (line: string): string => {
@@ -946,6 +1018,12 @@ async function distributeContributions(
     if (county === '') {
       // A contribution with no county cannot be placed in a partition.
       pending = await sorted.next();
+      continue;
+    }
+
+    if (skipCounties.has(county)) {
+      // An unchanged county: its partition keeps what it has.
+      while (!pending.done && keyOf(pending.value) === county) pending = await sorted.next();
       continue;
     }
 

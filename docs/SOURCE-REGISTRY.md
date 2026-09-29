@@ -222,6 +222,23 @@ which exactly one has a core-eligible source. See
 
 ---
 
+## `wi_statewide_parcels` (DF-0K)
+
+| | |
+|---|---|
+| Authority | Wisconsin State Cartographer's Office / Wisconsin Land Information Program (DOA) |
+| Family | `state_parcel_aggregation` |
+| Cost / acquisition | `FREE_BULK` / `AUTOMATED_BULK_DOWNLOAD`, `sanctioned`, `reviewed_permitted`, `open_with_attribution` |
+| Role / verdict | `CORE_CANONICAL_SOURCE` / **`CORE_ELIGIBLE`** (gate: none) |
+| Mapping | `wi_statewide_parcels__all_wi_counties` — ONE mapping, 72 counties, `active` |
+| Capabilities | `parcel`, `assessor`, `ownership`, `tax` — and deliberately not `transfer`, `deed`, `mortgage`, `lien`, `foreclosure_notice` |
+| Cadence / depth | annual (V13 announced for 2027-06-30); V1 (2015) through V12 (2026) published |
+| Restricted | `PSTLADRESS` (owner mailing address) |
+| Parcel identity | authoritative; `PUNCTUATION_PRESERVING` scheme |
+
+One source, 72 counties, through one mapping — not 72 definitions. See
+`WISCONSIN-STATEWIDE-PARCELS.md`.
+
 ## `wi_dor_retr_historical` (DF-0J)
 
 Wisconsin Department of Revenue, Real Estate Transfer Return historical data.

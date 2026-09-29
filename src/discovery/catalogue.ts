@@ -251,7 +251,7 @@ export const SOURCE_CANDIDATES: readonly SourceCandidate[] = [
   }),
   make({
     authority: 'Wisconsin State Cartographer\'s Office / Department of Administration',
-    sourceName: 'Wisconsin Statewide Parcel Map (V12)',
+    sourceName: 'Wisconsin Statewide Parcel Map',
     scope: { kind: 'states', stateCodes: ['WI'] },
     capabilities: ['parcel', 'assessor', 'ownership', 'tax'],
     officialUrl: 'https://www.sco.wisc.edu/parcels/data/',
