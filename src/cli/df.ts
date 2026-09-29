@@ -51,6 +51,7 @@ import {
   wiStatewideDispositionCounts,
 } from '../connectors/wi-statewide-parcels/field-map.ts';
 import { replayWiFromArchive, runWiStatewidePipeline, type WiPipelineResult } from '../connectors/wi-statewide-parcels/pipeline.ts';
+import { nyFieldsReport, runNyAuto } from '../connectors/ny-statewide-parcels/cli.ts';
 import { durableStoreFromEnv } from '../archive/durable-artifacts.ts';
 import { catalog, doctor, pullArtifact, pushArtifact, reacquire, verifyDurable, type CatalogEntry } from './cloud.ts';
 import { defaultRegistry } from '../registry/sources.ts';
@@ -308,6 +309,10 @@ async function main(): Promise<number> {
     }
 
     case 'fields': {
+      if (flags['source'] === 'ny') {
+        out(nyFieldsReport());
+        return 0;
+      }
       if (flags['source'] === 'wi') {
         out({
           source: 'wi_statewide_parcels',
@@ -536,7 +541,7 @@ async function main(): Promise<number> {
         return 2;
       }
       const mapping = registry.mapping(mappingId);
-      if (mapping.adapterKey !== 'wi_statewide_parcels') {
+      if (mapping.adapterKey !== 'wi_statewide_parcels' && mapping.adapterKey !== 'ny_statewide_parcels') {
         process.stderr.write(`adapter "${mapping.adapterKey}" has no unattended acquisition pipeline\n`);
         return 2;
       }
@@ -552,6 +557,12 @@ async function main(): Promise<number> {
         durable: durableStoreFromEnv(),
         ...(typeof flags['max'] === 'string' ? { maxRows: Number(flags['max']) } : {}),
       };
+      if (mapping.adapterKey === 'ny_statewide_parcels') {
+        const ny = await runNyAuto(common, flags);
+        if ('usage' in ny) { process.stderr.write(ny.usage); return 2; }
+        out(ny.summary);
+        return ny.exitCode;
+      }
       let result: WiPipelineResult;
       if (typeof flags['replay'] === 'string') {
         const sha = flags['replay'] as string;

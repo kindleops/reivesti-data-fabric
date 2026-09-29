@@ -126,8 +126,9 @@ test('no manually-acquired source contributes to national core coverage', () => 
   // Minnesota's 59 parcel counties plus Wisconsin's 72 (DF-0K, a statewide
   // parcel map a scheduler retrieves unattended), and transfer coverage is
   // still zero nationally. Both statewide transfer sources are parsed and
-  // neither is reachable — the gap the next phase has to close.
-  assert.equal(report.jurisdictionsWithCoreSource, 131);
+  // neither is reachable — the gap the next phase has to close. New York's 62
+  // (DF-0N, a statewide centroid archive, unattended) make 193.
+  assert.equal(report.jurisdictionsWithCoreSource, 193);
   assert.equal(report.byCapability.find((c) => c.capability === 'transfer')?.covered, 0);
 });
 

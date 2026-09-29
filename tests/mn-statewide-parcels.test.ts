@@ -582,10 +582,11 @@ test('the statewide source added 59 parcel jurisdictions', () => {
   const covered = new Set(
     matrix.entries
       .filter((e) => e.capability === 'parcel' && e.countsAsCore && e.state === 'ACTIVE'
-        && e.sourceId !== 'wi_statewide_parcels')
+        && e.sourceId !== 'wi_statewide_parcels' && e.sourceId !== 'ny_statewide_parcels')
       .map((e) => e.jurisdictionId),
   );
-  // Wisconsin's statewide map (DF-0K) adds its own 72; this one is Minnesota's.
+  // Wisconsin's statewide map (DF-0K) adds its own 72 and New York's (DF-0N) its
+  // own 62; this one is Minnesota's.
   assert.equal(covered.size, 59);
   assert.ok(covered.has(countyJurisdictionId(RAMSEY)));
   assert.ok(covered.has(countyJurisdictionId(HENNEPIN)));

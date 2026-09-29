@@ -11,6 +11,7 @@
 import { createRegistry, type Registry } from './registry.ts';
 import { MN_STATEWIDE_PARTICIPATING_COUNTIES } from '../connectors/mn-statewide-parcels/participation.ts';
 import { WI_V12_COUNTIES } from '../connectors/wi-statewide-parcels/counties.ts';
+import { NY_2025_COUNTIES } from '../connectors/ny-statewide-parcels/counties.ts';
 import type { SourceDefinition, SourceJurisdictionMapping } from './types.ts';
 
 export const MN_ECRV_SOURCE_ID = 'mn_dor_ecrv_weekly_sales_extract';
@@ -27,6 +28,9 @@ export const WI_RETR_ADAPTER_KEY = 'wi_retr';
 export const MN_STATEWIDE_ADAPTER_KEY = 'mn_statewide_parcels';
 export const WI_STATEWIDE_SOURCE_ID = 'wi_statewide_parcels';
 export const WI_STATEWIDE_ADAPTER_KEY = 'wi_statewide_parcels';
+export const NY_STATEWIDE_SOURCE_ID = 'ny_statewide_parcels';
+export const NY_STATEWIDE_ADAPTER_KEY = 'ny_statewide_parcels';
+export const NY_POLYGON_SOURCE_ID = 'ny_statewide_parcel_polygons';
 
 export const SOURCES: readonly SourceDefinition[] = [
   {
@@ -458,6 +462,93 @@ export const SOURCES: readonly SourceDefinition[] = [
     notes: 'Event-feed-shaped source: dated notices, not a state of the world. Not implemented. '
       + 'Texas county geography is catalogued as of DF-0G, so this mapping now resolves.',
   },
+  {
+    sourceId: NY_STATEWIDE_SOURCE_ID,
+    sourceAuthority: 'NYS Office of Information Technology Services, Geospatial Services (Statewide Parcel Map Program), '
+      + 'with assessment-roll attributes from the NYS Department of Taxation and Finance Office of Real Property Tax Services',
+    sourceProgram: 'Statewide Parcel Map Program — NYS Tax Parcel Centroid Points (annual)',
+    sourceFamily: 'state_parcel_aggregation',
+    sourceName: 'NYS Tax Parcel Centroid Points',
+    sourceHomepage: 'https://gis.ny.gov/parcels',
+    accessType: 'bulk_download',
+    /**
+     * "Publicly available GIS tax parcel data is available for Download or as
+     * Web Services"; "This map service is available to the public." The archive
+     * sits at a public URL linked from the program page and the FeatureServer
+     * answers anonymously. Re-verified 2026-09-29 with no credential, cookie,
+     * token or CAPTCHA on any path. robots.txt disallows only site-admin paths.
+     */
+    automationStatus: 'sanctioned',
+    termsStatus: 'reviewed_permitted',
+    // No licence is imposed: a no-warranty use limitation, and credits to the
+    // contributing counties, Geospatial Services and ORPTS.
+    licenseStatus: 'open_with_attribution',
+    costModel: 'free',
+    /** A published statewide archive, downloadable without payment. */
+    costClass: 'FREE_BULK',
+    /** One GET of an archive linked from the program page; discovery follows the page through the GeoHub migration. */
+    acquisitionClass: 'AUTOMATED_BULK_DOWNLOAD',
+    role: 'CORE_CANONICAL_SOURCE',
+    accessRequest: {
+      state: 'NOT_REQUIRED', contact: null, basis: null, requestedAt: null,
+      lastUpdatedAt: '2026-09-29', quotedFeeUsd: 0, notes: null,
+    },
+    // Only the current release is published; earlier rolls are not offered.
+    historicalDepth: null,
+    expectedRefreshFrequency: 'annual',
+    sourcePriority: 1,
+    active: true,
+    // PRIMARY_OWNER/ADD_OWNER and both owners' mailing addresses.
+    carriesRestrictedContact: true,
+    // The municipal assessment rolls (and NYC MapPLUTO), aggregated without re-keying.
+    authoritativeForParcelIdentity: true,
+    notes:
+      '2025 roll, May 2026 build (NYS_2025_Tax_Parcels_Centroid_Points_2605.gdb, archive re-issued 2026-09-24): '
+      + '5,510,061 parcel centroids across all 62 counties, including the five NYC boroughs from NYC MapPLUTO. '
+      + 'One File Geodatabase in a 562,761,366-byte archive: 73 attributes plus POINT ZM geometry (NAD83 UTM 18N). '
+      + 'Carries owner names, owner mailing addresses, assessed land/total and full market value, property class, '
+      + 'roll section and residential inventory (year built, living area, bedrooms). Carries NO tax amount and NO '
+      + 'sale date or price; BOOK/PAGE is a deed reference, not a transfer. Legacy web services '
+      + '(gisservices.its.ny.gov) stopped updating 2026-09-18 and retire in October 2026; discovery follows the '
+      + 'program page and the publisher catalogue item to GeoHub.',
+  },
+  {
+    sourceId: NY_POLYGON_SOURCE_ID,
+    sourceAuthority: 'NYS Office of Information Technology Services, Geospatial Services (Statewide Parcel Map Program)',
+    sourceProgram: 'Statewide Parcel Map Program — NYS Tax Parcels Public (polygons)',
+    sourceFamily: 'state_parcel_aggregation',
+    sourceName: 'NYS Tax Parcels Public (polygons)',
+    sourceHomepage: 'https://gis.ny.gov/parcels',
+    accessType: 'bulk_download',
+    automationStatus: 'sanctioned',
+    termsStatus: 'reviewed_permitted',
+    licenseStatus: 'open_with_attribution',
+    costModel: 'free',
+    costClass: 'FREE_BULK',
+    acquisitionClass: 'AUTOMATED_BULK_DOWNLOAD',
+    /**
+     * The SAME parcels as the centroids, as polygons, for the 38 counties that
+     * let the state redistribute their geometry: measured key-for-key identical
+     * to the centroid rows there (3,822,116 keys, none one-sided). Ingesting it
+     * would double-ingest equivalent facts, so it asserts nothing canonical: its
+     * archive is retained as raw geometry evidence and used only to cross-check.
+     * No mapping, so it can never count toward coverage.
+     */
+    role: 'VALIDATION_ONLY',
+    accessRequest: {
+      state: 'NOT_REQUIRED', contact: null, basis: null, requestedAt: null,
+      lastUpdatedAt: '2026-09-29', quotedFeeUsd: 0, notes: null,
+    },
+    historicalDepth: null,
+    expectedRefreshFrequency: 'annual',
+    sourcePriority: 2,
+    active: true,
+    carriesRestrictedContact: true,
+    notes:
+      '38 of 62 counties (those that permit public redistribution), 3,827,530 polygons, 801,888,277-byte archive '
+      + '(NYS_2025_Tax_Parcels_Public_2605.gdb). Same 2025 roll and schema as the centroids. Retained raw by the '
+      + 'New York pipeline; never decoded into canonical rows.',
+  },
 ];
 
 export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
@@ -664,6 +755,37 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
     status: 'planned',
     adapterKey: 'dallas_foreclosure',
     config: {},
+  },
+  {
+    /**
+     * One mapping, 62 counties — the counties the 2025-roll release actually
+     * contains, which is every catalogued New York county including the five
+     * New York City boroughs.
+     */
+    mappingId: 'ny_statewide_parcels__all_ny_counties',
+    sourceId: NY_STATEWIDE_SOURCE_ID,
+    scope: { kind: 'counties', countyFips: [...NY_2025_COUNTIES] },
+    /**
+     * Only what the layer carries. NOT `tax`: the schema has no levy, bill or
+     * tax amount of any kind. NOT `transfer`, `deed`, `mortgage`, `lien` or
+     * `foreclosure_notice`: there is no sale, instrument or financing field, and
+     * BOOK/PAGE is a pointer to a deed, not a deed.
+     */
+    capabilities: ['parcel', 'assessor', 'ownership'],
+    coverageStart: null,
+    coverageEnd: null,
+    status: 'active',
+    adapterKey: NY_STATEWIDE_ADAPTER_KEY,
+    config: {
+      programPage: 'https://gis.ny.gov/parcels',
+      catalogItem: 'https://www.arcgis.com/home/item.html?id=b25e828955bd4391ad17650d6893edde',
+      archiveName: 'NYS-Tax-Parcel-Centroid-Points.gdb.zip',
+      release: '2025-2605',
+      acquisition: 'unattended: discover via program page → NOOP if ingested → download archive → derive bundle → ingest',
+      migration: 'legacy gisservices.its.ny.gov stops updating 2026-09-18, retires 10/2026; witness resolved per run',
+      metadata: 'https://gis.ny.gov/system/files/documents/2026/05/current_parcel_centroid_metadata.pdf',
+      termsVerifiedAt: '2026-09-29',
+    },
   },
 ];
 
