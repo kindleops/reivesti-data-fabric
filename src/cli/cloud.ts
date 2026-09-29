@@ -8,7 +8,8 @@
 import { execFile } from 'node:child_process';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { access, constants, mkdir, rm, statfs, writeFile } from 'node:fs/promises';
-import { once } from 'node:events';
+import { Transform } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { freemem, totalmem } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
@@ -263,18 +264,28 @@ export async function reacquire(
   const period = entry.referencePeriod;
   await mkdir(options.scratchDir, { recursive: true, mode: 0o700 });
   const scratch = join(options.scratchDir, `reacquire-${randomBytes(8).toString('hex')}`);
+  let out: ReturnType<typeof createWriteStream> | undefined;
+  let outClosed: Promise<void> | undefined;
   try {
     const hash = createHash('sha256');
     let bytes = 0;
-    const out = createWriteStream(scratch, { mode: 0o600 });
     const response = await (options.fetchImpl ?? fetch)(url);
     if (!response.ok || response.body === null) throw new Error(`GET ${url} returned ${response.status}`);
-    for await (const chunk of response.body as unknown as AsyncIterable<Uint8Array>) {
-      hash.update(chunk);
-      bytes += chunk.length;
-      if (!out.write(chunk)) await once(out, 'drain');
-    }
-    await new Promise<void>((resolve, reject) => out.end((e?: Error | null) => (e ? reject(e) : resolve())));
+    // Opened only once there is a body to write, and closed before the scratch
+    // file is removed on every path, so a failure never leaks a descriptor or
+    // masks the original error with a cleanup one.
+    const output = createWriteStream(scratch, { mode: 0o600 });
+    out = output;
+    outClosed = new Promise<void>((resolve) => output.once('close', () => resolve()));
+    const hashing = new Transform({
+      transform(chunk: Uint8Array, _encoding, callback) {
+        hash.update(chunk);
+        bytes += chunk.length;
+        callback(null, chunk);
+      },
+    });
+    await pipeline(response.body as unknown as AsyncIterable<Uint8Array>, hashing, output);
+    await outClosed;
     const actual = hash.digest('hex');
     const restored = actual === entry.sha256;
     const certified = restored ? entry.certifiedRetrieval ?? null : null;
@@ -303,6 +314,8 @@ export async function reacquire(
     });
     return { restored, manifestRestored: certified !== null, expected: entry.sha256, actual, bytes, artifact };
   } finally {
+    out?.destroy();
+    if (outClosed) await outClosed;
     await rm(scratch, { force: true });
   }
 }

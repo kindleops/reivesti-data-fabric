@@ -63,6 +63,15 @@ export type Capability =
   | 'tax'
   | 'ownership'
   | 'transfer'
+  /**
+   * A property appraiser's record that a parcel sold, with the price and the
+   * appraiser's qualification decision (Florida's SDF). Evidence that a sale
+   * happened and was reviewed — NOT a deed, NOT a recorded instrument, NOT a
+   * transfer declaration naming the parties.
+   */
+  | 'sale_observation'
+  /** The consideration of such a sale, as the publisher derives it (Florida: from documentary stamp tax). */
+  | 'sale_economics'
   | 'deed'
   | 'mortgage'
   | 'mortgage_release'

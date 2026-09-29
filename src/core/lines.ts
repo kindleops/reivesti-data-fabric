@@ -172,3 +172,31 @@ export async function* inBatches<T>(source: AsyncIterable<T>, size: number): Asy
   }
   if (batch.length > 0) yield batch;
 }
+
+/**
+ * Lines out of a byte stream — a zip entry, typically — decoded as UTF-8 or
+ * Latin-1. CR before LF is dropped, so CRLF files read like LF files; blank
+ * lines are skipped as `readLines` skips them. A multi-byte UTF-8 sequence
+ * split across chunks is reassembled, never mangled.
+ */
+export async function* linesFromChunks(
+  chunks: AsyncIterable<Buffer>,
+  encoding: 'utf8' | 'latin1' = 'utf8',
+): AsyncGenerator<string> {
+  const decoder = new TextDecoder(encoding === 'utf8' ? 'utf-8' : 'latin1');
+  let carry = '';
+  for await (const chunk of chunks) {
+    const text = carry + decoder.decode(chunk, { stream: true });
+    let start = 0;
+    for (;;) {
+      const nl = text.indexOf('\n', start);
+      if (nl === -1) { carry = text.slice(start); break; }
+      const end = nl > start && text.charCodeAt(nl - 1) === 13 ? nl - 1 : nl;
+      if (end > start) yield text.slice(start, end);
+      start = nl + 1;
+    }
+  }
+  const tail = carry + decoder.decode();
+  const trimmed = tail.endsWith('\r') ? tail.slice(0, -1) : tail;
+  if (trimmed.length > 0) yield trimmed;
+}

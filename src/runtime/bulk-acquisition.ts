@@ -207,12 +207,12 @@ export async function headArchive(url: string, deps: HttpDeps = {}): Promise<Arc
   };
 }
 
-/** GET a small document (a landing page, a layer's metadata) as text. */
-export async function getText(url: string, deps: HttpDeps = {}): Promise<string> {
+/** GET a small document (a landing page, a layer's metadata, a folder listing) as text. */
+export async function getText(url: string, deps: HttpDeps = {}, headers: Readonly<Record<string, string>> = {}): Promise<string> {
   const fetchImpl = deps.fetchImpl ?? fetch;
   return withRetry(
     async () => {
-      const r = await fetchImpl(url, { headers: { 'user-agent': deps.userAgent ?? FABRIC_USER_AGENT } });
+      const r = await fetchImpl(url, { headers: { ...headers, 'user-agent': deps.userAgent ?? FABRIC_USER_AGENT } });
       if (r.status >= 500 || r.status === 429) throw new Error(`GET ${url} → ${r.status}`);
       if (!r.ok) fail(r.status === 401 || r.status === 403 ? 'ACCESS_BLOCKED' : 'CONFIG', `GET ${url} returned ${r.status}`);
       return r.text();

@@ -80,7 +80,7 @@ async function project(store: PartitionStore, ids: readonly string[], runId: str
 
 /** Generation directory name + mtime of every partition — the "was it rewritten" probe. */
 async function fingerprints(root: string): Promise<Record<string, string>> {
-  const store = createPartitionStore(root);
+  const store = createPartitionStore(root, { compress: false });
   const out: Record<string, string> = {};
   for (const key of await store.listPartitions()) {
     const dir = join(root, 'derived', 'partitions', ...partitionId(key).split('/'));
@@ -93,7 +93,8 @@ async function fingerprints(root: string): Promise<Record<string, string>> {
 
 async function threeCountyEstate(): Promise<{ root: string; store: PartitionStore }> {
   const root = tempRoot('df-part-');
-  const store = createPartitionStore(root);
+  // Pinned: this probe stats resolutions.ndjson, so it must not follow DF_DERIVED_GZIP.
+  const store = createPartitionStore(root, { compress: false });
   await seed(store, 'run-1', [
     contribution(HENNEPIN, '0202824410097'),
     contribution(HENNEPIN, '0202824410098'),
@@ -394,7 +395,7 @@ test('recomputing one county in a many-county estate touches only that county', 
   // 200 counties. The number is large enough that a whole-estate fold would be
   // visible in the write count, and the assertion is on writes, not on time.
   const root = tempRoot('df-scale-');
-  const store = createPartitionStore(root);
+  const store = createPartitionStore(root, { compress: false });
   const counties = Array.from({ length: 200 }, (_, i) => `27${String(i * 2 + 1).padStart(3, '0')}`);
   await seed(store, 'run-1', counties.flatMap((c) => [contribution(c, 'AAA'), contribution(c, 'BBB')]));
   await project(store, counties.map((c) => partitionId(countyPartition('PROPERTY_RESOLUTION', c))), 'run-1');
@@ -413,3 +414,33 @@ test('recomputing one county in a many-county estate touches only that county', 
 });
 
 void stat;
+
+test('a gzip partition store has exactly the digests of a plain one, and both read back alike', async () => {
+  const rows = [
+    contribution(HENNEPIN, '0202824410097'), contribution(HENNEPIN, '0202824410098'),
+    contribution(RAMSEY, '0202824410097'), contribution(DALLAS, '0202824410097'),
+  ];
+  const ids = [HENNEPIN, RAMSEY, DALLAS].map((c) => partitionId(countyPartition('PROPERTY_RESOLUTION', c)));
+  const plainRoot = tempRoot('df-part-plain-');
+  const gzipRoot = tempRoot('df-part-gzip-');
+  const plain = createPartitionStore(plainRoot, { compress: false });
+  const gzip = createPartitionStore(gzipRoot, { compress: true });
+  for (const store of [plain, gzip]) { await seed(store, 'run-1', rows); await project(store, ids, 'run-1'); }
+  const digests = async (store: PartitionStore) => (await store.manifests()).map((m) => [m.partitionId, m.inputDigest, m.outputDigest, m.rowCount]);
+  assert.deepEqual(await digests(gzip), await digests(plain));
+  // The gzip estate really is compressed on disk.
+  const dir = join(gzipRoot, 'derived', 'partitions', 'property', `us-county-${HENNEPIN}`);
+  assert.ok((await readdir(join(dir, 'contributions'))).every((f) => f.endsWith('.ndjson.gz')));
+  const generation = (await readFile(join(dir, 'CURRENT'), 'utf8')).trim();
+  assert.ok((await readdir(join(dir, generation))).includes('resolutions.ndjson.gz'));
+  // A later plain run in the gzip estate is read together with the compressed one.
+  const mixed = createPartitionStore(gzipRoot, { compress: false });
+  await seed(mixed, 'run-2', [contribution(HENNEPIN, '0202824410099')]);
+  const key = countyPartition('PROPERTY_RESOLUTION', HENNEPIN);
+  let n = 0;
+  for await (const _ of mixed.readContributions(key)) n += 1;
+  assert.equal(n, 3);
+  const rowsOut: string[] = [];
+  for await (const line of gzip.readTable(key, 'resolutions')) rowsOut.push(line);
+  assert.equal(rowsOut.length, 2);
+});

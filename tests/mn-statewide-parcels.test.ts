@@ -281,7 +281,8 @@ async function fingerprints(root: string): Promise<Record<string, string>> {
   for (const key of await store.listPartitions()) {
     const dir = join(root, 'derived', 'partitions', ...partitionId(key).split('/'));
     const generation = (await readFile(join(dir, 'CURRENT'), 'utf8')).trim();
-    const info = await stat(join(dir, generation, 'resolutions.ndjson'));
+    // Whichever encoding the estate was written in (DF_DERIVED_GZIP).
+    const info = await stat(join(dir, generation, 'resolutions.ndjson.gz')).catch(() => stat(join(dir, generation, 'resolutions.ndjson')));
     out[partitionId(key)] = `${generation}|${info.mtimeMs}|${info.size}`;
   }
   return out;

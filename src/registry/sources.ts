@@ -11,6 +11,7 @@
 import { createRegistry, type Registry } from './registry.ts';
 import { MN_STATEWIDE_PARTICIPATING_COUNTIES } from '../connectors/mn-statewide-parcels/participation.ts';
 import { WI_V12_COUNTIES } from '../connectors/wi-statewide-parcels/counties.ts';
+import { flExpectedCountyFips } from '../connectors/fl-dor/counties.ts';
 import type { SourceDefinition, SourceJurisdictionMapping } from './types.ts';
 
 export const MN_ECRV_SOURCE_ID = 'mn_dor_ecrv_weekly_sales_extract';
@@ -27,6 +28,44 @@ export const WI_RETR_ADAPTER_KEY = 'wi_retr';
 export const MN_STATEWIDE_ADAPTER_KEY = 'mn_statewide_parcels';
 export const WI_STATEWIDE_SOURCE_ID = 'wi_statewide_parcels';
 export const WI_STATEWIDE_ADAPTER_KEY = 'wi_statewide_parcels';
+export const FL_CADASTRAL_SOURCE_ID = 'fl_statewide_cadastral';
+export const FL_CADASTRAL_ADAPTER_KEY = 'fl_statewide_cadastral';
+export const FL_NAL_SOURCE_ID = 'fl_dor_nal';
+export const FL_NAL_ADAPTER_KEY = 'fl_dor_nal';
+export const FL_SDF_SOURCE_ID = 'fl_dor_sdf';
+export const FL_SDF_ADAPTER_KEY = 'fl_dor_sdf';
+
+/**
+ * What every Florida DOR source shares: the publisher, the portal, the terms.
+ * Established 2026-09-29 — see docs/FLORIDA-STATEWIDE-PROPERTY-FABRIC.md §2.
+ */
+const FL_DOR_COMMON = {
+  sourceHomepage: 'https://floridarevenue.com/property/dataportal/Pages/default.aspx',
+  accessType: 'bulk_download',
+  /**
+   * Posted for public download in DOR's Property Tax Oversight data library.
+   * Its SharePoint REST listing and every file answer an anonymous GET: no
+   * account, cookie, token, session or CAPTCHA. robots.txt restricts neither
+   * the library nor its REST path for general agents, and no term of use
+   * restricts automated retrieval — the site's "Conditions of Use" link is
+   * dead (404) and the records are Florida public records (ch. 119, F.S.).
+   */
+  automationStatus: 'sanctioned',
+  termsStatus: 'reviewed_permitted',
+  // Florida public records; the Department and FGIO state disclaimers of
+  // accuracy only. No licence, attribution condition or use restriction.
+  licenseStatus: 'public_domain',
+  costModel: 'free',
+  costClass: 'FREE_BULK',
+  /** A listed file at a stable URL in a machine-readable folder listing: one GET per file. */
+  acquisitionClass: 'AUTOMATED_BULK_DOWNLOAD',
+  accessRequest: {
+    state: 'NOT_REQUIRED', contact: null, basis: null, requestedAt: null,
+    lastUpdatedAt: '2026-09-29', quotedFeeUsd: 0, notes: null,
+  },
+  sourcePriority: 1,
+  active: true,
+} as const;
 
 export const SOURCES: readonly SourceDefinition[] = [
   {
@@ -431,6 +470,86 @@ export const SOURCES: readonly SourceDefinition[] = [
       + 'an open question until two eras are compared on real files.',
   },
   {
+    ...FL_DOR_COMMON,
+    sourceId: FL_CADASTRAL_SOURCE_ID,
+    sourceAuthority: 'Florida Department of Revenue, Property Tax Oversight (from the 67 county property appraisers)',
+    sourceProgram: 'Statewide parcel GIS — county parcel shapefiles joined to the current tax roll ("PAR")',
+    sourceFamily: 'state_parcel_aggregation',
+    sourceName: 'Florida Statewide Cadastral (DOR parcel shapefiles)',
+    role: 'CORE_CANONICAL_SOURCE',
+    /**
+     * Map Data folders go back to 2005; only the current year is ingested
+     * (DF-0M is current data only). Depth is what the publisher offers.
+     */
+    historicalDepth: '2005 (annual Map Data folders)',
+    /** PTO collects the shapefiles each April and posts the joined PAR files each August. */
+    expectedRefreshFrequency: 'annual',
+    // The joined roll attributes include OWN_ADDR*/FIDU_* mailing lines.
+    carriesRestrictedContact: true,
+    // The county property appraisers' own parcel numbers, not re-keyed by DOR.
+    authoritativeForParcelIdentity: true,
+    notes:
+      'The primary acquisition path for Florida parcel GIS: 67 county shapefile archives plus the Miami-Dade and '
+      + 'St. Johns condominium tables, 4.14 GB, posted 2026-08-07 and joined by DOR to the 2026 PRELIMINARY roll. '
+      + 'Each county keeps its own coordinate system. The FGIO-hosted statewide polygon FeatureServer now requires '
+      + 'a token, and the anonymous FGIO centroid layer still carries the 2025 roll, so neither is the current '
+      + 'source of truth; the PAR files are what FGIO refreshes from. Geometry is summarised (parts, vertices, '
+      + 'bbox, area, centroid in the source CRS) and kept exactly in the retained archives; canonical polygons are '
+      + 'deferred. The joined roll attributes are the SAME publisher facts as the NAL and are compared with it, '
+      + 'never projected a second time.',
+  },
+  {
+    ...FL_DOR_COMMON,
+    sourceId: FL_NAL_SOURCE_ID,
+    sourceAuthority: 'Florida Department of Revenue, Property Tax Oversight (from the 67 county property appraisers)',
+    sourceProgram: 'Real property assessment roll — Name–Address–Legal (NAL) file',
+    sourceFamily: 'state_assessment_roll',
+    sourceName: 'Florida DOR Name–Address–Legal (NAL) real property roll',
+    role: 'CORE_CANONICAL_SOURCE',
+    /**
+     * Only the most current version of each roll is posted; prior rolls are
+     * available by request, which is a manual path this source does not use.
+     */
+    historicalDepth: 'current roll only (prior rolls by records request — manual, not used)',
+    /** Preliminary by July 1, initial final in October, post-VAB final after certification — county by county. */
+    expectedRefreshFrequency: 'irregular',
+    // OWN_ADDR*, OWN_CITY/STATE/ZIPCD and the fiduciary's mailing lines.
+    carriesRestrictedContact: true,
+    authoritativeForParcelIdentity: true,
+    notes:
+      'All 67 county real property rolls as DOR publishes them: 165 columns per parcel — identity, strata, use '
+      + 'codes, just/assessed/taxable values and 16 classified-use values, land and improvement facts, two assessor '
+      + 'sale echoes, owner and fiduciary names and mailing addresses, short legal, location, homestead '
+      + 'portability, 49 exemption values and data-management codes. On 2026-09-29 the current roll was 65 counties '
+      + 'PRELIMINARY and 2 FINAL (Citrus, Duval); finality is per county and travels on every observation. '
+      + 'Confidential records under s. 119.071 F.S. are withheld from the public files by the Department.',
+  },
+  {
+    ...FL_DOR_COMMON,
+    sourceId: FL_SDF_SOURCE_ID,
+    sourceAuthority: 'Florida Department of Revenue, Property Tax Oversight (from the 67 county property appraisers)',
+    sourceProgram: 'Sale Data File (SDF) submitted with the real property roll',
+    sourceFamily: 'state_sale_data_file',
+    sourceName: 'Florida DOR Sale Data File (SDF)',
+    role: 'CORE_CANONICAL_SOURCE',
+    historicalDepth: 'current roll only: transfers in the year before Jan 1 plus the months to submission',
+    expectedRefreshFrequency: 'irregular',
+    // No names and no addresses: parcel, sale id, codes, book/page/instrument, month, price.
+    carriesRestrictedContact: false,
+    /**
+     * A sale record states which parcel sold; it does not define the parcel.
+     * It links to the property the roll created and never creates one.
+     */
+    authoritativeForParcelIdentity: false,
+    notes:
+      'One row per transfer of ownership the property appraiser recorded in the sale window — "If a parcel '
+      + 'transferred multiple times during that time period, the SDF lists each separately". Carries the '
+      + 'appraiser\'s own stable sale identifier, official record book/page or clerk instrument number, sale year '
+      + 'and MONTH (no day), a price "derived from the documentary stamp tax amount", and the DOR transfer '
+      + 'qualification code. It is a SALE OBSERVATION: not a deed, not a recorded instrument, not a transfer '
+      + 'declaration — it names no parties and carries no recording date.',
+  },
+  {
     sourceId: 'tx_dallas_foreclosure_notices',
     sourceAuthority: 'Dallas County, Texas',
     sourceProgram: 'County Clerk foreclosure notice postings',
@@ -649,6 +768,66 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
       schemaDocumentedAt: '2026-09-05',
       termsVerifiedAt: '2026-09-05',
       publicationEra: 'mta_2026',
+    },
+  },
+  {
+    mappingId: 'fl_statewide_cadastral__all_fl_counties',
+    sourceId: FL_CADASTRAL_SOURCE_ID,
+    scope: { kind: 'counties', countyFips: [...flExpectedCountyFips()] },
+    /**
+     * `parcel` only: that the parcel exists as a mapped polygon, under the
+     * county's own number. The roll attributes joined to it are the NAL's
+     * facts and are claimed by the NAL mapping, not counted twice.
+     */
+    capabilities: ['parcel'],
+    coverageStart: null,
+    coverageEnd: null,
+    status: 'fixture_only',
+    adapterKey: FL_CADASTRAL_ADAPTER_KEY,
+    config: {
+      library: 'https://floridarevenue.com/property/dataportal/Documents/PTO%20Data%20Portal/Map%20Data',
+      listing: 'SharePoint REST: _api/web/GetFolderByServerRelativeUrl(<folder>)?$expand=Folders,Files',
+      acquisition: 'unattended: list Map Data → newest <year>F/<year>F PAR → per-county GET → derive → ingest',
+      readme: 'https://floridarevenue.com/property/dataportal/Documents/PTO%20Data%20Portal/Map%20Data/parcel%20shapefiles%20readme.pdf',
+      termsVerifiedAt: '2026-09-29',
+    },
+  },
+  {
+    mappingId: 'fl_dor_nal__all_fl_counties',
+    sourceId: FL_NAL_SOURCE_ID,
+    scope: { kind: 'counties', countyFips: [...flExpectedCountyFips()] },
+    /** `ownership` is the CURRENT roll's owner of record, never a chain of title. */
+    capabilities: ['parcel', 'assessor', 'ownership', 'tax'],
+    coverageStart: null,
+    coverageEnd: null,
+    status: 'fixture_only',
+    adapterKey: FL_NAL_ADAPTER_KEY,
+    config: {
+      library: 'https://floridarevenue.com/property/dataportal/Documents/PTO%20Data%20Portal/Tax%20Roll%20Data%20Files/NAL',
+      acquisition: 'unattended: list NAL → newest roll year → per county the most advanced stage (F over P) → GET',
+      layout: 'https://floridarevenue.com/property/dataportal/Documents/PTO%20Data%20Portal/User%20Guides/2026%20Users%20guide%20and%20quick%20reference/2026_NAL_SDF_NAP_Users_Guide.pdf',
+      termsVerifiedAt: '2026-09-29',
+    },
+  },
+  {
+    mappingId: 'fl_dor_sdf__all_fl_counties',
+    sourceId: FL_SDF_SOURCE_ID,
+    scope: { kind: 'counties', countyFips: [...flExpectedCountyFips()] },
+    /**
+     * NOT `transfer`, `deed` or `mortgage`: no parties, no instrument type, no
+     * recording date and no financing. The SDF proves an appraiser-reviewed
+     * sale in a month at a doc-stamp-derived price, and claims exactly that.
+     */
+    capabilities: ['sale_observation', 'sale_economics'],
+    coverageStart: null,
+    coverageEnd: null,
+    status: 'fixture_only',
+    adapterKey: FL_SDF_ADAPTER_KEY,
+    config: {
+      library: 'https://floridarevenue.com/property/dataportal/Documents/PTO%20Data%20Portal/Tax%20Roll%20Data%20Files/SDF',
+      acquisition: 'unattended: list SDF → newest roll year → per county the most advanced stage (F over P) → GET',
+      qualificationCodes: '2026 User\'s Guide Quick Reference, "Sale Qualification Codes" (applicable to sales occurring in 2026)',
+      termsVerifiedAt: '2026-09-29',
     },
   },
   {

@@ -452,3 +452,22 @@ test('the pinned catalog carries the certified Wisconsin manifest', () => {
     assert.ok(['DURABLE', 'EPHEMERAL_ONLY', 'MISSING_BYTES', 'REACQUIRABLE', 'REGENERABLE', 'LOST_EXACT_BYTES'].includes(e.expectedState), e.expectedState);
   }
 });
+
+test('a failed reacquisition surfaces its own error and leaves no scratch behind', async () => {
+  const workspace = createStreamingArtifactStore(createStreamingFilesystemObjectStore(tmp('df-reacq-')));
+  const scratchDir = tmp('df-reacq-scr-');
+  const failing = (async () => { throw new Error('publisher unreachable'); }) as unknown as typeof fetch;
+  await assert.rejects(
+    reacquire(catalogEntry(randomBytes(64), true), workspace, { registry: defaultRegistry(), now: LATER, scratchDir, fetchImpl: failing }),
+    /publisher unreachable/,
+  );
+  // A body that dies mid-stream is the other failure path.
+  const dying = (async () => new Response(new ReadableStream({
+    start(controller) { controller.enqueue(new Uint8Array([1, 2, 3])); controller.error(new Error('connection reset')); },
+  }))) as unknown as typeof fetch;
+  await assert.rejects(
+    reacquire(catalogEntry(randomBytes(64), true), workspace, { registry: defaultRegistry(), now: LATER, scratchDir, fetchImpl: dying }),
+    /connection reset/,
+  );
+  assert.deepEqual(readdirSync(scratchDir), []);
+});
