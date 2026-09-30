@@ -624,3 +624,47 @@ statewide estates did not fit one session's disk. Run tables are written as
 (`readLines` decompresses on the fly), so compressed and plain generations can
 coexist. Restricted tables keep mode 0600. The whole suite passes in both modes;
 a leak scan of a compressed estate must decompress, and the Wisconsin test does.
+
+## 6g. Many files, one release, and a sort that fits the disk (DF-0M)
+
+Florida added three things to the runtime, each general. Two are features, and the third is a
+defect the Florida roll exposed at 11 million rows.
+
+**A derived input.** A Florida release is 67 county archives pinned by one release manifest. The
+runtime accepts `derived: { artifact, release, lines }`: an artifact the caller has already acquired
+and verified (the release manifest), and the snapshot lines a pure, versioned derivation reads out of
+the retained county files. The lines are digested as they are pulled (`derivedSha256`) and never
+stored. A stored NAL bundle would have been tens of gigabytes of NDJSON that the retained zips
+regenerate exactly. A replay names the manifest's sha256 and re-derives under `unshare --net`.
+
+**Canonical retention is a policy.** `canonicalRetention: 'digest_only'` (`--retention digest_only`,
+or `DF_CANONICAL_RETENTION`) normalizes, digests, indexes and projects every row exactly as `full`
+does. It produces the same normalized digest, contributions and partitions, and it does not write the
+bundle, event, contact or extra-row tables. Organization observations are written in every mode, as
+the slim table the national organization fold reads.
+
+**The external sort held its input three times over.** The distribution sort reads the run's
+scratch contributions, spills sorted runs of 50,000 lines, and merges them. Above 64 runs it merges in
+passes. Before DF-0M every spill was plain NDJSON, and no run file was deleted until the whole sort
+finished. For the Florida cadastral file (~12 million contribution lines, ~3.7 GB) the peak would have
+been the scratch input, all the runs and all the passes at once: ~11 GB, more than a worker's disk. The
+first full run was stopped before activation and the sort was fixed:
+
+- spill runs, pass files and the run's scratch contributions are gzip level 1 (still 0600);
+- a group of runs merged into a pass is deleted immediately, not when the sort ends.
+
+Output is untouched: the same lines in the same order. The chunk-size identity tests, a new
+multi-pass test and a real-data check all show it: the Gadsden + Lafayette three-source estate,
+rebuilt with the new code, reproduces its global digest exactly.
+
+Measured on the certified Florida runs (1 GB heap cap; evidence in `reference/fl-statewide/2026/`):
+
+| | Cadastral | NAL | SDF |
+|---|---:|---:|---:|
+| rows | 10,951,117 | 11,090,242 | 1,726,627 |
+| parse + normalize | 32 min 22 s | 105 min 03 s | 5 min 48 s |
+| project | 37 min 37 s | 74 min 04 s | 42 min 41 s |
+| peak heap | 74 MB | 82 MB | 79 MB |
+| peak RSS | 1,044 MB | 2,110 MB | 332 MB |
+
+Disk: the derived plane and indexes grew by 4.60 GB for all three sources; the least free disk observed during the runs was 4.42 GB and a run's scratch peaked at 1.70 GB.

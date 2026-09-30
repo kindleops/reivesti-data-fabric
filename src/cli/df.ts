@@ -923,6 +923,8 @@ async function main(): Promise<number> {
           '  df artifacts push|pull|verify --sha <sha256>      durable store operations, by digest',
           '  df artifacts reacquire --sha <sha256>             re-download a catalogued raw artifact; exact sha or it is not a restoration',
           '  df auto <mappingId> --replay <sha256> --period <l>   re-derive and re-ingest from the retained archive, no network',
+          '  df auto <fl_* mapping> [--retention digest_only|full] [--leakage-audit <n>] [--dry-run] [--max <n>]',
+          '                                                    Florida: retention policy; NAL restricted-field audit, sentinel every n rows',
           '',
           `  DF_VAR=${VAR_ROOT}  DF_ARCHIVE=${ARCHIVE_ROOT_DIR}`,
           '',

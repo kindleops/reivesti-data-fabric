@@ -1,6 +1,6 @@
 {
  "claim": "With the network namespace removed, the Florida estate is rebuilt from retained publisher bytes alone and is identical.",
- "method": "copy of the estate with every Florida partition, index and run deleted; each source replayed from its release manifest sha256 under `unshare --net`",
+ "method": "a copy of the estate as it stood before Florida (MN/WI partitions and the raw archive hardlinked; every Florida output on tmpfs); each source replayed from its release manifest sha256 under `unshare --net`, run in parallel with the online ingestion",
  "status": [
   "d copy-ready 2026-09-30T01:44:14Z",
   "d cad exit=0 seconds=4271",
@@ -9,7 +9,14 @@
   "c0 nal exit=0 same-fingerprint outcome=NOOP",
   "c0 sdf exit=0 same-fingerprint outcome=NOOP",
   "d sdf exit=0 seconds=2927",
-  "D-DONE"
+  "D-DONE",
+  "c1 cad exit=0 seconds=2905",
+  "leak exit=0 seconds=6503",
+  "LEAK-DONE",
+  "c1 nal exit=0 seconds=6431",
+  "c1 sdf exit=0 seconds=633",
+  "C-DONE",
+  "ALL-DONE 2026-09-30T08:16:01Z"
  ],
  "runs": {
   "fl_statewide_cadastral": {

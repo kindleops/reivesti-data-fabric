@@ -12,7 +12,11 @@ DF-0E (recorded instruments, instrument graph, ownership foundation) + DF-0F
 (Minnesota Secretary of State business register, organization identity) + DF-0G
 (zero-cost doctrine, national jurisdiction registry, projection partitioning,
 source discovery) + DF-0H (Minnesota statewide parcels: 59 counties, 2.71M
-parcels, field-level source authority).
+parcels, field-level source authority) + DF-0I (off-heap scale hardening) +
+DF-0J / DF-0J.1A (Wisconsin RETR; the automated-acquisition gate) + DF-0K
+(Wisconsin statewide parcels: 72 counties) + DF-0L (durable artifact estate) +
+DF-0M (Florida statewide property fabric: 67 counties from three Department of
+Revenue sources — the parcel map, the NAL roll and the Sale Data File).
 
 ---
 
@@ -73,6 +77,9 @@ src/
     mn-hennepin-recorder/   taxonomy, record, parse, normalise, streaming connector
     mn-sos-business/        domain vocabularies, heterogeneous CSV, licensed delivery
     mn-statewide-parcels/   59 counties from one source; bulk GeoPackage + ArcGIS
+    wi-statewide-parcels/   72 counties from one annual archive
+    fl-dor/                 Florida DOR library: county table, discovery, acquisition, release manifests, sales
+    fl-cadastral/ fl-nal/ fl-sdf/   the three Florida sources, each gated and certified on its own
   cli/          df
 db/migrations/  data_fabric + data_fabric_restricted — DRAFTS, NOT APPLIED to
                 any Reivesti database; executed for real against a disposable one
@@ -80,7 +87,7 @@ reference/      pinned federal geography files the jurisdiction registry is
                 built from, verified by digest at load
 docs/           architecture, source registry, MN eCRV, DB topology, decisions
 fixtures/       the pinned eCRV XSD and synthetic test documents, all invented
-tests/          520 tests plus 47 real-PostgreSQL migration assertions
+tests/          813 tests plus 60 real-PostgreSQL migration assertions
 ```
 
 ---
@@ -89,6 +96,9 @@ tests/          520 tests plus 47 real-PostgreSQL migration assertions
 
 | Document | Covers |
 |---|---|
+| [FLORIDA-STATEWIDE-PROPERTY-FABRIC.md](docs/FLORIDA-STATEWIDE-PROPERTY-FABRIC.md) | Florida's three sources as one fabric: release model, identity, convergence, sales, runs, replay, leakage audit, coverage |
+| [FLORIDA-CADASTRAL.md](docs/FLORIDA-CADASTRAL.md) · [FLORIDA-DOR-NAL.md](docs/FLORIDA-DOR-NAL.md) · [FLORIDA-DOR-SDF.md](docs/FLORIDA-DOR-SDF.md) | Each Florida source: authority, refusals, every column's disposition |
+| [WISCONSIN-STATEWIDE-PARCELS.md](docs/WISCONSIN-STATEWIDE-PARCELS.md) | The 72-county annual archive: discovery, schema, identity, the statewide run, isolation and replay |
 | [MN-STATEWIDE-PARCELS.md](docs/MN-STATEWIDE-PARCELS.md) | The 59-county source: acquisition trade-off, field map, sale-echo semantics, Hennepin overlap and field authority |
 | [ZERO-COST-DATA-DOCTRINE.md](docs/ZERO-COST-DATA-DOCTRINE.md) | Why Reivesti does not pay for core data, cost classification, the activation evaluator, paid-source non-dependency |
 | [NATIONAL-COVERAGE.md](docs/NATIONAL-COVERAGE.md) | The county-equivalent catalogue, changing geographies, the coverage matrix, projection partitioning and its measurements |
@@ -124,7 +134,10 @@ tests/          520 tests plus 47 real-PostgreSQL migration assertions
 | DF-0G national jurisdiction registry | complete — 3,244 county-equivalents from pinned Census files |
 | DF-0G projection partitioning | complete — one-county update: 143 ms, zero writes elsewhere |
 | DF-0H Minnesota statewide parcels | complete — 2,710,201 parcels, 59 county partitions |
-| National coverage | 3,222 active jurisdictions, **59** with a core-eligible source |
+| DF-0K Wisconsin statewide parcels | complete — 3,574,646 rows, 72 county partitions |
+| DF-0L durable artifact estate | architecture complete; production durable store deferred (infrastructure) |
+| DF-0M Florida statewide property fabric | complete — 10,951,117 map records, 11,090,242 roll rows, 1,726,627 sale observations; 67 property + 67 sale partitions; network-off replay identical |
+| National coverage | 3,222 active jurisdictions, **198** with an active automated core source (MN 59, WI 72, FL 67); transfer **0** |
 | Production DDL | **not applied**, and not ready to be |
 | Scheduled ingestion | not activated |
 

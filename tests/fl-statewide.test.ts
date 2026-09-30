@@ -21,6 +21,7 @@ import { contentDigest, deterministicId } from '../src/core/hash.ts';
 import { propertyIdFromCountyParcel } from '../src/canonical/models.ts';
 import { foldProperty, type SaleContribution } from '../src/canonical/sale-projection.ts';
 import { assessActivation } from '../src/registry/policy.ts';
+import { buildCoverage, nationalCoverageReport } from '../src/registry/coverage.ts';
 import { defaultRegistry, FL_CADASTRAL_SOURCE_ID, FL_NAL_SOURCE_ID, FL_SDF_SOURCE_ID } from '../src/registry/sources.ts';
 import type { Registry } from '../src/registry/registry.ts';
 import { createPartitionStore } from '../src/runtime/partition-store.ts';
@@ -854,4 +855,20 @@ test('every column of every Florida source has exactly one disposition, and rest
   }
   void GULF;
   void sdfRow;
+});
+
+test('coverage is derived: 67 Florida counties active for parcel, assessor, ownership, tax and sale observations — never transfer', () => {
+  const registry = defaultRegistry();
+  const matrix = buildCoverage(registry);
+  const fl = registry.jurisdictions.filter((j) => j.jurisdictionType === 'county' && j.stateCode === 'FL');
+  assert.equal(fl.length, 67);
+  const active = (cap: Parameters<typeof matrix.coreStateOf>[1]) => fl.filter((j) => matrix.coreStateOf(j.jurisdictionId, cap) === 'ACTIVE').length;
+  for (const cap of ['parcel', 'assessor', 'ownership', 'tax', 'sale_observation', 'sale_economics'] as const) assert.equal(active(cap), 67, cap);
+  for (const cap of ['transfer', 'deed', 'mortgage', 'lien', 'foreclosure_notice'] as const) assert.equal(active(cap), 0, cap);
+  const report = nationalCoverageReport(registry, matrix, INSTANT);
+  assert.equal(report.jurisdictionsWithActiveCoreSource, 198, '59 Minnesota + 72 Wisconsin + 67 Florida');
+  assert.equal(report.byCapability.find((c) => c.capability === 'parcel')?.active, 198);
+  assert.equal(report.byCapability.find((c) => c.capability === 'sale_observation')?.active, 67);
+  assert.equal(report.byCapability.find((c) => c.capability === 'sale_economics')?.active, 67);
+  assert.equal(report.byCapability.find((c) => c.capability === 'transfer')?.covered, 0);
 });

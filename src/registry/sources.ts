@@ -782,7 +782,9 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
     capabilities: ['parcel'],
     coverageStart: null,
     coverageEnd: null,
-    status: 'fixture_only',
+    // Certified by DF-0M's full statewide ingestion and network-off replay
+    // (docs/FLORIDA-STATEWIDE-PROPERTY-FABRIC.md).
+    status: 'active',
     adapterKey: FL_CADASTRAL_ADAPTER_KEY,
     config: {
       library: 'https://floridarevenue.com/property/dataportal/Documents/PTO%20Data%20Portal/Map%20Data',
@@ -800,7 +802,9 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
     capabilities: ['parcel', 'assessor', 'ownership', 'tax'],
     coverageStart: null,
     coverageEnd: null,
-    status: 'fixture_only',
+    // Certified by DF-0M's full statewide ingestion and network-off replay
+    // (docs/FLORIDA-STATEWIDE-PROPERTY-FABRIC.md).
+    status: 'active',
     adapterKey: FL_NAL_ADAPTER_KEY,
     config: {
       library: 'https://floridarevenue.com/property/dataportal/Documents/PTO%20Data%20Portal/Tax%20Roll%20Data%20Files/NAL',
@@ -821,7 +825,9 @@ export const MAPPINGS: readonly SourceJurisdictionMapping[] = [
     capabilities: ['sale_observation', 'sale_economics'],
     coverageStart: null,
     coverageEnd: null,
-    status: 'fixture_only',
+    // Certified by DF-0M's full statewide ingestion and network-off replay
+    // (docs/FLORIDA-STATEWIDE-PROPERTY-FABRIC.md).
+    status: 'active',
     adapterKey: FL_SDF_ADAPTER_KEY,
     config: {
       library: 'https://floridarevenue.com/property/dataportal/Documents/PTO%20Data%20Portal/Tax%20Roll%20Data%20Files/SDF',

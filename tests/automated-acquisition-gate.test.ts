@@ -128,11 +128,11 @@ test('no manually-acquired source contributes to national core coverage', () => 
   // still zero nationally. Both statewide transfer sources are parsed and
   // neither is reachable — the gap the next phase has to close.
   //
-  // DF-0M registers Florida's three DOR sources: 67 counties whose core sources
-  // are ELIGIBLE (READY) before they are ACTIVE. Eligibility is not coverage
-  // until an ingestion certifies it, so the two numbers are reported apart.
+  // DF-0M adds Florida's 67 counties from three DOR sources. They were
+  // ELIGIBLE (READY) from registry facts first and became ACTIVE only when the
+  // statewide ingestion and network-off replay certified them: 59 + 72 + 67.
   assert.equal(report.jurisdictionsWithCoreSource, 198);
-  assert.equal(report.jurisdictionsWithActiveCoreSource, 131);
+  assert.equal(report.jurisdictionsWithActiveCoreSource, 198);
   assert.equal(report.byCapability.find((c) => c.capability === 'transfer')?.covered, 0);
 });
 

@@ -266,7 +266,9 @@ Deliberately not claimed: `deed`, `mortgage`, `foreclosure_notice`. See
 Three sources, one publisher library, one engine (`src/connectors/fl-dor/`), each modelled and gated
 on its own facts. All three: Florida Department of Revenue, Property Tax Oversight; public PTO Data
 Portal; anonymous GETs; `FREE_BULK` / `AUTOMATED_BULK_DOWNLOAD`; terms reviewed and permitting;
-public records; quoted fee $0; verdict **CORE_ELIGIBLE** from registry facts alone.
+public records; quoted fee $0; verdict **CORE_ELIGIBLE** from registry facts alone. All three mappings are
+**`active`** since the DF-0M statewide certification (full ingestion, network-off replay, idempotency and
+isolation — `FLORIDA-STATEWIDE-PROPERTY-FABRIC.md`).
 
 | Source | Capabilities | Authoritative for parcel identity | Restricted contact | Docs |
 |---|---|---|---|---|

@@ -895,8 +895,8 @@ test('automated core parcel coverage is 59 Minnesota plus 72 Wisconsin active, d
   assert.equal(covered('MN'), 59);
   assert.equal(covered('WI'), 72);
   const report = nationalCoverageReport(registry, matrix, RUN_INSTANT);
-  // ACTIVE is certified; Florida's 67 are core-eligible and not yet active (DF-0M).
-  assert.equal(report.byCapability.find((c) => c.capability === 'parcel')?.active, 131);
+  // ACTIVE is certified: 59 Minnesota + 72 Wisconsin + 67 Florida (DF-0M).
+  assert.equal(report.byCapability.find((c) => c.capability === 'parcel')?.active, 198);
   for (const unclaimed of ['transfer', 'deed', 'mortgage', 'lien', 'foreclosure_notice'] as const) {
     assert.equal(matrix.coreStateOf('us-county-55079', unclaimed) === 'ACTIVE', false, unclaimed);
   }
