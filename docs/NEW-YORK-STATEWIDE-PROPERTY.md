@@ -623,3 +623,16 @@ resolution touched either connector.
    calls is a one-line change in `src/runtime/staged-store.ts`. Not made here:
    it is shared runtime, it is not a documented guarantee, and nothing New York
    does depends on it. The live leak audit (§13) reports the directory modes.
+7. **A run that fails after acquisition reports a preflight run id.** The
+   streaming runtime's failure path labels the run
+   `deterministicId('run', …, 'preflight', startedAt)` — a time-based id —
+   although it had already derived, and written canonical rows under, the
+   evidence run id (`source, mapping, release, artifact sha256, versions`). Seen
+   live on the first forced re-ingest (§11): its rows were committed under
+   `run_319d5ae5…`, its failure report said `run_bf993fc4…`. Reporting only; no
+   row carries the preflight id. Passing the evidence id to `finish` on the
+   failure path is a small shared change, deferred.
+8. **Scratch belongs on its own volume.** A statewide run's scratch (contribution
+   files and external-sort chunks, peaking at 4.4 GiB for New York) shares the
+   derived plane's disk today; `var/scratch` as a separately sized mount would
+   keep a scratch peak from failing a run whose durable outputs fit.
