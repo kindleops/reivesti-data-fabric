@@ -1,34 +1,86 @@
 {
- "phase": "B \u2014 full Florida ingestion into the estate holding the Minnesota and Wisconsin baselines",
- "certifiedOn": "2026-09-30",
- "order": [
-  "fl_statewide_cadastral",
-  "fl_dor_nal",
-  "fl_dor_sdf"
- ],
- "heapCapMB": 1024,
- "retention": "digest_only",
+ "claim": "The same release is a NOOP when rediscovered; a forced network-off re-ingest of it in place changes nothing.",
  "status": [
-  "removing regenerable MN bundle 3096c3b6fe41c3c1169be5e1ce990d5255887b3d64f42bb26d2dc3354ab5dfd1",
-  "restart 2026-09-30T00:30:36Z with compressed external sort; first attempt stopped before activation",
-  "cad exit=0 seconds=4216",
-  "nal exit=0 seconds=10761",
-  "sdf exit=0 seconds=2912",
-  "DONE"
+  "d copy-ready 2026-09-30T01:44:14Z",
+  "d cad exit=0 seconds=4271",
+  "d nal exit=0 seconds=8618",
+  "c0 cad exit=0 same-fingerprint outcome=NOOP",
+  "c0 nal exit=0 same-fingerprint outcome=NOOP",
+  "c0 sdf exit=0 same-fingerprint outcome=NOOP",
+  "d sdf exit=0 seconds=2927",
+  "D-DONE",
+  "c1 cad exit=0 seconds=2905",
+  "leak exit=0 seconds=6503",
+  "LEAK-DONE",
+  "c1 nal exit=0 seconds=6431",
+  "c1 sdf exit=0 seconds=633",
+  "C-DONE"
  ],
- "runs": {
+ "rediscovery": {
+  "fl_statewide_cadastral": {
+   "outcome": "NOOP",
+   "ledger": {
+    "at": "2026-09-30T05:29:17.348Z",
+    "sourceId": "fl_statewide_cadastral",
+    "referencePeriod": "2026",
+    "releaseFingerprint": "e554e8d7cbf31766bf8a78a98d97d3828066fd2899bce0a15dc17b418e113984",
+    "action": "NOOP_SAME_RELEASE",
+    "publisherSha256": "a087c0358d0e4be4bae125134c89d369467616c92d623086c51221cec9a504f8",
+    "publisherBytes": 4141216126,
+    "bundleSha256": "11966ab5ed709d5f3c907d184695edbf2fd0022670b18af9c0cf4801554d5bda",
+    "runId": "run_cfe48cdfd3376c811f7f06b6e991c65d",
+    "runStatus": null,
+    "normalizedDigest": null,
+    "estateDigest": null,
+    "note": "release 2026 (fingerprint e554e8d7cbf3) was already ingested by run run_cfe48cdfd3376c811f7f06b6e991c65d"
+   },
+   "fingerprint": "e554e8d7cbf31766bf8a78a98d97d3828066fd2899bce0a15dc17b418e113984"
+  },
+  "fl_dor_nal": {
+   "outcome": "NOOP",
+   "ledger": {
+    "at": "2026-09-30T05:29:19.205Z",
+    "sourceId": "fl_dor_nal",
+    "referencePeriod": "2026",
+    "releaseFingerprint": "61cefe3bc57c508814db62af693b09fb505b9a4066100f073851f38733cffea4",
+    "action": "NOOP_SAME_RELEASE",
+    "publisherSha256": "5829348a185813361b9acb9508d21f73c8bebcab89d208f4859500682069db09",
+    "publisherBytes": 824781865,
+    "bundleSha256": "c81a0f1de4214790e86a25b5979d7d1f81b764949c7e3de0ff0c5ead34b64afe",
+    "runId": "run_1c386b372a3ce7ced45b314dabb5b300",
+    "runStatus": null,
+    "normalizedDigest": null,
+    "estateDigest": null,
+    "note": "release 2026 (fingerprint 61cefe3bc57c) was already ingested by run run_1c386b372a3ce7ced45b314dabb5b300"
+   },
+   "fingerprint": "61cefe3bc57c508814db62af693b09fb505b9a4066100f073851f38733cffea4"
+  },
+  "fl_dor_sdf": {
+   "outcome": "NOOP",
+   "ledger": {
+    "at": "2026-09-30T05:29:20.938Z",
+    "sourceId": "fl_dor_sdf",
+    "referencePeriod": "2026",
+    "releaseFingerprint": "2e8e986f863da265769470ed0fde68e0ae2efa8a374280eb4e1550039e586475",
+    "action": "NOOP_SAME_RELEASE",
+    "publisherSha256": "8545336d2e7ce7eab2f864ae64d039e141994a68acf2f5ad5c31f6a60aa969a3",
+    "publisherBytes": 34684277,
+    "bundleSha256": "1b2fc77649c2811acc35bc83af2939a3a00f38ba7988966460c6453ca40b26a4",
+    "runId": "run_a5ab58981f8e8437ee47036bad015f56",
+    "runStatus": null,
+    "normalizedDigest": null,
+    "estateDigest": null,
+    "note": "release 2026 (fingerprint 2e8e986f863d) was already ingested by run run_a5ab58981f8e8437ee47036bad015f56"
+   },
+   "fingerprint": "2e8e986f863da265769470ed0fde68e0ae2efa8a374280eb4e1550039e586475"
+  }
+ },
+ "rediscoveryLine": "every source NOOP_SAME_RELEASE, no file fetched",
+ "forcedReplayInPlace": {
   "fl_statewide_cadastral": {
    "outcome": "INGESTED",
    "sourceId": "fl_statewide_cadastral",
-   "release": {
-    "rollYear": 2026,
-    "stages": {
-     "PRELIMINARY": 67
-    },
-    "files": 69,
-    "fingerprint": "e554e8d7cbf31766bf8a78a98d97d3828066fd2899bce0a15dc17b418e113984",
-    "missingCounties": []
-   },
+   "release": null,
    "releaseManifestSha256": "a087c0358d0e4be4bae125134c89d369467616c92d623086c51221cec9a504f8",
    "derived": {
     "sha256": "11966ab5ed709d5f3c907d184695edbf2fd0022670b18af9c0cf4801554d5bda",
@@ -191,32 +243,32 @@
     "rowsValid": 10622753,
     "rowsQuarantined": 328364,
     "rowsEmitted": 10622753,
-    "rowsUnchanged": 0,
+    "rowsUnchanged": 10622753,
     "rowsRevised": 0,
-    "rowsNew": 10622753,
+    "rowsNew": 0,
     "contactObservations": 0,
     "canonicalEvents": 10622753,
     "rowsMissingFromSnapshot": 0,
-    "rowsResolved": 10622753,
+    "rowsResolved": 0,
     "rowsConflicted": 0
    },
    "sourceReportedCount": 10951117,
    "snapshotCompleteness": "complete",
    "normalizedDigest": "65b7475119dc09838d241e01c22ad54727c9949f41f08b4e348e1e8d436b0455",
-   "globalDigest": "f2df594a9f02d85cb7cf751125fdd17df94d80d0646f38dc7088e4dd77a9a5f3",
+   "globalDigest": "40d87b18d8d6a0ce4ef617886f3585679148e5c3091e87dcfe34a2718f45d283",
    "retention": "digest_only",
    "changeCounts": {
-    "new_parcel_observed": 10622753,
-    "unchanged_parcel": 0,
+    "new_parcel_observed": 0,
+    "unchanged_parcel": 10622753,
     "parcel_attributes_changed": 0,
     "parcel_missing_from_latest_source": 0,
     "parcel_reappeared": 0
    },
-   "partitions": 134,
+   "partitions": 0,
    "activations": {
-    "activated": 134
+    "skipped": 67
    },
-   "skippedPartitions": 0,
+   "skippedPartitions": 67,
    "uncovered": [],
    "countyCounts": {
     "12001": 108940,
@@ -288,60 +340,58 @@
     "12133": 43733
    },
    "runtimeTimingsMs": {
-    "acquire": 0,
-    "parse_normalize": 1942257,
-    "project": 2256501
+    "acquire": 1,
+    "parse_normalize": 2007709,
+    "project": 882182
    },
    "pipelineTimingsMs": {
-    "discover": 2100,
-    "acquire": 20,
-    "verify": 3862,
-    "derive_and_ingest": 4209535
+    "verify": 6846,
+    "derive_and_ingest": 2897028
    },
-   "peakHeapMB": 74,
+   "peakHeapMB": 61,
    "memoryByStage": {
     "parse": {
-     "heapMB": 15,
-     "externalMB": 28,
-     "rssMB": 153
+     "heapMB": 14,
+     "externalMB": 36,
+     "rssMB": 135
     },
     "normalize": {
-     "heapMB": 32,
-     "externalMB": 1121,
-     "rssMB": 1041
+     "heapMB": 31,
+     "externalMB": 1288,
+     "rssMB": 1273
+    },
+    "validate": {
+     "heapMB": 28,
+     "externalMB": 1280,
+     "rssMB": 1275
     },
     "emit": {
-     "heapMB": 74,
-     "externalMB": 1121,
-     "rssMB": 1044
+     "heapMB": 61,
+     "externalMB": 1279,
+     "rssMB": 1275
     }
    },
    "pipelineMemory": {
-    "peakHeapBytes": 74361080,
-    "peakRssBytes": 1094668288,
-    "peakExternalBytes": 2339005309
+    "peakHeapBytes": 62495824,
+    "peakRssBytes": 1334358016,
+    "peakExternalBytes": 2689928987
    },
    "ledger": {
-    "at": "2026-09-30T01:40:52.844Z",
+    "at": "2026-09-30T06:17:45.198Z",
     "sourceId": "fl_statewide_cadastral",
     "referencePeriod": "2026",
     "releaseFingerprint": "e554e8d7cbf31766bf8a78a98d97d3828066fd2899bce0a15dc17b418e113984",
-    "action": "ACQUIRED_AND_INGESTED",
+    "action": "REPLAYED",
     "publisherSha256": "a087c0358d0e4be4bae125134c89d369467616c92d623086c51221cec9a504f8",
     "publisherBytes": 4141216126,
     "bundleSha256": "11966ab5ed709d5f3c907d184695edbf2fd0022670b18af9c0cf4801554d5bda",
     "runId": "run_cfe48cdfd3376c811f7f06b6e991c65d",
     "runStatus": "completed",
     "normalizedDigest": "65b7475119dc09838d241e01c22ad54727c9949f41f08b4e348e1e8d436b0455",
-    "estateDigest": "f2df594a9f02d85cb7cf751125fdd17df94d80d0646f38dc7088e4dd77a9a5f3",
+    "estateDigest": "40d87b18d8d6a0ce4ef617886f3585679148e5c3091e87dcfe34a2718f45d283",
     "note": null
    },
-   "acquisition": {
-    "files": 69,
-    "reused": 69,
-    "downloadedBytes": 0,
-    "manifest": "a087c0358d0e4be4bae125134c89d369467616c92d623086c51221cec9a504f8"
-   },
+   "acquisition": null,
    "quarantineIssues": {
     "cardinality": 231025,
     "type_violation": 97339
@@ -351,16 +401,7 @@
   "fl_dor_nal": {
    "outcome": "INGESTED",
    "sourceId": "fl_dor_nal",
-   "release": {
-    "rollYear": 2026,
-    "stages": {
-     "PRELIMINARY": 65,
-     "FINAL": 2
-    },
-    "files": 67,
-    "fingerprint": "61cefe3bc57c508814db62af693b09fb505b9a4066100f073851f38733cffea4",
-    "missingCounties": []
-   },
+   "release": null,
    "releaseManifestSha256": "5829348a185813361b9acb9508d21f73c8bebcab89d208f4859500682069db09",
    "derived": {
     "sha256": "c81a0f1de4214790e86a25b5979d7d1f81b764949c7e3de0ff0c5ead34b64afe",
@@ -522,32 +563,33 @@
     "rowsValid": 11090242,
     "rowsQuarantined": 0,
     "rowsEmitted": 11090242,
-    "rowsUnchanged": 0,
+    "rowsUnchanged": 11090242,
     "rowsRevised": 0,
-    "rowsNew": 11090242,
+    "rowsNew": 0,
     "contactObservations": 16691535,
     "canonicalEvents": 33269180,
     "rowsMissingFromSnapshot": 0,
-    "rowsResolved": 11090492,
-    "rowsConflicted": 56019
+    "rowsResolved": 0,
+    "rowsConflicted": 0
    },
    "sourceReportedCount": null,
    "snapshotCompleteness": "unverifiable",
    "normalizedDigest": "28727c1d278c431da34c83733aa11481811660e3d2556226cddb481e48aee6d0",
-   "globalDigest": "a8a63bf522a8e5b8b7a2bf65f7828ceb22f069f7d2e1844723abf246319913b2",
+   "globalDigest": "40d87b18d8d6a0ce4ef617886f3585679148e5c3091e87dcfe34a2718f45d283",
    "retention": "digest_only",
    "changeCounts": {
-    "new_parcel_observed": 11090242,
-    "unchanged_parcel": 0,
+    "new_parcel_observed": 0,
+    "unchanged_parcel": 11090242,
     "parcel_attributes_changed": 0,
     "parcel_missing_from_latest_source": 0,
     "parcel_reappeared": 0
    },
-   "partitions": 135,
+   "partitions": 1,
    "activations": {
-    "activated": 135
+    "activated": 1,
+    "skipped": 67
    },
-   "skippedPartitions": 0,
+   "skippedPartitions": 67,
    "uncovered": [],
    "countyCounts": {
     "12001": 109378,
@@ -619,81 +661,65 @@
     "12133": 46472
    },
    "runtimeTimingsMs": {
-    "acquire": 0,
-    "parse_normalize": 6303076,
-    "project": 4443647
+    "acquire": 1,
+    "parse_normalize": 4397511,
+    "project": 2023320
    },
    "pipelineTimingsMs": {
-    "discover": 765,
-    "acquire": 18,
-    "verify": 786,
-    "derive_and_ingest": 10758916
+    "verify": 982,
+    "derive_and_ingest": 6429345
    },
-   "peakHeapMB": 82,
+   "peakHeapMB": 69,
    "memoryByStage": {
     "parse": {
-     "heapMB": 15,
-     "externalMB": 26,
-     "rssMB": 150
+     "heapMB": 14,
+     "externalMB": 37,
+     "rssMB": 135
     },
     "normalize": {
-     "heapMB": 42,
-     "externalMB": 2118,
-     "rssMB": 2108
+     "heapMB": 40,
+     "externalMB": 2266,
+     "rssMB": 2355
     },
     "validate": {
-     "heapMB": 33,
-     "externalMB": 2116,
-     "rssMB": 2108
+     "heapMB": 26,
+     "externalMB": 2264,
+     "rssMB": 2357
     },
     "emit": {
-     "heapMB": 82,
-     "externalMB": 2122,
-     "rssMB": 2110
+     "heapMB": 69,
+     "externalMB": 1707,
+     "rssMB": 2074
     }
    },
    "pipelineMemory": {
-    "peakHeapBytes": 84905168,
-    "peakRssBytes": 2211876864,
-    "peakExternalBytes": 4429811817
+    "peakHeapBytes": 71879144,
+    "peakRssBytes": 2469376000,
+    "peakExternalBytes": 4743412661
    },
    "ledger": {
-    "at": "2026-09-30T04:40:14.074Z",
+    "at": "2026-09-30T08:04:56.383Z",
     "sourceId": "fl_dor_nal",
     "referencePeriod": "2026",
     "releaseFingerprint": "61cefe3bc57c508814db62af693b09fb505b9a4066100f073851f38733cffea4",
-    "action": "ACQUIRED_AND_INGESTED",
+    "action": "REPLAYED",
     "publisherSha256": "5829348a185813361b9acb9508d21f73c8bebcab89d208f4859500682069db09",
     "publisherBytes": 824781865,
     "bundleSha256": "c81a0f1de4214790e86a25b5979d7d1f81b764949c7e3de0ff0c5ead34b64afe",
     "runId": "run_1c386b372a3ce7ced45b314dabb5b300",
     "runStatus": "completed",
     "normalizedDigest": "28727c1d278c431da34c83733aa11481811660e3d2556226cddb481e48aee6d0",
-    "estateDigest": "a8a63bf522a8e5b8b7a2bf65f7828ceb22f069f7d2e1844723abf246319913b2",
+    "estateDigest": "40d87b18d8d6a0ce4ef617886f3585679148e5c3091e87dcfe34a2718f45d283",
     "note": null
    },
-   "acquisition": {
-    "files": 67,
-    "reused": 67,
-    "downloadedBytes": 0,
-    "manifest": "5829348a185813361b9acb9508d21f73c8bebcab89d208f4859500682069db09"
-   },
+   "acquisition": null,
    "quarantineIssues": {},
    "quarantineReasons": "none"
   },
   "fl_dor_sdf": {
    "outcome": "INGESTED",
    "sourceId": "fl_dor_sdf",
-   "release": {
-    "rollYear": 2026,
-    "stages": {
-     "PRELIMINARY": 65,
-     "FINAL": 2
-    },
-    "files": 67,
-    "fingerprint": "2e8e986f863da265769470ed0fde68e0ae2efa8a374280eb4e1550039e586475",
-    "missingCounties": []
-   },
+   "release": null,
    "releaseManifestSha256": "8545336d2e7ce7eab2f864ae64d039e141994a68acf2f5ad5c31f6a60aa969a3",
    "derived": {
     "sha256": "1b2fc77649c2811acc35bc83af2939a3a00f38ba7988966460c6453ca40b26a4",
@@ -855,14 +881,14 @@
     "rowsValid": 1726627,
     "rowsQuarantined": 0,
     "rowsEmitted": 1726627,
-    "rowsUnchanged": 0,
+    "rowsUnchanged": 1726627,
     "rowsRevised": 0,
-    "rowsNew": 1726627,
+    "rowsNew": 0,
     "contactObservations": 0,
     "canonicalEvents": 1726627,
     "rowsMissingFromSnapshot": 0,
-    "rowsResolved": 11090492,
-    "rowsConflicted": 56019
+    "rowsResolved": 0,
+    "rowsConflicted": 0
    },
    "sourceReportedCount": null,
    "snapshotCompleteness": "unverifiable",
@@ -870,17 +896,17 @@
    "globalDigest": "40d87b18d8d6a0ce4ef617886f3585679148e5c3091e87dcfe34a2718f45d283",
    "retention": "digest_only",
    "changeCounts": {
-    "new_parcel_observed": 1726627,
-    "unchanged_parcel": 0,
+    "new_parcel_observed": 0,
+    "unchanged_parcel": 1726627,
     "parcel_attributes_changed": 0,
     "parcel_missing_from_latest_source": 0,
     "parcel_reappeared": 0
    },
-   "partitions": 134,
+   "partitions": 0,
    "activations": {
-    "activated": 134
+    "skipped": 67
    },
-   "skippedPartitions": 0,
+   "skippedPartitions": 67,
    "uncovered": [],
    "countyCounts": {
     "12001": 17285,
@@ -952,45 +978,48 @@
     "12133": 4519
    },
    "runtimeTimingsMs": {
-    "acquire": 1,
-    "parse_normalize": 348109,
-    "project": 2560691
+    "acquire": 2,
+    "parse_normalize": 357025,
+    "project": 274464
    },
    "pipelineTimingsMs": {
-    "discover": 997,
-    "acquire": 25,
-    "verify": 167,
-    "derive_and_ingest": 2910463
+    "verify": 148,
+    "derive_and_ingest": 632655
    },
-   "peakHeapMB": 79,
+   "peakHeapMB": 64,
    "memoryByStage": {
     "parse": {
-     "heapMB": 16,
-     "externalMB": 29,
-     "rssMB": 127
+     "heapMB": 14,
+     "externalMB": 23,
+     "rssMB": 122
     },
     "normalize": {
-     "heapMB": 33,
-     "externalMB": 210,
-     "rssMB": 332
+     "heapMB": 31,
+     "externalMB": 233,
+     "rssMB": 364
+    },
+    "validate": {
+     "heapMB": 26,
+     "externalMB": 229,
+     "rssMB": 366
     },
     "emit": {
-     "heapMB": 79,
-     "externalMB": 211,
-     "rssMB": 332
+     "heapMB": 64,
+     "externalMB": 166,
+     "rssMB": 338
     }
    },
    "pipelineMemory": {
-    "peakHeapBytes": 76371416,
-    "peakRssBytes": 348016640,
-    "peakExternalBytes": 429249967
+    "peakHeapBytes": 66266768,
+    "peakRssBytes": 381403136,
+    "peakExternalBytes": 479148061
    },
    "ledger": {
-    "at": "2026-09-30T05:28:47.374Z",
+    "at": "2026-09-30T08:15:30.314Z",
     "sourceId": "fl_dor_sdf",
     "referencePeriod": "2026",
     "releaseFingerprint": "2e8e986f863da265769470ed0fde68e0ae2efa8a374280eb4e1550039e586475",
-    "action": "ACQUIRED_AND_INGESTED",
+    "action": "REPLAYED",
     "publisherSha256": "8545336d2e7ce7eab2f864ae64d039e141994a68acf2f5ad5c31f6a60aa969a3",
     "publisherBytes": 34684277,
     "bundleSha256": "1b2fc77649c2811acc35bc83af2939a3a00f38ba7988966460c6453ca40b26a4",
@@ -1000,91 +1029,47 @@
     "estateDigest": "40d87b18d8d6a0ce4ef617886f3585679148e5c3091e87dcfe34a2718f45d283",
     "note": null
    },
-   "acquisition": {
-    "files": 67,
-    "reused": 67,
-    "downloadedBytes": 0,
-    "manifest": "8545336d2e7ce7eab2f864ae64d039e141994a68acf2f5ad5c31f6a60aa969a3"
-   },
+   "acquisition": null,
    "quarantineIssues": {},
    "quarantineReasons": "none"
   }
  },
- "disk": {
-  "before": {
-   "derived": 876683573,
-   "indexes": 147871160,
-   "archive": 8371695890,
-   "filesystem": [
-    {
-     "usedBytes": 28675698688,
-     "availBytes": 11105189888
-    }
-   ]
-  },
-  "after_cad": {
-   "derived": 2237689697,
-   "indexes": 402818304,
-   "filesystem": [
-    {
-     "usedBytes": 30721331200,
-     "availBytes": 9059557376
-    },
-    {
-     "usedBytes": 30673055744,
-     "availBytes": 9107832832
-    }
-   ]
-  },
-  "after_nal": {
-   "derived": 4328208275,
-   "indexes": 668985184,
-   "filesystem": [
-    {
-     "usedBytes": 33404968960,
-     "availBytes": 6375919616
-    },
-    {
-     "usedBytes": 32674881536,
-     "availBytes": 7106007040
-    }
-   ]
-  },
-  "after_sdf": {
-   "derived": 4917816291,
-   "indexes": 710425304,
-   "filesystem": [
-    {
-     "usedBytes": 34233257984,
-     "availBytes": 5547630592
-    },
-    {
-     "usedBytes": 33152868352,
-     "availBytes": 6628020224
-    }
-   ]
-  },
-  "samples": {
-   "samples": 1391,
-   "from": "2026-09-30T00:32:26Z",
-   "to": "2026-09-30T08:16:00Z",
-   "intervalSeconds": 20,
-   "minFreeBytes": 4418035712,
-   "minFreeAt": "2026-09-30T07:46:59Z",
-   "peakRunScratchBytes": 1704958388,
-   "peakRunScratchAt": "2026-09-30T03:41:31Z"
-  }
+ "sameRunIds": {
+  "fl_statewide_cadastral": true,
+  "fl_dor_nal": true,
+  "fl_dor_sdf": true
  },
- "diskLine": "the derived plane and indexes grew by 4.60 GB for all three sources; the least free disk observed during the runs was 4.42 GB and a run's scratch peaked at 1.70 GB",
+ "sameNormalizedDigest": {
+  "fl_statewide_cadastral": true,
+  "fl_dor_nal": true,
+  "fl_dor_sdf": true
+ },
+ "sameDerivedSha256": {
+  "fl_statewide_cadastral": true,
+  "fl_dor_nal": true,
+  "fl_dor_sdf": true
+ },
+ "globalBefore": "40d87b18d8d6a0ce4ef617886f3585679148e5c3091e87dcfe34a2718f45d283",
+ "globalAfter": "40d87b18d8d6a0ce4ef617886f3585679148e5c3091e87dcfe34a2718f45d283",
+ "globalUnchanged": true,
+ "partitions": {
+  "compared": 266,
+  "identical": 266,
+  "differing": []
+ },
+ "partitionsGivenANewGeneration": [
+  "organization/us"
+ ],
+ "summaryLine": "23,439,622 rows unchanged, 0 new, 0 revised; 201 county partition recomputations skipped as unchanged; 266 / 266 partitions with identical digests; partitions given a new generation: `organization/us`; global digest unchanged",
  "sweeps": {
   "cad": {
-   "abandonedGenerationsRemoved": 1
+   "abandonedGenerationsRemoved": 0
   },
   "nal": {
-   "abandonedGenerationsRemoved": 135
+   "abandonedGenerationsRemoved": 1
   },
   "sdf": {
-   "abandonedGenerationsRemoved": 134
+   "abandonedGenerationsRemoved": 0
   }
  }
 }
