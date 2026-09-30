@@ -263,6 +263,25 @@ parcel, and refused anyway. The SBL is normalized with the contract's existing
 whitespace trimmed, case folded, nothing else. No Minnesota or Wisconsin rule was
 copied; no new scheme was needed; the shared contract is unchanged.
 
+### Cross-state parcel-string reuse (live, MN + WI + NY)
+
+`tools/ny-audit.ts pid-reuse` external-sorted all 11,664,439 county-parcel
+identifiers of the three estates (Minnesota 2,648,100, Wisconsin 3,513,111, New
+York 5,503,228):
+
+| | MN + WI | MN + NY | WI + NY | all three |
+|---|---:|---:|---:|---:|
+| canonical parcel strings shared across states | 30,988 | **0** | **0** | 0 |
+| folded keys shared (how a naive matcher would join) | 32,970 | **0** | **0** | 0 |
+| New York's bare SBL (without its SWIS) equal to another state's parcel string | — | 143 | 26 | 0 |
+
+A New York canonical string carries its six-digit SWIS, so it is shared with no
+other state; within New York no canonical string spans two counties (Minnesota
+has 92,874 such strings, Wisconsin 117,040). Even the bare tax-map numbers that
+do coincide with Minnesota or Wisconsin parcel numbers stay separate
+properties, because the county is part of the identity. **Property-id
+collisions: 0** — every (county, parcel) is its own property.
+
 ### Refused rows
 
 | Reason | Rows |
@@ -271,7 +290,7 @@ copied; no new scheme was needed; the shared contract is unchanged.
 | SBL is a label with no digit (Westchester water/unknown) | 19 |
 | COUNTY_NAME and SWIS disagree | 0 |
 | uncatalogued county | 0 |
-| duplicate (county, SWIS, SBL) | (§9) |
+| later copy of a (county, SWIS, SBL) already read | 208 |
 
 Rows with a numeric SBL but no ORPTS roll record behind them (13,954 outside
 NYC; mostly unknown, right-of-way and water owner types) **are** admitted as
