@@ -4,9 +4,21 @@
  *   node tools/ny-audit.ts quality <bundle.ndjson>      field completeness, statewide and per county
  *                                                       (min / median / max), quarantine reasons,
  *                                                       lineage, roll and spatial years
- *   node tools/ny-audit.ts pid-reuse <varRoot>          parcel strings reused across counties and
+ *   node tools/ny-audit.ts leak <varRoot> <runId> <bundle.ndjson>
+ *                                                       per parcel: does the derived row carry its own
+ *                                                       owner's mailing-only string? Plus the key
+ *                                                       names of every derived row, and the restricted
+ *                                                       plane's file modes and row count
+ *   node tools/ny-audit.ts extract-ids <varRoot> <out>  one line per county_parcel observation in the
+ *                                                       estate's run tables: parcel strings and
+ *                                                       property ids only (no names, no addresses)
+ *   node tools/ny-audit.ts pid-reuse <ids> [<ids> …]    parcel strings reused across counties and
  *                                                       across MN, WI and NY, and proof that each
  *                                                       (county, parcel) is its own property
+ *
+ * `extract-ids` and `pid-reuse` are separate so an estate too large for one disk
+ * can be audited in stages: another state's identifiers are extracted before
+ * its regenerable run tables are released, then audited together.
  *
  * Output is counts, rates, ranges and codes. No owner name, mailing address or
  * situs address is ever printed.
@@ -16,8 +28,8 @@
  * line per identifier to scratch and external-sorts it, so what is held is one
  * sort chunk and one group.
  */
-import { mkdir, rm } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdir, readdir, rm, stat } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import { readLines } from '../src/core/lines.ts';
 import { createFileLineWriter } from '../src/core/lines.ts';
 import { externalSort, groupSorted } from '../src/core/external-sort.ts';
@@ -147,17 +159,117 @@ async function quality(bundlePath: string): Promise<unknown> {
   };
 }
 
+/** Mailing lines, both owners. City, state and ZIP are too generic to test by substring. */
+const MAILING_LINES = ['MAIL_ADDR', 'PO_BOX', 'ADD_MAIL_ADDR', 'ADD_MAIL_PO_BOX'] as const;
+/** Key names that would mean a contact-shaped value reached the derived plane. */
+const FORBIDDEN_KEY = /mail|po_?box|phone|email|contact/i;
+
+/**
+ * The derived plane against the publisher's rows, parcel by parcel.
+ *
+ * The runtime emits bundles in delivery order, dropping quarantined rows and
+ * later duplicates, so the two files merge-join on the source record id with
+ * one row of each in memory. A parcel's mailing line counts as mailing-ONLY
+ * when it is not the parcel's own situs: an owner billed at the property has a
+ * mailing address equal to public situs data that canonical output is meant to
+ * carry, and calling that a leak would make the audit worthless. Values are
+ * compared, never printed.
+ */
+async function leak(varRoot: string, runId: string, bundlePath: string): Promise<unknown> {
+  const derived = createGenerationStore(varRoot).readRunTable(runId, 'bundles')[Symbol.asyncIterator]();
+  let next = await derived.next();
+  const result = {
+    runId,
+    publisherRows: 0,
+    derivedRows: 0,
+    joined: 0,
+    unmatchedDerived: 0,
+    mailingOnlyValuesChecked: 0,
+    mailingEqualToOwnSitus: 0,
+    leaks: 0,
+    // The same test on a value that SHOULD be there: the owner name is a public
+    // observation the derived row carries. Proves the join and the matching.
+    positiveControl: { ownerNamesChecked: 0, ownerNamesFound: 0 },
+    partiesWithAddress: 0,
+    derivedKeyNames: 0,
+    forbiddenKeyNames: [] as string[],
+    restricted: { files: 0, filesNotOwnerOnly: 0, directoriesNotOwnerOnly: 0, contactRows: 0 },
+  };
+  const keys = new Set<string>();
+  const walkKeys = (v: unknown): void => {
+    if (Array.isArray(v)) { for (const x of v) walkKeys(x); return; }
+    if (v === null || typeof v !== 'object') return;
+    for (const [k, x] of Object.entries(v)) { keys.add(k); walkKeys(x); }
+  };
+  const norm = (v: unknown) => (typeof v === 'string' ? v.trim().toUpperCase().replace(/\s+/g, ' ') : '');
+  let header = true;
+  for await (const line of readLines(bundlePath)) {
+    if (header) { header = false; continue; }
+    const a = JSON.parse(line) as Record<string, unknown>;
+    if (a['kind'] !== undefined) continue;
+    result.publisherRows += 1;
+    let id: string;
+    try {
+      id = parseNyStatewideFeature(a, 'audit').sourceRecordId;
+    } catch {
+      continue; // quarantined: never emitted
+    }
+    if (next.done) continue;
+    const row = next.value;
+    const bundle = JSON.parse(row) as { transaction: { sourceRecordId: string }; parties: { address: unknown }[] };
+    if (bundle.transaction.sourceRecordId !== id) continue; // a later duplicate of a row already joined
+    result.joined += 1;
+    result.derivedRows += 1;
+    walkKeys(bundle);
+    result.partiesWithAddress += bundle.parties.filter((p) => p.address !== null && p.address !== undefined).length;
+    const situs = new Set([norm(a['PARCEL_ADDR']), norm(`${String(a['LOC_ST_NBR'] ?? '')} ${String(a['LOC_STREET'] ?? '')}`)]);
+    const upper = row.toUpperCase();
+    const collapsed = upper.replace(/\s+/g, ' ');
+    const carried = (raw: unknown, value: string) => collapsed.includes(JSON.stringify(value).slice(1, -1))
+      || (typeof raw === 'string' && upper.includes(JSON.stringify(raw.trim().toUpperCase()).slice(1, -1)));
+    for (const field of MAILING_LINES) {
+      const value = norm(a[field]);
+      if (value.length < 4) continue;
+      if (situs.has(value)) { result.mailingEqualToOwnSitus += 1; continue; }
+      result.mailingOnlyValuesChecked += 1;
+      if (carried(a[field], value)) result.leaks += 1;
+    }
+    const owner = norm(a['PRIMARY_OWNER']);
+    if (owner.length >= 4) {
+      result.positiveControl.ownerNamesChecked += 1;
+      if (carried(a['PRIMARY_OWNER'], owner)) result.positiveControl.ownerNamesFound += 1;
+    }
+    next = await derived.next();
+  }
+  while (!next.done) { result.derivedRows += 1; result.unmatchedDerived += 1; next = await derived.next(); }
+  result.derivedKeyNames = keys.size;
+  result.forbiddenKeyNames = [...keys].filter((k) => FORBIDDEN_KEY.test(k)).sort();
+
+  // The restricted plane: owner-only files and directories, and its row count.
+  const restrictedRoot = join(varRoot, 'restricted', 'runs', runId);
+  const walk = async (dir: string): Promise<void> => {
+    const st = await stat(dir);
+    if ((st.mode & 0o077) !== 0) result.restricted.directoriesNotOwnerOnly += 1;
+    for (const e of await readdir(dir, { withFileTypes: true })) {
+      const p = join(dir, e.name);
+      if (e.isDirectory()) { await walk(p); continue; }
+      result.restricted.files += 1;
+      if (((await stat(p)).mode & 0o077) !== 0 && e.name !== 'CURRENT') result.restricted.filesNotOwnerOnly += 1;
+    }
+  };
+  await walk(restrictedRoot).catch(() => {});
+  for await (const _ of createGenerationStore(varRoot).readRunTable(runId, 'contacts')) result.restricted.contactRows += 1;
+  return result;
+}
+
 /** State FIPS the estate holds statewide parcel sources for. */
 const STATES: Readonly<Record<string, string>> = { '27': 'MN', '55': 'WI', '36': 'NY' };
 
-async function pidReuse(varRoot: string): Promise<unknown> {
-  const scratch = join(varRoot, 'scratch', `pid-audit-${Date.now()}`);
-  await mkdir(scratch, { recursive: true, mode: 0o700 });
-  const path = join(scratch, 'ids.ndjson');
-  const writer = await createFileLineWriter(path);
+/** One line per county_parcel observation: normalized key, folded key, state, county, property id, local key. */
+async function extractIds(varRoot: string, out: string): Promise<{ readonly identifiers: number }> {
+  const writer = await createFileLineWriter(out);
   let rows = 0;
-  // One line per county_parcel observation: normalized key, folded key, state, county, property id,
-  // and for New York the local tax map number alone (the SBL, without its SWIS).
+  // For New York the local key is the tax map number alone (the SBL, without its SWIS).
   for await (const line of createGenerationStore(varRoot).readTable('bundles')) {
     const bundle = JSON.parse(line) as { propertyIdentifiers: { identifierType: string; normalizedValue: string; countyFips: string; propertyId: string | null; value: string }[] };
     for (const o of bundle.propertyIdentifiers) {
@@ -169,6 +281,18 @@ async function pidReuse(varRoot: string): Promise<unknown> {
     }
   }
   await writer.close();
+  return { identifiers: rows };
+}
+
+async function* linesOf(files: readonly string[]): AsyncGenerator<string> {
+  for (const file of files) yield* readLines(file);
+}
+
+async function pidReuse(idFiles: readonly string[]): Promise<unknown> {
+  // Sort scratch beside the identifier files; the files themselves are read in place.
+  const scratch = join(dirname(idFiles[0] as string), `pid-audit-${Date.now()}`);
+  await mkdir(scratch, { recursive: true, mode: 0o700 });
+  let rows = 0;
 
   type Id = [string, string, string, string, string, string];
   const sortOpts = { chunkLines: 200_000, scratchDir: scratch };
@@ -199,8 +323,9 @@ async function pidReuse(varRoot: string): Promise<unknown> {
     }
   };
   // Pass 1: by exact canonical string.
-  for await (const { items } of groupSorted(externalSort(readLines(path), (l) => (JSON.parse(l) as Id)[0], sortOpts),
+  for await (const { items } of groupSorted(externalSort(linesOf(idFiles), (l) => (JSON.parse(l) as Id)[0], sortOpts),
     (l) => (JSON.parse(l) as Id)[0], (l) => JSON.parse(l) as Id)) {
+    rows += items.length;
     const states = byState(items);
     for (const [s, counties] of Object.entries(states)) {
       result.identifiersByState[s] = (result.identifiersByState[s] ?? 0) + items.filter((i) => STATES[i[2]] === s).length;
@@ -214,18 +339,19 @@ async function pidReuse(varRoot: string): Promise<unknown> {
       if (ids.size !== counties.size) result.distinctPropertiesAcrossStateReuse = false;
     }
   }
+  result.identifiers = rows;
   // Pass 2: by folded key, which is how a naive matcher would have joined them.
-  for await (const { items } of groupSorted(externalSort(readLines(path), (l) => (JSON.parse(l) as Id)[1], sortOpts),
+  for await (const { items } of groupSorted(externalSort(linesOf(idFiles), (l) => (JSON.parse(l) as Id)[1], sortOpts),
     (l) => (JSON.parse(l) as Id)[1], (l) => JSON.parse(l) as Id)) {
     tally(result.foldedKeysInSeveralStates, byState(items));
   }
   // Pass 3: New York's local tax map number (without SWIS) against the other states' parcel strings.
-  for await (const { items } of groupSorted(externalSort(readLines(path), (l) => (JSON.parse(l) as Id)[5], sortOpts),
+  for await (const { items } of groupSorted(externalSort(linesOf(idFiles), (l) => (JSON.parse(l) as Id)[5], sortOpts),
     (l) => (JSON.parse(l) as Id)[5], (l) => JSON.parse(l) as Id)) {
     tally(result.nyLocalSblInOtherStates, byState(items));
   }
   // Pass 4: by property id — one id must never name two (county, parcel) pairs.
-  for await (const { items } of groupSorted(externalSort(readLines(path), (l) => (JSON.parse(l) as Id)[4], sortOpts),
+  for await (const { items } of groupSorted(externalSort(linesOf(idFiles), (l) => (JSON.parse(l) as Id)[4], sortOpts),
     (l) => (JSON.parse(l) as Id)[4], (l) => JSON.parse(l) as Id)) {
     if (new Set(items.map((i) => `${i[3]}|${i[0]}`)).size > 1) result.propertyIdCollisions += 1;
   }
@@ -233,10 +359,12 @@ async function pidReuse(varRoot: string): Promise<unknown> {
   return result;
 }
 
-const [command, arg] = process.argv.slice(2);
+const [command, arg, ...rest] = process.argv.slice(2);
 if (command === 'quality' && arg) process.stdout.write(`${JSON.stringify(await quality(arg), null, 1)}\n`);
-else if (command === 'pid-reuse' && arg) process.stdout.write(`${JSON.stringify(await pidReuse(arg), null, 1)}\n`);
+else if (command === 'leak' && arg && rest[0] && rest[1]) process.stdout.write(`${JSON.stringify(await leak(arg, rest[0], rest[1]), null, 1)}\n`);
+else if (command === 'extract-ids' && arg && rest[0]) process.stdout.write(`${JSON.stringify(await extractIds(arg, rest[0]))}\n`);
+else if (command === 'pid-reuse' && arg) process.stdout.write(`${JSON.stringify(await pidReuse([arg, ...rest]), null, 1)}\n`);
 else {
-  process.stderr.write('usage: ny-audit.ts quality <bundle.ndjson> | pid-reuse <varRoot>\n');
+  process.stderr.write('usage: ny-audit.ts quality <bundle.ndjson> | leak <varRoot> <runId> <bundle.ndjson> | extract-ids <varRoot> <out.ndjson> | pid-reuse <ids.ndjson> [<ids.ndjson> …]\n');
   process.exitCode = 2;
 }
