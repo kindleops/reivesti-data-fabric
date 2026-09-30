@@ -563,6 +563,48 @@ for area, year built and living area when it is positive (the roll writes 0 for
   store, and never a member-facing surface.
 - Fixtures are generated at test time from invented values.
 
+### The live leak audit (aggregate only; no value printed)
+
+`tools/ny-audit.ts leak` merge-joined the 5,510,061 publisher rows with the
+5,503,228 derived canonical rows in emit order (0 unmatched) and, per parcel,
+looked for that parcel's own **mailing-only** lines — mailing lines that are not
+simply its situs — inside its own derived row.
+
+| | |
+|---|---:|
+| mailing-only lines checked | 2,590,716 |
+| mailing lines equal to the parcel's own situs (public, not checked) | 3,454,471 |
+| positive control: owner names found in their own row | 5,489,023 / 5,489,023 |
+| parties carrying an address | **0** |
+| derived key names (of 184) that name contact data | **0** |
+| restricted contact rows | 6,276,204, files `0600` |
+| **mailing-only lines found inside their own derived row, as a substring** | 91,834 |
+
+Every one of those substring hits was then classified by where it sits
+(`leak-paths`, run on the rows the forced re-ingest committed — the first
+run's had been released for disk. It finds 91,583 hits: 251 fewer, because a
+re-ingest's run-specific values — timestamps, event and observation ids, the
+change kind — differ from the first run's, and some hits were on those):
+
+- **88,248** are only *part* of a longer public string: the parcel's own situs
+  (the mailing line is the situs without its unit or range — 86,772 of them,
+  confirmed independently from the raw rows), an owner name, or digits inside
+  an identifier, hash or timestamp.
+- **3,335** equal a whole string value, and every one is a public field
+  carrying its own value: the situs as normalized (`normalized_address`
+  identifier 2,683, `canonical_address_key` 1,578 — the owner's mailing address
+  *is* the property, written differently), the published owner name (182 — the
+  owner field, never a mailing field), and coincidences with public vocabulary:
+  "UNKNOWN" = the party kind and finality (48), municipality and school names
+  (39), code descriptions (5).
+
+**No mailing value was copied into a canonical row.** That is true by
+construction — the mailing parts reach only the restricted contact rows and a
+one-way hash inside the ownership field-group digest — and, measured, not one
+hit sits in a field that is not the parcel's own public data. Restricted
+directories inherit the process umask (`0755`); their files are `0600`
+(§14, proposal 6).
+
 ---
 
 ## 14. Parallel integration (DF-0M Florida runs beside this)
