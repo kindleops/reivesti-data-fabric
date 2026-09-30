@@ -553,8 +553,10 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     };
 
     staged = dryRun ? null : await store.beginRun(runId);
-    const contributionsPath = join(scratch, 'contributions.ndjson');
-    const contributionsWriter: LineWriter = await createFileLineWriter(contributionsPath);
+    // Compressed: every accepted row leaves a contribution here, and on an
+    // 11-million-row roll the plain file alone was ~3.7 GB of a worker's disk.
+    const contributionsPath = join(scratch, 'contributions.ndjson.gz');
+    const contributionsWriter: LineWriter = await createFileLineWriter(contributionsPath, { gzip: true });
     // The jurisdictions this run actually produced rows for. The plan is built
     // from these, not from the mapping's declared scope: a statewide source
     // mapped to 87 counties that delivered one county's rows must recompute one

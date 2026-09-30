@@ -14,7 +14,7 @@ import { mkdir, rename, rm } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { once } from 'node:events';
 import type { Readable, Writable } from 'node:stream';
-import { createGunzip } from 'node:zlib';
+import { createGunzip, createGzip } from 'node:zlib';
 import { fail } from './errors.ts';
 
 const DEFAULT_HIGH_WATER_MARK = 1 << 20; // 1 MiB
@@ -123,13 +123,41 @@ export function createLineWriter(stream: Writable): LineWriter {
  */
 export async function createFileLineWriter(
   path: string,
-  options: { readonly mode?: number } = {},
+  options: { readonly mode?: number; readonly gzip?: boolean } = {},
 ): Promise<LineWriter> {
   await mkdir(dirname(path), { recursive: true });
-  return createLineWriter(createWriteStream(path, {
+  const file = createWriteStream(path, {
     mode: options.mode ?? 0o600,
     highWaterMark: DEFAULT_HIGH_WATER_MARK,
-  }));
+  });
+  return options.gzip === true ? gzipLineWriter(file) : createLineWriter(file);
+}
+
+/**
+ * A line writer that gzips (level 1) into `file`, and whose close() resolves
+ * only when the FILE is closed — not merely when the compressor has drained —
+ * so the file can be read back the moment close() returns. `readLines`
+ * decompresses a `.gz` path on the fly. Level 1: the point is disk, not ratio.
+ */
+export function gzipLineWriter(file: Writable): LineWriter {
+  const closed = once(file, 'close');
+  // Observed from the start so an early file error is never an unhandled rejection; close() still surfaces it.
+  closed.catch(() => {});
+  const gzip = createGzip({ level: 1 });
+  gzip.on('error', (e) => file.destroy(e));
+  gzip.pipe(file);
+  const inner = createLineWriter(gzip);
+  return {
+    get lineCount() {
+      return inner.lineCount;
+    },
+    write: (line) => inner.write(line),
+    async close() {
+      const count = await inner.close();
+      await closed;
+      return count;
+    },
+  };
 }
 
 /**

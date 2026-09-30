@@ -158,6 +158,38 @@ test('03 cadastral: the same release is a NOOP — not one file fetched again', 
   assert.equal(second.ledger?.action, 'NOOP_SAME_RELEASE');
 });
 
+test('03b freshness across releases: present, then missing, then present again is missing and then reappeared — never new twice', async () => {
+  const e = estate();
+  assert.equal((await e.run(FL_NAL_SPEC)).outcome, 'INGESTED');
+  const later = (at: string) => runFlPipeline(FL_NAL_SPEC, {
+    registry: e.registry, artifactStore: e.store, contactPlane: createContactPlane({ maxRetained: 0 }), varRoot: e.varRoot,
+    clock: fixedClock(at), logger: captureLogger().logger, http: { fetchImpl: e.portal.fetchImpl, sleep: async () => {} },
+  });
+  const full = lafayetteNal();
+  const dropped = full.filter((r) => r['PARCEL_ID'] !== P_PUNCT_B);
+  assert.equal(dropped.length, full.length - 1);
+
+  // Release B: the county re-posts its roll without one parcel. Missing from the latest source — not deleted.
+  e.portal.publish({ nal: { '44': dropped } });
+  const b = await later('2026-10-15T12:00:00.000Z');
+  assert.equal(b.outcome, 'INGESTED');
+  assert.equal(b.run?.changeCounts.parcel_missing_from_latest_source, 1);
+  assert.equal(b.run?.changeCounts.parcel_reappeared, 0);
+  assert.equal(b.run?.changeCounts.new_parcel_observed, 0);
+
+  // Release C: the parcel is back. It reappears; it is not observed as new a second time.
+  e.portal.publish({ nal: { '44': full } });
+  const c = await later('2026-11-15T12:00:00.000Z');
+  assert.equal(c.outcome, 'INGESTED');
+  assert.equal(c.run?.changeCounts.parcel_reappeared, 1);
+  assert.equal(c.run?.changeCounts.new_parcel_observed, 0);
+  assert.equal(c.run?.changeCounts.parcel_missing_from_latest_source, 0);
+  // One property per parcel throughout, under the same id.
+  const ids = (await e.table('property', LAFAYETTE.fips, 'resolutions')).map((r) => r['propertyId']);
+  assert.equal(new Set(ids).size, full.length);
+  assert.ok(ids.includes(flParcelIdentity(LAFAYETTE.fips, P_PUNCT_B).propertyId));
+});
+
 test('04–05 NAL and SDF: the automation gate is CORE_ELIGIBLE for both, each on its own facts', () => {
   const registry = defaultRegistry();
   for (const id of [FL_NAL_SOURCE_ID, FL_SDF_SOURCE_ID]) {
