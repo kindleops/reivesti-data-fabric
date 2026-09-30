@@ -1,0 +1,38 @@
+{
+ "claim": "The migration chain 0001–0012 executes on a real PostgreSQL 17 from nothing, twice, with RLS forced and application roles denied on every table. Draft only: applied to no production database.",
+ "migration": "db/migrations/0012_data_fabric_sale_observations.sql",
+ "status": "DRAFT — NOT APPLIED TO ANY PRODUCTION DATABASE",
+ "runner": "tests/migration-execution.test.ts under an unprivileged OS user (initdb refuses root), embedded PostgreSQL 17",
+ "runs": [
+  {
+   "run": 1,
+   "tests": 60,
+   "pass": 60,
+   "fail": 0
+  },
+  {
+   "run": 2,
+   "tests": 60,
+   "pass": 60,
+   "fail": 0
+  }
+ ],
+ "eachRunAlsoBuildsASecondIndependentDatabase": "schema signatures (columns, constraints, indexes, RLS, policies) equal by sha256",
+ "tablesWithRlsEnabledAndForced": 57,
+ "restrictiveDenyPolicies": 114,
+ "applicationRolesDenied": [
+  "anon",
+  "authenticated"
+ ],
+ "newTables": [
+  "data_fabric.sale_observations",
+  "data_fabric.sale_resolutions"
+ ],
+ "widenedChecks": [
+  "transfer_considerations.kind + SALE_PRICE_DOC_STAMP_DERIVED",
+  "transfer_classifications.classification + Florida qualification dimensions (no GIFT, no FORECLOSURE)",
+  "contact_observations.contact_type + mailing_address, care_of_block"
+ ],
+ "summaryLine": "60 / 60 tests passed on each of two runs; 57 tables with RLS enabled and forced; 114 restrictive deny policies (anon, authenticated); a second independent database built in each run has an identical schema signature",
+ "server": "PostgreSQL 17.10 (@embedded-postgres/linux-x64 17.10.0-beta.17), asserted /^17\\./ by the test"
+}
