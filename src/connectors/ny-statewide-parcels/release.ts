@@ -25,8 +25,13 @@
  *                  links no usable service.
  *
  * Every discovered URL must be on an official `ny.gov` host; a mirror is
- * refused. The legacy host is recognised only so it can be de-preferred and
- * flagged — it is never requested by this module on its own initiative.
+ * refused. The legacy host is recognised only so it can be refused: its
+ * services stopped updating on 2026-09-18, so a count and schema read there
+ * cannot vouch for a newer archive, and after October they will not answer at
+ * all. A release that could only be discovered through it fails discovery,
+ * naming the migration — loudly, before retirement does it silently. Each
+ * product must be linked exactly once on a current host; two current links for
+ * one product are ambiguous, and an ambiguous release is not guessed at.
  *
  * ## Two paths with different jobs, as in Wisconsin
  *
@@ -43,9 +48,10 @@
  * built 2026-05. Discovery reads the ZIP central directory with one small
  * range request (the host serves `Accept-Ranges: bytes`), so the reference
  * period `2025-2605` is the publisher's own, known before a byte of the 563 MB
- * body is downloaded. Where ranges are not served, the label falls back to the
- * service's own title and publication date, and derivation later refuses an
- * archive whose geodatabase says otherwise.
+ * body is downloaded. Where ranges are not served — or are advertised and then
+ * answered with the whole body — the label falls back to the service's own
+ * title and publication date, and derivation later refuses an archive whose
+ * geodatabase says otherwise.
  *
  * ## The polygon companion
  *
@@ -161,6 +167,24 @@ export function preferCurrent(urls: readonly string[]): readonly string[] {
   return [...urls].sort((a, b) => Number(isLegacyNyHost(a)) - Number(isLegacyNyHost(b)) || (a < b ? -1 : a > b ? 1 : 0));
 }
 
+/**
+ * The one current link for a product. Legacy links are set aside — returned
+ * for the report, never used. Two current links for one product fail: which
+ * of them is the release is the publisher's to say, not this module's to pick.
+ */
+export function currentLink(urls: readonly string[], product: string): { readonly url: string | null; readonly legacy: readonly string[] } {
+  const legacy = urls.filter(isLegacyNyHost);
+  const current = urls.filter((u) => !isLegacyNyHost(u));
+  if (current.length > 1) {
+    fail('SCHEMA_DRIFT', `the program page links ${current.length} current ${product}s; which one is the release is ambiguous`, {
+      page: NY_PARCELS_PROGRAM_PAGE,
+      links: current,
+      remedy: 'the publisher changed its distribution; re-verify the source before any further run',
+    });
+  }
+  return { url: current[0] ?? null, legacy };
+}
+
 // ---------------------------------------------------------------------------
 // Archive identity from the ZIP central directory
 // ---------------------------------------------------------------------------
@@ -173,14 +197,21 @@ export type ArchiveDirectory = {
 
 /**
  * Reads the names inside a remote ZIP without downloading it: the end-of-central-
- * directory record and the directory itself, by range. Two small GETs at most.
+ * directory record and the directory itself, by range — two small GETs, three
+ * for a ZIP64 archive. Returns null when the host answers a range request with
+ * anything but 206: it does not serve ranges, and asking again would only start
+ * the whole archive downloading again.
  */
-export async function readRemoteZipDirectory(url: string, contentLength: number, deps: HttpDeps = {}): Promise<ArchiveDirectory> {
+export async function readRemoteZipDirectory(url: string, contentLength: number, deps: HttpDeps = {}): Promise<ArchiveDirectory | null> {
   const tailLength = Math.min(contentLength, 65_557 + 20);
-  const tail = await getRange(url, contentLength - tailLength, contentLength - 1, deps);
+  const tailStart = contentLength - tailLength;
+  const tail = await getRange(url, tailStart, contentLength - 1, deps);
+  if (tail === null) return null;
+  // The record is the one whose own comment length ends it exactly at the end of
+  // the file; a comment that happens to contain the signature is not the record.
   let eocd = -1;
   for (let i = tail.length - 22; i >= 0; i--) {
-    if (tail.readUInt32LE(i) === 0x06054b50) { eocd = i; break; }
+    if (tail.readUInt32LE(i) === 0x06054b50 && i + 22 + tail.readUInt16LE(i + 20) === tail.length) { eocd = i; break; }
   }
   if (eocd < 0) fail('PARSE', 'the archive has no ZIP end-of-central-directory record', { url });
   let entries = tail.readUInt16LE(eocd + 10);
@@ -191,16 +222,20 @@ export async function readRemoteZipDirectory(url: string, contentLength: number,
     const loc = eocd - 20;
     if (loc < 0 || tail.readUInt32LE(loc) !== 0x07064b50) fail('PARSE', 'ZIP64 archive without a locator', { url });
     const recordOffset = Number(tail.readBigUInt64LE(loc + 8));
-    const record = await getRange(url, recordOffset, recordOffset + 55, deps);
+    const record = recordOffset >= tailStart && recordOffset + 56 <= contentLength
+      ? tail.subarray(recordOffset - tailStart, recordOffset - tailStart + 56)
+      : await getRange(url, recordOffset, recordOffset + 55, deps);
+    if (record === null) return null;
     if (record.readUInt32LE(0) !== 0x06064b50) fail('PARSE', 'ZIP64 end record not found where its locator points', { url });
     entries = Number(record.readBigUInt64LE(32));
     cdSize = Number(record.readBigUInt64LE(40));
     cdOffset = Number(record.readBigUInt64LE(48));
   }
-  const tailStart = contentLength - tailLength;
-  const cd = cdOffset >= tailStart && cdOffset + cdSize <= contentLength
+  if (cdOffset + cdSize > contentLength) fail('PARSE', 'the ZIP central directory runs past the end of the archive', { url });
+  const cd = cdOffset >= tailStart
     ? tail.subarray(cdOffset - tailStart, cdOffset - tailStart + cdSize)
     : await getRange(url, cdOffset, cdOffset + cdSize - 1, deps);
+  if (cd === null) return null;
   const gdbs = new Set<string>();
   let at = 0;
   let count = 0;
@@ -217,18 +252,21 @@ export async function readRemoteZipDirectory(url: string, contentLength: number,
   return { geodatabases: [...gdbs].sort(), entryCount: count };
 }
 
-async function getRange(url: string, start: number, end: number, deps: HttpDeps): Promise<Buffer> {
+/** One byte range, or null when the host does not serve ranges. */
+async function getRange(url: string, start: number, end: number, deps: HttpDeps): Promise<Buffer | null> {
   const fetchImpl = deps.fetchImpl ?? fetch;
   return withRetry(async () => {
     const r = await fetchImpl(url, {
       headers: { 'user-agent': deps.userAgent ?? FABRIC_USER_AGENT, range: `bytes=${start}-${end}` },
     });
     if (r.status >= 500 || r.status === 429) throw new Error(`GET ${url} (range) → ${r.status}`);
-    if (r.status !== 206) {
-      // A server that ignores Range would start sending the whole archive.
+    if (r.status === 200) {
+      // The host ignored the range and started sending the whole archive.
       await r.body?.cancel().catch(() => {});
-      fail('TRANSPORT', `GET ${url} with a byte range returned ${r.status}, not 206`);
+      return null;
     }
+    // A 4xx (or a 416 for a range the file no longer has) is an answer, not a fault.
+    if (r.status !== 206) fail('CONFIG', `GET ${url} with a byte range returned ${r.status}`);
     const body = Buffer.from(await r.arrayBuffer());
     if (body.length !== end - start + 1) throw new Error(`short range: expected ${end - start + 1} bytes, got ${body.length}`);
     return body;
@@ -344,11 +382,15 @@ async function readWitness(
  * fallback when the program page links none. The item must be owned by the
  * publisher and point at an official host.
  */
-export async function serviceFromCatalogItem(deps: HttpDeps = {}): Promise<string | null> {
+export async function serviceFromCatalogItem(deps: HttpDeps = {}): Promise<{ readonly url: string | null; readonly reason: string | null }> {
   const item = JSON.parse(await getText(`${ARCGIS_ONLINE_ITEM_API}/${NY_CENTROID_CATALOG_ITEM_ID}?f=json`, deps)) as Record<string, unknown>;
-  if (item['error'] !== undefined || item['owner'] !== NY_CATALOG_OWNER || typeof item['url'] !== 'string') return null;
+  if (item['error'] !== undefined) return { url: null, reason: 'the catalogue item did not answer' };
+  if (item['owner'] !== NY_CATALOG_OWNER) return { url: null, reason: `the catalogue item is owned by ${String(item['owner'])}, not ${NY_CATALOG_OWNER}` };
+  if (typeof item['url'] !== 'string') return { url: null, reason: 'the catalogue item names no service' };
   const url = (item['url'] as string).replace(/\/\d+\/?$/, '').replace(/\/+$/, '');
-  return isOfficialNyUrl(url) && CENTROID_SERVICE.test(new URL(url).pathname) ? url : null;
+  if (!isOfficialNyUrl(url) || !CENTROID_SERVICE.test(new URL(url).pathname)) return { url: null, reason: `the catalogue item points at ${url}` };
+  if (isLegacyNyHost(url)) return { url: null, reason: 'the catalogue item still points at the retiring legacy server' };
+  return { url, reason: null };
 }
 
 // ---------------------------------------------------------------------------
@@ -366,6 +408,14 @@ export type NyCompanionArchive = {
   readonly serviceUrl: string | null;
 };
 
+export type NyDiscoveryOptions = {
+  /**
+   * Discover the polygon companion too (default true). A run that will not
+   * retain it sends no request for it.
+   */
+  readonly companion?: boolean;
+};
+
 export type NyDiscoveredRelease = DiscoveredArchiveRelease & {
   readonly archive: { readonly url: string; readonly filename: string; readonly label: NyReleaseLabel; readonly entryCount: number | null };
   readonly witness: NyServiceWitness;
@@ -379,8 +429,13 @@ export type NyDiscoveredRelease = DiscoveredArchiveRelease & {
   readonly companionError: string | null;
   readonly migration: {
     readonly legacyHost: string;
-    /** True when anything this release depends on sits on the retiring host. */
+    /**
+     * True when anything this release depends on sits on the retiring host.
+     * Discovery refuses such a release, so a result carrying true is a defect.
+     */
     readonly dependsOnLegacyHost: boolean;
+    /** Links to the retiring host the program page still offers: reported, never requested. */
+    readonly legacyLinksIgnored: readonly string[];
     readonly witnessHost: string;
     readonly archiveHost: string;
   };
@@ -393,55 +448,72 @@ export type NyDiscoveredRelease = DiscoveredArchiveRelease & {
   };
 };
 
-export async function discoverNyRelease(deps: HttpDeps = {}): Promise<NyDiscoveredRelease> {
+export async function discoverNyRelease(deps: HttpDeps = {}, options: NyDiscoveryOptions = {}): Promise<NyDiscoveredRelease> {
   const html = await getText(NY_PARCELS_PROGRAM_PAGE, deps);
   const links = parseProgramLinks(html);
 
-  const archiveUrl = preferCurrent(links.centroidArchives)[0];
-  if (archiveUrl === undefined) {
-    fail('SCHEMA_DRIFT', 'the parcel program page no longer links the centroid archive', {
+  // ---- the archive: exactly one current link ------------------------------------
+  const archiveLink = currentLink(links.centroidArchives, 'centroid archive');
+  if (archiveLink.url === null) {
+    fail('SCHEMA_DRIFT', archiveLink.legacy.length > 0
+      ? `the program page links the centroid archive only on the retiring legacy host ${NY_LEGACY_GIS_HOST}`
+      : 'the parcel program page no longer links the centroid archive', {
       page: NY_PARCELS_PROGRAM_PAGE,
+      legacy: archiveLink.legacy,
       refused: links.refusedNonOfficial,
       remedy: 'the page layout or distribution changed; re-verify the source before any further run',
     });
   }
+  const archiveUrl = archiveLink.url;
   const head = await headArchive(archiveUrl, deps);
   if (head.contentLength === null) fail('TRANSPORT', 'the archive host did not state a content length', { url: archiveUrl });
 
-  // ---- the witness: program page first, the publisher's catalogue item second
-  let serviceUrl = preferCurrent(links.centroidServices).find((u) => !isLegacyNyHost(u)) ?? null;
+  // ---- the witness: program page first, the publisher's catalogue item second --
+  const serviceLink = currentLink(links.centroidServices, 'centroid FeatureServer');
+  let serviceUrl = serviceLink.url;
   let discoveredVia: NyServiceWitness['discoveredVia'] = 'program_page';
+  let catalogReason: string | null = null;
   if (serviceUrl === null) {
-    const fromCatalog = await serviceFromCatalogItem(deps).catch(() => null);
-    if (fromCatalog !== null) {
-      serviceUrl = fromCatalog;
-      discoveredVia = 'catalog_item';
-    } else {
-      // Only the retiring host is left. Used, and flagged, rather than trusted.
-      serviceUrl = preferCurrent(links.centroidServices)[0] ?? null;
-    }
+    const fromCatalog = await serviceFromCatalogItem(deps).catch((error: unknown) => ({
+      url: null,
+      reason: `the catalogue item could not be read: ${error instanceof Error ? error.message : String(error)}`,
+    }));
+    serviceUrl = fromCatalog.url;
+    catalogReason = fromCatalog.reason;
+    discoveredVia = 'catalog_item';
   }
   if (serviceUrl === null) {
-    fail('SCHEMA_DRIFT', 'no centroid FeatureServer is linked by the program page or the publisher\'s catalogue item', {
-      page: NY_PARCELS_PROGRAM_PAGE, catalogItem: NY_CENTROID_CATALOG_ITEM_ID,
+    // What is left is the retiring host, or nothing. Neither is a witness.
+    fail('SCHEMA_DRIFT', serviceLink.legacy.length > 0
+      ? `only the retiring legacy host ${NY_LEGACY_GIS_HOST} is linked for the centroid FeatureServer, `
+        + `and the publisher's catalogue item gives no current one (${catalogReason ?? 'no reason given'}): `
+        + 'the GeoHub migration has left no current witness'
+      : `no centroid FeatureServer is linked by the program page or the publisher's catalogue item (${catalogReason ?? 'no reason given'})`, {
+      page: NY_PARCELS_PROGRAM_PAGE,
+      catalogItem: NY_CENTROID_CATALOG_ITEM_ID,
+      catalogReason,
+      legacy: serviceLink.legacy,
+      remedy: 'the services moved again; find where the publisher now points before any further run',
     });
   }
   const witness = await readWitness(serviceUrl, NY_CENTROID_LAYER_ID, discoveredVia, deps);
 
-  // ---- the release label: the archive's own geodatabase name ------------------
-  let label: NyReleaseLabel | null = null;
-  let entryCount: number | null = null;
-  if (head.acceptRanges) {
-    const directory = await readRemoteZipDirectory(archiveUrl, head.contentLength, deps);
-    entryCount = directory.entryCount;
-    const labels = directory.geodatabases.map((g) => labelFromGeodatabase(g)).filter((l): l is NyReleaseLabel => l !== null);
-    if (labels.length !== 1) {
-      fail('SCHEMA_DRIFT', `expected exactly one centroid geodatabase in the archive, found ${labels.length}`, {
+  // ---- the release label: the archive's own geodatabase name ---------------------
+  const directory = head.acceptRanges ? await readRemoteZipDirectory(archiveUrl, head.contentLength, deps) : null;
+  let label: NyReleaseLabel | null;
+  if (directory !== null) {
+    if (directory.geodatabases.length !== 1) {
+      fail('SCHEMA_DRIFT', `the archive holds ${directory.geodatabases.length} geodatabases, expected exactly one`, {
         geodatabases: directory.geodatabases,
       });
     }
-    label = labels[0] as NyReleaseLabel;
+    const geodatabase = directory.geodatabases[0] as string;
+    label = labelFromGeodatabase(geodatabase);
+    if (label === null) fail('SCHEMA_DRIFT', `"${geodatabase}" is not a centroid geodatabase name this connector knows`, { geodatabase });
   } else {
+    // No directory: ranges are not served, or were advertised and then answered
+    // with the whole body. The service's own title and publication date name
+    // the release, and derivation refuses an archive whose geodatabase differs.
     label = witness.label;
   }
   if (label === null) {
@@ -453,19 +525,20 @@ export async function discoverNyRelease(deps: HttpDeps = {}): Promise<NyDiscover
   // The companion is evidence, not the release: its failure is recorded, never fatal.
   let companion: NyCompanionArchive | null = null;
   let companionError: string | null = null;
-  try {
-    companion = await discoverCompanion(links, deps);
-  } catch (error) {
-    companionError = error instanceof Error ? error.message : String(error);
+  if (options.companion !== false) {
+    try {
+      companion = await discoverCompanion(links, deps);
+    } catch (error) {
+      companionError = error instanceof Error ? error.message : String(error);
+    }
   }
-  const witnessHost = new URL(witness.serviceUrl).hostname;
-  const archiveHost = new URL(archiveUrl).hostname;
+  const dependsOn = [witness.serviceUrl, archiveUrl, companion?.url ?? null, companion?.serviceUrl ?? null];
   return {
     sourceId: 'ny_statewide_parcels',
     referencePeriod: label.referencePeriod,
     releaseFingerprint: releaseFingerprintOf(head),
     head,
-    archive: { url: archiveUrl, filename: archiveUrl.slice(archiveUrl.lastIndexOf('/') + 1), label, entryCount },
+    archive: { url: archiveUrl, filename: archiveUrl.slice(archiveUrl.lastIndexOf('/') + 1), label, entryCount: directory?.entryCount ?? null },
     witness,
     serviceMatchesArchive: witness.label !== null && witness.label.referencePeriod === label.referencePeriod,
     programLinks: links,
@@ -473,9 +546,11 @@ export async function discoverNyRelease(deps: HttpDeps = {}): Promise<NyDiscover
     companionError,
     migration: {
       legacyHost: NY_LEGACY_GIS_HOST,
-      dependsOnLegacyHost: isLegacyNyHost(witness.serviceUrl) || isLegacyNyHost(archiveUrl),
-      witnessHost,
-      archiveHost,
+      dependsOnLegacyHost: dependsOn.some((u) => u !== null && isLegacyNyHost(u)),
+      legacyLinksIgnored: [...links.centroidArchives, ...links.polygonArchives, ...links.centroidServices, ...links.polygonServices]
+        .filter(isLegacyNyHost).sort(),
+      witnessHost: new URL(witness.serviceUrl).hostname,
+      archiveHost: new URL(archiveUrl).hostname,
     },
     // Established by the requests above: none carried a credential, cookie or
     // token, and each was answered. A login wall or CAPTCHA would have failed
@@ -490,15 +565,21 @@ export async function discoverNyRelease(deps: HttpDeps = {}): Promise<NyDiscover
 }
 
 async function discoverCompanion(links: NyProgramLinks, deps: HttpDeps): Promise<NyCompanionArchive | null> {
-  const url = preferCurrent(links.polygonArchives)[0];
-  if (url === undefined) return null;
+  const archiveLink = currentLink(links.polygonArchives, 'polygon archive');
+  if (archiveLink.url === null) {
+    if (archiveLink.legacy.length > 0) fail('SCHEMA_DRIFT', `the polygon archive is linked only on the retiring legacy host ${NY_LEGACY_GIS_HOST}`);
+    return null;
+  }
+  const url = archiveLink.url;
   const head = await headArchive(url, deps);
   let label: NyReleaseLabel | null = null;
   if (head.acceptRanges && head.contentLength !== null) {
     const directory = await readRemoteZipDirectory(url, head.contentLength, deps);
-    label = directory.geodatabases.map((g) => labelFromGeodatabase(g, POLYGON_GDB)).find((l) => l !== null) ?? null;
+    label = directory?.geodatabases.map((g) => labelFromGeodatabase(g, POLYGON_GDB)).find((l) => l !== null) ?? null;
   }
-  const serviceUrl = preferCurrent(links.polygonServices).find((u) => !isLegacyNyHost(u)) ?? null;
+  // The count is a report, not a gate: one current service or none.
+  const services = links.polygonServices.filter((u) => !isLegacyNyHost(u));
+  const serviceUrl = services.length === 1 ? services[0] as string : null;
   let serviceCount: number | null = null;
   if (serviceUrl !== null) {
     const body = JSON.parse(await getText(`${serviceUrl}/${NY_POLYGON_PARCEL_LAYER_ID}/query?where=1%3D1&returnCountOnly=true&f=json`, deps)

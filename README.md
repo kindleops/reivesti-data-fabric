@@ -73,6 +73,7 @@ src/
     mn-hennepin-recorder/   taxonomy, record, parse, normalise, streaming connector
     mn-sos-business/        domain vocabularies, heterogeneous CSV, licensed delivery
     mn-statewide-parcels/   59 counties from one source; bulk GeoPackage + ArcGIS
+    ny-statewide-parcels/   62 counties from one source; bulk File Geodatabase, discovery through the GeoHub migration
   cli/          df
 db/migrations/  data_fabric + data_fabric_restricted — DRAFTS, NOT APPLIED to
                 any Reivesti database; executed for real against a disposable one
@@ -90,6 +91,7 @@ tests/          520 tests plus 47 real-PostgreSQL migration assertions
 | Document | Covers |
 |---|---|
 | [MN-STATEWIDE-PARCELS.md](docs/MN-STATEWIDE-PARCELS.md) | The 59-county source: acquisition trade-off, field map, sale-echo semantics, Hennepin overlap and field authority |
+| [NEW-YORK-STATEWIDE-PROPERTY.md](docs/NEW-YORK-STATEWIDE-PROPERTY.md) | The 62-county NYS centroid source: the 2026 GeoHub migration and migration-tolerant discovery, SWIS+SBL identity, NYC MapPLUTO lineage, polygon policy, parallel-integration notes |
 | [ZERO-COST-DATA-DOCTRINE.md](docs/ZERO-COST-DATA-DOCTRINE.md) | Why Reivesti does not pay for core data, cost classification, the activation evaluator, paid-source non-dependency |
 | [NATIONAL-COVERAGE.md](docs/NATIONAL-COVERAGE.md) | The county-equivalent catalogue, changing geographies, the coverage matrix, projection partitioning and its measurements |
 | [SOURCE-DISCOVERY.md](docs/SOURCE-DISCOVERY.md) | Candidate model, evidence requirements, shared platform families, ranking, first national reconnaissance |
@@ -124,6 +126,7 @@ tests/          520 tests plus 47 real-PostgreSQL migration assertions
 | DF-0G national jurisdiction registry | complete — 3,244 county-equivalents from pinned Census files |
 | DF-0G projection partitioning | complete — one-county update: 143 ms, zero writes elsewhere |
 | DF-0H Minnesota statewide parcels | complete — 2,710,201 parcels, 59 county partitions |
+| DF-0N New York statewide property | implemented — 62 counties, unattended discovery through the GeoHub migration; statewide proof pending; parcel/assessor/ownership only (no tax, no transfer) |
 | National coverage | 3,222 active jurisdictions, **59** with a core-eligible source |
 | Production DDL | **not applied**, and not ready to be |
 | Scheduled ingestion | not activated |

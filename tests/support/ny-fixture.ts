@@ -13,7 +13,7 @@
  * on "INVENTED WAY". No live New York record is committed or generated here.
  */
 import { createHash } from 'node:crypto';
-import { crc32, deflateRawSync } from 'node:zlib';
+import { crc32 } from 'node:zlib';
 
 // ---------------------------------------------------------------------------
 // Geodatabase writer (the Wisconsin fixture's, plus int16 and a point table)
@@ -143,34 +143,58 @@ function writeTable(fields: readonly NyFieldDef[], geometryType: number, rows: r
   return { table, tablx };
 }
 
-function zip(entries: readonly { readonly name: string; readonly bytes: Buffer | null }[]): Buffer {
+export type ZipEntryInput = { readonly name: string; readonly bytes: Buffer | null };
+
+export type ZipOptions = {
+  /** The archive comment. A comment may legitimately contain the end-record signature. */
+  readonly comment?: Buffer;
+  /** Write ZIP64 end records, with the classic record's fields saturated. */
+  readonly zip64?: boolean;
+};
+
+/**
+ * A ZIP with STORED entries and zeroed timestamps: the same bytes on every
+ * platform and every zlib build, so an archive sha256 — and every digest
+ * derived from it — can be pinned in a test.
+ */
+export function zipArchive(entries: readonly ZipEntryInput[], options: ZipOptions = {}): Buffer {
   const locals: Buffer[] = [];
   const centrals: Buffer[] = [];
   let offset = 0;
   for (const e of entries) {
     const name = Buffer.from(e.name, 'utf8');
-    const isDir = e.bytes === null;
-    const data = isDir ? Buffer.alloc(0) : deflateRawSync(e.bytes as Buffer);
-    const crc = isDir ? 0 : crc32(e.bytes as Buffer);
-    const size = isDir ? 0 : (e.bytes as Buffer).length;
-    const method = isDir ? 0 : 8;
+    const data = e.bytes ?? Buffer.alloc(0);
+    const crc = e.bytes === null ? 0 : crc32(data);
     const local = Buffer.alloc(30);
-    local.writeUInt32LE(0x04034b50, 0); local.writeUInt16LE(20, 4); local.writeUInt16LE(method, 8);
-    local.writeUInt32LE(crc, 14); local.writeUInt32LE(data.length, 18); local.writeUInt32LE(size, 22);
+    local.writeUInt32LE(0x04034b50, 0); local.writeUInt16LE(20, 4); local.writeUInt16LE(0, 8);
+    local.writeUInt32LE(crc, 14); local.writeUInt32LE(data.length, 18); local.writeUInt32LE(data.length, 22);
     local.writeUInt16LE(name.length, 26);
     locals.push(local, name, data);
     const central = Buffer.alloc(46);
     central.writeUInt32LE(0x02014b50, 0); central.writeUInt16LE(20, 4); central.writeUInt16LE(20, 6);
-    central.writeUInt16LE(method, 10); central.writeUInt32LE(crc, 16); central.writeUInt32LE(data.length, 20);
-    central.writeUInt32LE(size, 24); central.writeUInt16LE(name.length, 28); central.writeUInt32LE(offset, 42);
+    central.writeUInt16LE(0, 10); central.writeUInt32LE(crc, 16); central.writeUInt32LE(data.length, 20);
+    central.writeUInt32LE(data.length, 24); central.writeUInt16LE(name.length, 28); central.writeUInt32LE(offset, 42);
     centrals.push(central, name);
     offset += 30 + name.length + data.length;
   }
   const cd = Buffer.concat(centrals);
+  const comment = options.comment ?? Buffer.alloc(0);
+  const tail: Buffer[] = [];
+  if (options.zip64) {
+    const record = Buffer.alloc(56);
+    record.writeUInt32LE(0x06064b50, 0); record.writeBigUInt64LE(44n, 4); record.writeUInt16LE(45, 12); record.writeUInt16LE(45, 14);
+    record.writeBigUInt64LE(BigInt(entries.length), 24); record.writeBigUInt64LE(BigInt(entries.length), 32);
+    record.writeBigUInt64LE(BigInt(cd.length), 40); record.writeBigUInt64LE(BigInt(offset), 48);
+    const locator = Buffer.alloc(20);
+    locator.writeUInt32LE(0x07064b50, 0); locator.writeBigUInt64LE(BigInt(offset + cd.length), 8); locator.writeUInt32LE(1, 16);
+    tail.push(record, locator);
+  }
   const eocd = Buffer.alloc(22);
-  eocd.writeUInt32LE(0x06054b50, 0); eocd.writeUInt16LE(entries.length, 8); eocd.writeUInt16LE(entries.length, 10);
-  eocd.writeUInt32LE(cd.length, 12); eocd.writeUInt32LE(offset, 16);
-  return Buffer.concat([...locals, cd, eocd]);
+  eocd.writeUInt32LE(0x06054b50, 0);
+  eocd.writeUInt16LE(options.zip64 ? 0xffff : entries.length, 8); eocd.writeUInt16LE(options.zip64 ? 0xffff : entries.length, 10);
+  eocd.writeUInt32LE(options.zip64 ? 0xffffffff : cd.length, 12); eocd.writeUInt32LE(options.zip64 ? 0xffffffff : offset, 16);
+  eocd.writeUInt16LE(comment.length, 20);
+  return Buffer.concat([...locals, cd, ...tail, eocd, comment]);
 }
 
 // ---------------------------------------------------------------------------
@@ -265,6 +289,8 @@ export type NyRelease = {
   readonly fields?: readonly NyFieldDef[];
   /** Override the geodatabase directory name, e.g. to simulate a misnamed release. */
   readonly geodatabase?: string;
+  /** More archive entries, e.g. a second geodatabase beside the first. */
+  readonly extraEntries?: readonly ZipEntryInput[];
 };
 
 export type BuiltNyRelease = {
@@ -290,7 +316,7 @@ export function buildNyRelease(release: NyRelease): BuiltNyRelease {
   const points = writeTable(release.fields ?? NY_2025_FIELDS, 1, release.rows);
   const lookup = writeTable([{ name: 'OBJECTID', kind: 'objectid' }, S('SWIS', 10), S('COUNTY_NAME', 50)], 0, [{ SWIS: '010100', COUNTY_NAME: 'Albany' }]);
   const g = `${geodatabase}/`;
-  const archive = zip([
+  const archive = zipArchive([
     { name: g, bytes: null },
     { name: `${g}a00000001.gdbtable`, bytes: catalog.table },
     { name: `${g}a00000001.gdbtablx`, bytes: catalog.tablx },
@@ -299,6 +325,7 @@ export function buildNyRelease(release: NyRelease): BuiltNyRelease {
     { name: `${g}a00000014.gdbtable`, bytes: lookup.table },
     { name: `${g}a00000014.gdbtablx`, bytes: lookup.tablx },
     { name: `${g}gdb`, bytes: Buffer.from([5, 0, 0, 0]) },
+    ...(release.extraEntries ?? []),
   ]);
   return {
     archive,
@@ -312,7 +339,7 @@ export function buildNyRelease(release: NyRelease): BuiltNyRelease {
 /** A polygon archive: only its geodatabase name matters, because it is never read. */
 export function buildNyPolygonRelease(rollYear: number, build: string): { readonly archive: Buffer; readonly sha256: string } {
   const g = `NYS_${rollYear}_Tax_Parcels_Public_${build}.gdb/`;
-  const archive = zip([{ name: g, bytes: null }, { name: `${g}gdb`, bytes: Buffer.from([5, 0, 0, 0]) }]);
+  const archive = zipArchive([{ name: g, bytes: null }, { name: `${g}gdb`, bytes: Buffer.from([5, 0, 0, 0]) }]);
   return { archive, sha256: createHash('sha256').update(archive).digest('hex') };
 }
 
@@ -336,10 +363,17 @@ export type NyPublisherOptions = {
   readonly catalogOwner?: string | null;
   /** Add a third-party mirror of the archive to the program page. */
   readonly mirror?: boolean;
-  /** Whether the archive host serves byte ranges. */
-  readonly ranges?: boolean;
+  /**
+   * Whether the archive host serves byte ranges. `advertised_only`: HEAD says
+   * `Accept-Ranges: bytes`, and a ranged GET is answered 200 with the whole body.
+   */
+  readonly ranges?: boolean | 'advertised_only';
   /** Whether the program page links the archives at all. */
   readonly archiveLinks?: boolean;
+  /** Further links the program page carries, e.g. a second centroid archive. */
+  readonly extraLinks?: readonly string[];
+  /** Where the catalogue item's `url` points. */
+  readonly catalogPointsAt?: 'geohub' | 'legacy';
 };
 
 export type NyFakePublisher = {
@@ -368,7 +402,7 @@ export function nyFakePublisher(initial: NyPublisherOptions = {}): NyFakePublish
   const requests: RequestRecord[] = [];
   let options: NyPublisherOptions = {
     serviceLinks: 'geohub', geohubHost: 'nysgeohub.ny.gov', catalogOwner: 'NYSGIS_GPO', mirror: false, ranges: true,
-    archiveLinks: true, ...initial,
+    archiveLinks: true, catalogPointsAt: 'geohub', ...initial,
   };
   const published: { release: BuiltNyRelease; serviceCount: number; etag: string; title: string; publication: string; serviceFields: { name: string; type: string; length?: number }[] }[] = [];
   let polygons: { archive: Buffer; sha256: string; etag: string } | null = null;
@@ -385,7 +419,7 @@ export function nyFakePublisher(initial: NyPublisherOptions = {}): NyFakePublish
     };
     if (method === 'HEAD') return new Response(null, { status: 200, headers: { ...base, 'content-length': String(bytes.length) } });
     const m = range === undefined ? null : /^bytes=(\d+)-(\d+)$/.exec(range);
-    if (m && options.ranges) {
+    if (m && options.ranges === true) {
       const start = Number(m[1]);
       const end = Math.min(Number(m[2]), bytes.length - 1);
       const slice = bytes.subarray(start, end + 1);
@@ -407,11 +441,15 @@ export function nyFakePublisher(initial: NyPublisherOptions = {}): NyFakePublish
       if (s === 'geohub' || s === 'both') links.push(centroidService('geohub'), polygonService('geohub'));
       if (s === 'legacy' || s === 'both') links.push(centroidService('legacy'), polygonService('legacy'));
       if (options.mirror) links.push('https://parcels-mirror.example.com/NYS-Tax-Parcel-Centroid-Points.gdb.zip');
+      links.push(...(options.extraLinks ?? []));
       return new Response(`<html><body><h2>Data Download</h2>${links.map((l) => `<a href="${l}">x</a>`).join('\n')}</body></html>`, { status: 200 });
     }
     if (url.startsWith('https://www.arcgis.com/sharing/rest/content/items/')) {
       if (options.catalogOwner === null) return new Response(JSON.stringify({ error: { code: 400 } }), { status: 200 });
-      return new Response(JSON.stringify({ id: 'b25e828955bd4391ad17650d6893edde', owner: options.catalogOwner, url: `${centroidService('geohub')}/0` }), { status: 200 });
+      return new Response(JSON.stringify({
+        id: 'b25e828955bd4391ad17650d6893edde', owner: options.catalogOwner,
+        url: `${centroidService(options.catalogPointsAt === 'legacy' ? 'legacy' : 'geohub')}/0`,
+      }), { status: 200 });
     }
     if (url === NY_CENTROID_ARCHIVE_URL && current !== undefined) {
       return archiveResponse(current.release.archive, current.etag, method, headers['range']);

@@ -10,8 +10,8 @@
  *              witness metadata and count
  *   plan       ledger: this exact release already ingested? → NOOP, stop
  *   acquire    one GET, streamed into the artifact store, sha256 on the way
- *   derive     archive → geodatabase → compressed snapshot bundle, from the
- *              RETAINED bytes
+ *   derive     archive → geodatabase → snapshot bundle, from the RETAINED
+ *              bytes
  *   check      archive rows, schema and release label against the witness;
  *              a disagreement activates nothing
  *   ingest     the streaming runtime: parse, route, normalise, emit, project,
@@ -62,7 +62,7 @@ import {
 } from '../../archive/durable-artifacts.ts';
 import { NORMALIZATION_CONTRACT_VERSION } from '../../canonical/normalization-contract.ts';
 import { NY_POLYGON_SOURCE_ID } from '../../registry/sources.ts';
-import { NY_BUNDLE_FILENAME, deriveNyBundle, gzipLineWriter, type NyBundleDerivation } from './bundle.ts';
+import { NY_BUNDLE_FILENAME, deriveNyBundle, type NyBundleDerivation } from './bundle.ts';
 import { reconcileNyCounties, type CountyReconciliation } from './counties.ts';
 import {
   NY_PINNED_FIELD_SET_DIGEST,
@@ -152,7 +152,11 @@ export type NyCompanionRetention = {
 };
 
 export type NyPipelineResult = {
-  readonly outcome: 'NOOP' | 'DISCOVERED' | 'INGESTED' | 'FAILED';
+  /**
+   * `TRUNCATED_SMOKE_RUN`: the path ran end to end on the first `maxRows` rows
+   * and activated nothing. Not an ingestion, and never reported as one.
+   */
+  readonly outcome: 'NOOP' | 'DISCOVERED' | 'INGESTED' | 'TRUNCATED_SMOKE_RUN' | 'FAILED';
   readonly discovered: NyDiscoveredRelease | null;
   readonly plan: AcquisitionPlan | null;
   readonly publisherArtifact: ArchivedArtifact | null;
@@ -188,7 +192,8 @@ export async function runNyStatewidePipeline(options: NyPipelineOptions): Promis
 
     // ---- discover ------------------------------------------------------------
     let t = performance.now();
-    const discovered = options.discovered ?? await discoverNyRelease(options.http);
+    const discovered = options.discovered
+      ?? await discoverNyRelease(options.http, { companion: options.retainCompanion !== false && options.maxRows === undefined });
     discoveredRelease = discovered;
     timings['discover'] = Math.round(performance.now() - t);
     logger.info('ny.discovered', {
@@ -216,8 +221,9 @@ export async function runNyStatewidePipeline(options: NyPipelineOptions): Promis
       await ledger.append(entry);
       logger.info('ny.noop', { reason: plan.reason });
       // The companion is independent evidence: a tick that finds the canonical
-      // release unchanged still makes sure its polygons are retained.
-      const companion = await retainCompanion(options, discovered, timings);
+      // release unchanged still makes sure its polygons are retained. Never
+      // from a smoke run, which touches nothing it does not have to.
+      const companion = options.maxRows === undefined ? await retainCompanion(options, discovered, timings) : null;
       return { outcome: 'NOOP', discovered, plan, ...empty, ledger: entry, durability: null, companion, timings, memory: memory.stop() };
     }
 
@@ -430,7 +436,6 @@ async function deriveAndIngest(
       access: publisher.manifest.access,
     },
     async (sink) => {
-      const gz = gzipLineWriter(sink);
       derivation = await deriveNyBundle({
         archivePath,
         archiveSha256: publisher.sha256,
@@ -443,8 +448,7 @@ async function deriveAndIngest(
         layerId: NY_CENTROID_LAYER_ID,
         scratchDir: scratch,
         ...(options.maxRows !== undefined ? { maxRows: options.maxRows } : {}),
-      }, (line) => gz.write(line));
-      await gz.close();
+      }, (line) => sink.write(`${line}\n`));
     },
   ).finally(() => rm(scratch, { recursive: true, force: true }));
   timings['derive'] = Math.round(performance.now() - t);
@@ -591,7 +595,7 @@ async function deriveAndIngest(
   }
 
   return {
-    outcome: completed ? 'INGESTED' : 'FAILED',
+    outcome: !completed ? 'FAILED' : options.maxRows !== undefined ? 'TRUNCATED_SMOKE_RUN' : 'INGESTED',
     discovered: ctx.discovered,
     plan: ctx.plan,
     publisherArtifact: publisher,

@@ -54,9 +54,11 @@ import { parseNyStatewideFeature } from '../src/connectors/ny-statewide-parcels/
 import { canonicalAreaOf, normalizeNyStatewideParcel, yearBuiltOf } from '../src/connectors/ny-statewide-parcels/normalize.ts';
 import {
   NY_LEGACY_GIS_HOST,
+  currentLink,
   labelFromServiceMetadata,
   parseProgramLinks,
   preferCurrent,
+  readRemoteZipDirectory,
 } from '../src/connectors/ny-statewide-parcels/release.ts';
 import {
   NY_STATEWIDE_MAPPING_ID,
@@ -68,7 +70,9 @@ import {
   WI_STATEWIDE_MAPPING_ID,
   runWiStatewidePipeline,
 } from '../src/connectors/wi-statewide-parcels/pipeline.ts';
-import { RUN_INSTANT, streamHarness } from './helpers.ts';
+import { createLocalBackend, artifactKey } from '../src/archive/artifact-backend.ts';
+import { findRelease, type DurableStore } from '../src/archive/durable-artifacts.ts';
+import { RUN_INSTANT, streamHarness, tempRoot } from './helpers.ts';
 import {
   NY_2025_FIELDS,
   NY_CENTROID_ARCHIVE_URL,
@@ -77,6 +81,7 @@ import {
   nyFakePublisher,
   nyParcel,
   nyServiceFields,
+  zipArchive,
   type BuiltNyRelease,
   type NyPublisherOptions,
   type NyRow,
@@ -516,12 +521,62 @@ test('a further move of the services is followed with no code change', async () 
   assert.equal(result.discovered?.witness.count, BASE_VALID);
 });
 
-test('only the retiring server left anywhere: used as a witness, and flagged loudly', async () => {
+test('only the retiring server left anywhere: discovery fails, naming the migration, and never asks it', async () => {
+  // Frozen since 2026-09-18 and retiring in 10/2026: a count read there cannot
+  // vouch for a newer archive. Failing now is louder than retirement failing later.
   const w = harness({ serviceLinks: 'legacy', catalogOwner: 'SOMEONE_ELSE' });
   w.publisher.publish(release(baseRows()));
+  await assert.rejects(w.run({ discoverOnly: true }), (error: Error) => {
+    assert.match(error.message, /only the retiring legacy host gisservices\.its\.ny\.gov/);
+    assert.match(error.message, /owned by SOMEONE_ELSE, not NYSGIS_GPO/, 'the catalogue item\'s reason is carried');
+    assert.match(error.message, /GeoHub migration has left no current witness/);
+    return true;
+  });
+  assert.equal(w.publisher.legacyRequests(), 0);
+  assert.equal((await createAcquisitionLedger(w.h.varRoot, NY_STATEWIDE_SOURCE_ID).entries()).at(-1)?.action, 'FAILED');
+});
+
+test('a catalogue item still pointing at the retiring server is refused with that reason', async () => {
+  const w = harness({ serviceLinks: 'legacy', catalogPointsAt: 'legacy' });
+  w.publisher.publish(release(baseRows()));
+  await assert.rejects(w.run({ discoverOnly: true }), /still points at the retiring legacy server/);
+  const none = harness({ serviceLinks: 'none', catalogPointsAt: 'legacy' });
+  none.publisher.publish(release(baseRows()));
+  await assert.rejects(none.run({ discoverOnly: true }), /no centroid FeatureServer .*still points at the retiring legacy server/);
+  assert.equal(w.publisher.legacyRequests() + none.publisher.legacyRequests(), 0);
+});
+
+test('a legacy link beside a current one is ignored, reported, and never requested', async () => {
+  const w = harness({ serviceLinks: 'both' });
+  w.publisher.publish(release(baseRows()));
   const result = await w.run({ discoverOnly: true });
-  assert.equal(result.discovered?.migration.dependsOnLegacyHost, true);
-  assert.equal(result.discovered?.witness.onLegacyHost, true);
+  assert.equal(result.discovered?.witness.discoveredVia, 'program_page');
+  assert.equal(new URL(result.discovered!.witness.serviceUrl).hostname, 'nysgeohub.ny.gov');
+  assert.equal(result.discovered?.migration.dependsOnLegacyHost, false);
+  assert.equal(result.discovered?.migration.legacyLinksIgnored.length, 2);
+  assert.equal(w.publisher.legacyRequests(), 0);
+});
+
+test('two current links for one product are ambiguous: discovery refuses to choose', async () => {
+  const w = harness({ extraLinks: ['https://gisdata.ny.gov/GISData/State/Parcels/2026/NYS-Tax-Parcel-Centroid-Points.gdb.zip'] });
+  w.publisher.publish(release(baseRows()));
+  await assert.rejects(w.run({ discoverOnly: true }), /links 2 current centroid archives; which one is the release is ambiguous/);
+  assert.throws(() => currentLink(['https://a.ny.gov/x/FeatureServer', 'https://b.ny.gov/x/FeatureServer'], 'service'), /ambiguous/);
+  assert.deepEqual(currentLink([`https://${NY_LEGACY_GIS_HOST}/x/FeatureServer`], 'service'), {
+    url: null, legacy: [`https://${NY_LEGACY_GIS_HOST}/x/FeatureServer`],
+  });
+});
+
+test('an archive holding two geodatabases is refused at discovery and again at derivation', async () => {
+  const second = [{ name: 'NYS_2024_Tax_Parcels_Centroid_Points_2505.gdb/', bytes: null }];
+  const ranged = harness();
+  ranged.publisher.publish(buildNyRelease({ rollYear: 2025, build: '2605', rows: baseRows(), extraEntries: second }));
+  await assert.rejects(ranged.run({ discoverOnly: true }), /the archive holds 2 geodatabases, expected exactly one/);
+  // Without ranges discovery cannot see inside; derivation, which can, refuses.
+  const unranged = harness({ ranges: false });
+  unranged.publisher.publish(buildNyRelease({ rollYear: 2025, build: '2605', rows: baseRows(), extraEntries: second }));
+  await assert.rejects(unranged.run(), /the archive holds 2 geodatabases, expected exactly one/);
+  assert.deepEqual(await createPartitionStore(unranged.h.varRoot).manifests(), []);
 });
 
 test('no service anywhere, or no archive link, fails discovery rather than guessing', async () => {
@@ -545,6 +600,22 @@ test('a host that ignores byte ranges: the label comes from the service, and the
   assert.equal(labelFromServiceMetadata('NYS 2025 Tax Parcel Centroid Points', 'Publication Date: May 2026')?.referencePeriod, '2025-2605');
 });
 
+test('ranges advertised and then ignored: no second request, the label comes from the service', async () => {
+  const w = harness({ ranges: 'advertised_only' });
+  w.publisher.publish(release(baseRows()));
+  const result = await w.run({ discoverOnly: true });
+  assert.equal(result.discovered?.access.archiveAcceptsRanges, true, 'what the host advertised');
+  assert.equal(result.discovered?.archive.label.source, 'service_metadata', 'what it did');
+  assert.equal(result.discovered?.archive.entryCount, null);
+  assert.equal(result.discovered?.referencePeriod, '2025-2605');
+  const ranged = w.publisher.requests.filter((r) => r.url === NY_CENTROID_ARCHIVE_URL && r.headers['range'] !== undefined);
+  assert.equal(ranged.length, 1, 'a host that answered a range with the whole body is not asked again');
+  // The ingest that follows still names its release from the archive itself.
+  const ingested = await w.run();
+  assert.equal(ingested.outcome, 'INGESTED');
+  assert.equal(ingested.derivation?.label.referencePeriod, '2025-2605');
+});
+
 test('an archive whose geodatabase names a different release than discovery activates nothing', async () => {
   const w = harness({ ranges: false });
   // The service says June 2026; the archive's geodatabase says May 2026.
@@ -552,6 +623,65 @@ test('an archive whose geodatabase names a different release than discovery acti
   await assert.rejects(w.run(), /archive is release 2025-2605, not 2025-2606/);
   assert.deepEqual(await createPartitionStore(w.h.varRoot).manifests(), []);
   assert.equal((await createAcquisitionLedger(w.h.varRoot, NY_STATEWIDE_SOURCE_ID).entries()).at(-1)?.action, 'FAILED');
+});
+
+/** Serves one file by range; with `ignore`, answers every request with the whole body. */
+function rangeHost(bytes: Buffer, mode: 'ranges' | 'ignore' = 'ranges') {
+  const ranges: string[] = [];
+  const fetchImpl = (async (_input: unknown, init?: RequestInit) => {
+    const range = ((init?.headers ?? {}) as Record<string, string>)['range'];
+    ranges.push(range ?? 'none');
+    const m = range === undefined ? null : /^bytes=(\d+)-(\d+)$/.exec(range);
+    if (m && mode === 'ranges') return new Response(new Uint8Array(bytes.subarray(Number(m[1]), Number(m[2]) + 1)), { status: 206 });
+    return new Response(new Uint8Array(bytes), { status: 200 });
+  }) as typeof fetch;
+  return { http: { fetchImpl, sleep: async () => {} }, ranges };
+}
+
+const GDB_2605 = 'NYS_2025_Tax_Parcels_Centroid_Points_2605.gdb';
+const gdbEntries = (n: number) => [
+  { name: `${GDB_2605}/`, bytes: null },
+  ...Array.from({ length: n }, (_, i) => ({ name: `${GDB_2605}/a${String(i).padStart(8, '0')}.gdbindexes`, bytes: Buffer.from([i & 0xff]) })),
+];
+const ZIP_URL = 'https://gisdata.ny.gov/GISData/State/Parcels/test.zip';
+
+test('the ZIP end record is the one that ends the file, not the first signature from the end', async () => {
+  // An archive comment may contain the signature. Only the record whose own
+  // comment length ends it exactly at the end of the file is the record.
+  const fake = Buffer.alloc(22);
+  fake.writeUInt32LE(0x06054b50, 0);
+  fake.writeUInt16LE(7, 10);
+  const bytes = zipArchive(gdbEntries(3), { comment: Buffer.concat([Buffer.from('built by '), fake, Buffer.from(' for a test')]) });
+  const host = rangeHost(bytes);
+  assert.deepEqual(await readRemoteZipDirectory(ZIP_URL, bytes.length, host.http), { geodatabases: [GDB_2605], entryCount: 4 });
+  assert.equal(host.ranges.length, 1, 'a directory inside the tail costs one request');
+});
+
+test('a central directory larger than the tail window is fetched with a second range', async () => {
+  const bytes = zipArchive(gdbEntries(1500));
+  const host = rangeHost(bytes);
+  assert.deepEqual(await readRemoteZipDirectory(ZIP_URL, bytes.length, host.http), { geodatabases: [GDB_2605], entryCount: 1501 });
+  assert.equal(host.ranges.length, 2);
+});
+
+test('a ZIP64 archive is read through its locator', async () => {
+  const bytes = zipArchive(gdbEntries(3), { zip64: true });
+  assert.deepEqual(await readRemoteZipDirectory(ZIP_URL, bytes.length, rangeHost(bytes).http), { geodatabases: [GDB_2605], entryCount: 4 });
+});
+
+test('a host that answers a range with the whole body yields no directory, and is not asked twice', async () => {
+  const bytes = zipArchive(gdbEntries(3));
+  const host = rangeHost(bytes, 'ignore');
+  assert.equal(await readRemoteZipDirectory(ZIP_URL, bytes.length, host.http), null);
+  assert.equal(host.ranges.length, 1);
+});
+
+test('bytes that are not a ZIP, or a directory its end record contradicts, are refused', async () => {
+  const junk = Buffer.alloc(4096, 0x41);
+  await assert.rejects(readRemoteZipDirectory(ZIP_URL, junk.length, rangeHost(junk).http), /no ZIP end-of-central-directory record/);
+  const lying = Buffer.from(zipArchive(gdbEntries(3)));
+  lying.writeUInt16LE(9, lying.length - 22 + 10);
+  await assert.rejects(readRemoteZipDirectory(ZIP_URL, lying.length, rangeHost(lying).http), /lists 4 entries, its end record says 9/);
 });
 
 test('no request carries a credential, cookie or session token', async () => {
@@ -575,7 +705,7 @@ test('acquisition needs no human: discover → acquire → derive → ingest in 
   assert.equal(publisher.archiveGets(NY_CENTROID_ARCHIVE_URL), 1, 'one archive request, not a crawl');
   assert.equal(result.publisherArtifact?.sha256, built.sha256);
   assert.equal(result.ledger?.action, 'ACQUIRED_AND_INGESTED');
-  assert.ok(result.bundleArtifact!.storagePath.endsWith('.gz'), 'the derived bundle is stored compressed');
+  assert.ok(result.bundleArtifact!.storagePath.endsWith('source-original.ndjson'), 'plain NDJSON: its bytes are a function of the rows alone');
   assert.equal(result.crossCheck?.agrees, true);
   assert.equal(result.crossCheck?.releaseAgrees, true);
   assert.deepEqual(result.crossCheck?.onlyInService, []);
@@ -661,13 +791,70 @@ test('a publisher schema change in the archive quarantines the run before a row 
   assert.deepEqual(await createPartitionStore(w.h.varRoot).manifests(), []);
 });
 
+/**
+ * Stored entries and zeroed timestamps make the fixture archive the same bytes
+ * on every platform and zlib build, so the bundle derived from it can be pinned.
+ * The run id, every row's evidence and the normalized digest descend from the
+ * bundle's sha256: it may move only when the rows, the header contract, or this
+ * code's derivation of them does — never with the machine.
+ */
+const PINNED_FIXTURE_ARCHIVE_SHA256 = 'ed5000b0d2b0844ecbcc85752c3e20d152d08082b17965a1ebdf999b46ba4c3e';
+const PINNED_FIXTURE_BUNDLE_SHA256 = '490a511e4ad53ebe3c990e61f0bb2140752b56dddf9e528755fcc99a540e613f';
+
+test('the fixture archive, and the bundle derived from it, are pinned byte for byte', async () => {
+  const { result, built } = await ingestedBase();
+  assert.equal(built.sha256, PINNED_FIXTURE_ARCHIVE_SHA256);
+  assert.equal(result.publisherArtifact?.sha256, PINNED_FIXTURE_ARCHIVE_SHA256);
+  assert.equal(result.bundleArtifact?.sha256, PINNED_FIXTURE_BUNDLE_SHA256);
+});
+
+test('with no witness at all, the runtime\'s own schema pin still quarantines a drifted archive', async () => {
+  // The cross-check is not the only gate. A replay has no FeatureServer to
+  // compare with; the runtime refuses the bundle's header before a row is read.
+  const w = harness();
+  const fields = [...NY_2025_FIELDS, { name: 'NEW_COLUMN', kind: 'string' as const, length: 10 }];
+  const built = buildNyRelease({ rollYear: 2025, build: '2605', rows: baseRows(), fields });
+  w.publisher.publish(built, { serviceFields: nyServiceFields(fields) });
+  const live = await w.run();
+  assert.equal(live.outcome, 'FAILED');
+  assert.equal(live.run, null, 'the live run is stopped by the cross-check, before the runtime');
+  const replay = await replayNyFromArchive({
+    registry: defaultRegistry(), artifactStore: w.h.artifactStore, contactPlane: w.h.contactPlane, varRoot: w.h.varRoot,
+    clock: fixedClock(RUN_INSTANT), logger: captureLogger().logger,
+    publisherSha256: built.sha256, referencePeriod: '2025-2605', batch: { sortChunkLines: 4 },
+  });
+  assert.equal(replay.crossCheck, null, 'no witness in a replay');
+  assert.equal(replay.outcome, 'FAILED');
+  assert.equal(replay.run?.run.status, 'quarantined');
+  assert.equal(replay.run?.run.failureKind, 'SCHEMA_DRIFT');
+  assert.equal(replay.run?.run.metrics.rowsParsed, 0, 'refused from the header');
+  assert.deepEqual(await createPartitionStore(w.h.varRoot).manifests(), []);
+});
+
 test('a truncated smoke run activates nothing and never counts as an ingestion', async () => {
   const w = harness();
   w.publisher.publish(release(baseRows()));
+  w.publisher.publishPolygons(buildNyPolygonRelease(2025, '2605'));
   const smoke = await w.run({ maxRows: 3 });
+  assert.equal(smoke.outcome, 'TRUNCATED_SMOKE_RUN', 'never reported as an ingestion');
   assert.equal(smoke.ledger?.action, 'TRUNCATED_SMOKE_RUN');
+  assert.equal(smoke.derivation?.rowsWritten, 3);
+  assert.equal(smoke.companion, null, 'a smoke run retains no polygons');
+  assert.equal(w.publisher.requests.filter((r) => r.url.includes('NYS-Tax-Parcels.zip')).length, 0, 'nor even asks about them');
   assert.deepEqual(await createPartitionStore(w.h.varRoot).manifests(), []);
   assert.equal((await w.run({ discoverOnly: true })).plan?.action, 'ACQUIRE');
+});
+
+test('a run that will not retain the polygons sends no request for them', async () => {
+  const w = harness();
+  w.publisher.publish(release(baseRows()));
+  w.publisher.publishPolygons(buildNyPolygonRelease(2025, '2605'));
+  const result = await w.run({ retainCompanion: false });
+  assert.equal(result.outcome, 'INGESTED');
+  assert.equal(result.companion?.status, 'SKIPPED');
+  assert.equal(result.discovered?.companion, null);
+  assert.equal(result.discovered?.companionError, null);
+  assert.equal(w.publisher.requests.filter((r) => r.url.includes('NYS-Tax-Parcels')).length, 0);
 });
 
 test('the polygon companion is retained as raw evidence, once, and never ingested', async () => {
@@ -735,7 +922,7 @@ test('replay from the retained archive, with no fetch at all, reproduces every d
       publisherSha256: original.publisherArtifact!.sha256, referencePeriod: '2025-2605', batch: { sortChunkLines: 4 },
     });
     assert.equal(replay.publisherArtifact!.sha256, original.publisherArtifact!.sha256);
-    assert.equal(replay.bundleArtifact!.sha256, original.bundleArtifact!.sha256, 'the compressed bundle is byte-identical');
+    assert.equal(replay.bundleArtifact!.sha256, original.bundleArtifact!.sha256, 'the bundle is byte-identical');
     assert.equal(replay.run!.run.runId, original.run!.run.runId);
     assert.equal(replay.run!.run.normalizedDigest, original.run!.run.normalizedDigest);
     assert.equal(replay.run!.globalDigest, original.run!.globalDigest);
@@ -860,4 +1047,70 @@ test('no mailing string reaches the derived plane, compressed or not; it is in t
   for (const p of derived) assert.ok(!read(p).includes('INVENTED WAY'), `${p} carries a mailing address`);
   const restricted = all(join(h.varRoot, 'restricted')).filter((p) => /\.ndjson(\.gz)?$/.test(p));
   assert.ok(restricted.some((p) => read(p).includes('INVENTED WAY')), 'the restricted plane holds them');
+});
+
+// ===========================================================================
+// 11. A durable store: the execution machine is disposable
+// ===========================================================================
+
+function durableStore(): DurableStore {
+  return {
+    backend: createLocalBackend(tempRoot('df-ny-durable-'), { durable: true }),
+    prefix: `p${Date.now()}${Math.random().toString(36).slice(2)}`,
+    required: true,
+  };
+}
+
+test('the archive is durable and registered before activation; a fresh worker never asks the publisher for it', async () => {
+  const durable = durableStore();
+  const first = harness();
+  first.publisher.publish(release(baseRows()));
+  const a = await first.run({ durable });
+  assert.equal(a.outcome, 'INGESTED');
+  assert.deepEqual(a.durability?.commit?.phases.map((p) => p.phase), ['STAGING', 'HASH_VERIFIED', 'DURABLE', 'REGISTERED']);
+  assert.equal(a.durability?.commit?.verifiedByReread, true);
+  assert.equal(a.durability?.releaseRegistered, true);
+  assert.ok(a.durability?.receiptKey, 'a durable run receipt exists');
+  assert.equal((await durable.backend.head(artifactKey(durable.prefix, a.publisherArtifact!.sha256)))?.bytes, a.publisherArtifact!.byteLength);
+  assert.ok(await findRelease(durable, NY_STATEWIDE_SOURCE_ID, '2025-2605', a.discovered!.releaseFingerprint));
+
+  // Another worker: its own var root and artifact store, nothing shared but the
+  // durable store and the publisher.
+  const second = harness();
+  second.publisher.publish(release(baseRows()));
+  const b = await second.run({ durable });
+  assert.equal(b.outcome, 'INGESTED');
+  assert.equal(second.publisher.archiveGets(NY_CENTROID_ARCHIVE_URL), 0, 'rehydrated, not re-downloaded');
+  assert.equal(b.durability?.source, 'durable_store');
+  assert.equal(b.ledger?.action, 'REHYDRATED_AND_INGESTED');
+  assert.equal(b.bundleArtifact?.sha256, a.bundleArtifact?.sha256);
+  assert.equal(b.run!.run.runId, a.run!.run.runId);
+  assert.equal(b.run!.run.normalizedDigest, a.run!.run.normalizedDigest);
+  assert.equal(b.run!.globalDigest, a.run!.globalDigest);
+});
+
+test('publisher-off replay on a fresh worker, from the durable store alone', async () => {
+  const durable = durableStore();
+  const first = harness();
+  first.publisher.publish(release(baseRows()));
+  const a = await first.run({ durable });
+  const fresh = streamHarness();
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (() => { throw new Error('network used during replay'); }) as typeof fetch;
+  try {
+    const replay = await replayNyFromArchive({
+      registry: defaultRegistry(), artifactStore: fresh.artifactStore, contactPlane: fresh.contactPlane, varRoot: fresh.varRoot,
+      clock: fixedClock('2031-01-01T00:00:00.000Z'), logger: captureLogger().logger, durable,
+      publisherSha256: a.publisherArtifact!.sha256, referencePeriod: '2025-2605', batch: { sortChunkLines: 4 },
+    });
+    assert.equal(replay.outcome, 'INGESTED');
+    assert.equal(replay.durability?.source, 'durable_store');
+    assert.equal(replay.durability?.commit, null, 'a replay reads the durable store and never writes it');
+    assert.equal(replay.bundleArtifact?.sha256, a.bundleArtifact?.sha256);
+    assert.equal(replay.run!.run.runId, a.run!.run.runId);
+    assert.equal(replay.run!.run.normalizedDigest, a.run!.run.normalizedDigest);
+    assert.equal(replay.run!.globalDigest, a.run!.globalDigest);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 });

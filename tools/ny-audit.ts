@@ -1,7 +1,7 @@
 /**
  * Aggregate-only audits of the New York statewide estate.
  *
- *   node tools/ny-audit.ts quality <bundle.ndjson.gz>   field completeness, statewide and per county
+ *   node tools/ny-audit.ts quality <bundle.ndjson>      field completeness, statewide and per county
  *                                                       (min / median / max), quarantine reasons,
  *                                                       lineage, roll and spatial years
  *   node tools/ny-audit.ts pid-reuse <varRoot>          parcel strings reused across counties and
@@ -237,6 +237,6 @@ const [command, arg] = process.argv.slice(2);
 if (command === 'quality' && arg) process.stdout.write(`${JSON.stringify(await quality(arg), null, 1)}\n`);
 else if (command === 'pid-reuse' && arg) process.stdout.write(`${JSON.stringify(await pidReuse(arg), null, 1)}\n`);
 else {
-  process.stderr.write('usage: ny-audit.ts quality <bundle.ndjson.gz> | pid-reuse <varRoot>\n');
+  process.stderr.write('usage: ny-audit.ts quality <bundle.ndjson> | pid-reuse <varRoot>\n');
   process.exitCode = 2;
 }

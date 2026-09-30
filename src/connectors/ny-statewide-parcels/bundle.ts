@@ -17,13 +17,17 @@
  * order. Re-deriving from the same archive with the network off produces a
  * byte-identical bundle.
  *
- * ## Stored compressed
+ * ## Stored uncompressed, on purpose
  *
- * 5.5 million rows of 73 attributes is ~6.6 GB of NDJSON. The bundle is written
- * gzip-compressed (`*.ndjson.gz`, a fixed level, fixed 64 KiB input chunks, no
- * flushes, zero header timestamp), which the runtime's line reader already
- * decompresses on the fly. The raw evidence is the publisher's archive, not
- * this file; the bundle is REGENERABLE from it.
+ * The bundle's sha256 is its artifact identity, and the runtime derives the run
+ * id — and through it every row's evidence and the normalized digest — from
+ * that sha256. A gzip encoding would make those depend on the zlib build that
+ * wrote it: the same rows compress to different bytes under different zlib
+ * versions, so a replay or a forced re-ingest after a Node upgrade would mint a
+ * new run id and write every canonical row a second time. Plain NDJSON is a
+ * function of the rows alone, exactly as Wisconsin's bundle is. It is large
+ * (~6 GB for the 2025 roll) and REGENERABLE from the retained archive, which is
+ * the evidence.
  *
  * ## Memory
  *
@@ -32,12 +36,7 @@
  * scratch copy is deleted afterwards; it is regenerable and it is not evidence.
  */
 import { mkdir, mkdtemp, rm } from 'node:fs/promises';
-import { once } from 'node:events';
-import { Writable } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
-import { createGzip } from 'node:zlib';
 import { join } from 'node:path';
-import type { ByteSink } from '../../archive/object-store.ts';
 import { canonicalJson } from '../../core/hash.ts';
 import { fail } from '../../core/errors.ts';
 import { ESRI_REST_TYPE, gdbFileStem, openGdbTable, readGdbCatalog } from '../../core/filegdb.ts';
@@ -52,12 +51,8 @@ import { labelFromGeodatabase, type NyReleaseLabel } from './release.ts';
  */
 export const NY_FILEGDB_BUNDLE_KIND = 'df.filegdb.snapshot/1';
 
-/** The artifact's filename. The `.gz` suffix is what makes every reader decompress it. */
-export const NY_BUNDLE_FILENAME = 'ny-statewide-parcels.bundle.ndjson.gz';
-
-/** Fixed, so the compressed bytes are a pure function of the rows. */
-export const NY_BUNDLE_GZIP_LEVEL = 6;
-const GZIP_INPUT_CHUNK = 64 * 1024;
+/** The artifact's filename. */
+export const NY_BUNDLE_FILENAME = 'ny-statewide-parcels.bundle.ndjson';
 
 /** The centroid table's name inside the geodatabase. Lookup tables sit beside it. */
 const CENTROID_TABLE = /^NYS_Tax_Parcels?_Centroid_Points$/i;
@@ -254,46 +249,6 @@ export async function deriveNyBundle(
     // Scratch, not evidence. The archive it came from is the evidence.
     await rm(workDir, { recursive: true, force: true });
   }
-}
-
-/**
- * A line writer that gzips into a byte sink, deterministically: fixed level,
- * fixed input chunking, no intermediate flush, and Node's zlib writes a zero
- * timestamp in the gzip header.
- */
-export function gzipLineWriter(sink: ByteSink, level: number = NY_BUNDLE_GZIP_LEVEL): {
-  write(line: string): Promise<void>;
-  close(): Promise<void>;
-} {
-  const gzip = createGzip({ level });
-  const done = pipeline(gzip, new Writable({
-    write(chunk: Buffer, _encoding, callback) {
-      sink.write(chunk).then(() => callback(), callback);
-    },
-  }));
-  // Surfaced by close(); attached now so a failing sink is never unhandled.
-  done.catch(() => {});
-  let pending: string[] = [];
-  let size = 0;
-  const flush = async (): Promise<void> => {
-    if (pending.length === 0) return;
-    const chunk = Buffer.from(pending.join(''), 'utf8');
-    pending = [];
-    size = 0;
-    if (!gzip.write(chunk)) await Promise.race([once(gzip, 'drain'), done]);
-  };
-  return {
-    async write(line) {
-      pending.push(line, '\n');
-      size += line.length + 1;
-      if (size >= GZIP_INPUT_CHUNK) await flush();
-    },
-    async close() {
-      await flush();
-      gzip.end();
-      await done;
-    },
-  };
 }
 
 /** `PROJCS["NAD_1983_UTM_Zone_18N",…` → `NAD_1983_UTM_Zone_18N`. */
