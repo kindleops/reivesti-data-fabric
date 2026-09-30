@@ -357,15 +357,127 @@ whose leading borough digit agrees with the county on all 856,670 NYC rows.
 
 ---
 
-## 9. The full statewide run
+## 9. The full statewide run (2026-09-30, live publisher, unattended)
 
-*(filled from the live run)*
+`df auto ny_statewide_parcels__all_ny_counties`, 1 GB heap cap, into an estate
+already holding Minnesota's 59 and Wisconsin's 72 counties — rebuilt in this
+container from the base commit with the base code, because the estates of
+earlier phases lived on containers that no longer exist. Evidence, aggregate
+only, in `reference/ny-statewide/2025-2605/`.
+
+| | |
+|---|---:|
+| reported (GeoHub FeatureServer witness) | 5,510,061 |
+| archive table (valid rows = indexed rows; 0 deleted slots) | 5,510,061 |
+| derived and parsed | 5,510,061 |
+| **accepted** | **5,503,228** |
+| quarantined | **6,833** = 6,606 with no SBL + 19 digit-less labels + 208 later copies of a (county, SWIS, SBL) already read |
+| **reconciliation** | 5,503,228 + 6,833 = 5,510,061 — exact; witness difference **0** |
+| completeness | `complete` |
+| witness cross-check | count, schema digest and release label all agree; no field in one path and not the other |
+| canonical properties (all `resolved`, county-parcel authoritative) | **5,503,228** |
+| unresolved | 0 |
+| conflicts | 190,603, **all** `address_matches_different_pid` (severity `info`): one situs address shared by several distinct parcels — condominium units, village and town portions of one polygon. Flagged, never merged |
+| restricted contact observations | 6,276,204 |
+| canonical events | 18,129,889 |
+| rows without geometry | 0 |
+| partitions | 62 county + `organization/us`, all `activated` |
+| run id | `run_319d5ae51a23dd4dce1aca63affc5674` |
+| normalized digest | `85726d243d40a4f2ea22601020c73bc00a9894d572f44ffedb26d6c7f8a0823f` |
+| **global estate digest (MN + WI + NY)** | `5c46d1e308c36aa03dd2bb5ad61f40a75ff97939e577cb83dc9da7a9488caf52` |
+| publisher archive | 562,761,366 bytes, sha256 `7c5b51644712692143afc6e927c7c383fef1191fa7f9d8ab47154d81bd90719b` — identical to the independent download made during forensics the day before |
+| derived bundle | 5,870,851,846 bytes of plain NDJSON, sha256 `3969c4a08c9f88b61271c3d77c4e16eb44855dce547413e1a2617c7a26f61301` |
+| polygon companion | `RETAINED`: 801,888,277 bytes, sha256 `ea803fbdb9ac5e6dfe61f90b38ddfe342274fb00b3e6898de2c7532c79de740f` (identical to forensics); never ingested |
+
+**Counties.** Expected 62 (federal catalogue), actual **62**, missing none,
+extra none, invalid rows 0. Accepted rows per county range from **12,945**
+(Hamilton) to **586,595** (Suffolk), median 43,442. The five boroughs account
+for 856,670 — every New York City row was accepted.
+
+**The discovery that led here** asked `gis.ny.gov` once, `gisdata.ny.gov` twice
+by HEAD and twice by range, and `nysgeohub.ny.gov` four times — and the legacy
+server **zero** times (measured by a request-recording preload,
+`release.json › discoveryRequestsByHost`).
+
+### Performance
+
+Memory in MiB as the runtime samples it; disk sizes in bytes or decimal MB.
+
+| | New York 2025-2605 | Wisconsin V12 (same container) | Minnesota (same container) | Synthetic 5.5 M (DF-0I) |
+|---|---:|---:|---:|---:|
+| rows | **5,510,061** | 3,574,646 | 2,710,201 | 5,500,000 |
+| publisher artifact | 562,761,366 B (zip) | 759,926,092 B (zip) | 2,610,774,016 B (gpkg) | — |
+| derived bundle | 5,870,851,846 B | 2,724,190,106 B | 2,526,488,707 B | — |
+| discover | 6.7 s | 2.1 s | — | — |
+| acquire (download) | 94.7 s | 64.6 s | 105 s | — |
+| derive (unzip + read geodatabase) | 131.7 s (14.5 + 115.9) | 76.3 s | 173.8 s | — |
+| parse + normalize | 4,618.6 s | 2,616.3 s | 2,392.8 s | — |
+| project | 1,492.3 s | 1,427.3 s | 718.6 s | — |
+| **pipeline wall** | **6,499 s** (companion 141 s included) | 4,195 s | 3,138 s (runtime only) | 3,566 s |
+| **peak heap** | **157 MB** (1,024 MB cap) | 153 MB | 257 MB | 201 MB |
+| max RSS | 1,079 MB | 693 MB | 1,058 MB | 575 MB |
+| peak external / arrayBuffers | 978 / 968 MB | 631 / 621 MB | 876 / 867 MB | — |
+| snapshot indexes on disk | 132 MB | 84 MB | 64 MB | 129 MB |
+| peak scratch | 4.36 GiB | — | — | — |
+| end-to-end rows/s | 848 | 852 | 864 | 1,542 |
+
+**No heap regression, and none per row.** Twice Minnesota's rows peaked at 157
+MB against Minnesota's 257 — the heap is the emit stage's projection fold, not
+anything retained per row. What grows with the row count is the off-heap memory
+the design moved there on purpose: the identity index and the 62 snapshot-index
+builders, 968 MiB of `ArrayBuffer` at 5.5 M rows (≈184 bytes per row;
+Wisconsin's is 182). That is why RSS, not heap, reached 1.08 GB. The heap cap was
+not raised. The disk grew by at most 19.9 GiB during the run: the plain bundle
+(5.47 GiB), gzip-compressed run tables (7.5 GiB + 0.55 GiB restricted), 62
+partitions (4.0 GiB), and projection scratch peaking at 4.36 GiB.
 
 ---
 
 ## 10. Cross-state isolation
 
-*(filled from the live run)*
+`tools/estate-state.ts` hashed every file of every partition and every snapshot
+index (bytes, size, mtime, CURRENT, manifest digests) at each step. Florida is
+not assumed present: this branch knows only its own base state.
+
+**The estate New York was ingested into.** Minnesota's 59 and Wisconsin's 72
+counties, rebuilt from the base commit with the base code (Minnesota from the
+same GeoPackage bytes the artifact catalog certifies, `e3d54ee1…`; Wisconsin
+from the certified archive `b22bfaad…`; both reconciled exactly as in DF-0H /
+DF-0K). The session's disk cannot hold three statewide estates with every
+regenerable output, so after capture `0-baseline` the regenerable Minnesota and
+Wisconsin outputs that isolation does not measure were released (14.87 GB: both
+derived bundles, both states' canonical run tables, and the Wisconsin publisher
+zip, which the catalog lists as `REACQUIRABLE`). Their parcel identifiers were
+extracted first, for the reuse audit (6,161,211 = 2,648,100 + 3,513,111).
+Capture `0b-before-ny` shows the release touched **no** partition and **no**
+index: 132 partitions and 2 indexes unchanged.
+
+| | before NY (0b) → after NY (1) |
+|---|---|
+| Minnesota county partitions (59) | **0 written** — same files, sizes, mtimes, sha256, generation, row count |
+| Wisconsin county partitions (72) | **0 written** — likewise |
+| Minnesota / Wisconsin snapshot indexes | **0 written** |
+| New York county partitions | 62 added |
+| New York snapshot index | 1 added |
+| `organization/us` | recomputed (a nation-scoped partition; New York names organizations) |
+
+All 131 Minnesota and Wisconsin partitions carry the same state digest, output
+digest, generation and row count before and after (`isolation-diffs.json`).
+
+**`organization/us`** is the one shared partition, and it is recomputed by
+design whenever a run names an organization. It folds the organization
+observations of every run's canonical rows; because the Minnesota and Wisconsin
+run tables had been released for disk, its New York generation folds New
+York's observations only. That is a property of this proof environment, not of
+the code: on a full estate the same fold spans all three states. The two
+pre-New York generations of that partition were left in place throughout.
+
+**The global digest** is `sha256` over the sorted `partitionId<TAB>outputDigest`
+lines of every partition manifest — extended by child digests, never refolded.
+Recomputed independently from the captured manifests it equals the run's own
+report both before New York (`32c5ba05…`, Minnesota + Wisconsin) and after it
+(`5c46d1e3…`), and every Minnesota and Wisconsin child digest in it is
+unchanged.
 
 ---
 
@@ -377,7 +489,43 @@ whose leading borough digit agrees with the county on all 856,670 NYC rows.
 
 ## 12. Source quality, by county
 
-*(filled from the live run)*
+Measured on every one of the 5,510,061 publisher rows by `tools/ny-audit.ts
+quality` (`quality.json`): a field counts as present when it is non-blank, and
+for area, year built and living area when it is positive (the roll writes 0 for
+"not recorded"). Statewide coverage does not mean uniform quality.
+
+| | statewide | min (county) | median | max (county) | counties < 50% |
+|---|---:|---:|---:|---:|---:|
+| parcel identity (parser accepts) | 99.88% | 98.30% Oneida | 99.98% | 100% Yates | 0 |
+| situs address | 99.66% | 88.83% Hamilton | 99.94% | 100% Tioga | 0 |
+| situs ZIP | 56.81% | **0%** Nassau | 42.15% | 99.97% Kings | 32 |
+| owner name | 99.63% | 98.04% Rockland | 99.93% | 100% Tioga | 0 |
+| assessment (`TOTAL_AV`) | 99.62% | 98.05% Rockland | 99.92% | 100% Tioga | 0 |
+| class / use (`PROP_CLASS`) | 99.58% | 98.05% Rockland | 99.85% | 100% Tioga | 0 |
+| full market value | 84.08% | **0%** the five boroughs | 99.85% | 100% | 5 |
+| roll section | 84.08% | **0%** the five boroughs | 99.85% | 100% | 5 |
+| parcel area (acres or ft² > 0) | 69.63% | **0%** Nassau | 77.34% | 99.98% Richmond | 6 |
+| year built (> 0) | 65.31% | **0%** Nassau | 69.82% | 96.43% Queens | 4 |
+| living area (> 0) | 61.03% | **0%** Nassau | 64.84% | 91.33% Queens | 5 |
+| mailing address (restricted; counted, never printed) | 83.85% | **0%** the five boroughs | 99.46% | 99.97% Tompkins | 5 |
+
+- **Lineage:** 4,646,766 rows from ORPTS rolls, 856,670 from NYC MapPLUTO. NYC
+  rows carry no full market value, roll section, print key, ORPTS parcel id or
+  mailing address — the source's shape, not a defect, and not imputed.
+- **Nassau** states no ZIP, area, year built or living area on any row; its
+  identity, owner, assessment and class are complete.
+- **Roll year** 2025 on every row. **Geometry vintage:** only Westchester mixes
+  two (31,992 rows on 2024 polygons, 226,153 on 2025).
+- **Publisher flags, kept and never repaired:** 101,842 rows share geometry
+  (`DUP_GEO`); 343 state land above total; 2 carry a `SWIS_SBL_ID` that
+  disagrees with their own SWIS + SBL, 46 a `SWIS_PRINT_KEY_ID` that disagrees
+  with SWIS + print key; 13,954 non-NYC parcels have no roll record behind them;
+  0 money values fail the contract's decimal parse.
+- **Owner types** (`OWNER_TYPE`, a category the state derived from the owner
+  names and research — never used to type or merge a party): 8 Private
+  5,326,341; −999 Unknown 24,530; 1–7 federal, state, county, city, town,
+  village and mixed government 148,558; 9 school district 6,678; 10 road
+  right-of-way 2,764; 11 water 1,185; absent 5.
 
 ---
 

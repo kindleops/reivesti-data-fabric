@@ -1,0 +1,604 @@
+{
+ "nyAfterIngest": {
+  "property/us-county-36001": {
+   "current": "gen-muni783l-t1oze4",
+   "inputDigest": "ee7edb2565bb8580478832cc2385d0803ea767021fe3e6477f8c0e31485f9f1b",
+   "outputDigest": "d443eae63498f2cbe84920edfd9003ac0b5f0609ffd39c40b26a982af628f489",
+   "rowCount": 112804,
+   "files": 6,
+   "bytes": 87177462,
+   "stateDigest": "e1a9180779600531dfe076b08406e48b4cd3a07d94fef99c8a6585d6da09024c"
+  },
+  "property/us-county-36003": {
+   "current": "gen-muni7aw0-g0vkgi",
+   "inputDigest": "f0a5ab7270d242a2a553dc29b29c3531cab5f3b639985e9c6ab85a7b0b2ceb0d",
+   "outputDigest": "989d0653996025bfb13cf8e6bf2345bc633676ac1d5666d3217aa8b70ef92557",
+   "rowCount": 33411,
+   "files": 6,
+   "bytes": 26815906,
+   "stateDigest": "389f5f1c003269e31eaa87b2069b19c1400235c15bb20cfc72d3c40e82995b66"
+  },
+  "property/us-county-36005": {
+   "current": "gen-muni7c5h-aiw0mi",
+   "inputDigest": "1e58aff00ee5d91c4bbcb433e8ae7682ff24916b3181d3b36b2e942ecc7b7b21",
+   "outputDigest": "49aee8318344e22ba5585ce6c566fc68624d1732254f60947b2723a3b8e8c3e2",
+   "rowCount": 89229,
+   "files": 6,
+   "bytes": 65524912,
+   "stateDigest": "c04fd2fa1fdbe50c89ac6ac2241af74e2decf9398e673c842c349f0e6dac73f8"
+  },
+  "property/us-county-36007": {
+   "current": "gen-muni7efd-axspin",
+   "inputDigest": "0e2498e437174a04ad456968131d4eb0eb12b569e212a1e2b618aa6637bc44c2",
+   "outputDigest": "d729871b93fdd1616f707d2cd860798e35b820fae6829df9f3cf0995c597cbea",
+   "rowCount": 84877,
+   "files": 6,
+   "bytes": 64888600,
+   "stateDigest": "717f8e9325a29eda6a1a873ca68e1d7fcda540735ebc25bdd67a371d7fd9e5be"
+  },
+  "property/us-county-36009": {
+   "current": "gen-muni7gkv-0r5yws",
+   "inputDigest": "277cf30047db479600a6726cc25453643f822f30549fb2c184bf16ce8f9ac57c",
+   "outputDigest": "b4bf6b16b0686b80bcf50f9e9866f3319e7d065cc7d10a3c54e4058cfeba0461",
+   "rowCount": 50369,
+   "files": 6,
+   "bytes": 39933883,
+   "stateDigest": "8cc4c27b852088052134bf428d81ec9169e341b9130b4c99c7f5550cf30a563b"
+  },
+  "property/us-county-36011": {
+   "current": "gen-muni7hul-szl6jq",
+   "inputDigest": "6469acfbfb54ad073bc0164225a7d0a73600a667045bae8dd1e4a79971e4e59a",
+   "outputDigest": "857b01f6a830f30f31575d7006a6ff6265d3814c13aa423091ca1db51dcd4b20",
+   "rowCount": 39127,
+   "files": 6,
+   "bytes": 30483236,
+   "stateDigest": "c16bf4fa54b2b252cd9cd8ef36649eb9f032ba373513a779c495740f58e9f0c2"
+  },
+  "property/us-county-36013": {
+   "current": "gen-muni7itg-xxd7ya",
+   "inputDigest": "c7033c1f0634743fb76b5bbf0ba8d2c1fda1a70ff19695aadb752de5a1b4107e",
+   "outputDigest": "87f2dab134531ece50cc6ab2a525614dd8d949574fb65adae9d521366bbda832",
+   "rowCount": 87997,
+   "files": 6,
+   "bytes": 70576708,
+   "stateDigest": "46ef8b773c042885b03431e2efa26d5706ad14436eff125d4619718d8c6b75ea"
+  },
+  "property/us-county-36015": {
+   "current": "gen-muni7l1x-q7ip9u",
+   "inputDigest": "f569fc8d7d1b8203125df6322fbcd77f4cb91245e3da8c6bac03fc8514f077bc",
+   "outputDigest": "799fea66952fe9491389c113e1b45185a28f32f7f32e0f2507c9a715f30b8216",
+   "rowCount": 39384,
+   "files": 6,
+   "bytes": 30464504,
+   "stateDigest": "5724cc5dbec63e0b427eba5c07ba0e96ea71e38ae0abfc0481a7066cfb06139e"
+  },
+  "property/us-county-36017": {
+   "current": "gen-muni7lwu-i3s7hm",
+   "inputDigest": "d0b4adb896bd0a338ddcba0408d6e45cd5d49e28afae0ed0caa88e5005b7525c",
+   "outputDigest": "0f6bd7459be851b48c9c534fc00c94bc09b71ecde337bb148c8027a9bea98c60",
+   "rowCount": 32203,
+   "files": 6,
+   "bytes": 25745715,
+   "stateDigest": "c39ccd8307aa62516ee2d97530454f6d43bf2cc84e3e554bfddf0c98759dc2ff"
+  },
+  "property/us-county-36019": {
+   "current": "gen-muni7mnl-2wn6li",
+   "inputDigest": "2922eff488a79c6bee23a0c1ecabae4dc98e8ad7f2ab840cbdef17e3511a4d14",
+   "outputDigest": "fe8ff0caa4d4e05b6d9a9cf1ad5910a290b8bd8286b1db530d6ffb5f3101789d",
+   "rowCount": 38741,
+   "files": 6,
+   "bytes": 30229870,
+   "stateDigest": "9c54f336d6dc3e90f6acd4210964e1dc8a5e6e21880a2fbd7a4dd944af6d6a8a"
+  },
+  "property/us-county-36021": {
+   "current": "gen-muni7nia-jljr57",
+   "inputDigest": "f8aa989bbaf3e7d0d8650d03e68ddf6e6297b265971eb5ea9957746a9d194fc6",
+   "outputDigest": "f8d93883a240b05cc13ed53ad15e52488ea6680d25be92a6e9725460c2ba060d",
+   "rowCount": 35784,
+   "files": 6,
+   "bytes": 28341198,
+   "stateDigest": "44c0cfe051a4e6dd7af9b802d1de4134dfa2dcb0d4ddbfbdf241909dc3921622"
+  },
+  "property/us-county-36023": {
+   "current": "gen-muni7oal-tgirut",
+   "inputDigest": "ddb79ce23f250e4e1747de4b4a75d94a6acde1b4a91d692251fe81cefe329b1c",
+   "outputDigest": "fbc45bd5c0f3f793aa9193573d61bd6373c01aa4e43ebda7f8dca4c4452519c0",
+   "rowCount": 22575,
+   "files": 6,
+   "bytes": 17757202,
+   "stateDigest": "7f28495c698bc052196fc215275d0b0fe27d565669cd0dafcdcb654d8eab3c4a"
+  },
+  "property/us-county-36025": {
+   "current": "gen-muni7oua-n076li",
+   "inputDigest": "3528b00f200df27264182fad630fed6a5e76e58ba245ba98aac5cb226d69357f",
+   "outputDigest": "c74db8ae4b83d283e78f77933e68893c200fe98df76042c9855aff3093fd07ca",
+   "rowCount": 42993,
+   "files": 6,
+   "bytes": 34504186,
+   "stateDigest": "aef8718a4973e4ebd31525ad476f4a8171a4762b686243f1ad5d656fd28db4e4"
+  },
+  "property/us-county-36027": {
+   "current": "gen-muni7pxk-o6y1uz",
+   "inputDigest": "4d505b885fe08897b7ef419e7487cabc2970402354d2b49977e6d3281d6392dd",
+   "outputDigest": "623f3842d6bc1126c3626716d7c23073b1423e552cb5e5bb053f33573b2fbcec",
+   "rowCount": 110359,
+   "files": 6,
+   "bytes": 85963234,
+   "stateDigest": "08aa46dfe555c99d6b7e08dddd07bc98ebd19f4c1814bd9073d9e1eeec4d3ade"
+  },
+  "property/us-county-36029": {
+   "current": "gen-muni7tq3-yaeg5m",
+   "inputDigest": "db4e37c96e2c255287270ac2267b5a6a2745fbf91f30f6f3d0e1b2d35dc9a55d",
+   "outputDigest": "717d2d8c662153663fa19bc166303e508b50fb58c46712276c7dc3de04ca6eb1",
+   "rowCount": 370411,
+   "files": 6,
+   "bytes": 284672854,
+   "stateDigest": "cdbefbd5f81e656e1654e12e81418312b58fe817be4323dcaf0c9fade1886951"
+  },
+  "property/us-county-36031": {
+   "current": "gen-muni82u4-v1lkxg",
+   "inputDigest": "96d64134be7fbcfe4bb3915f4e97f769b7148c5838432e63f7eb0cdb34ae9e49",
+   "outputDigest": "50d1d4a71337703f7becf339bf6ab9936f0a2ac31b7d9dfd755e46dcfd0515f0",
+   "rowCount": 37213,
+   "files": 6,
+   "bytes": 29534363,
+   "stateDigest": "0af3093c9c33b632d4f9872e18b0435c499109ca68655af938cbda2214cb81b2"
+  },
+  "property/us-county-36033": {
+   "current": "gen-muni83lz-7mwrgo",
+   "inputDigest": "3f0b8b37ae544f9e14ae560b6d916a2d34f6124c13af791e27412534d66dc9e3",
+   "outputDigest": "4b74486ba30c8ac508050eb9dd682169c60cbf485b4b1f7910b13cd0d89500aa",
+   "rowCount": 32130,
+   "files": 6,
+   "bytes": 25673442,
+   "stateDigest": "5dedb6e6efad8f919446e3bff86a264c1e6cb83926d7cf1d7a939ccafc1cd7e2"
+  },
+  "property/us-county-36035": {
+   "current": "gen-muni84bm-y55b3j",
+   "inputDigest": "19840213092b4d877068cc4a9cb148f6f9098f8a43cf22c7a841c3debb939418",
+   "outputDigest": "2859284861425097758605caebf73676b5d0e453c3cf87efcf6f2f9323a42219",
+   "rowCount": 33204,
+   "files": 6,
+   "bytes": 26318166,
+   "stateDigest": "29e58cbeaf4da7130d1b73e852dded82b633eef52cfe3b4e6a6af094a37bd045"
+  },
+  "property/us-county-36037": {
+   "current": "gen-muni851u-d59jpe",
+   "inputDigest": "e2d577f299d7abd933f0720f25e9074dcb211787abff644c93c612b46488354e",
+   "outputDigest": "59a6c001a3fa9215b5189bd259d883354ad901596c084de198a9bc2eb0f4ed6f",
+   "rowCount": 28264,
+   "files": 6,
+   "bytes": 22234589,
+   "stateDigest": "909f1ef86ca4a1d9d396b9ddadc0e96b899f8b4b1b4e4cb8a2d75c055962c436"
+  },
+  "property/us-county-36039": {
+   "current": "gen-muni85o2-srookg",
+   "inputDigest": "05c0b3442269f4c4e8ab7bc505a9fc4619716f513e64d0c07b42d977555d868b",
+   "outputDigest": "907ce2ffd630afbbe3a4d776a3edf7e84fbaa83f7615450e094a3be9deaf5ff9",
+   "rowCount": 38418,
+   "files": 6,
+   "bytes": 30180910,
+   "stateDigest": "229a2cb6f7186ba70f9855c566280f7e627191170f88f53dd8bfb1191facdc86"
+  },
+  "property/us-county-36041": {
+   "current": "gen-muni86f8-u47gvf",
+   "inputDigest": "4eb19d7d0505cc344b58b718323cc2ec5eaad10f9769ccf97c129dbf5508a6fa",
+   "outputDigest": "af23268395d6ba77b15f059823517dff3fda225bc86755ea8fb67dc5f199dc1a",
+   "rowCount": 12945,
+   "files": 6,
+   "bytes": 10169646,
+   "stateDigest": "9846c123a7512468413837168c7a2ebb97f39685aed123a0973ef317abf7c4a2"
+  },
+  "property/us-county-36043": {
+   "current": "gen-muni86ra-pqaf49",
+   "inputDigest": "9fcb20748f98e94b0530cff7ea1112a874c87253a8766b69de27a3d67f80eecc",
+   "outputDigest": "9d44fe25b432a45fe4c824006883f5ba97f4072c5ae2b931c2ccfabd85b7d76f",
+   "rowCount": 41268,
+   "files": 6,
+   "bytes": 32929222,
+   "stateDigest": "dfcfe4927eb3377fbee5656982e4943d92efd9aa487967714da34881feee0567"
+  },
+  "property/us-county-36045": {
+   "current": "gen-muni87ot-0i96k7",
+   "inputDigest": "2737579baf10c2f660ef8b6e0a61f898d62d88c0837fc8c0ef9377b53a6b2260",
+   "outputDigest": "1e9f25af439c180487fc1edf1fa541a53356118d73c69a10bb4a915276a9619c",
+   "rowCount": 58979,
+   "files": 6,
+   "bytes": 46122751,
+   "stateDigest": "6a6e3b5c326e95c31b9cafc654c08dedca8529776fed71188d1187440840a94c"
+  },
+  "property/us-county-36047": {
+   "current": "gen-muni89sx-q9bmf1",
+   "inputDigest": "c2969bdc40fef917d97885c52628276084f51af843071bdcba63a962d697c791",
+   "outputDigest": "0960d8484a156aca3b9023caf80ab09c1c8f7adc3dd3a3729e1b48e66cab3356",
+   "rowCount": 275680,
+   "files": 6,
+   "bytes": 201241882,
+   "stateDigest": "5ae04ed945e578eb6d02d27383b5b35be90f8a789222e0534258e34cd4628d9f"
+  },
+  "property/us-county-36049": {
+   "current": "gen-muni8gb8-p9lpef",
+   "inputDigest": "d99d9234a0a0e7fb36817e40d9cb920c84015b5ba8cd470d0a3585e0b8ffe7db",
+   "outputDigest": "260426acf5975d58c384fd4e641cd6ebe92c3a5ed1b1c53a3e6cfabb2996b5fd",
+   "rowCount": 24684,
+   "files": 6,
+   "bytes": 19616404,
+   "stateDigest": "083f4f3a2910b483980fbd67c8b9a6ac051898e292125e7a1aef8e2972502bff"
+  },
+  "property/us-county-36051": {
+   "current": "gen-muni8gv8-76z1zt",
+   "inputDigest": "05c9bd2b45bb42684ee5ca466428d2e2d1c4f38236d4296baae2b5026f2c5aa9",
+   "outputDigest": "ceda4574a44d81dd1bbc98a8740e2ed2727171d807c4db56bd1b82bdd2cb4c94",
+   "rowCount": 28771,
+   "files": 6,
+   "bytes": 22586962,
+   "stateDigest": "68fb49739488363bd79e1cdadcf70e7141a8e5997ae6a6707722cdad85fa255a"
+  },
+  "property/us-county-36053": {
+   "current": "gen-muni8his-vxvoaf",
+   "inputDigest": "17d4145f9b64108ab5fa5b78ba954ea7488b022874f6fe421be3161c415e4415",
+   "outputDigest": "66dd8501ab780657f840a4bcc4ad8fa65549bfc28837010773731a9d0ac9588e",
+   "rowCount": 37613,
+   "files": 6,
+   "bytes": 29618827,
+   "stateDigest": "05b7a28d88dfb638da3d914360d39965b8c9dc28c7998f71a7dc8fde18c2c6d7"
+  },
+  "property/us-county-36055": {
+   "current": "gen-muni8ixt-l5eiti",
+   "inputDigest": "e7933b99723ec5ba36756612172568fd85398f77f4badccbb81f719529b30daf",
+   "outputDigest": "83b423d568ab3d45fe30b3af0707ecb87101369eb585e1e9693ebed31f5ba89a",
+   "rowCount": 267412,
+   "files": 6,
+   "bytes": 203820719,
+   "stateDigest": "507797f61821006e6633b4affcc8228fbdea75f301b584f360eadf86484e5bb1"
+  },
+  "property/us-county-36057": {
+   "current": "gen-muni8phm-u36kue",
+   "inputDigest": "cd9a03c033606061cc512f3fa173f29d201080b20531a9f3fac47a5aadf3642e",
+   "outputDigest": "967f35f78f28f9f5733eae91d668f3093268ad7218337808338b82caa3d743c8",
+   "rowCount": 25260,
+   "files": 6,
+   "bytes": 20074401,
+   "stateDigest": "f389fab04f4920c9064921fd5576599650a7ced20307accba3b558182c37f853"
+  },
+  "property/us-county-36059": {
+   "current": "gen-muni8r3q-zw35ff",
+   "inputDigest": "ff0a97dfbfe58479ac4f82a1ffd5c79a71f3e8c35984f85e90c7ff3a371a4503",
+   "outputDigest": "f5a1f58b5f466f2467d1b6da9bf37c43ccd26348872a891430866272ee8ca2f3",
+   "rowCount": 423420,
+   "files": 6,
+   "bytes": 336393342,
+   "stateDigest": "f8ce3a59e978e83ec681afcca34f0bafb37863a6d60849db9eb281ec5b55f91d"
+  },
+  "property/us-county-36061": {
+   "current": "gen-muni925h-ps4v05",
+   "inputDigest": "63b3c26c297052fe540f8732c178924115c67b83ad5e8d21422707b0148f29e5",
+   "outputDigest": "9fd6f3c3ee52aab0c2acc2702f7844791cc201cc8d1d64a016d7255aa98e9051",
+   "rowCount": 42061,
+   "files": 6,
+   "bytes": 30729303,
+   "stateDigest": "96c925042d89d38b274659833f607251082ab4668c4542e7ffe9c331bc707dad"
+  },
+  "property/us-county-36063": {
+   "current": "gen-muni935x-kzoed9",
+   "inputDigest": "6614089d30943437005796b7d63576bf2b3ba8451c380fd3b7aea548dfd7ffeb",
+   "outputDigest": "fca14b2be6bfe59a8f915db967229b48b531694640592f8efbb92666a17a9840",
+   "rowCount": 93632,
+   "files": 6,
+   "bytes": 71506308,
+   "stateDigest": "67c0a566e6c13c7ba9242a3044a4466a02aabf0e55c660b056493aa2f3b5120a"
+  },
+  "property/us-county-36065": {
+   "current": "gen-muni95od-858lno",
+   "inputDigest": "6eb7a8bf41a55aa8296d58c9793d346ee56ac56c0c9608f969b867fac688a7a2",
+   "outputDigest": "949f4a00ce287927b1a753e0175bd3c2bdeef8286ea3894ff98a53ecc0c87375",
+   "rowCount": 103262,
+   "files": 6,
+   "bytes": 81140715,
+   "stateDigest": "c0d06efc5eb422003a0af7622f5b0846efd6f5c0585d846dbf992ae1262a16ed"
+  },
+  "property/us-county-36067": {
+   "current": "gen-muni98pi-6r1ksb",
+   "inputDigest": "93d6c59496cf44f2f89743d3c82a3907c19f088452b64285b9b563be62d390cd",
+   "outputDigest": "b13a6b347f089790e865b70d8604aa0517301c3b84eec06e3e0b2e7e87a25c79",
+   "rowCount": 181909,
+   "files": 6,
+   "bytes": 140193754,
+   "stateDigest": "21b9ee482f0f478c4e874819b7f27044b1acd3ee7367adeef9f73e3293351dea"
+  },
+  "property/us-county-36069": {
+   "current": "gen-muni9dct-jjs0fn",
+   "inputDigest": "6b00ecd198cc678f221b66d8dd2b3e29619b665042500fc88ba2d0b6e643a9fa",
+   "outputDigest": "c1bd3b7cb6bd38471024485e15c53e1aaaa0c4ef977964cc03d90dd85dc080b4",
+   "rowCount": 51315,
+   "files": 6,
+   "bytes": 39740820,
+   "stateDigest": "4ff542d19f12606eb97d8766d658d617ea719adc7ca3f74e8015ffaefc833e32"
+  },
+  "property/us-county-36071": {
+   "current": "gen-muni9ezb-jvc2v9",
+   "inputDigest": "8db924c7414d09f9235093f463a73c60cf8a1ba0cd3d5a8558a8eef52445afba",
+   "outputDigest": "1324ba92e448d1d9cedbb32b37231c4d60ed74c67d9c5f3bc4ac83e2032bc6b5",
+   "rowCount": 144218,
+   "files": 6,
+   "bytes": 112986000,
+   "stateDigest": "6ca18a174068f7b3b1f5a0798b09aa10a0a2c00392b7a12894b95e4c896cb737"
+  },
+  "property/us-county-36073": {
+   "current": "gen-muni9ipx-673oci",
+   "inputDigest": "3df9a6f519049307d6921d8cb04e39032505299eea159a784b12c0ba6512573a",
+   "outputDigest": "ed20dd69aacf499bacd960ce05bad7b3198565985b05e93c22c39b8890ce331a",
+   "rowCount": 20530,
+   "files": 6,
+   "bytes": 16055069,
+   "stateDigest": "f54f6e360fb41f39c107eb09c07b4592bdd99892e470681cf2bbfb229ff279cd"
+  },
+  "property/us-county-36075": {
+   "current": "gen-muni9j9s-9cyxqj",
+   "inputDigest": "da245fcd36e760af23fe5b2767f4463788e1e90ccd6c4db5c012d08758f3ed51",
+   "outputDigest": "ed5287f195935aac8802e2c1123d8b79ef25e76b5c2671b95c26a0374b8e7b12",
+   "rowCount": 59567,
+   "files": 6,
+   "bytes": 46214098,
+   "stateDigest": "1d4140c74d65a972bfa924eb177d0398e092499e808e9a69c3ae3075e69c22c5"
+  },
+  "property/us-county-36077": {
+   "current": "gen-muni9kw8-2sziwv",
+   "inputDigest": "674aede46431754438c380bc87d8802a0f4102735074bf20eb119282e4de7b4f",
+   "outputDigest": "f29bf7b63da1ebc6b97e23b613d509440aa868f65e451858004e089b915d8dac",
+   "rowCount": 39638,
+   "files": 6,
+   "bytes": 31701111,
+   "stateDigest": "41d0cc8577202d707a74b4eea247ebe307288fd09c3d09bc8022d32b251b02a2"
+  },
+  "property/us-county-36079": {
+   "current": "gen-muni9lsw-ssl74u",
+   "inputDigest": "5b320a29add632f0363edc368c2f0f8aa043195c4797ce1d73057066a7c27d9e",
+   "outputDigest": "910a2c0e6e32025cd384a67207b8f6fd6c64c38df984cea80413c9df5a8f9dcf",
+   "rowCount": 42291,
+   "files": 6,
+   "bytes": 32660996,
+   "stateDigest": "4ca9d21d94c6c301daf754a4dab4b5bd14ce20dbbb6ab694f76f3088a78f2a60"
+  },
+  "property/us-county-36081": {
+   "current": "gen-muni9ngj-0abbul",
+   "inputDigest": "400ac05567ec4d6609042fadde9b224adf87bc4f97f67210d7818af5d80a17b5",
+   "outputDigest": "538a7462066999ee0e72414889dbabbfa233f3aa3eeff89ec76d952ed2936750",
+   "rowCount": 324164,
+   "files": 6,
+   "bytes": 236887970,
+   "stateDigest": "4e2da3b4e32a24a0356fa91ea87d92b755aea5067b8b969e73f2ab6ebb3788c1"
+  },
+  "property/us-county-36083": {
+   "current": "gen-muni9vek-hq4n3x",
+   "inputDigest": "64ecb81e7ab441e74329d6444d628268c0e0f70419eed28150580dce02d4d31c",
+   "outputDigest": "569377c10238773112c5ef6a92c331dbce905eae7abcf7bfe7de96c17e27188f",
+   "rowCount": 64326,
+   "files": 6,
+   "bytes": 49985720,
+   "stateDigest": "965b6c3fe1e708ddf088cfb1621024db99358e60d1cd62712c72e28b6eac6a18"
+  },
+  "property/us-county-36085": {
+   "current": "gen-muni9xb3-3wx32e",
+   "inputDigest": "f97336630621da1b129cf7514fb1aa37f3084d7fea3de731334dc01350978b61",
+   "outputDigest": "09a2c74461e0cd72d7e55ba962b5aa347937c4936881f157cf2b98050a2ee418",
+   "rowCount": 125536,
+   "files": 6,
+   "bytes": 92362365,
+   "stateDigest": "bec50cc88fbb6461ed3d651ada3a646e04822fa8db319d197969fe467ad8f2db"
+  },
+  "property/us-county-36087": {
+   "current": "gen-munia0eh-nmb3gy",
+   "inputDigest": "d62aceda652e2affc7c8b38e4ff8691b2ef250d90b4085e227e44569bc9df069",
+   "outputDigest": "f6e0dc9dc7098aa21108d595fc61e040f417e7a9ae86fd61ce54eb80c4e088fb",
+   "rowCount": 92594,
+   "files": 6,
+   "bytes": 71806277,
+   "stateDigest": "e76652b67bdd2eb25a6970223c49127ab2b775a3fbc91d4c7c7c60427801dc83"
+  },
+  "property/us-county-36089": {
+   "current": "gen-munia2t0-s4cyhp",
+   "inputDigest": "0976be6b950ca10f48e9685ce14461bd98e2ff23d16644b74232cbf7e8d1cb66",
+   "outputDigest": "4a4ac59adfabe606f9bdb38a0f1ed150f4e6cefc514b712d495e5322a9aa2307",
+   "rowCount": 67355,
+   "files": 6,
+   "bytes": 53386183,
+   "stateDigest": "ef8724bb12e9ac1e273924d17e05f696e0e14baa8c34aa8e3900db47a315343d"
+  },
+  "property/us-county-36091": {
+   "current": "gen-munia4o5-e40x75",
+   "inputDigest": "25cb5de0446893cb48f9ecfc6411b5d2b3b4ba17b30c26d64335c97177b79f12",
+   "outputDigest": "c9c14523312af70c029b9ef9f7e243d15ef9b5b1151724ab76af8bd156b522fa",
+   "rowCount": 102098,
+   "files": 6,
+   "bytes": 79646954,
+   "stateDigest": "c8b0e081d8cd8ee773628740c2968cf0f4190e1d6b4c16fff2de7baca9ef8154"
+  },
+  "property/us-county-36093": {
+   "current": "gen-munia7a8-5ylesb",
+   "inputDigest": "c32392470180d3c952a554f87ca2f93b4411d62f85333c98ea24f07cc0696819",
+   "outputDigest": "3d37f093cc821d5c6ccc7cebd1eb3ca36515c233265a6916b510860a7363cd25",
+   "rowCount": 58312,
+   "files": 6,
+   "bytes": 44719153,
+   "stateDigest": "bb8a94209b4eb6a75e5cb4766705bf5f88c2b4281c7071cf3dfe7623de1595a8"
+  },
+  "property/us-county-36095": {
+   "current": "gen-munia8p3-uyunbn",
+   "inputDigest": "ee827dfd5ea6fc01356dec86d476e9416b5a29b72dce95cffe0980ef78a429d0",
+   "outputDigest": "cfc3b402bc135f3eb393d468ce0497631dd37dff4f73d5a46c9ba1f16f28a9d6",
+   "rowCount": 23025,
+   "files": 6,
+   "bytes": 18348433,
+   "stateDigest": "e4e8e5f80299d322479a88a0c69cdfa09e8dbbe6915e18edcb9e8bfff062a880"
+  },
+  "property/us-county-36097": {
+   "current": "gen-munia96o-mmzkyj",
+   "inputDigest": "b753fac4cde614f8d44669fe2da32a4abd9161866ca20f792be311cb837c2355",
+   "outputDigest": "a357d16fa6d1e8a4d437363cbc761a6b1b23ee83b4b6c07c6ff77d494f2f75c1",
+   "rowCount": 13264,
+   "files": 6,
+   "bytes": 10495364,
+   "stateDigest": "ed04f3477e81b727b97031088b43019fdba976398aa3f7170480efef03a7f034"
+  },
+  "property/us-county-36099": {
+   "current": "gen-munia9gx-bgltjx",
+   "inputDigest": "9e6a797f47883886aeb93b556f7de79b1eb16835d88ab3a678d583cc48a3d361",
+   "outputDigest": "ab93328005c257c5909ffc585e895c4e8f988c4eb017a1ad3ec5fbcfe9fc79d3",
+   "rowCount": 17730,
+   "files": 6,
+   "bytes": 13862849,
+   "stateDigest": "f4252652e26acc34c899350271cc4ff69591f65b52fc939800fb2a1550029244"
+  },
+  "property/us-county-36101": {
+   "current": "gen-munia9xj-f4e12j",
+   "inputDigest": "dd9bbb3c1d2eb0367cb1e35c7c912047aac8fbb86c4f1cdfde75c3aeb221558d",
+   "outputDigest": "aab5f911792e5be6fc713a8ae79fdcc4d5c07fa872d4d32d51a92e01b15101ae",
+   "rowCount": 55242,
+   "files": 6,
+   "bytes": 43792841,
+   "stateDigest": "24bce938414b5e34a5f323648a3169405718716f48d3d07ff3ae156f87008fdb"
+  },
+  "property/us-county-36103": {
+   "current": "gen-muniacq1-3g9hv7",
+   "inputDigest": "386a573e9f291393ad456925cd7509b51b90e1d086b943f508fe97ddf2f5c2c0",
+   "outputDigest": "eb59a96b5d22c0a3dd4f38425adf026a6568a5d68284056e2eece78089037483",
+   "rowCount": 586595,
+   "files": 6,
+   "bytes": 465899245,
+   "stateDigest": "bbb19269a2611e52499af624b90a115d35acc0522142eda254bea0da17ba0d19"
+  },
+  "property/us-county-36105": {
+   "current": "gen-muniarin-flbbb8",
+   "inputDigest": "c84d67c361ff5585cfe3a4a2f93f566c2b03531b57ebd3fcb50b5758b66f5749",
+   "outputDigest": "2c2d2112456580a8b9a990d8bd557c3577dccc08dcee27ef08ad3ecc1f81fe30",
+   "rowCount": 67312,
+   "files": 6,
+   "bytes": 53746990,
+   "stateDigest": "06dbd8a4351a5e381b51a0fcd8df6ab68263c4157afc95e5950ad02ad5c27277"
+  },
+  "property/us-county-36107": {
+   "current": "gen-muniatai-gqcanr",
+   "inputDigest": "4c04abad8cac0f7f5471ca3fc373e2a0a3eba6fbc76c916929ec82c790d360cd",
+   "outputDigest": "69c000b65de2aa0b419666d5d19b109f377c39a754d70125c5382322cf3dc086",
+   "rowCount": 26133,
+   "files": 6,
+   "bytes": 20621284,
+   "stateDigest": "7502b48bef861ecb24e8f62605c75d747338325be4e7cbd28fc8b0920a3c9e21"
+  },
+  "property/us-county-36109": {
+   "current": "gen-muniatwj-zoe37l",
+   "inputDigest": "47ce60b8a96e28ae867c96807cbe5caac409887dd4efd16cfe44a51e92994560",
+   "outputDigest": "e3342f58fde810cc5e4c5ebfa926a6a2ac906b32754329596da6e4bd6729104d",
+   "rowCount": 35368,
+   "files": 6,
+   "bytes": 27570818,
+   "stateDigest": "0e07b4045aadcbaed00eff6cba3496d836165b8a6121bdd07c8a65be0d4aae7d"
+  },
+  "property/us-county-36111": {
+   "current": "gen-muniausm-8mdr1b",
+   "inputDigest": "4ea6a20f9a695fe81d5cb26ef79748d38a71dcbe9a68e7cb91dd7ea0462d6ad3",
+   "outputDigest": "9e8e1729efbacaa90312c8dc8f98c2fc2104348e58357e0228c34f029ea5cb59",
+   "rowCount": 88257,
+   "files": 6,
+   "bytes": 68865542,
+   "stateDigest": "7e33d6a548090590589a9a3eb2af265d48d99c6603495c06c2ae2795d8e3cd48"
+  },
+  "property/us-county-36113": {
+   "current": "gen-muniax2t-ojwdwo",
+   "inputDigest": "e4a828aea5f503098a4fe8bd9a25eed59ff42b17e108d9aeff96cd1748fbc576",
+   "outputDigest": "4e5c3915fb2def2c76162cee0ee836142177c6e29eb0a89e5415a5c255207657",
+   "rowCount": 45869,
+   "files": 6,
+   "bytes": 35999417,
+   "stateDigest": "e5bb92c82fc1d1aacb60c8e0f5de52a641e4b62cb76258cae9ae60a93ad5c5b2"
+  },
+  "property/us-county-36115": {
+   "current": "gen-muniay1a-28sem3",
+   "inputDigest": "890d2900e35bafff5c412bb494e453f5125c08d9b99ee5d5c4286d88854b5e7a",
+   "outputDigest": "d6eaf29605c09ea91b95b28a0aef9636141acce4cad4a46e097ab0c2acadcf1e",
+   "rowCount": 35413,
+   "files": 6,
+   "bytes": 28004382,
+   "stateDigest": "5266459645e3f6b7d23d54f7c1f5cbdd73b89d135c78800a4d56c3556829b3b8"
+  },
+  "property/us-county-36117": {
+   "current": "gen-muniaytb-sgqj65",
+   "inputDigest": "6383ce2d48eb4f1355b43950ed24c4229f486a59e13c810ae092e100390e1edb",
+   "outputDigest": "e1cb7d9faef3d7abce20b845627f48766e24e0291aa849e41cd6c553a66975c8",
+   "rowCount": 43890,
+   "files": 6,
+   "bytes": 33896944,
+   "stateDigest": "98184ae8139b68cc51a5c12b4ed7e140b9396900819c2002367da551fb0f7c88"
+  },
+  "property/us-county-36119": {
+   "current": "gen-munib0at-igi1kq",
+   "inputDigest": "718d00b9d521a72b7867b9da08d1c5428a7375ef6cec219c3ad54d9dddc313ea",
+   "outputDigest": "c155f25f77b992a029203cc996608e5b34a09af6b8ccfb2a875373b4651ffdbb",
+   "rowCount": 257375,
+   "files": 6,
+   "bytes": 203665651,
+   "stateDigest": "232de08859305b1d2d282283af388f21578f06cc367ed1a56cf11597d2ddfcaf"
+  },
+  "property/us-county-36121": {
+   "current": "gen-munib6jj-dtxmft",
+   "inputDigest": "d0542e246e0f4863af2bba87a8d4a2f6bb68a77a351e950e986a81ffcb5a02a7",
+   "outputDigest": "31d96d6cb5fc19e12cf61a51a0fa0579ff2d2ca5e331ab74e3469538239147ff",
+   "rowCount": 23520,
+   "files": 6,
+   "bytes": 18681717,
+   "stateDigest": "9c7568870b045f0b808216624a8cf8ca9dd09387860033bd4f6c87e09ed2646e"
+  },
+  "property/us-county-36123": {
+   "current": "gen-munib71c-mjdj6r",
+   "inputDigest": "865a1be849819bf7ff5874f4880d5c7049463bee3b56245c5ae0ea3a2e3a14df",
+   "outputDigest": "e2896edb15fe4c17ceb72cea7da824d252cf867da09cc637d6100cebddf8a0fd",
+   "rowCount": 15902,
+   "files": 6,
+   "bytes": 12433323,
+   "stateDigest": "58ff3bdf8102670f748f3c04106921e4f2e5d72ac2b5f0a7fa675a265ad24375"
+  }
+ },
+ "organization": {
+  "0-baseline": {
+   "organization/us": {
+    "current": "gen-munda4m2-bzp00t",
+    "inputDigest": "f54bc4deaae3685d92cf0f280cac25540b1ae62d0cb95464a2ddf02a9e6f4c76",
+    "outputDigest": "9234d573e76d8e70422e1169cfcfe8035bfb1693821b813d24730d5160cc3b41",
+    "rowCount": 1385779,
+    "files": 9,
+    "bytes": 789356600,
+    "stateDigest": "4692b9be39e26fadc258048ce540e965d624bbd7973f24bc6cde1b53d531f9bc"
+   }
+  },
+  "0b-before-ny": {
+   "organization/us": {
+    "current": "gen-munda4m2-bzp00t",
+    "inputDigest": "f54bc4deaae3685d92cf0f280cac25540b1ae62d0cb95464a2ddf02a9e6f4c76",
+    "outputDigest": "9234d573e76d8e70422e1169cfcfe8035bfb1693821b813d24730d5160cc3b41",
+    "rowCount": 1385779,
+    "files": 9,
+    "bytes": 789356600,
+    "stateDigest": "4692b9be39e26fadc258048ce540e965d624bbd7973f24bc6cde1b53d531f9bc"
+   }
+  },
+  "1-after-ny": {
+   "organization/us": {
+    "current": "gen-munhgvf1-n360t4",
+    "inputDigest": "60fce1529a0c0e8b68a90ea0ec4275c1c7aad4c58c11d8a860b4babc6d6df13c",
+    "outputDigest": "4b267ffa0ad5b3de4ea090eca151a874072284b94e1c1180cdff64cecf45d0a6",
+    "rowCount": 831085,
+    "files": 13,
+    "bytes": 1127074369,
+    "stateDigest": "0c46761f3c2675f63a78fd3cb6b161100f4bf39b5ce42838d7ffaf2d5cbd0530"
+   }
+  }
+ },
+ "globalDigest": {
+  "reportedByRun": "5c46d1e308c36aa03dd2bb5ad61f40a75ff97939e577cb83dc9da7a9488caf52",
+  "recomputedFromChildDigests": "5c46d1e308c36aa03dd2bb5ad61f40a75ff97939e577cb83dc9da7a9488caf52",
+  "equal": true,
+  "beforeNy": "32c5ba058ca59339287892dccd5856f4f6ff419d8c2a935fb12be61e7688195d",
+  "rule": "sha256 of the sorted lines `partitionId<TAB>outputDigest` over every partition's manifest: extended by child digests, never refolded"
+ }
+}

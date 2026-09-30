@@ -1,0 +1,240 @@
+{
+ "rows": 5510061,
+ "acceptedByParser": 5503436,
+ "quarantineReasons": {
+  "no_sbl": 6606,
+  "non_parcel_label": 19
+ },
+ "lineage": {
+  "orpts_assessment_roll": 4646766,
+  "nyc_mappluto": 856670
+ },
+ "rollYears": {
+  "2025": 5510061
+ },
+ "countiesWithSeveralSpatialYears": [
+  {
+   "fips": "36119",
+   "years": {
+    "2024": 31992,
+    "2025": 226153
+   }
+  }
+ ],
+ "ownerType": {
+  "1": 2607,
+  "2": 35892,
+  "3": 23459,
+  "4": 36765,
+  "5": 36364,
+  "6": 12807,
+  "7": 664,
+  "8": 5326341,
+  "9": 6678,
+  "10": 2764,
+  "11": 1185,
+  "-999": 24530,
+  "(null)": 5
+ },
+ "flags": {
+  "duplicateGeometry": 101842,
+  "swisSblIdMismatch": 2,
+  "swisPrintKeyIdMismatch": 46,
+  "landExceedsTotal": 343,
+  "invalidMoney": 0,
+  "noRollRecord": 13954
+ },
+ "counties": 62,
+ "smallestCounty": {
+  "fips": "36041",
+  "rows": 12947
+ },
+ "largestCounty": {
+  "fips": "36103",
+  "rows": 586600
+ },
+ "quality": {
+  "parcel_identity": {
+   "statewide": 99.88,
+   "min": {
+    "fips": "36065",
+    "rate": 98.3
+   },
+   "median": 99.98,
+   "max": {
+    "fips": "36123",
+    "rate": 100
+   },
+   "countiesBelow50": 0
+  },
+  "situs_address": {
+   "statewide": 99.66,
+   "min": {
+    "fips": "36041",
+    "rate": 88.83
+   },
+   "median": 99.94,
+   "max": {
+    "fips": "36107",
+    "rate": 100
+   },
+   "countiesBelow50": 0
+  },
+  "situs_zip": {
+   "statewide": 56.81,
+   "min": {
+    "fips": "36059",
+    "rate": 0
+   },
+   "median": 42.15,
+   "max": {
+    "fips": "36047",
+    "rate": 99.97
+   },
+   "countiesBelow50": 32
+  },
+  "owner": {
+   "statewide": 99.63,
+   "min": {
+    "fips": "36087",
+    "rate": 98.04
+   },
+   "median": 99.93,
+   "max": {
+    "fips": "36107",
+    "rate": 100
+   },
+   "countiesBelow50": 0
+  },
+  "mailing": {
+   "statewide": 83.85,
+   "min": {
+    "fips": "36005",
+    "rate": 0
+   },
+   "median": 99.46,
+   "max": {
+    "fips": "36109",
+    "rate": 99.97
+   },
+   "countiesBelow50": 5
+  },
+  "assessment": {
+   "statewide": 99.62,
+   "min": {
+    "fips": "36087",
+    "rate": 98.05
+   },
+   "median": 99.92,
+   "max": {
+    "fips": "36107",
+    "rate": 100
+   },
+   "countiesBelow50": 0
+  },
+  "full_market_value": {
+   "statewide": 84.08,
+   "min": {
+    "fips": "36005",
+    "rate": 0
+   },
+   "median": 99.85,
+   "max": {
+    "fips": "36107",
+    "rate": 100
+   },
+   "countiesBelow50": 5
+  },
+  "land_use_class": {
+   "statewide": 99.58,
+   "min": {
+    "fips": "36087",
+    "rate": 98.05
+   },
+   "median": 99.85,
+   "max": {
+    "fips": "36107",
+    "rate": 100
+   },
+   "countiesBelow50": 0
+  },
+  "roll_section": {
+   "statewide": 84.08,
+   "min": {
+    "fips": "36005",
+    "rate": 0
+   },
+   "median": 99.85,
+   "max": {
+    "fips": "36107",
+    "rate": 100
+   },
+   "countiesBelow50": 5
+  },
+  "parcel_area": {
+   "statewide": 69.63,
+   "min": {
+    "fips": "36059",
+    "rate": 0
+   },
+   "median": 77.34,
+   "max": {
+    "fips": "36085",
+    "rate": 99.98
+   },
+   "countiesBelow50": 6
+  },
+  "year_built": {
+   "statewide": 65.31,
+   "min": {
+    "fips": "36059",
+    "rate": 0
+   },
+   "median": 69.82,
+   "max": {
+    "fips": "36081",
+    "rate": 96.43
+   },
+   "countiesBelow50": 4
+  },
+  "living_area": {
+   "statewide": 61.03,
+   "min": {
+    "fips": "36059",
+    "rate": 0
+   },
+   "median": 64.84,
+   "max": {
+    "fips": "36081",
+    "rate": 91.33
+   },
+   "countiesBelow50": 5
+  },
+  "print_key": {
+   "statewide": 84.24,
+   "min": {
+    "fips": "36005",
+    "rate": 0
+   },
+   "median": 99.98,
+   "max": {
+    "fips": "36123",
+    "rate": 100
+   },
+   "countiesBelow50": 5
+  },
+  "orpts_parcel_id": {
+   "statewide": 84.08,
+   "min": {
+    "fips": "36005",
+    "rate": 0
+   },
+   "median": 99.85,
+   "max": {
+    "fips": "36107",
+    "rate": 100
+   },
+   "countiesBelow50": 5
+  }
+ }
+}

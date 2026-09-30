@@ -1,0 +1,189 @@
+{
+ "census": {
+  "0-baseline": {
+   "mnPartitions": 59,
+   "wiPartitions": 72,
+   "nyPartitions": 0,
+   "otherPartitions": [
+    "organization/us"
+   ],
+   "indexes": [
+    "index/mn_statewide_parcels",
+    "index/wi_statewide_parcels"
+   ],
+   "globalDigestRecomputed": "32c5ba058ca59339287892dccd5856f4f6ff419d8c2a935fb12be61e7688195d"
+  },
+  "0b-before-ny": {
+   "mnPartitions": 59,
+   "wiPartitions": 72,
+   "nyPartitions": 0,
+   "otherPartitions": [
+    "organization/us"
+   ],
+   "indexes": [
+    "index/mn_statewide_parcels",
+    "index/wi_statewide_parcels"
+   ],
+   "globalDigestRecomputed": "32c5ba058ca59339287892dccd5856f4f6ff419d8c2a935fb12be61e7688195d"
+  },
+  "1-after-ny": {
+   "mnPartitions": 59,
+   "wiPartitions": 72,
+   "nyPartitions": 62,
+   "otherPartitions": [
+    "organization/us"
+   ],
+   "indexes": [
+    "index/mn_statewide_parcels",
+    "index/ny_statewide_parcels",
+    "index/wi_statewide_parcels"
+   ],
+   "globalDigestRecomputed": "5c46d1e308c36aa03dd2bb5ad61f40a75ff97939e577cb83dc9da7a9488caf52"
+  }
+ },
+ "releasedBeforeNy": {
+  "<var>/archive/data-fabric/mn_statewide_parcels": 2526488707,
+  "<var>/archive/data-fabric/wi_statewide_parcels/V12.0.0-2026/sha256-5a95ac0d6837b71c335ca28c24a0ec4466a32ff90c88596aa5959bec280fc4bf": 2724192226,
+  "<var>/archive/data-fabric/wi_statewide_parcels/V12.0.0-2026/sha256-b22bfaad251676f7fad76b57649060dd5d2280c4b5c3efa4bb82d8c35957e7df": 759928323,
+  "<var>/derived/runs/run_2f3677c191fc3637301401a0728877fe": 4301447222,
+  "<var>/derived/runs/run_4f6a6f9b929f9aa126404437bc9af45f": 3645797755,
+  "<var>/restricted/runs/run_2f3677c191fc3637301401a0728877fe": 377068159,
+  "<var>/restricted/runs/run_4f6a6f9b929f9aa126404437bc9af45f": 539745562
+ },
+ "organizationGenerationsBeforeNy": [
+  "gen-munb7dc4-hv7zys",
+  "gen-munda4m2-bzp00t"
+ ],
+ "sweptNyOrganizationGenerations": {},
+ "releasedPolygonsBeforeReplay": {},
+ "diffs": {
+  "0-baseline-to-0b-before-ny": {
+   "partitions": {
+    "added": 0,
+    "removed": 0,
+    "changed": [],
+    "unchangedCount": 132,
+    "addedIds": [],
+    "removedIds": [],
+    "minnesotaTouched": [],
+    "wisconsinTouched": []
+   },
+   "indexes": {
+    "added": 0,
+    "removed": 0,
+    "changed": [],
+    "unchangedCount": 2,
+    "addedIds": [],
+    "removedIds": [],
+    "minnesotaTouched": [],
+    "wisconsinTouched": []
+   }
+  },
+  "0b-before-ny-to-1-after-ny": {
+   "partitions": {
+    "added": 62,
+    "removed": 0,
+    "changed": [
+     "organization/us"
+    ],
+    "unchangedCount": 131,
+    "addedIds": [
+     "property/us-county-36001",
+     "property/us-county-36003",
+     "property/us-county-36005",
+     "property/us-county-36007",
+     "property/us-county-36009",
+     "property/us-county-36011",
+     "property/us-county-36013",
+     "property/us-county-36015",
+     "property/us-county-36017",
+     "property/us-county-36019",
+     "property/us-county-36021",
+     "property/us-county-36023",
+     "property/us-county-36025",
+     "property/us-county-36027",
+     "property/us-county-36029",
+     "property/us-county-36031",
+     "property/us-county-36033",
+     "property/us-county-36035",
+     "property/us-county-36037",
+     "property/us-county-36039",
+     "property/us-county-36041",
+     "property/us-county-36043",
+     "property/us-county-36045",
+     "property/us-county-36047",
+     "property/us-county-36049",
+     "property/us-county-36051",
+     "property/us-county-36053",
+     "property/us-county-36055",
+     "property/us-county-36057",
+     "property/us-county-36059",
+     "property/us-county-36061",
+     "property/us-county-36063",
+     "property/us-county-36065",
+     "property/us-county-36067",
+     "property/us-county-36069",
+     "property/us-county-36071",
+     "property/us-county-36073",
+     "property/us-county-36075",
+     "property/us-county-36077",
+     "property/us-county-36079",
+     "property/us-county-36081",
+     "property/us-county-36083",
+     "property/us-county-36085",
+     "property/us-county-36087",
+     "property/us-county-36089",
+     "property/us-county-36091",
+     "property/us-county-36093",
+     "property/us-county-36095",
+     "property/us-county-36097",
+     "property/us-county-36099",
+     "property/us-county-36101",
+     "property/us-county-36103",
+     "property/us-county-36105",
+     "property/us-county-36107",
+     "property/us-county-36109",
+     "property/us-county-36111",
+     "property/us-county-36113",
+     "property/us-county-36115",
+     "property/us-county-36117",
+     "property/us-county-36119",
+     "property/us-county-36121",
+     "property/us-county-36123"
+    ],
+    "removedIds": [],
+    "minnesotaTouched": [],
+    "wisconsinTouched": []
+   },
+   "indexes": {
+    "added": 1,
+    "removed": 0,
+    "changed": [],
+    "unchangedCount": 2,
+    "addedIds": [
+     "index/ny_statewide_parcels"
+    ],
+    "removedIds": [],
+    "minnesotaTouched": [],
+    "wisconsinTouched": []
+   }
+  }
+ },
+ "minnesotaWisconsinPartitionsByteIdentical": {
+  "partitions": 131,
+  "sameStateDigest": 131,
+  "sameOutputDigest": 131,
+  "sameGeneration": 131,
+  "sameRowCount": 131
+ },
+ "indexesBeforeAfter": {
+  "index/mn_statewide_parcels": {
+   "before": "0d9c3d1146921f72796e7ea4ec3971d5d0cc19e61f378672e836b9bbd44606c2",
+   "after": "0d9c3d1146921f72796e7ea4ec3971d5d0cc19e61f378672e836b9bbd44606c2"
+  },
+  "index/wi_statewide_parcels": {
+   "before": "67cb91100defd2a90d6230e5c362dacd5e26fcc24193284c94d21923c7ff4a80",
+   "after": "67cb91100defd2a90d6230e5c362dacd5e26fcc24193284c94d21923c7ff4a80"
+  }
+ }
+}
