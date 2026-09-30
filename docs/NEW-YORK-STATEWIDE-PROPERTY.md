@@ -448,3 +448,11 @@ resolution touched either connector.
    national totals, which is the one conflict class every new state creates.
 5. **`df.filegdb.snapshot/1`** is declared by both Wisconsin and New York; it
    belongs in a shared module.
+6. **Restricted run directories inherit the process umask.** The restricted row
+   files are `0600`, as documented; the run and generation directories holding
+   them are created without a mode, so under the usual `022` umask they are
+   `0755` — a listing of run ids, generation ids and table names, never the
+   content, is readable by other local users. `mode: 0o700` on those `mkdir`
+   calls is a one-line change in `src/runtime/staged-store.ts`. Not made here:
+   it is shared runtime, it is not a documented guarantee, and nothing New York
+   does depends on it. The live leak audit (§13) reports the directory modes.
