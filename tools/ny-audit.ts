@@ -9,6 +9,9 @@
  *                                                       owner's mailing-only string? Plus the key
  *                                                       names of every derived row, and the restricted
  *                                                       plane's file modes and row count
+ *   node tools/ny-audit.ts leak-paths <varRoot> <runId> <bundle.ndjson>
+ *                                                       every `leak` hit classified: whole string value
+ *                                                       or part of one, and at which key paths
  *   node tools/ny-audit.ts extract-ids <varRoot> <out>  one line per county_parcel observation in the
  *                                                       estate's run tables: parcel strings and
  *                                                       property ids only (no names, no addresses)
@@ -262,6 +265,61 @@ async function leak(varRoot: string, runId: string, bundlePath: string): Promise
   return result;
 }
 
+/**
+ * Every `leak` hit, classified. For each parcel whose derived row contains its
+ * own mailing-only line as a substring: is that line a WHOLE string value of
+ * the row, or only part of one; and at which key paths (array positions
+ * dropped) the containing strings sit. A mailing value that reached a
+ * canonical field would show as a whole-value hit at a non-address path.
+ * Counts only.
+ */
+async function leakPaths(varRoot: string, runId: string, bundlePath: string): Promise<unknown> {
+  const derived = createGenerationStore(varRoot).readRunTable(runId, 'bundles')[Symbol.asyncIterator]();
+  let next = await derived.next();
+  const norm = (v: unknown) => (typeof v === 'string' ? v.trim().toUpperCase().replace(/\s+/g, ' ') : '');
+  const result = {
+    runId, joined: 0, hits: 0, wholeValueHits: 0, substringOnlyHits: 0,
+    hitsByMailingField: {} as Record<string, number>,
+    containingPaths: {} as Record<string, number>,
+    wholeValuePaths: {} as Record<string, number>,
+  };
+  const leaves = (v: unknown, path: string, out: [string, string][]): void => {
+    if (Array.isArray(v)) { for (const x of v) leaves(x, `${path}[]`, out); return; }
+    if (v !== null && typeof v === 'object') { for (const [k, x] of Object.entries(v)) leaves(x, path === '' ? k : `${path}.${k}`, out); return; }
+    if (typeof v === 'string') out.push([path, norm(v)]);
+  };
+  let header = true;
+  for await (const line of readLines(bundlePath)) {
+    if (header) { header = false; continue; }
+    const a = JSON.parse(line) as Record<string, unknown>;
+    if (a['kind'] !== undefined) continue;
+    let id: string;
+    try { id = parseNyStatewideFeature(a, 'audit').sourceRecordId; } catch { continue; }
+    if (next.done) continue;
+    const bundle = JSON.parse(next.value) as { transaction: { sourceRecordId: string } };
+    if (bundle.transaction.sourceRecordId !== id) continue;
+    result.joined += 1;
+    const situs = new Set([norm(a['PARCEL_ADDR']), norm(`${String(a['LOC_ST_NBR'] ?? '')} ${String(a['LOC_STREET'] ?? '')}`)]);
+    let strings: [string, string][] | null = null;
+    for (const field of MAILING_LINES) {
+      const value = norm(a[field]);
+      if (value.length < 4 || situs.has(value)) continue;
+      strings ??= (() => { const out: [string, string][] = []; leaves(bundle, '', out); return out; })();
+      const containing = strings.filter(([, s]) => s.includes(value));
+      if (containing.length === 0) continue;
+      result.hits += 1;
+      result.hitsByMailingField[field] = (result.hitsByMailingField[field] ?? 0) + 1;
+      const whole = containing.filter(([, s]) => s === value);
+      if (whole.length > 0) result.wholeValueHits += 1; else result.substringOnlyHits += 1;
+      for (const [path] of new Map(containing)) result.containingPaths[path] = (result.containingPaths[path] ?? 0) + 1;
+      for (const [path] of new Map(whole)) result.wholeValuePaths[path] = (result.wholeValuePaths[path] ?? 0) + 1;
+    }
+    next = await derived.next();
+  }
+  const sorted = (o: Record<string, number>) => Object.fromEntries(Object.entries(o).sort(([, x], [, y]) => y - x));
+  return { ...result, containingPaths: sorted(result.containingPaths), wholeValuePaths: sorted(result.wholeValuePaths) };
+}
+
 /** State FIPS the estate holds statewide parcel sources for. */
 const STATES: Readonly<Record<string, string>> = { '27': 'MN', '55': 'WI', '36': 'NY' };
 
@@ -362,6 +420,7 @@ async function pidReuse(idFiles: readonly string[]): Promise<unknown> {
 const [command, arg, ...rest] = process.argv.slice(2);
 if (command === 'quality' && arg) process.stdout.write(`${JSON.stringify(await quality(arg), null, 1)}\n`);
 else if (command === 'leak' && arg && rest[0] && rest[1]) process.stdout.write(`${JSON.stringify(await leak(arg, rest[0], rest[1]), null, 1)}\n`);
+else if (command === 'leak-paths' && arg && rest[0] && rest[1]) process.stdout.write(`${JSON.stringify(await leakPaths(arg, rest[0], rest[1]), null, 1)}\n`);
 else if (command === 'extract-ids' && arg && rest[0]) process.stdout.write(`${JSON.stringify(await extractIds(arg, rest[0]))}\n`);
 else if (command === 'pid-reuse' && arg) process.stdout.write(`${JSON.stringify(await pidReuse([arg, ...rest]), null, 1)}\n`);
 else {
