@@ -1065,17 +1065,17 @@
    ]
   },
   "samples": {
-   "samples": 892,
+   "samples": 1334,
    "from": "2026-09-30T00:32:26Z",
-   "to": "2026-09-30T05:29:35Z",
+   "to": "2026-09-30T07:57:00Z",
    "intervalSeconds": 20,
-   "minFreeBytes": 5365874688,
-   "minFreeAt": "2026-09-30T05:28:35Z",
+   "minFreeBytes": 4418035712,
+   "minFreeAt": "2026-09-30T07:46:59Z",
    "peakRunScratchBytes": 1704958388,
    "peakRunScratchAt": "2026-09-30T03:41:31Z"
   }
  },
- "diskLine": "the derived plane and indexes grew by 4.60 GB for all three sources; the least free disk observed during the runs was 5.37 GB and a run's scratch peaked at 1.70 GB",
+ "diskLine": "the derived plane and indexes grew by 4.60 GB for all three sources; the least free disk observed during the runs was 4.42 GB and a run's scratch peaked at 1.70 GB",
  "sweeps": {
   "cad": {
    "abandonedGenerationsRemoved": 1
