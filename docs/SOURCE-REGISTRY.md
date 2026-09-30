@@ -260,3 +260,25 @@ The estate's first statewide **transfer** source.
 
 Deliberately not claimed: `deed`, `mortgage`, `foreclosure_notice`. See
 `docs/WISCONSIN-RETR.md` §13 for why each was refused.
+
+## `ny_statewide_parcels` (DF-0N)
+
+| | |
+|---|---|
+| Authority | NYS Office of Information Technology Services — Geospatial Services (Statewide Parcel Map Program); attributes from NYS DTF Office of Real Property Tax Services (ORPTS) rolls; NYC from DCP MapPLUTO |
+| Family | `state_parcel_aggregation` |
+| Cost / acquisition | `FREE_BULK` / `AUTOMATED_BULK_DOWNLOAD`, `sanctioned`, `reviewed_permitted`, `open_with_attribution` |
+| Role / verdict | `CORE_CANONICAL_SOURCE` / **`CORE_ELIGIBLE`** (gate: none) |
+| Mapping | `ny_statewide_parcels__all_ny_counties` — ONE mapping, 62 county-equivalents, `active` |
+| Capabilities | `parcel`, `assessor`, `ownership` — and deliberately not `tax`, `transfer`, `deed`, `mortgage`, `lien`, `foreclosure_notice` |
+| Cadence | annual (roll year 2025, build 2605) |
+| Restricted | both owners' mailing parts (`MAIL_*`, `PO_BOX`, `ADD_MAIL_*`: 10 fields) |
+| Parcel identity | authoritative; SWIS + SBL; `PUNCTUATION_PRESERVING` scheme |
+| Discovery | the program page `gis.ny.gov/parcels`, then the publisher's ArcGIS Online item; never a hard-coded service host (the 2026 GeoHub migration) |
+
+## `ny_statewide_parcel_polygons` (DF-0N)
+
+The public polygon product for the 38 counties that permit redistribution: the
+same substrate as the centroids there, with identical keys. `VALIDATION_ONLY`,
+**no mapping**, so no coverage; retained as raw geometry evidence under its own
+fingerprint and never ingested. See `NEW-YORK-STATEWIDE-PROPERTY.md` §3.

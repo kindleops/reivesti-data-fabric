@@ -328,3 +328,29 @@ replayed with the network off.
 price and no instrument field of any kind — not even the assessor's sale echo
 Minnesota's layer carries. Wisconsin transfer coverage waits on an automated
 RETR distribution, and the coverage report keeps saying so.
+
+## New York parcel coverage (DF-0N)
+
+DF-0N adds New York's **62** county-equivalents — the five NYC boroughs each
+their own — for **parcel, assessor and ownership**, from the NYS Tax Parcel
+Centroid Points: one File Geodatabase archive the program page links, discovered
+and retrieved with nobody present through the state's 2026 GeoHub service
+migration. See [NEW-YORK-STATEWIDE-PROPERTY.md](NEW-YORK-STATEWIDE-PROPERTY.md).
+
+| | DF-0K | DF-0N |
+|---|---:|---:|
+| Minnesota automated-core parcel jurisdictions | 59 | 59 |
+| Wisconsin automated-core parcel jurisdictions | 72 | 72 |
+| New York automated-core parcel jurisdictions | 0 | **62** |
+| **Total automated-core jurisdictions** | 131 | **193** |
+| National transfer coverage | 0 | **0** |
+
+The 193 is derived by `buildCoverage` from the registry, and the New York suite
+asserts it (`tests/ny-statewide-parcels.test.ts`).
+
+**Not tax, and not transfer.** The New York product states assessed and full
+market values but no tax amount of any kind, so `tax` is not claimed (Wisconsin
+claims it; New York does not). It has no sale date or price; `BOOK`/`PAGE` point
+at the last recorded deed and produce no transfer, sale, deed or mortgage fact.
+The public polygon product (38 counties) is registered `VALIDATION_ONLY` with no
+mapping, so it adds no coverage of any kind.

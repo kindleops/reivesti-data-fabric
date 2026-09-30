@@ -127,7 +127,7 @@ tests/          520 tests plus 47 real-PostgreSQL migration assertions
 | DF-0G projection partitioning | complete — one-county update: 143 ms, zero writes elsewhere |
 | DF-0H Minnesota statewide parcels | complete — 2,710,201 parcels, 59 county partitions |
 | DF-0N New York statewide property | implemented — 62 counties, unattended discovery through the GeoHub migration; statewide proof pending; parcel/assessor/ownership only (no tax, no transfer) |
-| National coverage | 3,222 active jurisdictions, **59** with a core-eligible source |
+| National coverage | 3,222 active jurisdictions, **193** with an automated-core parcel source (MN 59 + WI 72 + NY 62) |
 | Production DDL | **not applied**, and not ready to be |
 | Scheduled ingestion | not activated |
 

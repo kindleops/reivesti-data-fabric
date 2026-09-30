@@ -323,9 +323,17 @@ whose leading borough digit agrees with the county on all 856,670 NYC rows.
   `FULL_MARKET_VAL` rides beside it (`full_market_value_minor`), never in the
   same slot. `LAND_AV` → `landValue`. Building value is not stated and is not
   derived (total − land would be a derivation, not the roll).
-- **The roll year is the time axis.** `ROLL_YR` = 2025 on every row →
-  `assessmentYear`. Two roll years are two observations, never a conflict.
-  `SPATIAL_YR` (2025; Westchester partly 2024) is the geometry's vintage.
+- **The roll year is the time axis.** `ROLL_YR` ("tax year of assessment roll
+  attributes", per the data dictionary) = 2025 on every row → `assessmentYear`.
+  Two roll years are two observations, never a conflict. `SPATIAL_YR` (2025;
+  Westchester partly 2024) is the geometry's vintage.
+- **No status or valuation date is stated.** ORPTS: "In most towns, Taxable
+  Status Date is March 1 of the year in which the roll is filed" and "Valuation
+  Date is July 1 of the year prior to the roll", with the instruction to confirm
+  each municipality's own dates with its assessor
+  (`tax.ny.gov/pubs_and_bulls/orpts/tentasmtroll.htm`, read 2026-09-30). The
+  product carries neither date for any row, in either lineage, so none is
+  asserted: `assessmentYear` is the roll year and nothing more precise.
 - **No tax amount.** `netTax` is null; `tax` is not claimed. `ROLL_SECTION`
   (taxable / exempt / state land / utility) is a roll-status code.
 - **No sale.** `BOOK`/`PAGE` are kept raw (`last_deed_book_raw`,
@@ -407,7 +415,9 @@ than generalising Wisconsin's while Florida may be doing the same.
 | `tests/zero-cost-doctrine.test.ts`, `tests/automated-acquisition-gate.test.ts`, `tests/wi-statewide-parcels.test.ts` | national core parcel coverage `131` → `193` | certain (same literals) | **131 + 62 (NY) + Florida's count** |
 | `tests/mn-statewide-parcels.test.ts` | the "Minnesota's own 59" filter also excludes `ny_statewide_parcels` | likely | exclude both sources |
 | `reference/artifact-catalog.json` | NY entries appended | likely | keep both |
-| `README.md`, `tools/README.md` | one row each | possible | keep both |
+| `README.md` | layout, documentation and status rows; national coverage 59 → 193 | likely (same rows) | keep both rows; coverage = 193 + Florida's count |
+| `tools/README.md` | one row | possible | keep both |
+| `docs/NATIONAL-COVERAGE.md`, `docs/SOURCE-REGISTRY.md` | a New York section appended to each | likely (both append at the end) | keep both sections; recompute the national total |
 
 New, conflict-free: `src/connectors/ny-statewide-parcels/*`,
 `tests/ny-statewide-parcels.test.ts`, `tests/support/ny-fixture.ts`,
