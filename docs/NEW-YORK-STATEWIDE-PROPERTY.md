@@ -502,7 +502,53 @@ unchanged.
 
 ## 11. Idempotency and network-off replay
 
-*(filled from the live run)*
+### The same release, rediscovered: NOOP
+
+A second `df auto` tick found fingerprint `dc3012911b95…` already ingested by
+`run_319d5ae5…` and stopped: `NOOP_SAME_RELEASE`, **no download**, 5.9 s of
+discovery and 3.1 s re-verifying the retained polygon archive
+(`ALREADY_RETAINED`). Estate diff: **0** partitions and **0** indexes touched
+(194 and 3 unchanged).
+
+### The same release, forced
+
+`df auto … --force` re-ingests from the **retained** archive (no publisher
+request for the 563 MB), re-deriving the bundle first.
+
+| | first run | forced re-ingest |
+|---|---:|---:|
+| bundle sha256 | `3969c4a0…` | `3969c4a0…` — re-derived byte-identical |
+| run id | `run_319d5ae5…` | **same** |
+| new / unchanged / revised / missing | 5,503,228 / 0 / 0 / 0 | **0 / 5,503,228 / 0 / 0** |
+| accepted / quarantined / duplicates | 5,503,228 / 6,833 / 208 | identical, per county identical |
+| normalized digest | `85726d24…` | **same** |
+| global digest | `5c46d1e3…` | **same** |
+| county partitions rewritten | — | **0** (62 `skipped`: every delivered row matched the last accepted snapshot) |
+| snapshot indexes rewritten | — | **0** |
+| `organization/us` | — | recomputed: new generation, **same** output digest and row count (831,085) |
+
+**0 new logical parcels, 0 false revisions, 0 lost rows, 0 changed ids.** Row
+order is irrelevant by construction: OBJECTID and ORIG_FID are excluded from
+change detection (the fixture test reorders every row and still sees 0
+revisions).
+
+**The first forced attempt ran out of disk.** It completed change detection
+(the same 0 / 5,503,228 / 0 / 0) and committed its canonical rows under the same
+run id, then hit `ENOSPC` in the post-commit organization fold at 36.4 GiB of
+the session's ~37 GiB — the external-sort scratch for that fold shares the
+derived plane's disk. It activated nothing: a capture afterwards showed all 194
+partitions and 3 indexes byte-identical, and its ledger entry (`FAILED`) does
+not disturb planning, which keys on the last *completed* ingest. Its failure
+report carried a time-based preflight id — shared-runtime behaviour on failure,
+§14 proposal 7. The second attempt, above, put the runtime's scratch on
+RAM-backed tmpfs (`var/scratch` → `/dev/shm`; ephemeral by design, deleted in a
+`finally`; peak 4.36 GiB) and completed: disk growth 13.6 GiB, peak heap 155
+MiB, 5,866 s. No code changed between the attempts.
+
+Before each forced attempt, two regenerable outputs were released for disk: the
+derived bundle (the run re-derives it — which is itself the byte-identity proof
+above) and the run's previous canonical row files (CURRENT left in place;
+change detection reads only snapshot indexes and partition manifests).
 
 ---
 
