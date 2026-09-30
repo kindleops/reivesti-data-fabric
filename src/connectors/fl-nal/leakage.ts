@@ -5,10 +5,19 @@
  *
  *  1. **Value check, every row.** Every restricted TEXT value the row carries —
  *     mailing lines, the care-of block, the previous homestead's parcel — must
- *     not appear anywhere in the row's canonical bundle, unless a public column
- *     of the same row states the same text (an owner-occupied home's mailing
- *     line IS its situs line, and the situs is public). Values shorter than six
- *     characters are not searched: "FL" or "1" would match everything.
+ *     not appear anywhere in the row's canonical bundle unless public data puts
+ *     it there. Values shorter than six characters are not searched: "FL" or
+ *     "1" would match everything. Two stages:
+ *
+ *     a. a public column of the same row states the same text (an
+ *        owner-occupied home's mailing line IS its situs line) — explained;
+ *     b. otherwise the row is normalized again with EVERY restricted field
+ *        removed. If the value is still in that public-only bundle, public data
+ *        put it there — a situs composed of two public lines, a city that is
+ *        also a word in the bundle's own vocabulary — and it is counted as
+ *        `derivedFromPublicData`, with the bundle paths it sits at. Only a value
+ *        present in the real bundle and absent from the public-only one is a
+ *        leak: some code path copied it.
  *
  *  2. **Sentinel check, a deterministic sample.** The row is normalized again
  *     with EVERY restricted field — text and numeric, the personal exemptions
@@ -47,10 +56,27 @@ function fold(text: string): string {
   return text.toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim();
 }
 
+/** The paths (array indices collapsed) of every string in `value` whose folded form contains `needle`. */
+function pathsOf(value: unknown, needle: string, path: string, out: Set<string>): Set<string> {
+  if (typeof value === 'string') {
+    if (fold(value).includes(needle)) out.add(path);
+  } else if (Array.isArray(value)) {
+    for (const v of value) pathsOf(v, needle, `${path}[]`, out);
+  } else if (value !== null && typeof value === 'object') {
+    for (const [k, v] of Object.entries(value)) pathsOf(v, needle, `${path}.${k}`, out);
+  }
+  return out;
+}
+
 export type FlLeakageReport = {
   readonly rowsInspected: number;
   readonly restrictedValuesSearched: number;
+  /** Present in the bundle, and absent from the row's public-only bundle: a code path copied it. */
   readonly valueLeaks: Readonly<Record<string, number>>;
+  /** Present in the bundle, not in any single public column, but put there by public data (stage b). */
+  readonly derivedFromPublicData: Readonly<Record<string, number>>;
+  /** Where those values sit: "<field> @ <bundle path>[ + <path>…]" → count. Paths only, never values. */
+  readonly derivedFromPublicDataPaths: Readonly<Record<string, number>>;
   readonly sentinelRowsChecked: number;
   readonly sentinelLeaks: Readonly<Record<string, number>>;
   readonly contactsByType: Readonly<Record<string, number>>;
@@ -64,6 +90,8 @@ export function createFlNalLeakageAudit(options: { readonly sentinelEvery: numbe
   let sentinelRows = 0;
   let rowsWithRestricted = 0;
   const valueLeaks: Record<string, number> = {};
+  const derived: Record<string, number> = {};
+  const derivedPaths: Record<string, number> = {};
   const sentinelLeaks: Record<string, number> = {};
   const contactsByType: Record<string, number> = {};
   const populated: Record<string, number> = {};
@@ -89,6 +117,7 @@ export function createFlNalLeakageAudit(options: { readonly sentinelEvery: numbe
       let values: string[] | null = null;
       const bundleValues = (): string[] => (values ??= stringValuesOf(result.bundle).map(fold));
       let publicTexts: string[] | null = null;
+      let publicOnly: string[] | null = null;
       for (const field of RESTRICTED_TEXT) {
         const raw = record.fields[field];
         if (raw === undefined) continue;
@@ -101,7 +130,24 @@ export function createFlNalLeakageAudit(options: { readonly sentinelEvery: numbe
           // The use-code table's own wording is public vocabulary, not row data.
           fold(readFlUseCode(record.fields['DOR_UC']).known?.name ?? ''),
         ];
-        if (!publicTexts.some((t) => t.includes(value))) valueLeaks[field] = (valueLeaks[field] ?? 0) + 1;
+        if (publicTexts.some((t) => t.includes(value))) continue;
+        // Stage b: the same row with every restricted field removed.
+        publicOnly ??= (() => {
+          const fields: Record<string, string> = { ...record.fields };
+          for (const r of FL_NAL_RESTRICTED_FIELDS) delete fields[r];
+          const evidence = result.bundle.transaction.evidence as SourceEvidence;
+          const probe = normalizeFlNalRecord({ ...record, fields }, evidence, {
+            sourceId: options.sourceId, snapshotId: 'public-only', changeKind: 'unchanged_parcel', changedFieldGroups: [],
+          }, parsed.contentDigest);
+          return stringValuesOf(probe.bundle).map(fold);
+        })();
+        if (publicOnly.some((v) => v.includes(value))) {
+          derived[field] = (derived[field] ?? 0) + 1;
+          const key = `${field} @ ${[...pathsOf(result.bundle, value, '$', new Set())].sort().join(' + ')}`;
+          derivedPaths[key] = (derivedPaths[key] ?? 0) + 1;
+        } else {
+          valueLeaks[field] = (valueLeaks[field] ?? 0) + 1;
+        }
       }
 
       if (options.sentinelEvery > 0 && record.rowNumber % options.sentinelEvery === 0) {
@@ -121,6 +167,7 @@ export function createFlNalLeakageAudit(options: { readonly sentinelEvery: numbe
     report(): FlLeakageReport {
       return {
         rowsInspected, restrictedValuesSearched: searched, valueLeaks: { ...valueLeaks },
+        derivedFromPublicData: { ...derived }, derivedFromPublicDataPaths: { ...derivedPaths },
         sentinelRowsChecked: sentinelRows, sentinelLeaks: { ...sentinelLeaks }, contactsByType: { ...contactsByType },
         rowsWithRestrictedFields: rowsWithRestricted, restrictedFieldsPopulated: { ...populated },
       };

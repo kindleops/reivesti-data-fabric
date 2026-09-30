@@ -790,6 +790,25 @@ test('57–58 restricted fields reach the restricted plane or nothing: the senti
   assert.ok(FL_PAR_FIELD_MAP.filter((f) => f.disposition === 'RESTRICTED').length === 20);
 });
 
+test('57b the value check tells a real leak from a situs composed of public lines', async () => {
+  // An owner-occupied unit: the mailing line is PHY_ADDR1 + PHY_ADDR2, which the situs composes but no single
+  // public column states. And one row whose bundle has a mailing line copied into it — what a real leak looks like.
+  const composed = nalRow(LAFAYETTE, 'LK-0001', { PHY_ADDR1: '400 FICTION WAY', PHY_ADDR2: 'UNIT 12', OWN_ADDR1: '400 FICTION WAY UNIT 12' });
+  const e = estate({ nal: { '44': [...lafayetteNal(), composed] } });
+  const audit = createFlNalLeakageAudit({ sentinelEvery: 1, sourceId: FL_NAL_SOURCE_ID });
+  const inspect: Parameters<typeof runFlPipeline>[1]['inspect'] = (parsed, result) => {
+    const fields = (parsed.record as { fields?: Record<string, string> }).fields;
+    if (fields?.['PARCEL_ID'] !== P_ZEROS || fields['CO_NO'] !== LAFAYETTE.dorCode) return audit.inspect(parsed, result);
+    audit.inspect(parsed, { ...result, bundle: { ...result.bundle, injected: `note ${fields['OWN_ADDR1']}` } as typeof result.bundle });
+  };
+  assert.equal((await e.run(FL_NAL_SPEC, { inspect })).outcome, 'INGESTED');
+  const report = audit.report();
+  assert.deepEqual(report.valueLeaks, { OWN_ADDR1: 1 }, 'the copied mailing line is a leak');
+  assert.equal(report.derivedFromPublicData['OWN_ADDR1'], 1, 'the composed situs is public data');
+  assert.ok(Object.keys(report.derivedFromPublicDataPaths).some((k) => k.startsWith('OWN_ADDR1 @ ') && k.includes('situs_address')));
+  assert.deepEqual(report.sentinelLeaks, {});
+});
+
 test('59 no live personal data is committed: reference evidence is aggregates, fixtures are invented', () => {
   const dir = join(import.meta.dirname, '..', 'reference', 'fl-statewide');
   if (!existsSync(dir)) return;
