@@ -664,3 +664,45 @@ Structured JSON logs only. Every run emits `run.release_selected`,
 `run.archived`, `run.parsed`, per-record `record.quarantined`, and
 `run.finished` with the full metric set. `runReport()` is the concise operator
 view; `df runs` lists history. No admin UI in this phase, by design.
+
+## 10c. Three sources, one state, one fold (DF-0M)
+
+Florida is the first state the Fabric reads from three sources at once — the Department of Revenue's
+NAL roll, its Sale Data File, and the county parcel shapefiles it joins to the roll — and the first
+where they must converge on the same properties and the same sales without consulting each other.
+Five architectural changes came with it; each is general, and none is Florida-specific.
+
+**1. A release that is many files.** A Florida release is 67 county archives pinned by one release
+manifest. The streaming runtime gained a `derived` input: an artifact the caller has already
+acquired and verified — the release manifest — plus the snapshot lines a pure, versioned derivation
+reads out of the files it names. The lines are digested as the runtime pulls them and never stored:
+a stored NAL bundle would have been tens of gigabytes of NDJSON that the retained zips regenerate
+exactly. Every row's evidence cites the manifest; every row names the sha256 of its county file.
+
+**2. Canonical retention is a policy, not an assumption.** `canonicalRetention: 'digest_only'`
+normalizes, digests, indexes and projects every row exactly as a `full` run does — the same
+normalized digest, the same contributions, the same partitions (verified: identical global and
+normalized digests on real counties in both modes) — and does not write the bundle, event, contact
+or extra-row tables. It exists because a worker's disk is finite: the NAL's canonical rows are about
+1 KB per row compressed. Organization observations are written in every mode, as a slim table the
+national organization fold now reads instead of parsing every bundle.
+
+**3. TRANSACTION_RESOLUTION has a real fold.** `src/canonical/sale-projection.ts`: per county and
+property, sale-data rows are sales keyed by the publisher's sale identifier; echoes from the roll
+and the map SUPPORT the sale they repeat (same month, same price, compatible reference) and never
+become a second one; a later release re-stating a sale is one sale with two statements. The fold is
+a pure function of the partition's contributions — no run id, no clock — so it is identical in every
+ingest order.
+
+**4. Two authoritative sources agreeing is convergence, not a conflict.** The property fold's
+`duplicate_authoritative_row` check had keyed on (source, record), so the map and the roll both
+naming a parcel — ten million times — would each have been a blocking conflict. It now fires only
+when ONE source states a parcel twice, as its own comment always said.
+
+**5. A conflict names the run whose evidence produced it.** Conflict ids, `runId` and `detectedAt`
+came from the run that happened to recompute the partition, so a county written by three sources
+had a different projection for each arrival order. Contribution lines are now read tagged with the
+run whose file they came from, and a conflict takes the newest evidence it involves. Single-run
+partitions are unchanged byte for byte — all 72 Wisconsin partitions rebuilt in the Florida estate
+reproduce DF-0K's recorded input and output digests exactly — and multi-source counties are now
+identical in every ingest order (`property_resolver_2`).

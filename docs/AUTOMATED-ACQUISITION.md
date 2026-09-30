@@ -183,3 +183,31 @@ release fetches zero publisher bytes (ledger action `REHYDRATED_AND_INGESTED`);
 its next tick is a NOOP. Manual downloads remain absent: the only way bytes enter
 the estate is `df auto`, or `df artifacts reacquire`, which accepts a
 re-download as a restoration only on an equal sha256.
+
+## Florida: one library, three sources (DF-0M)
+
+The Department of Revenue publishes the NAL, the SDF and the county parcel shapefiles in one
+SharePoint document library, and SharePoint answers its own REST listing anonymously:
+`GET …/_api/web/GetFolderByServerRelativeUrl('<folder>')?$expand=Folders,Files` names every file with
+its size, ETag and last-modified time, and each file is a plain GET. That is the whole mechanism: no
+page is scraped, no form submitted, no token or cookie sent (tested: every request is a GET carrying
+only an `Accept` header).
+
+- **Discovery** takes the newest roll year, one file per county, a county's FINAL superseding its
+  PRELIMINARY. Folders whose names begin with `~` — staff and request-delivery folders — are never
+  listed, entered or requested, by construction and by test.
+- **The release fingerprint** is the digest of every file's URL, ETag, size and Last-Modified. The
+  same fingerprint twice is a NOOP with no file fetched; any county re-posting changes it.
+- **Acquisition** is one GET per changed file into the artifact store; a file already retained is
+  reused, not refetched. A release manifest — itself an archived artifact — pins every file by sha256.
+- **Derivation and replay** read only retained bytes. A replay names the release manifest's sha256
+  and runs with the network namespace removed.
+
+What is **not** used, and why:
+
+| Path | Why not |
+|---|---|
+| FGIO `Florida_Statewide_Cadastral` FeatureServer | answers 499 Token Required |
+| FGIO parcel centroid layer | anonymous, but still the 2025 roll |
+| Prior-year rolls | "available by request" — a manual path; DF-0M ingests the current roll only |
+| The condominium unit tables | retained with the release, not interpreted: no consumer yet |

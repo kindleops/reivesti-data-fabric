@@ -498,11 +498,67 @@ async function auditCross(): Promise<Record<string, unknown>> {
 }
 
 // ---------------------------------------------------------------------------
+// parquality: completeness of the cadastral file's own records, per county
+// ---------------------------------------------------------------------------
+
+async function auditParQuality(): Promise<Record<string, unknown>> {
+  const { manifest, sha256 } = latestManifest('fl_statewide_cadastral');
+  const perCounty: Record<string, unknown>[] = [];
+  const total: Record<string, number> = {};
+  const add = (k: string, n: number) => { total[k] = (total[k] ?? 0) + n; };
+  for (const f of manifest.files.filter((x) => x.role === 'county_parcels')) {
+    const path = artifactPath('fl_statewide_cadastral', f, manifest.referencePeriod);
+    const entries = (await listZipFile(path)).filter((e) => !e.isDirectory);
+    const dbf = await openDbf(readZipEntry(path, entries.find((e) => e.name.toLowerCase().endsWith('.dbf')) as ZipFileEntry));
+    const shapes = (await openShp(readZipEntry(path, entries.find((e) => e.name.toLowerCase().endsWith('.shp')) as ZipFileEntry))).records();
+    const fi = (n: string) => dbf.header.fields.findIndex((x) => x.name === n);
+    const [iCo, iPid, iSitus, iOwner, iJv, iTv, iAv, iLand] = ['CO_NO', 'PARCEL_ID', 'PHY_ADDR1', 'OWN_NAME', 'JV', 'TV_NSD', 'AV_NSD', 'LND_SQFOOT'].map(fi);
+    const c = { records: 0, joined: 0, parcelId: 0, situs: 0, owner: 0, justValue: 0, assessedValue: 0, taxableValue: 0, landArea: 0, geometry: 0, centroid: 0, positiveArea: 0 };
+    const nonZero = (v: string | null | undefined) => v !== null && v !== undefined && !/^0*(\.0*)?$/.test(v.trim());
+    for await (const r of dbf.records()) {
+      const s = await shapes.next();
+      c.records += 1;
+      if (!s.done && !s.value.nullShape) c.geometry += 1;
+      if (!s.done && s.value.centroid !== null) c.centroid += 1;
+      if (!s.done && s.value.area !== null && s.value.area !== 0) c.positiveArea += 1;
+      const co = r.values[iCo as number] ?? null;
+      if (co === null || /^0+(\.0+)?$/.test(co)) continue;
+      c.joined += 1;
+      if ((r.values[iPid as number] ?? '').trim() !== '') c.parcelId += 1;
+      if (/[0-9A-Z]/i.test(r.values[iSitus as number] ?? '')) c.situs += 1;
+      if ((r.values[iOwner as number] ?? '').trim() !== '') c.owner += 1;
+      if (nonZero(r.values[iJv as number])) c.justValue += 1;
+      if (nonZero(r.values[iAv as number])) c.assessedValue += 1;
+      // A taxable value of 0 is real (fully exempt) and indistinguishable from blank in dBASE; counted as stated.
+      if (r.values[iTv as number] !== null) c.taxableValue += 1;
+      if (nonZero(r.values[iLand as number])) c.landArea += 1;
+    }
+    for (const [k, v] of Object.entries(c)) add(k, v);
+    const pct = (n: number, d: number) => (d === 0 ? null : Math.round(10000 * n / d) / 100);
+    perCounty.push({ dorCode: f.dorCode, countyFips: f.countyFips, ...c,
+      pct: { parcelId: pct(c.parcelId, c.joined), situs: pct(c.situs, c.joined), owner: pct(c.owner, c.joined), justValue: pct(c.justValue, c.joined),
+        assessedValue: pct(c.assessedValue, c.joined), taxableValue: pct(c.taxableValue, c.joined), landArea: pct(c.landArea, c.joined),
+        geometry: pct(c.geometry, c.records), centroid: pct(c.centroid, c.records), joined: pct(c.joined, c.records) } });
+    process.stderr.write(`parquality ${f.dorCode}\n`);
+  }
+  const pct = (n: number, d: number) => Math.round(10000 * n / d) / 100;
+  const statewide = {
+    records: total['records'], joined: total['joined'],
+    pct: { joined: pct(total['joined'] ?? 0, total['records'] ?? 1), parcelId: pct(total['parcelId'] ?? 0, total['joined'] ?? 1), situs: pct(total['situs'] ?? 0, total['joined'] ?? 1),
+      owner: pct(total['owner'] ?? 0, total['joined'] ?? 1), justValue: pct(total['justValue'] ?? 0, total['joined'] ?? 1), assessedValue: pct(total['assessedValue'] ?? 0, total['joined'] ?? 1),
+      taxableValue: pct(total['taxableValue'] ?? 0, total['joined'] ?? 1), landArea: pct(total['landArea'] ?? 0, total['joined'] ?? 1),
+      geometry: pct(total['geometry'] ?? 0, total['records'] ?? 1), centroid: pct(total['centroid'] ?? 0, total['records'] ?? 1), positiveArea: pct(total['positiveArea'] ?? 0, total['records'] ?? 1) },
+  };
+  return { source: 'fl_statewide_cadastral', releaseManifestSha256: sha256, statewide, perCounty };
+}
+
+// ---------------------------------------------------------------------------
 
 const out: Record<string, unknown> = {};
 if (what === 'nal' || what === 'all') { out['nal'] = await auditNal(); writeFileSync(join(OUT, 'audit-nal.json'), `${JSON.stringify(out['nal'], null, 1)}\n`); }
 if (what === 'sdf' || what === 'all') { out['sdf'] = await auditSdf(); writeFileSync(join(OUT, 'audit-sdf.json'), `${JSON.stringify(out['sdf'], null, 1)}\n`); }
 if (what === 'par' || what === 'all') { out['par'] = await auditPar(); writeFileSync(join(OUT, 'audit-par.json'), `${JSON.stringify(out['par'], null, 1)}\n`); }
+if (what === 'parquality' || what === 'all') { out['parquality'] = await auditParQuality(); writeFileSync(join(OUT, 'audit-par-quality.json'), `${JSON.stringify(out['parquality'], null, 1)}\n`); }
 if (what === 'cross' || what === 'all') { out['cross'] = await auditCross(); writeFileSync(join(OUT, 'audit-cross.json'), `${JSON.stringify(out['cross'], null, 1)}\n`); }
 process.stdout.write(`${JSON.stringify(Object.fromEntries(Object.entries(out).map(([k, v]) => [k, { rows: (v as { totalRows?: number; totalRecords?: number }).totalRows ?? (v as { totalRecords?: number }).totalRecords }])))}\n`);
 void FL_DOR_COUNTIES;

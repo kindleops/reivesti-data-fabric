@@ -1,0 +1,260 @@
+# Florida DOR Name–Address–Legal (NAL) roll
+
+**Source id:** `fl_dor_nal` · **mapping:** `fl_dor_nal__all_fl_counties` · **scope:** all 67 counties ·
+**capabilities:** parcel, assessor, ownership (current, of record), tax base · **gate:** CORE_ELIGIBLE ·
+**acquisition:** AUTOMATED_BULK_DOWNLOAD, anonymous GETs, $0 · See `FLORIDA-STATEWIDE-PROPERTY-FABRIC.md`
+for the release, runs, digests and verdicts; this page is the source itself.
+
+## 1. What it is
+
+The real property assessment roll of every Florida county, submitted by the 67 county property
+appraisers to the Department of Revenue, Property Tax Oversight, and posted in the PTO Data Portal
+(`Tax Roll Data Files/NAL/<year><P|F>/`) as one zipped CSV per county. The Department's "2026 User's
+Guide — Department Property Tax Data Files" documents every column; this connector was written
+against it column by column, and the files themselves are the authority where the two disagree.
+
+| Fact | Value (2026 roll, measured 2026-09-29) |
+|---|---|
+| Files | 67 (one per county), 824,781,865 bytes zipped |
+| Rows | 11,090,242 |
+| Stages | 65 PRELIMINARY, 2 FINAL (Citrus 19, Duval 26) |
+| Layouts | 165 columns (preliminary), 167 (final: + EXMPT_47, EXMPT_48) — both pinned |
+| Assessment year | 2026 on every row |
+| Encoding | ASCII (0 non-ASCII bytes statewide) |
+| Duplicate / blank PARCEL_ID | 0 / 0 |
+| CO_NO routes to the file's county | every row |
+
+## 2. Release, stage and freshness
+
+A county's roll moves PRELIMINARY (by July 1) → FINAL (after the value adjustment board), county by
+county. Discovery takes the newest roll year; within it, a county's FINAL file supersedes its
+PRELIMINARY one. Every observation carries its county's stage (`roll_stage`) and its county file's
+publisher Last-Modified (`source_file_last_modified`), so freshness is per county, never per state.
+
+The release fingerprint covers every file's URL, ETag, size and Last-Modified. The same fingerprint
+twice is a NOOP with no file fetched; one county re-posting changes the fingerprint, and only the
+changed county is recomputed (`skipUnchangedPartitions`).
+
+## 3. Identity
+
+`(county FIPS via CO_NO, PARCEL_ID under PUNCTUATION_PRESERVING)` — see §4 of the main document for
+the collision audit that chose the scheme. `STATE_PAR_ID`, the Department's uniform statewide code,
+is attached as a secondary `source_property_key` observation: evidence, never a join key.
+
+## 4. Values: three kinds, twice each
+
+| Canonical slot / key | Column | Meaning |
+|---|---|---|
+| `totalValue` | JV | JUST value: the appraiser's opinion of market value on January 1 |
+| `values_minor.AV_SD` / `AV_NSD` | AV_SD, AV_NSD | ASSESSED value after the Save-Our-Homes and non-homestead caps, school / non-school levies |
+| `values_minor.TV_SD` / `TV_NSD` | TV_SD, TV_NSD | TAXABLE value after exemptions, school / non-school levies |
+| `taxableValue` | — | deliberately null: two taxable values exist and neither is "the" one |
+| `netTax` | — | null: the NAL states the tax BASE, not a levied tax |
+
+All money is exact minor units through the normalization contract; a blank value is absent, a 0 is
+zero, and a value past 2^53 minor units is kept as exact text and refused by the `Money` slot rather
+than rounded.
+
+## 5. Restricted
+
+The owner mailing block and state of domicile go to the restricted contact plane (`mailing_address`,
+`contact_note`); the fiduciary / care-of block goes there as `care_of_block`. The owner-personal
+exemptions (blind, widowed, disabled, veteran, low-income senior, first responder, granny flat), the
+homestead applicant status codes and the homestead-portability block (which names an owner's
+PREVIOUS home) reach no plane at all: retained in the publisher archive, reported only as
+aggregates. Property-level exemptions (homestead, government, religious, charitable, historic,
+affordable housing, conservation) are canonical.
+
+The statewide leakage audit (main document §12) checks every row two ways: every restricted text
+value is searched for in the row's canonical bundle, and a deterministic sample is re-normalized
+with every restricted field replaced by a sentinel.
+
+## 6. Sale echo
+
+Fields 54–73 carry up to two sales the Department "selected" from the SDF "for statistical analysis"
+— not necessarily the most recent. Each stated slot becomes an `ASSESSOR_SALE_ECHO` observation
+(`FL_DOR_NAL_SALE_ECHO`) that TRANSACTION_RESOLUTION attaches to the SDF sale it repeats. An echo is
+evidence for a sale, never a sale.
+
+## 7. Situs
+
+`PHY_ADDR1` + `PHY_ADDR2` + city + ZIP is the situs; its folded form is the comparison key used only
+to REPORT parcels sharing an address — an address never resolves identity. A situs line with no
+digit gets no comparison key: the largest shared situs values statewide are placeholders (a single
+word on 40,356 Brevard parcels), not addresses.
+
+## 8. Field inventory
+
+Generated from `src/connectors/fl-nal/field-map.ts`.
+
+Disposition counts: {"CANONICALIZE":23,"KEEP_RAW":28,"HISTORIZE":6,"NORMALIZE":72,"RESTRICTED":36,"IGNORE_WITH_REASON":2}
+
+| # | Field | Type | Group | Disposition | Meaning and treatment |
+|---:|---|---|---|---|---|
+| 1 | `CO_NO` | Integer(2) | identity | CANONICALIZE | DOR county number 11–77. THE routing key, through the Department's own table to FIPS; never the filename's number (Seminole's 2026 file is labelled 58). |
+| 2 | `PARCEL_ID` | String(26) | identity | CANONICALIZE | The property appraiser's parcel identification code, uniform within a county and varying between them. With the county, canonical property identity — under the scheme the statewide collision audit chose. |
+| 3 | `FILE_T` | String(1) | provenance | KEEP_RAW | Roll type; "R" (real property) on every row. Checked, kept. |
+| 4 | `ASMNT_YR` | Integer(4) | assessment | HISTORIZE | Assessment year: the roll values are as of January 1 of this year. The time axis every value on the row belongs to. |
+| 5 | `BAS_STRT` | Integer(2) | assessment | KEEP_RAW | DOR basic stratum (s. 195.096(3)(a), F.S.), assigned by the Department for its statistical review. A Department code, not an appraiser fact. |
+| 6 | `ATV_STRT` | Integer(1) | assessment | KEEP_RAW | DOR active stratum; blank for strata 09–13. |
+| 7 | `GRP_NO` | Integer(1) | assessment | KEEP_RAW | DOR group number within the active stratum, by just value. |
+| 8 | `DOR_UC` | Integer(3) | assessment | NORMALIZE | DOR land use code 000–099, from the Department's published table. Unknown codes are retained and flagged, never guessed. |
+| 9 | `PA_UC` | Integer(2) | assessment | KEEP_RAW | The property appraiser's own use code. County-defined; not comparable across counties. |
+| 10 | `SPASS_CD` | Integer(1) | assessment | KEEP_RAW | Special assessment code: 1 pollution control, 2 conservation easement / recreational land, 3 building moratorium. |
+| 11 | `JV` | Integer(12) | assessment | HISTORIZE | Just value: the appraiser's opinion of market value as of January 1. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 12 | `JV_CHNG` | Integer(12) | assessment | NORMALIZE | Just value change. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 13 | `JV_CHNG_CD` | Integer(2) | assessment | KEEP_RAW | Reason code for the just value change (01 VAB change, 02 court, 03 revised after a VAB petition, …). |
+| 14 | `AV_SD` | Integer(12) | assessment | HISTORIZE | Assessed value, school district levies. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 15 | `AV_NSD` | Integer(12) | assessment | HISTORIZE | Assessed value, non-school levies. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 16 | `TV_SD` | Integer(12) | tax | HISTORIZE | Taxable value, school district levies. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 17 | `TV_NSD` | Integer(12) | tax | HISTORIZE | Taxable value, non-school levies. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 18 | `JV_HMSTD` | Integer(12) | assessment | NORMALIZE | Just value, homestead property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 19 | `AV_HMSTD` | Integer(12) | assessment | NORMALIZE | Assessed value, homestead property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 20 | `JV_NON_HMSTD_RESD` | Integer(12) | assessment | NORMALIZE | Just value, non-homestead residential property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 21 | `AV_NON_HMSTD_RESD` | Integer(12) | assessment | NORMALIZE | Assessed value, non-homestead residential property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 22 | `JV_RESD_NON_RESD` | Integer(12) | assessment | NORMALIZE | Just value, residential and non-residential property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 23 | `AV_RESD_NON_RESD` | Integer(12) | assessment | NORMALIZE | Assessed value, residential and non-residential property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 24 | `JV_CLASS_USE` | Integer(12) | assessment | NORMALIZE | Just value, classified use (agricultural land). Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 25 | `AV_CLASS_USE` | Integer(12) | assessment | NORMALIZE | Assessed value, classified use (agricultural land). Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 26 | `JV_H2O_RECHRGE` | Integer(12) | assessment | NORMALIZE | Just value, high-water recharge land. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 27 | `AV_H2O_RECHRGE` | Integer(12) | assessment | NORMALIZE | Assessed value, high-water recharge land. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 28 | `JV_CONSRV_LND` | Integer(12) | assessment | NORMALIZE | Just value, conservation land. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 29 | `AV_CONSRV_LND` | Integer(12) | assessment | NORMALIZE | Assessed value, conservation land. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 30 | `JV_HIST_COM_PROP` | Integer(12) | assessment | NORMALIZE | Just value, historic commercial property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 31 | `AV_HIST_COM_PROP` | Integer(12) | assessment | NORMALIZE | Assessed value, historic commercial property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 32 | `JV_HIST_SIGNF` | Integer(12) | assessment | NORMALIZE | Just value, historically significant property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 33 | `AV_HIST_SIGNF` | Integer(12) | assessment | NORMALIZE | Assessed value, historically significant property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 34 | `JV_WRKNG_WTRFNT` | Integer(12) | assessment | NORMALIZE | Just value, working waterfront property. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 35 | `AV_WRKNG_WTRFNT` | Integer(12) | assessment | NORMALIZE | Assessed value, working waterfront property (the guide misspells it "AV_ WRKNG_WTRFNT"). Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 36 | `NCONST_VAL` | Integer(12) | assessment | NORMALIZE | New construction value. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 37 | `DEL_VAL` | Integer(12) | assessment | NORMALIZE | Deletion value. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 38 | `PAR_SPLT` | Integer(5) | assessment | KEEP_RAW | Split/combine flag: first digit 1 split, 2 combine; then MMYY of the event. Kept verbatim; a two-digit year is not expanded here. |
+| 39 | `DISTR_CD` | Integer | assessment | KEEP_RAW | Disaster code (1 toxic drywall … 8 sink hole, 9 other), from the guide's table. |
+| 40 | `DISTR_YR` | Integer(4) | assessment | KEEP_RAW | Year of the disaster the code refers to. |
+| 41 | `LND_VAL` | Integer(12) | assessment | NORMALIZE | Land value. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 42 | `LND_UNTS_CD` | Integer(1) | assessment | NORMALIZE | Unit of the land assessment: 1 acre, 2 square foot, 3/4 front foot, 5 lot, 6 combination. Gives NO_LND_UNTS its meaning. |
+| 43 | `NO_LND_UNTS` | Integer(12) | assessment | NORMALIZE | Number of land units, IN THE UNIT LND_UNTS_CD names. Acres only when that code is 1; never read as acres otherwise. |
+| 44 | `LND_SQFOOT` | Integer(12) | geography | NORMALIZE | Land square footage. The canonical parcel area, in square feet, through the contract. |
+| 45 | `DT_LAST_INSPT` | Integer(4) | structure | KEEP_RAW | Month and year of the last physical inspection as MMYY ("0315" = March 2015); "0000" = unknown. A two-digit year: kept verbatim, not expanded by guesswork. |
+| 46 | `IMP_QUAL` | Integer(1) | structure | KEEP_RAW | Improvement quality code (appraiser-assigned). |
+| 47 | `CONST_CLASS` | Integer(1) | structure | KEEP_RAW | Construction class code. |
+| 48 | `EFF_YR_BLT` | Integer(4) | structure | NORMALIZE | Effective year built. |
+| 49 | `ACT_YR_BLT` | Integer(4) | structure | NORMALIZE | Actual year built. |
+| 50 | `TOT_LVG_AREA` | Integer(12) | structure | NORMALIZE | Total living or usable area, square feet. |
+| 51 | `NO_BULDNG` | Integer(4) | structure | NORMALIZE | Number of buildings. |
+| 52 | `NO_RES_UNTS` | Integer(4) | structure | NORMALIZE | Number of residential units. |
+| 53 | `SPEC_FEAT_VAL` | Integer(12) | assessment | NORMALIZE | Special feature value. Whole dollars as published; exact minor units through the contract; blank ≠ 0. |
+| 54 | `MULTI_PAR_SAL1` | String(1) | sale | CANONICALIZE | Sale 1: multi-parcel indicator — C matching clerk instrument number, D matching book and page. |
+| 55 | `QUAL_CD1` | String(2) | sale | CANONICALIZE | Sale 1: DOR transfer qualification code, verbatim, classified through the official 2026 code list. |
+| 56 | `VI_CD1` | String(1) | sale | CANONICALIZE | Sale 1: V vacant land / I improved — what the price bought, not what the parcel was. |
+| 57 | `SALE_PRC1` | Integer(12) | sale | CANONICALIZE | Sale 1: price derived from documentary stamp tax. Exact money; 0 is a real value, blank is absent. |
+| 58 | `SALE_YR1` | Integer(4) | sale | CANONICALIZE | Sale 1: sale year. With SALE_MO1, a SALE_DATE at MONTH precision — no day is invented. |
+| 59 | `SALE_MO1` | Integer(2) | sale | CANONICALIZE | Sale 1: sale month. |
+| 60 | `OR_BOOK1` | String(6) | sale | CANONICALIZE | Sale 1: official record book. A recording reference, not an instrument. |
+| 61 | `OR_PAGE1` | String(6) | sale | CANONICALIZE | Sale 1: official record page. |
+| 62 | `CLERK_NO1` | String(20) | sale | CANONICALIZE | Sale 1: clerk's instrument number, where the clerk uses instrument numbering instead of book/page. |
+| 63 | `SAL_CHNG_CD1` | Integer(1) | sale | KEEP_RAW | Sale 1: significant change between sale and assessment date (1 split … 8 incomplete new construction). |
+| 64 | `MULTI_PAR_SAL2` | String(1) | sale | CANONICALIZE | Sale 2: multi-parcel indicator — C matching clerk instrument number, D matching book and page. |
+| 65 | `QUAL_CD2` | String(2) | sale | CANONICALIZE | Sale 2: DOR transfer qualification code, verbatim, classified through the official 2026 code list. |
+| 66 | `VI_CD2` | String(1) | sale | CANONICALIZE | Sale 2: V vacant land / I improved — what the price bought, not what the parcel was. |
+| 67 | `SALE_PRC2` | Integer(12) | sale | CANONICALIZE | Sale 2: price derived from documentary stamp tax. Exact money; 0 is a real value, blank is absent. |
+| 68 | `SALE_YR2` | Integer(4) | sale | CANONICALIZE | Sale 2: sale year. With SALE_MO2, a SALE_DATE at MONTH precision — no day is invented. |
+| 69 | `SALE_MO2` | Integer(2) | sale | CANONICALIZE | Sale 2: sale month. |
+| 70 | `OR_BOOK2` | String(6) | sale | CANONICALIZE | Sale 2: official record book. A recording reference, not an instrument. |
+| 71 | `OR_PAGE2` | String(6) | sale | CANONICALIZE | Sale 2: official record page (the guide misspells it "R_PAGE2"). |
+| 72 | `CLERK_NO2` | String(20) | sale | CANONICALIZE | Sale 2: clerk's instrument number, where the clerk uses instrument numbering instead of book/page. |
+| 73 | `SAL_CHNG_CD2` | Integer(1) | sale | KEEP_RAW | Sale 2: significant change between sale and assessment date (1 split … 8 incomplete new construction). |
+| 74 | `OWN_NAME` | String(50) | ownership | CANONICALIZE | Owner of record on the current roll — a party observation, name only, never merged across parcels by name. Current ownership, not a chain of title. |
+| 75 | `OWN_ADDR1` | String(40) | ownership | RESTRICTED | Owner mailing address line 1. Restricted contact plane only. |
+| 76 | `OWN_ADDR2` | String(40) | ownership | RESTRICTED | Owner mailing address line 2. Restricted contact plane only. |
+| 77 | `OWN_CITY` | String(40) | ownership | RESTRICTED | Owner mailing city. Restricted contact plane only. |
+| 78 | `OWN_STATE` | String(25) | ownership | RESTRICTED | Owner mailing state (or country). Restricted contact plane only. |
+| 79 | `OWN_ZIPCD` | Integer(5) | ownership | RESTRICTED | Owner mailing ZIP code. Restricted contact plane only. |
+| 80 | `OWN_STATE_DOM` | String(2) | ownership | RESTRICTED | Owner's state of domicile ("FC" = foreign country). Where a person lives; restricted. |
+| 81 | `FIDU_NAME` | String(30) | ownership | RESTRICTED | Fiduciary (care-of) name. Not required since 2012 and blank by rule; restricted when present. |
+| 82 | `FIDU_ADDR1` | String(40) | ownership | RESTRICTED | Fiduciary mailing address line 1. Restricted. |
+| 83 | `FIDU_ADDR2` | String(40) | ownership | RESTRICTED | Fiduciary mailing address line 2. Restricted. |
+| 84 | `FIDU_CITY` | String(40) | ownership | RESTRICTED | Fiduciary mailing city. Restricted. |
+| 85 | `FIDU_STATE` | String(25) | ownership | RESTRICTED | Fiduciary mailing state. Restricted. |
+| 86 | `FIDU_ZIPCD` | Integer(5) | ownership | RESTRICTED | Fiduciary mailing ZIP. Restricted. |
+| 87 | `FIDU_CD` | Integer(1) | ownership | KEEP_RAW | Fiduciary type code; "should be blank" per the guide. |
+| 88 | `S_LEGAL` | String(30) | legal | KEEP_RAW | Short legal description, 30 characters, "abbreviated, truncated, or incomplete" by the guide's own warning. Evidence, not a legal description of record. |
+| 89 | `APP_STAT` | String(1) | ownership | RESTRICTED | Homestead applicant's status code. Describes the applicant, not the property; restricted. |
+| 90 | `CO_APP_STAT` | String(1) | ownership | RESTRICTED | Homestead co-applicant's status — historically W wife / H husband / O other. Relationship status; restricted. |
+| 91 | `MKT_AR` | String(3) | geography | KEEP_RAW | Appraiser-assigned market area code. |
+| 92 | `NBRHD_CD` | String(10) | geography | KEEP_RAW | Appraiser-assigned neighborhood code. |
+| 93 | `PUBLIC_LND` | String(1) | ownership | NORMALIZE | Public land owner class: F federal, S state, C county/school district, M municipal, D special district, W water management, … An owner-class fact on the roll. |
+| 94 | `TAX_AUTH_CD` | String(5) | tax | NORMALIZE | Taxing authority code — the millage district the parcel is taxed in. Resolved through DOR's annual taxing-authority tables in a later phase. |
+| 95 | `TWN` | String(3) | legal | KEEP_RAW | Township (PLSS). |
+| 96 | `RNG` | String(3) | legal | KEEP_RAW | Range (PLSS). |
+| 97 | `SEC` | String(3) | legal | KEEP_RAW | Section or grant number (PLSS). |
+| 98 | `CENSUS_BK` | String(16) | geography | NORMALIZE | Census block group (state + county + tract + block group FIPS) of the parcel centre. |
+| 99 | `PHY_ADDR1` | String(40) | address | CANONICALIZE | Situs address line 1. A property identifier observation that never resolves identity on its own. |
+| 100 | `PHY_ADDR2` | String(40) | address | NORMALIZE | Situs address line 2. |
+| 101 | `PHY_CITY` | String(40) | address | NORMALIZE | Situs city — postal, not the taxing jurisdiction, and never a county router. |
+| 102 | `PHY_ZIPCD` | Integer(5) | address | NORMALIZE | Situs ZIP code. |
+| 103 | `ALT_KEY` | String(26) | identity | KEEP_RAW | Optional alternate key some counties keep beside the parcel id. Evidence, never identity. |
+| 104 | `ASS_TRNSFR_FG` | Integer(1) | tax | RESTRICTED | Assessment-differential transfer flag: the owner ported a Save-Our-Homes benefit from a previous homestead. Part of the owner's residential history; restricted. |
+| 105 | `PREV_HMSTD_OWN` | Integer(2) | tax | RESTRICTED | Number of owners of the previous homestead. Restricted. |
+| 106 | `ASS_DIF_TRNS` | Integer(12) | tax | RESTRICTED | Assessment differential transferred. Restricted. |
+| 107 | `CONO_PRV_HM` | Integer(2) | tax | RESTRICTED | County of the owner's previous homestead. Restricted: where a person used to live. |
+| 108 | `PARCEL_ID_PRV_HMSTD` | String(26) | tax | RESTRICTED | Parcel of the owner's previous homestead. Restricted: it links a person to their former home. |
+| 109 | `YR_VAL_TRNSF` | Integer(4) | tax | RESTRICTED | Year the value was transferred. Restricted. |
+| 110 | `EXMPT_01` | Integer(12) | tax | NORMALIZE | Exemption value: homestead exemption, first $25,000 (s. 196.031(1)(a)). A property-level tax fact; exact money. |
+| 111 | `EXMPT_02` | Integer(12) | tax | NORMALIZE | Exemption value: additional homestead exemption up to $26,411, non-school levies (s. 196.031(1)(b)). A property-level tax fact; exact money. |
+| 112 | `EXMPT_03` | Integer(12) | tax | RESTRICTED | Exemption value: county additional exemption for low-income seniors 65+ (s. 196.075). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 113 | `EXMPT_04` | Integer(12) | tax | RESTRICTED | Exemption value: municipal additional exemption for low-income seniors 65+ (s. 196.075). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 114 | `EXMPT_05` | Integer(12) | tax | RESTRICTED | Exemption value: permanently and totally disabled veterans and surviving spouses (ss. 196.081, 196.102). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 115 | `EXMPT_06` | Integer(12) | tax | RESTRICTED | Exemption value: disabled veterans confined to wheelchairs and surviving spouses (s. 196.091). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 116 | `EXMPT_07` | Integer(12) | tax | NORMALIZE | Exemption value: licensed child care facility in an enterprise zone (s. 196.095). A property-level tax fact; exact money. |
+| 117 | `EXMPT_08` | Integer(12) | tax | RESTRICTED | Exemption value: totally and permanently disabled persons (s. 196.101). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 118 | `EXMPT_09` | Integer(12) | tax | NORMALIZE | Exemption value: charitable, religious, scientific or literary use (s. 196.196). A property-level tax fact; exact money. |
+| 119 | `EXMPT_10` | Integer(12) | tax | NORMALIZE | Exemption value: county historic property, commercial or nonprofit use (s. 196.1961). A property-level tax fact; exact money. |
+| 120 | `EXMPT_11` | Integer(12) | tax | NORMALIZE | Exemption value: municipal historic property, commercial or nonprofit use (s. 196.1961). A property-level tax fact; exact money. |
+| 121 | `EXMPT_12` | Integer(12) | tax | NORMALIZE | Exemption value: hospitals, nursing homes and homes for special services (s. 196.197). A property-level tax fact; exact money. |
+| 122 | `EXMPT_13` | Integer(12) | tax | NORMALIZE | Exemption value: nonprofit homes for the aged (s. 196.1975). A property-level tax fact; exact money. |
+| 123 | `EXMPT_14` | Integer(12) | tax | NORMALIZE | Exemption value: proprietary continuing care facilities (s. 196.1977). A property-level tax fact; exact money. |
+| 124 | `EXMPT_15` | Integer(12) | tax | NORMALIZE | Exemption value: affordable housing property (ss. 196.1978, 196.196). A property-level tax fact; exact money. |
+| 125 | `EXMPT_16` | Integer(12) | tax | NORMALIZE | Exemption value: educational property (s. 196.198). A property-level tax fact; exact money. |
+| 126 | `EXMPT_17` | Integer(12) | tax | NORMALIZE | Exemption value: charter school property (s. 196.1983). A property-level tax fact; exact money. |
+| 127 | `EXMPT_18` | Integer(12) | tax | NORMALIZE | Exemption value: labor organization property (s. 196.1985). A property-level tax fact; exact money. |
+| 128 | `EXMPT_19` | Integer(12) | tax | NORMALIZE | Exemption value: community center property (s. 196.1986). A property-level tax fact; exact money. |
+| 129 | `EXMPT_20` | Integer(12) | tax | NORMALIZE | Exemption value: government property (s. 196.199). A property-level tax fact; exact money. |
+| 130 | `EXMPT_21` | Integer(12) | tax | NORMALIZE | Exemption value: property under agreements with local governments for public use (s. 196.1993). A property-level tax fact; exact money. |
+| 131 | `EXMPT_22` | Integer(12) | tax | NORMALIZE | Exemption value: county economic development exemption (s. 196.1995). A property-level tax fact; exact money. |
+| 132 | `EXMPT_23` | Integer(12) | tax | NORMALIZE | Exemption value: municipal economic development exemption (s. 196.1995). A property-level tax fact; exact money. |
+| 133 | `EXMPT_24` | Integer(12) | tax | NORMALIZE | Exemption value: county historic property improvements (s. 196.1997). A property-level tax fact; exact money. |
+| 134 | `EXMPT_25` | Integer(12) | tax | NORMALIZE | Exemption value: municipal historic property improvements (s. 196.1997). A property-level tax fact; exact money. |
+| 135 | `EXMPT_26` | Integer(12) | tax | NORMALIZE | Exemption value: county historic properties open to the public (s. 196.1998). A property-level tax fact; exact money. |
+| 136 | `EXMPT_27` | Integer(12) | tax | NORMALIZE | Exemption value: municipal historic properties open to the public (s. 196.1998). A property-level tax fact; exact money. |
+| 137 | `EXMPT_28` | Integer(12) | tax | IGNORE_WITH_REASON | Exemption 28 — "No longer in use" per the 2026 guide. A non-blank value is counted as drift. |
+| 138 | `EXMPT_29` | Integer(12) | tax | NORMALIZE | Exemption value: not-for-profit sewer and water company property (s. 196.2001). A property-level tax fact; exact money. |
+| 139 | `EXMPT_30` | Integer(12) | tax | NORMALIZE | Exemption value: s. 501(c)(12) not-for-profit water and wastewater systems (s. 196.2002). A property-level tax fact; exact money. |
+| 140 | `EXMPT_31` | Integer(12) | tax | RESTRICTED | Exemption value: blind persons (s. 196.202). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 141 | `EXMPT_32` | Integer(12) | tax | RESTRICTED | Exemption value: widowers (s. 196.202). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 142 | `EXMPT_33` | Integer(12) | tax | RESTRICTED | Exemption value: widows (s. 196.202). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 143 | `EXMPT_34` | Integer(12) | tax | RESTRICTED | Exemption value: totally and permanently disabled persons (s. 196.202). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 144 | `EXMPT_35` | Integer(12) | tax | RESTRICTED | Exemption value: disabled ex-service members (s. 196.24). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 145 | `EXMPT_36` | Integer(12) | tax | NORMALIZE | Exemption value: land dedicated in perpetuity for conservation, used exclusively so (s. 196.26(2)). A property-level tax fact; exact money. |
+| 146 | `EXMPT_37` | Integer(12) | tax | NORMALIZE | Exemption value: conservation land also used commercially (s. 196.26(3)). A property-level tax fact; exact money. |
+| 147 | `EXMPT_38` | Integer(12) | tax | RESTRICTED | Exemption value: homestead of deployed military personnel (s. 196.173). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 148 | `EXMPT_39` | Integer(12) | tax | RESTRICTED | Exemption value: county exemption for long-resident low-income seniors 65+ (s. 196.075). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 149 | `EXMPT_40` | Integer(12) | tax | RESTRICTED | Exemption value: municipal exemption for long-resident low-income seniors 65+ (s. 196.075). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 150 | `EXMPT_41` | Integer(12) | tax | RESTRICTED | Exemption value: first responders disabled in the line of duty, and surviving spouses (ss. 196.081(6), 196.102). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 151 | `EXMPT_42` | Integer(12) | tax | NORMALIZE | Exemption value: biblical history display property (s. 196.1987). A property-level tax fact; exact money. |
+| 152 | `EXMPT_43` | Integer(12) | tax | NORMALIZE | Exemption value: FHFC-certified new multi-family under a land use restriction agreement (s. 196.1978(3),(4)). A property-level tax fact; exact money. |
+| 153 | `EXMPT_44` | Integer(12) | tax | NORMALIZE | Exemption value: land leased by a nonprofit for affordable housing (s. 196.1978(1)(b)). A property-level tax fact; exact money. |
+| 154 | `EXMPT_45` | Integer(12) | tax | NORMALIZE | Exemption value: county affordable housing program (s. 196.1979). A property-level tax fact; exact money. |
+| 155 | `EXMPT_46` | Integer(12) | tax | NORMALIZE | Exemption value: municipal affordable housing program (s. 196.1979). A property-level tax fact; exact money. |
+| 156 | `EXMPT_47` | Integer(12) | tax | NORMALIZE | Exemption value: affordable housing property owned by the state (s. 196.19781) — only in FINAL-stage files in 2026. A property-level tax fact; exact money. |
+| 157 | `EXMPT_48` | Integer(12) | tax | NORMALIZE | Exemption value: affordable housing property on governmental property (s. 196.19782) — only in FINAL-stage files in 2026. A property-level tax fact; exact money. |
+| 158 | `EXMPT_80` | Integer(12) | tax | RESTRICTED | Exemption value: disabled veterans homestead discount, veterans 65+ (s. 196.082). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 159 | `EXMPT_81` | Integer(12) | tax | RESTRICTED | Exemption value: living quarters of parents or grandparents (s. 193.703). Exists because of the owner's personal circumstances; retained in the publisher archive, aggregated only, never projected. |
+| 160 | `EXMPT_82` | Integer(12) | tax | NORMALIZE | Exemption value: lands available for taxes (s. 197.502). A property-level tax fact; exact money. |
+| 161 | `SEQ_NO` | Integer(7) | provenance | IGNORE_WITH_REASON | File sequence number: the row's position in the submission. Renumbered by every file, so it is excluded from change detection and never identity. |
+| 162 | `RS_ID` | String(4) | provenance | KEEP_RAW | Real property submission id, shared by a county's NAL and SDF of one submission. Provenance: which submission the row came in. |
+| 163 | `MP_ID` | String(8) | identity | KEEP_RAW | Master parcel identification code, unique within the county's real property file. |
+| 164 | `STATE_PAR_ID` | String(18) | identity | CANONICALIZE | DOR's uniform statewide parcel code, generated by the Department and "cross-referenced longitudinally when a county's coding system changes". A secondary identifier observation — never identity. |
+| 165 | `SPC_CIR_CD` | Integer(1) | provenance | KEEP_RAW | Department special-circumstances code for database management. |
+| 166 | `SPC_CIR_YR` | Integer(4) | provenance | KEEP_RAW | Year of the special circumstance. |
+| 167 | `SPC_CIR_TXT` | String(50) | provenance | KEEP_RAW | Department description of the special circumstance. |

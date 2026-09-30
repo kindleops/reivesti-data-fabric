@@ -381,3 +381,31 @@ Everything else Wisconsin needed was already in v1: exact money from doubles via
 the decimal-string path (a sub-cent float is refused, not rounded — one such
 value exists in V12), acres → square feet with the source unit kept, `M/D/YYYY`
 load dates, a roll year as the time axis, and blank vs. zero kept apart.
+
+## 4c. Florida (DF-0M): what the contract already said, and four things it learned
+
+**Identity** reuses `PUNCTUATION_PRESERVING` unchanged. Measured over all 11,090,242 NAL parcel ids
+before it was chosen: trimming, upper-casing, stripping whitespace and stripping leading zeros merge
+nothing inside any county; stripping separators merges 1,856 distinct ids (Brevard, Marion) and
+stripping all punctuation 7,584. The folded key is kept as a match key and never identity.
+
+**A sale date that is a month.** The SDF and the NAL echo publish year and month. The contract's
+`yyyymm` path gives `month` precision; the sale observation stores `YYYY-MM`; `transferDate` stays
+null; no day is ever padded in.
+
+**A price whose derivation is the publisher's.** `SALE_PRICE_DOC_STAMP_DERIVED` is a consideration
+KIND, not a flag: exact minor units, `derivationVersion: null` because Reivesti derived nothing, and
+never written into `totalConsideration`. Migration 0012 adds the kind to the CHECK list so a database
+cannot sum it with a declared price by accident.
+
+**dBASE has no blank number.** In the cadastral .dbf an absent numeric is written 0. A slot is stated
+by its text columns or a non-zero year, a zero price in a stated slot is zero, and the cross-source
+audit reports `DBF_ZERO_FOR_BLANK` rather than a disagreement.
+
+**A placeholder is not an address.** A situs line with no digit gets no comparison key: the largest
+shared situs values statewide are single placeholder words on tens of thousands of vacant,
+common-element and public parcels. The text is kept; the comparison is withheld.
+
+**Money past 2^53.** The model's `Money` carries a JavaScript number; a value beyond
+`Number.MAX_SAFE_INTEGER` minor units is refused by that slot and kept exactly as decimal text beside
+it. It is never rounded.

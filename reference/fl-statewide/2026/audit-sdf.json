@@ -1,0 +1,3037 @@
+{
+ "source": "fl_dor_sdf",
+ "releaseManifestSha256": "8545336d2e7ce7eab2f864ae64d039e141994a68acf2f5ad5c31f6a60aa969a3",
+ "referencePeriod": "2026",
+ "stageCounts": {
+  "FINAL": 2,
+  "PRELIMINARY": 65
+ },
+ "files": 67,
+ "totalRows": 1726627,
+ "headerVariants": 1,
+ "qualificationCodes": {
+  "11": 644807,
+  "12": 6229,
+  "13": 26,
+  "14": 84943,
+  "16": 11412,
+  "17": 2906,
+  "18": 16437,
+  "19": 14625,
+  "20": 103,
+  "21": 359,
+  "30": 51197,
+  "31": 123,
+  "32": 754,
+  "33": 496,
+  "34": 426,
+  "35": 716,
+  "36": 272,
+  "37": 33199,
+  "38": 3550,
+  "39": 952,
+  "40": 2349,
+  "41": 177,
+  "42": 11,
+  "43": 1041,
+  "98": 8661,
+  "99": 13965,
+  "": 20,
+  "01": 587911,
+  "02": 91232,
+  "03": 22126,
+  "04": 232,
+  "05": 125327,
+  "06": 43
+ },
+ "vacantImproved": {
+  "": 1,
+  "I": 1386816,
+  "V": 339810
+ },
+ "multiParcel": {
+  "": 1464218,
+  "C": 63369,
+  "D": 199040
+ },
+ "saleChange": {
+  "1": 5388,
+  "2": 1266,
+  "3": 15298,
+  "4": 1678,
+  "5": 841,
+  "6": 30,
+  "7": 4514,
+  "8": 718,
+  "": 1696894
+ },
+ "saleYears": {
+  "2025": 1221543,
+  "2026": 505082,
+  "": 2
+ },
+ "saleMonths": {
+  "10": 107163,
+  "11": 87323,
+  "12": 104821,
+  "01": 174946,
+  "02": 190494,
+  "03": 215905,
+  "04": 213883,
+  "05": 191063,
+  "06": 129416,
+  "07": 108261,
+  "08": 103642,
+  "09": 99710
+ },
+ "perCounty": [
+  {
+   "dorCode": "11",
+   "countyFips": "12001",
+   "stage": "PRELIMINARY",
+   "rows": 17285,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "11": 17285
+   },
+   "assessmentYears": {
+    "2026": 17285
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 15007,
+    "valuesRepeated": 673,
+    "distinctParcelSalePairs": 17285
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 2553,
+    "linkedToSameCountyNal": 17285
+   },
+   "price": {
+    "blank": 2,
+    "zero": 2553,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 17285,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "12",
+   "countyFips": "12003",
+   "stage": "PRELIMINARY",
+   "rows": 2121,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "12": 2121
+   },
+   "assessmentYears": {
+    "2026": 2121
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 2121,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 2121
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 345,
+    "linkedToSameCountyNal": 2121
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 2121,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "13",
+   "countyFips": "12005",
+   "stage": "PRELIMINARY",
+   "rows": 23158,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "13": 23158
+   },
+   "assessmentYears": {
+    "2026": 23158
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 23158,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 23158
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 2871,
+    "linkedToSameCountyNal": 23158
+   },
+   "price": {
+    "blank": 0,
+    "zero": 1536,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 23158,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "14",
+   "countyFips": "12007",
+   "stage": "PRELIMINARY",
+   "rows": 3157,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "14": 3157
+   },
+   "assessmentYears": {
+    "2026": 3157
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 3157,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 3157
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 686,
+    "linkedToSameCountyNal": 3157
+   },
+   "price": {
+    "blank": 0,
+    "zero": 995,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 1
+   },
+   "recording": {
+    "bookPage": 2959,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 198
+   }
+  },
+  {
+   "dorCode": "15",
+   "countyFips": "12009",
+   "stage": "PRELIMINARY",
+   "rows": 56899,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "15": 56899
+   },
+   "assessmentYears": {
+    "2026": 56899
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 52946,
+    "valuesRepeated": 742,
+    "distinctParcelSalePairs": 56899
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 8367,
+    "linkedToSameCountyNal": 56899
+   },
+   "price": {
+    "blank": 0,
+    "zero": 6285,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 56899,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "16",
+   "countyFips": "12011",
+   "stage": "PRELIMINARY",
+   "rows": 97254,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "16": 97254
+   },
+   "assessmentYears": {
+    "2026": 97254
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 93093,
+    "valuesRepeated": 952,
+    "distinctParcelSalePairs": 97254
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 12675,
+    "linkedToSameCountyNal": 97254
+   },
+   "price": {
+    "blank": 0,
+    "zero": 5292,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 97254,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "17",
+   "countyFips": "12013",
+   "stage": "PRELIMINARY",
+   "rows": 1494,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "17": 1494
+   },
+   "assessmentYears": {
+    "2026": 1494
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 1494,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 1494
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 204,
+    "linkedToSameCountyNal": 1494
+   },
+   "price": {
+    "blank": 0,
+    "zero": 56,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 1494,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "18",
+   "countyFips": "12015",
+   "stage": "PRELIMINARY",
+   "rows": 40879,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "18": 40879
+   },
+   "assessmentYears": {
+    "2026": 40879
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 40879,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 40879
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 5617,
+    "linkedToSameCountyNal": 40879
+   },
+   "price": {
+    "blank": 0,
+    "zero": 1903,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 40879,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "19",
+   "countyFips": "12017",
+   "stage": "FINAL",
+   "rows": 31584,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "19": 31584
+   },
+   "assessmentYears": {
+    "2026": 31584
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 31584,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 31584
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 5243,
+    "linkedToSameCountyNal": 31584
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 31584,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "20",
+   "countyFips": "12019",
+   "stage": "PRELIMINARY",
+   "rows": 17809,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "20": 17809
+   },
+   "assessmentYears": {
+    "2026": 17809
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 14831,
+    "valuesRepeated": 241,
+    "distinctParcelSalePairs": 17809
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 2751,
+    "linkedToSameCountyNal": 17809
+   },
+   "price": {
+    "blank": 0,
+    "zero": 4055,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 16214,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 1595
+   }
+  },
+  {
+   "dorCode": "21",
+   "countyFips": "12021",
+   "stage": "PRELIMINARY",
+   "rows": 49348,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "21": 49348
+   },
+   "assessmentYears": {
+    "2026": 49348
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 49348,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 49348
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 8591,
+    "linkedToSameCountyNal": 49348
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 49348,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "22",
+   "countyFips": "12023",
+   "stage": "PRELIMINARY",
+   "rows": 5578,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "22": 5578
+   },
+   "assessmentYears": {
+    "2026": 5578
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 5578,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 5578
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 766,
+    "linkedToSameCountyNal": 5578
+   },
+   "price": {
+    "blank": 0,
+    "zero": 418,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 5578,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "23",
+   "countyFips": "12086",
+   "stage": "PRELIMINARY",
+   "rows": 105181,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "23": 105181
+   },
+   "assessmentYears": {
+    "2026": 105181
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 76,
+    "valuesRepeated": 60,
+    "distinctParcelSalePairs": 105181
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 11581,
+    "linkedToSameCountyNal": 105181
+   },
+   "price": {
+    "blank": 0,
+    "zero": 4368,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 105181,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "24",
+   "countyFips": "12027",
+   "stage": "PRELIMINARY",
+   "rows": 2422,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "24": 2422
+   },
+   "assessmentYears": {
+    "2026": 2422
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 2422,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 2422
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 284,
+    "linkedToSameCountyNal": 2422
+   },
+   "price": {
+    "blank": 0,
+    "zero": 116,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 2422,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "25",
+   "countyFips": "12029",
+   "stage": "PRELIMINARY",
+   "rows": 2705,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "25": 2705
+   },
+   "assessmentYears": {
+    "2026": 2705
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 2705,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 2705
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 434,
+    "linkedToSameCountyNal": 2705
+   },
+   "price": {
+    "blank": 0,
+    "zero": 268,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 2705,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "26",
+   "countyFips": "12031",
+   "stage": "FINAL",
+   "rows": 75878,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "26": 75878
+   },
+   "assessmentYears": {
+    "2026": 75878
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 90,
+    "valuesRepeated": 65,
+    "distinctParcelSalePairs": 75878
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 12899,
+    "linkedToSameCountyNal": 75878
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 75878,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "27",
+   "countyFips": "12033",
+   "stage": "PRELIMINARY",
+   "rows": 29834,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "27": 29834
+   },
+   "assessmentYears": {
+    "2026": 29834
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 29834,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 29834
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 5381,
+    "linkedToSameCountyNal": 29834
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 29834,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "28",
+   "countyFips": "12035",
+   "stage": "PRELIMINARY",
+   "rows": 15506,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "28": 15506
+   },
+   "assessmentYears": {
+    "2026": 15506
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 13577,
+    "valuesRepeated": 388,
+    "distinctParcelSalePairs": 15506
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 1887,
+    "linkedToSameCountyNal": 15506
+   },
+   "price": {
+    "blank": 0,
+    "zero": 6101,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 15506,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "29",
+   "countyFips": "12037",
+   "stage": "PRELIMINARY",
+   "rows": 2307,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "29": 2307
+   },
+   "assessmentYears": {
+    "2026": 2307
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 2307,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 2307
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 253,
+    "linkedToSameCountyNal": 2307
+   },
+   "price": {
+    "blank": 0,
+    "zero": 179,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 2307,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "30",
+   "countyFips": "12039",
+   "stage": "PRELIMINARY",
+   "rows": 3002,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "30": 3002
+   },
+   "assessmentYears": {
+    "2026": 3002
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 2954,
+    "valuesRepeated": 7,
+    "distinctParcelSalePairs": 3002
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 412,
+    "linkedToSameCountyNal": 3002
+   },
+   "price": {
+    "blank": 0,
+    "zero": 271,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 3002,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "31",
+   "countyFips": "12041",
+   "stage": "PRELIMINARY",
+   "rows": 2063,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "31": 2063
+   },
+   "assessmentYears": {
+    "2026": 2063
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 2063,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 2063
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 279,
+    "linkedToSameCountyNal": 2063
+   },
+   "price": {
+    "blank": 0,
+    "zero": 101,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 2063,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "32",
+   "countyFips": "12043",
+   "stage": "PRELIMINARY",
+   "rows": 1579,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "32": 1579
+   },
+   "assessmentYears": {
+    "2026": 1579
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 1579,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 1579
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 268,
+    "linkedToSameCountyNal": 1579
+   },
+   "price": {
+    "blank": 0,
+    "zero": 280,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 1579,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "33",
+   "countyFips": "12045",
+   "stage": "PRELIMINARY",
+   "rows": 3405,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "33": 3405
+   },
+   "assessmentYears": {
+    "2026": 3405
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 3405,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 3405
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 486,
+    "linkedToSameCountyNal": 3405
+   },
+   "price": {
+    "blank": 0,
+    "zero": 119,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 3405,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "34",
+   "countyFips": "12047",
+   "stage": "PRELIMINARY",
+   "rows": 1862,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "34": 1862
+   },
+   "assessmentYears": {
+    "2026": 1862
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 1862,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 1862
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 301,
+    "linkedToSameCountyNal": 1862
+   },
+   "price": {
+    "blank": 0,
+    "zero": 210,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 1862,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "35",
+   "countyFips": "12049",
+   "stage": "PRELIMINARY",
+   "rows": 2081,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "35": 2081
+   },
+   "assessmentYears": {
+    "2026": 2081
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 2081,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 2081
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 249,
+    "linkedToSameCountyNal": 2081
+   },
+   "price": {
+    "blank": 0,
+    "zero": 182,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 2081,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "36",
+   "countyFips": "12051",
+   "stage": "PRELIMINARY",
+   "rows": 5416,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "36": 5416
+   },
+   "assessmentYears": {
+    "2026": 5416
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 4877,
+    "valuesRepeated": 220,
+    "distinctParcelSalePairs": 5416
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 892,
+    "linkedToSameCountyNal": 5416
+   },
+   "price": {
+    "blank": 0,
+    "zero": 683,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 40,
+    "clerkNumber": 5376,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "37",
+   "countyFips": "12053",
+   "stage": "PRELIMINARY",
+   "rows": 19972,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "37": 19972
+   },
+   "assessmentYears": {
+    "2026": 19972
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 17941,
+    "valuesRepeated": 463,
+    "distinctParcelSalePairs": 19972
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 2815,
+    "linkedToSameCountyNal": 19972
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 19972,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "38",
+   "countyFips": "12055",
+   "stage": "PRELIMINARY",
+   "rows": 21275,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "38": 21275
+   },
+   "assessmentYears": {
+    "2026": 21275
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 21275,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 21275
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 4088,
+    "linkedToSameCountyNal": 21275
+   },
+   "price": {
+    "blank": 0,
+    "zero": 3582,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 21267,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 8
+   }
+  },
+  {
+   "dorCode": "39",
+   "countyFips": "12057",
+   "stage": "PRELIMINARY",
+   "rows": 73046,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "39": 73046
+   },
+   "assessmentYears": {
+    "2026": 73046
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 65882,
+    "valuesRepeated": 1459,
+    "distinctParcelSalePairs": 73046
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 9482,
+    "linkedToSameCountyNal": 73046
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 73046,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "40",
+   "countyFips": "12059",
+   "stage": "PRELIMINARY",
+   "rows": 2068,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "40": 2068
+   },
+   "assessmentYears": {
+    "2026": 2068
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 2068,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 2068
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 321,
+    "linkedToSameCountyNal": 2068
+   },
+   "price": {
+    "blank": 0,
+    "zero": 173,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 2068,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "41",
+   "countyFips": "12061",
+   "stage": "PRELIMINARY",
+   "rows": 15086,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "41": 15086
+   },
+   "assessmentYears": {
+    "2026": 15086
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 14345,
+    "valuesRepeated": 291,
+    "distinctParcelSalePairs": 15086
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 1984,
+    "linkedToSameCountyNal": 15086
+   },
+   "price": {
+    "blank": 0,
+    "zero": 2,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 15086,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "42",
+   "countyFips": "12063",
+   "stage": "PRELIMINARY",
+   "rows": 5568,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "42": 5568
+   },
+   "assessmentYears": {
+    "2026": 5568
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 5568,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 5568
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 805,
+    "linkedToSameCountyNal": 5568
+   },
+   "price": {
+    "blank": 0,
+    "zero": 368,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 5568,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "43",
+   "countyFips": "12065",
+   "stage": "PRELIMINARY",
+   "rows": 1456,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "43": 1456
+   },
+   "assessmentYears": {
+    "2026": 1456
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 1169,
+    "valuesRepeated": 141,
+    "distinctParcelSalePairs": 1456
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 190,
+    "linkedToSameCountyNal": 1456
+   },
+   "price": {
+    "blank": 0,
+    "zero": 147,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 1456,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "44",
+   "countyFips": "12067",
+   "stage": "PRELIMINARY",
+   "rows": 1420,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "44": 1420
+   },
+   "assessmentYears": {
+    "2026": 1420
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 1420,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 1420
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 292,
+    "linkedToSameCountyNal": 1420
+   },
+   "price": {
+    "blank": 0,
+    "zero": 4,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 1,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 1420,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "45",
+   "countyFips": "12069",
+   "stage": "PRELIMINARY",
+   "rows": 37020,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "45": 37020
+   },
+   "assessmentYears": {
+    "2026": 37020
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 36005,
+    "valuesRepeated": 64,
+    "distinctParcelSalePairs": 37020
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 4974,
+    "linkedToSameCountyNal": 37020
+   },
+   "price": {
+    "blank": 0,
+    "zero": 2007,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 37020,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "46",
+   "countyFips": "12071",
+   "stage": "PRELIMINARY",
+   "rows": 95044,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "46": 95044
+   },
+   "assessmentYears": {
+    "2026": 95044
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 95044,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 95044
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 12899,
+    "linkedToSameCountyNal": 95044
+   },
+   "price": {
+    "blank": 0,
+    "zero": 9448,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 95044,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "47",
+   "countyFips": "12073",
+   "stage": "PRELIMINARY",
+   "rows": 17061,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "47": 17061
+   },
+   "assessmentYears": {
+    "2026": 17061
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 17061,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 17061
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 2679,
+    "linkedToSameCountyNal": 17061
+   },
+   "price": {
+    "blank": 0,
+    "zero": 3510,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 17061,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "48",
+   "countyFips": "12075",
+   "stage": "PRELIMINARY",
+   "rows": 7773,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "48": 7773
+   },
+   "assessmentYears": {
+    "2026": 7773
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 66,
+    "valuesRepeated": 44,
+    "distinctParcelSalePairs": 7773
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 1203,
+    "linkedToSameCountyNal": 7773
+   },
+   "price": {
+    "blank": 0,
+    "zero": 899,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 7773,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "49",
+   "countyFips": "12077",
+   "stage": "PRELIMINARY",
+   "rows": 578,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "49": 578
+   },
+   "assessmentYears": {
+    "2026": 578
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 578,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 578
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 69,
+    "linkedToSameCountyNal": 578
+   },
+   "price": {
+    "blank": 0,
+    "zero": 40,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 578,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "50",
+   "countyFips": "12079",
+   "stage": "PRELIMINARY",
+   "rows": 2548,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "50": 2548
+   },
+   "assessmentYears": {
+    "2026": 2548
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 2548,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 2548
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 430,
+    "linkedToSameCountyNal": 2548
+   },
+   "price": {
+    "blank": 0,
+    "zero": 289,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 1
+   },
+   "recording": {
+    "bookPage": 2548,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "51",
+   "countyFips": "12081",
+   "stage": "PRELIMINARY",
+   "rows": 42180,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "51": 42180
+   },
+   "assessmentYears": {
+    "2026": 42180
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 42180,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 42180
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 5059,
+    "linkedToSameCountyNal": 42180
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 2,
+    "clerkNumber": 42178,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "52",
+   "countyFips": "12083",
+   "stage": "PRELIMINARY",
+   "rows": 62179,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "52": 62179
+   },
+   "assessmentYears": {
+    "2026": 62179
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 56331,
+    "valuesRepeated": 1471,
+    "distinctParcelSalePairs": 62179
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 11433,
+    "linkedToSameCountyNal": 62179
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 62179,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "53",
+   "countyFips": "12085",
+   "stage": "PRELIMINARY",
+   "rows": 16614,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "53": 16614
+   },
+   "assessmentYears": {
+    "2026": 16614
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 13601,
+    "valuesRepeated": 22,
+    "distinctParcelSalePairs": 16614
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 1474,
+    "linkedToSameCountyNal": 16614
+   },
+   "price": {
+    "blank": 0,
+    "zero": 3472,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 2
+   },
+   "recording": {
+    "bookPage": 16614,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "54",
+   "countyFips": "12087",
+   "stage": "PRELIMINARY",
+   "rows": 8596,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "54": 8596
+   },
+   "assessmentYears": {
+    "2026": 8596
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 8459,
+    "valuesRepeated": 4,
+    "distinctParcelSalePairs": 8596
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 1012,
+    "linkedToSameCountyNal": 8596
+   },
+   "price": {
+    "blank": 0,
+    "zero": 1515,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 1
+   },
+   "recording": {
+    "bookPage": 8596,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "55",
+   "countyFips": "12089",
+   "stage": "PRELIMINARY",
+   "rows": 9474,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "55": 9474
+   },
+   "assessmentYears": {
+    "2026": 9474
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 9474,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 9474
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 1273,
+    "linkedToSameCountyNal": 9474
+   },
+   "price": {
+    "blank": 0,
+    "zero": 323,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 1
+   },
+   "recording": {
+    "bookPage": 9273,
+    "clerkNumber": 201,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "56",
+   "countyFips": "12091",
+   "stage": "PRELIMINARY",
+   "rows": 16861,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "56": 16861
+   },
+   "assessmentYears": {
+    "2026": 16861
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 16861,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 16861
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 1988,
+    "linkedToSameCountyNal": 16861
+   },
+   "price": {
+    "blank": 0,
+    "zero": 680,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 1,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 4
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 16857,
+    "both": 0,
+    "neither": 4
+   }
+  },
+  {
+   "dorCode": "57",
+   "countyFips": "12093",
+   "stage": "PRELIMINARY",
+   "rows": 5811,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "57": 5811
+   },
+   "assessmentYears": {
+    "2026": 5811
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 5811,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 5811
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 1058,
+    "linkedToSameCountyNal": 5811
+   },
+   "price": {
+    "blank": 0,
+    "zero": 775,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 5811,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "58",
+   "countyFips": "12095",
+   "stage": "PRELIMINARY",
+   "rows": 61779,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "58": 61779
+   },
+   "assessmentYears": {
+    "2026": 61779
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 61779,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 61779
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 6574,
+    "linkedToSameCountyNal": 61779
+   },
+   "price": {
+    "blank": 0,
+    "zero": 4392,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 8,
+    "clerkNumber": 61771,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "59",
+   "countyFips": "12097",
+   "stage": "PRELIMINARY",
+   "rows": 32304,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "59": 32304
+   },
+   "assessmentYears": {
+    "2026": 32304
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 84,
+    "valuesRepeated": 66,
+    "distinctParcelSalePairs": 32304
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 4129,
+    "linkedToSameCountyNal": 32304
+   },
+   "price": {
+    "blank": 0,
+    "zero": 1751,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 32276,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 28
+   }
+  },
+  {
+   "dorCode": "60",
+   "countyFips": "12099",
+   "stage": "PRELIMINARY",
+   "rows": 90635,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "60": 90635
+   },
+   "assessmentYears": {
+    "2026": 90635
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 90635,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 90635
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 9152,
+    "linkedToSameCountyNal": 90635
+   },
+   "price": {
+    "blank": 0,
+    "zero": 3497,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 90635,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "61",
+   "countyFips": "12101",
+   "stage": "PRELIMINARY",
+   "rows": 60998,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "61": 60998
+   },
+   "assessmentYears": {
+    "2026": 60998
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 56550,
+    "valuesRepeated": 239,
+    "distinctParcelSalePairs": 60998
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 10123,
+    "linkedToSameCountyNal": 60998
+   },
+   "price": {
+    "blank": 0,
+    "zero": 22828,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 60998,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "62",
+   "countyFips": "12103",
+   "stage": "PRELIMINARY",
+   "rows": 65098,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "62": 65098
+   },
+   "assessmentYears": {
+    "2026": 65098
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 250,
+    "valuesRepeated": 53,
+    "distinctParcelSalePairs": 65098
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 8045,
+    "linkedToSameCountyNal": 65098
+   },
+   "price": {
+    "blank": 0,
+    "zero": 7560,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 65098,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "63",
+   "countyFips": "12105",
+   "stage": "PRELIMINARY",
+   "rows": 76238,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "63": 76238
+   },
+   "assessmentYears": {
+    "2026": 76238
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 503,
+    "valuesRepeated": 94,
+    "distinctParcelSalePairs": 76238
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 13076,
+    "linkedToSameCountyNal": 76238
+   },
+   "price": {
+    "blank": 0,
+    "zero": 9807,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 76238,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "64",
+   "countyFips": "12107",
+   "stage": "PRELIMINARY",
+   "rows": 17967,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "64": 17967
+   },
+   "assessmentYears": {
+    "2026": 17967
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 16246,
+    "valuesRepeated": 654,
+    "distinctParcelSalePairs": 17967
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 3179,
+    "linkedToSameCountyNal": 17967
+   },
+   "price": {
+    "blank": 0,
+    "zero": 2681,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 2
+   },
+   "recording": {
+    "bookPage": 17967,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "65",
+   "countyFips": "12109",
+   "stage": "PRELIMINARY",
+   "rows": 30666,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "65": 30666
+   },
+   "assessmentYears": {
+    "2026": 30666
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 58,
+    "valuesRepeated": 52,
+    "distinctParcelSalePairs": 30666
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 4071,
+    "linkedToSameCountyNal": 30666
+   },
+   "price": {
+    "blank": 0,
+    "zero": 3794,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 30666,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "66",
+   "countyFips": "12111",
+   "stage": "PRELIMINARY",
+   "rows": 30786,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "66": 30786
+   },
+   "assessmentYears": {
+    "2026": 30786
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 28348,
+    "valuesRepeated": 305,
+    "distinctParcelSalePairs": 30786
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 4007,
+    "linkedToSameCountyNal": 30786
+   },
+   "price": {
+    "blank": 0,
+    "zero": 3238,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 30786,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "67",
+   "countyFips": "12113",
+   "stage": "PRELIMINARY",
+   "rows": 18927,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "67": 18927
+   },
+   "assessmentYears": {
+    "2026": 18927
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 44,
+    "valuesRepeated": 42,
+    "distinctParcelSalePairs": 18927
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 2487,
+    "linkedToSameCountyNal": 18927
+   },
+   "price": {
+    "blank": 0,
+    "zero": 3,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 18927,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "68",
+   "countyFips": "12115",
+   "stage": "PRELIMINARY",
+   "rows": 51206,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "68": 51206
+   },
+   "assessmentYears": {
+    "2026": 51206
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 42,
+    "valuesRepeated": 40,
+    "distinctParcelSalePairs": 51206
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 5287,
+    "linkedToSameCountyNal": 51206
+   },
+   "price": {
+    "blank": 0,
+    "zero": 2152,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 0,
+    "clerkNumber": 51206,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "69",
+   "countyFips": "12117",
+   "stage": "PRELIMINARY",
+   "rows": 22685,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "69": 22685
+   },
+   "assessmentYears": {
+    "2026": 22685
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 22685,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 22685
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 2560,
+    "linkedToSameCountyNal": 22685
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 22685,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "70",
+   "countyFips": "12119",
+   "stage": "PRELIMINARY",
+   "rows": 23048,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "70": 23048
+   },
+   "assessmentYears": {
+    "2026": 23048
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 23003,
+    "valuesRepeated": 12,
+    "distinctParcelSalePairs": 23048
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 2826,
+    "linkedToSameCountyNal": 23048
+   },
+   "price": {
+    "blank": 0,
+    "zero": 1341,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 3
+   },
+   "recording": {
+    "bookPage": 23032,
+    "clerkNumber": 16,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "71",
+   "countyFips": "12121",
+   "stage": "PRELIMINARY",
+   "rows": 5617,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "71": 5617
+   },
+   "assessmentYears": {
+    "2026": 5617
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 5617,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 5617
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 890,
+    "linkedToSameCountyNal": 5617
+   },
+   "price": {
+    "blank": 0,
+    "zero": 5,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 5617,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "72",
+   "countyFips": "12123",
+   "stage": "PRELIMINARY",
+   "rows": 2540,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "72": 2540
+   },
+   "assessmentYears": {
+    "2026": 2540
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 2525,
+    "valuesRepeated": 14,
+    "distinctParcelSalePairs": 2540
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 348,
+    "linkedToSameCountyNal": 2540
+   },
+   "price": {
+    "blank": 0,
+    "zero": 424,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 2540,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "73",
+   "countyFips": "12125",
+   "stage": "PRELIMINARY",
+   "rows": 1252,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "73": 1252
+   },
+   "assessmentYears": {
+    "2026": 1252
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 1252,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 1252
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 240,
+    "linkedToSameCountyNal": 1252
+   },
+   "price": {
+    "blank": 0,
+    "zero": 80,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 1252,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "74",
+   "countyFips": "12127",
+   "stage": "PRELIMINARY",
+   "rows": 46936,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "74": 46936
+   },
+   "assessmentYears": {
+    "2026": 46936
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 46936,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 46936
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 6343,
+    "linkedToSameCountyNal": 46936
+   },
+   "price": {
+    "blank": 0,
+    "zero": 0,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 0
+   },
+   "recording": {
+    "bookPage": 46936,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "75",
+   "countyFips": "12129",
+   "stage": "PRELIMINARY",
+   "rows": 4482,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "75": 4482
+   },
+   "assessmentYears": {
+    "2026": 4482
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 4482,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 4482
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 736,
+    "linkedToSameCountyNal": 4482
+   },
+   "price": {
+    "blank": 0,
+    "zero": 92,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 1
+   },
+   "recording": {
+    "bookPage": 4482,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  },
+  {
+   "dorCode": "76",
+   "countyFips": "12131",
+   "stage": "PRELIMINARY",
+   "rows": 17507,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "76": 17507
+   },
+   "assessmentYears": {
+    "2026": 17507
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 17507,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 17507
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 2327,
+    "linkedToSameCountyNal": 17507
+   },
+   "price": {
+    "blank": 0,
+    "zero": 27,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 2
+   },
+   "recording": {
+    "bookPage": 17505,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 2
+   }
+  },
+  {
+   "dorCode": "77",
+   "countyFips": "12133",
+   "stage": "PRELIMINARY",
+   "rows": 4519,
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "coNo": {
+    "77": 4519
+   },
+   "assessmentYears": {
+    "2026": 4519
+   },
+   "saleId": {
+    "blank": 0,
+    "distinct": 4519,
+    "valuesRepeated": 0,
+    "distinctParcelSalePairs": 4519
+   },
+   "parcel": {
+    "blank": 0,
+    "parcelsWithMultipleSales": 688,
+    "linkedToSameCountyNal": 4519
+   },
+   "price": {
+    "blank": 0,
+    "zero": 533,
+    "nonNumeric": 0,
+    "fractional": 0
+   },
+   "date": {
+    "badYear": 0,
+    "badMonth": 0,
+    "afterAcquisitionMonth": 1
+   },
+   "recording": {
+    "bookPage": 4519,
+    "clerkNumber": 0,
+    "both": 0,
+    "neither": 0
+   }
+  }
+ ]
+}
