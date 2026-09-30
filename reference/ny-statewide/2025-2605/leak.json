@@ -1,0 +1,23 @@
+{
+ "runId": "run_319d5ae51a23dd4dce1aca63affc5674",
+ "publisherRows": 5510061,
+ "derivedRows": 5503228,
+ "joined": 5503228,
+ "unmatchedDerived": 0,
+ "mailingOnlyValuesChecked": 2590716,
+ "mailingEqualToOwnSitus": 3454471,
+ "leaks": 91834,
+ "positiveControl": {
+  "ownerNamesChecked": 5489023,
+  "ownerNamesFound": 5489023
+ },
+ "partiesWithAddress": 0,
+ "derivedKeyNames": 184,
+ "forbiddenKeyNames": [],
+ "restricted": {
+  "files": 2,
+  "filesNotOwnerOnly": 0,
+  "directoriesNotOwnerOnly": 2,
+  "contactRows": 6276204
+ }
+}

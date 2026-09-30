@@ -1,0 +1,33 @@
+{
+ "method": "raw rows only: for each mailing-only line (not equal to the parcel's own situs), which of the SAME parcel's public non-mailing fields contain it as a substring",
+ "mailingOnlyValuesChecked": 2590841,
+ "containedInOwnPublicFields": 88927,
+ "byKind": {
+  "inside own situs": 86772,
+  "inside another public field only": 2155
+ },
+ "byField": {
+  "LOC_ST_NBR+LOC_STREET+LOC_UNIT": 86772,
+  "PARCEL_ADDR": 86763,
+  "LOC_STREET": 7724,
+  "PRIMARY_OWNER": 2029,
+  "SWIS_SBL_ID": 206,
+  "SBL": 184,
+  "LOC_ZIP": 61,
+  "ADD_OWNER": 48,
+  "LOC_ST_NBR": 47,
+  "MUNI_PARCEL_ID": 39,
+  "SWIS_PRINT_KEY_ID": 18,
+  "MUNI_NAME": 18,
+  "SCHOOL_NAME": 17,
+  "CITYTOWN_SWIS": 15,
+  "SWIS": 14,
+  "CITYTOWN_NAME": 13,
+  "SCHOOL_CODE": 10,
+  "LOC_UNIT": 8,
+  "NYS_NAME": 1,
+  "SEWER_DESC": 1,
+  "WATER_DESC": 1,
+  "UTILITIES_DESC": 1
+ }
+}

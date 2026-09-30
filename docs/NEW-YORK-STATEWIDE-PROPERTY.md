@@ -19,7 +19,7 @@ no tax amount. New York transfer and tax coverage remain gaps.
 NYS ITS Geospatial Services is moving every web service off its legacy ArcGIS
 Server onto **GeoHub**, a new ArcGIS Enterprise. From the publisher's own
 migration page (`https://gis.ny.gov/migration-web-services`, verified
-2026-09-29):
+2026-09-29 and again 2026-09-30; `reference/ny-statewide/2025-2605/migration.json`):
 
 | | |
 |---|---|
@@ -29,10 +29,10 @@ migration page (`https://gis.ny.gov/migration-web-services`, verified
 | Planned retirement | **10/2026** (every parcel service: centroids, public polygons, state-owned) |
 | URLs | "all GeoHub service URLs are different than the legacy URLs" |
 
-| Centroid service | URL | Status on 2026-09-29 |
+| Centroid service | URL | Status on 2026-09-29 / 30 |
 |---|---|---|
-| GeoHub | `…/Parcels/NYS_Tax_Parcel_Centroid_Points/FeatureServer` | live, 11.5, `serviceItemId a83d82c6…`, `maxRecordCount` 2000, `Query,Extract`, **5,510,061** |
-| Legacy | `…/NYS_Tax_Parcel_Centroid_Points/FeatureServer` | still answering, 10.81, `maxRecordCount` 1000, 5,510,061, **frozen since 2026-09-18** |
+| GeoHub | `…/Parcels/NYS_Tax_Parcel_Centroid_Points/FeatureServer` | live, 11.5, `serviceItemId a83d82c6…`, `maxRecordCount` 2000, `Query,Extract`, **5,510,061** — the witness of every live run |
+| Legacy | `…/NYS_Tax_Parcel_Centroid_Points/FeatureServer` | still answering, 10.81, `maxRecordCount` 1000, 5,510,061, **frozen since 2026-09-18** (re-checked once on 2026-09-30 for this report, outside the connector) |
 
 The bulk downloads live on a third host, `gisdata.ny.gov` (Apache), which the
 migration does not list and which the program page links directly.
@@ -71,9 +71,11 @@ reason; legacy-only everywhere fails discovery without contacting the legacy
 host; two current archive links fail as ambiguous; a further move to another
 `ny.gov` host is followed with no code change.
 
-**Remaining legacy hostname dependency: none.** In the live run the archive came
-from `gisdata.ny.gov`, the witness from `nysgeohub.ny.gov` via the program page,
-and the legacy server was never contacted.
+**Remaining legacy hostname dependency: none.** In the live runs the archive came
+from `gisdata.ny.gov` and the witness from `nysgeohub.ny.gov` via the program
+page; a request-recording preload on a live discovery counted `gis.ny.gov` 1,
+`gisdata.ny.gov` 4 (2 HEAD, 2 range), `nysgeohub.ny.gov` 4 — and the legacy
+server **0**.
 
 ---
 
@@ -439,6 +441,7 @@ Memory in MiB as the runtime samples it; disk sizes in bytes or decimal MB.
 | snapshot indexes on disk | 132 MB | 84 MB | 64 MB | 129 MB |
 | peak scratch | 4.36 GiB | — | — | — |
 | end-to-end rows/s | 848 | 852 | 864 | 1,542 |
+| network-off replay (wall) | 6,236 s | — | — | — |
 
 **No heap regression, and none per row.** Twice Minnesota's rows peaked at 157
 MB against Minnesota's 257 — the heap is the emit stage's projection fold, not
@@ -479,6 +482,13 @@ index: 132 partitions and 2 indexes unchanged.
 | New York county partitions | 62 added |
 | New York snapshot index | 1 added |
 | `organization/us` | recomputed (a nation-scoped partition; New York names organizations) |
+
+Across the **whole** proof — ingest, NOOP, both forced attempts, the deletion
+of every New York output and the network-off replay — the diff from before New
+York to after the replay is the same: 62 New York partitions and 1 New York
+index added, `organization/us` recomputed, and **all 131 Minnesota and
+Wisconsin partitions and both of their indexes unchanged** (same files, sizes,
+mtimes, sha256, generations and row counts).
 
 All 131 Minnesota and Wisconsin partitions carry the same state digest, output
 digest, generation and row count before and after (`isolation-diffs.json`).
@@ -549,6 +559,40 @@ Before each forced attempt, two regenerable outputs were released for disk: the
 derived bundle (the run re-derives it — which is itself the byte-identity proof
 above) and the run's previous canonical row files (CURRENT left in place;
 change detection reads only snapshot indexes and partition manifests).
+
+### Network-off replay
+
+Every derived New York output was deleted — the canonical run tables (derived
+and restricted), the 62 county partitions, the snapshot indexes, the checkpoint
+and the derived bundle — leaving the retained publisher archive (the evidence)
+and the ledger. Then:
+
+```
+unshare --net node … src/cli/df.ts auto ny_statewide_parcels__all_ny_counties \
+  --replay 7c5b51644712692143afc6e927c7c383fef1191fa7f9d8ab47154d81bd90719b --period 2025-2605
+```
+
+in a network namespace whose only interface is loopback (`net:[4026532262]`
+against the worker's `net:[4026531833]`, observed on the running process):
+neither the publisher nor the egress proxy was reachable.
+
+| | first run | replay, network off |
+|---|---|---|
+| publisher archive sha256 | `7c5b5164…` | **equal** (the retained bytes, re-verified) |
+| derived bundle sha256 | `3969c4a0…` | **equal** — re-derived byte-identical from the archive |
+| run id | `run_319d5ae5…` | **equal** |
+| normalized digest | `85726d24…` | **equal** |
+| global digest | `5c46d1e3…` | **equal** |
+| parsed / accepted / quarantined / duplicates | 5,510,061 / 5,503,228 / 6,833 / 208 | **equal**, and per county |
+| resolved / conflicts / contacts / events | 5,503,228 / 190,603 / 6,276,204 / 18,129,889 | **equal** |
+| 62 county partitions: input digest, output digest, rows | — | **62 of 62 equal**; every data file byte-identical (only `CURRENT` and the manifest's generation and `activatedAt` differ) |
+| 62 snapshot-index files | — | **byte-identical** |
+| property ids | — | equal (they are the partitions' resolution rows, byte-identical) |
+| Minnesota / Wisconsin partitions and indexes | — | **untouched** (131 and 2 unchanged since before New York) |
+
+Replay: 6,236 s wall (derive 137.7 s, parse + normalize 4,776.6 s, project
+1,308.4 s), peak heap 150 MiB, RSS 1,053 MiB, disk growth 17.9 GiB, scratch
+4.36 GiB on tmpfs.
 
 ---
 

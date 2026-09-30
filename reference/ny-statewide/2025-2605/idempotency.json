@@ -1,0 +1,286 @@
+{
+ "noop": {
+  "outcome": "NOOP",
+  "plan": {
+   "action": "NOOP",
+   "reason": "release 2025-2605 (fingerprint dc3012911b95) was already ingested by run run_319d5ae51a23dd4dce1aca63affc5674",
+   "previous": {
+    "action": "ACQUIRED_AND_INGESTED",
+    "at": "2026-09-30T02:49:19.751Z",
+    "bundleSha256": "3969c4a08c9f88b61271c3d77c4e16eb44855dce547413e1a2617c7a26f61301",
+    "estateDigest": "5c46d1e308c36aa03dd2bb5ad61f40a75ff97939e577cb83dc9da7a9488caf52",
+    "normalizedDigest": "85726d243d40a4f2ea22601020c73bc00a9894d572f44ffedb26d6c7f8a0823f",
+    "note": "FIRST_RELEASE",
+    "publisherBytes": 562761366,
+    "publisherSha256": "7c5b51644712692143afc6e927c7c383fef1191fa7f9d8ab47154d81bd90719b",
+    "referencePeriod": "2025-2605",
+    "releaseFingerprint": "dc3012911b9528630635cad59a12d2cd2f9b70e341b17c0e3e3022fcb0019397",
+    "runId": "run_319d5ae51a23dd4dce1aca63affc5674",
+    "runStatus": "completed",
+    "sourceId": "ny_statewide_parcels"
+   }
+  },
+  "ledger": {
+   "at": "2026-09-30T03:27:25.810Z",
+   "sourceId": "ny_statewide_parcels",
+   "referencePeriod": "2025-2605",
+   "releaseFingerprint": "dc3012911b9528630635cad59a12d2cd2f9b70e341b17c0e3e3022fcb0019397",
+   "action": "NOOP_SAME_RELEASE",
+   "publisherSha256": "7c5b51644712692143afc6e927c7c383fef1191fa7f9d8ab47154d81bd90719b",
+   "publisherBytes": 562761366,
+   "bundleSha256": "3969c4a08c9f88b61271c3d77c4e16eb44855dce547413e1a2617c7a26f61301",
+   "runId": "run_319d5ae51a23dd4dce1aca63affc5674",
+   "runStatus": null,
+   "normalizedDigest": null,
+   "estateDigest": null,
+   "note": "release 2025-2605 (fingerprint dc3012911b95) was already ingested by run run_319d5ae51a23dd4dce1aca63affc5674"
+  },
+  "companion": {
+   "status": "ALREADY_RETAINED",
+   "url": "https://gisdata.ny.gov/GISData/State/Parcels/NYS-Tax-Parcels.zip",
+   "releaseFingerprint": "43066a0725ac417852201a53db90467dae7d5b5963a3b363eddb76fee1046344",
+   "referencePeriod": "2025-2605",
+   "serviceCount": 3827530,
+   "sha256": "ea803fbdb9ac5e6dfe61f90b38ddfe342274fb00b3e6898de2c7532c79de740f",
+   "bytes": 801888277,
+   "note": null
+  },
+  "timings": {
+   "pipeline": {
+    "discover": 5860,
+    "companion": 3076
+   },
+   "runtime": null
+  },
+  "estateDiff": {
+   "partitions": {
+    "added": 0,
+    "removed": 0,
+    "changed": [],
+    "unchangedCount": 194,
+    "addedIds": [],
+    "removedIds": [],
+    "minnesotaTouched": [],
+    "wisconsinTouched": []
+   },
+   "indexes": {
+    "added": 0,
+    "removed": 0,
+    "changed": [],
+    "unchangedCount": 3,
+    "addedIds": [],
+    "removedIds": [],
+    "minnesotaTouched": [],
+    "wisconsinTouched": []
+   }
+  }
+ },
+ "forceAttempt1": {
+  "outcome": "FAILED",
+  "failure": "UNEXPECTED: ENOSPC: no space left on device, write",
+  "ledger": {
+   "at": "2026-09-30T04:50:29.066Z",
+   "sourceId": "ny_statewide_parcels",
+   "referencePeriod": "2025-2605",
+   "releaseFingerprint": "dc3012911b9528630635cad59a12d2cd2f9b70e341b17c0e3e3022fcb0019397",
+   "action": "FAILED",
+   "publisherSha256": "7c5b51644712692143afc6e927c7c383fef1191fa7f9d8ab47154d81bd90719b",
+   "publisherBytes": 562761366,
+   "bundleSha256": "3969c4a08c9f88b61271c3d77c4e16eb44855dce547413e1a2617c7a26f61301",
+   "runId": "run_bf993fc4e1f95853df971cac0e5facb7",
+   "runStatus": "failed",
+   "normalizedDigest": null,
+   "estateDigest": null,
+   "note": null
+  },
+  "reconciliation": {
+   "sourceReportedCount": 5510061,
+   "downloadedCount": 5510061,
+   "parsed": 5510061,
+   "accepted": 5503228,
+   "quarantined": 6833,
+   "duplicates": 208,
+   "new": 0,
+   "unchanged": 5503228,
+   "revised": 0,
+   "missingFromSnapshot": 0,
+   "completeness": "complete",
+   "changeCounts": {
+    "new_parcel_observed": 0,
+    "unchanged_parcel": 5503228,
+    "parcel_attributes_changed": 0,
+    "parcel_missing_from_latest_source": 0,
+    "parcel_reappeared": 0
+   }
+  },
+  "note": "ENOSPC in the post-commit organization fold: the session disk allowance (~37 GiB) was exhausted at 36.4 GiB. Change detection had completed and the canonical rows were committed under the same evidence run id (the failure report carries a time-based preflight id: shared-runtime behaviour on failure); no partition or index was written (capture 3x-after-failed-force).",
+  "estateDiff": {
+   "partitions": {
+    "added": 0,
+    "removed": 0,
+    "changed": [],
+    "unchangedCount": 194,
+    "addedIds": [],
+    "removedIds": [],
+    "minnesotaTouched": [],
+    "wisconsinTouched": []
+   },
+   "indexes": {
+    "added": 0,
+    "removed": 0,
+    "changed": [],
+    "unchangedCount": 3,
+    "addedIds": [],
+    "removedIds": [],
+    "minnesotaTouched": [],
+    "wisconsinTouched": []
+   }
+  },
+  "releasedBefore": [
+   "# released before the forced re-ingest; bytes<TAB>path",
+   "5870853919\t<var>/archive/data-fabric/ny_statewide_parcels/2025-2605/sha256-3969c4a08c9f88b61271c3d77c4e16eb44855dce547413e1a2617c7a26f61301",
+   "CURRENT gen-muneo82q-6wxv8a in <var>/derived/runs/run_319d5ae51a23dd4dce1aca63affc5674",
+   "8056231530\t<var>/derived/runs/run_319d5ae51a23dd4dce1aca63affc5674/gen-muneo82q-6wxv8a",
+   "CURRENT gen-muneo82q-6wxv8a in <var>/restricted/runs/run_319d5ae51a23dd4dce1aca63affc5674",
+   "593882441\t<var>/restricted/runs/run_319d5ae51a23dd4dce1aca63affc5674/gen-muneo82q-6wxv8a"
+  ],
+  "process": {
+   "maxRSSKB": 1211872,
+   "userCPUms": 4725771,
+   "systemCPUms": 948964
+  },
+  "disk": {
+   "samples": 330,
+   "intervalSeconds": 15,
+   "peakScratchBytes": 3965496368,
+   "diskUsedAtStartBytes": 20588859392,
+   "peakDiskUsedBytes": 39074807808,
+   "peakDiskGrowthBytes": 18485948416
+  }
+ },
+ "force": {
+  "attempt": 2,
+  "scratch": "tmpfs (/dev/shm) for attempt 2",
+  "outcome": "INGESTED",
+  "ledger": {
+   "at": "2026-09-30T06:46:26.245Z",
+   "sourceId": "ny_statewide_parcels",
+   "referencePeriod": "2025-2605",
+   "releaseFingerprint": "dc3012911b9528630635cad59a12d2cd2f9b70e341b17c0e3e3022fcb0019397",
+   "action": "REPLAYED",
+   "publisherSha256": "7c5b51644712692143afc6e927c7c383fef1191fa7f9d8ab47154d81bd90719b",
+   "publisherBytes": 562761366,
+   "bundleSha256": "3969c4a08c9f88b61271c3d77c4e16eb44855dce547413e1a2617c7a26f61301",
+   "runId": "run_319d5ae51a23dd4dce1aca63affc5674",
+   "runStatus": "completed",
+   "normalizedDigest": "85726d243d40a4f2ea22601020c73bc00a9894d572f44ffedb26d6c7f8a0823f",
+   "estateDigest": "5c46d1e308c36aa03dd2bb5ad61f40a75ff97939e577cb83dc9da7a9488caf52",
+   "note": null
+  },
+  "reconciliation": {
+   "sourceReportedCount": 5510061,
+   "downloadedCount": 5510061,
+   "parsed": 5510061,
+   "accepted": 5503228,
+   "quarantined": 6833,
+   "duplicates": 208,
+   "new": 0,
+   "unchanged": 5503228,
+   "revised": 0,
+   "missingFromSnapshot": 0,
+   "completeness": "complete",
+   "changeCounts": {
+    "new_parcel_observed": 0,
+    "unchanged_parcel": 5503228,
+    "parcel_attributes_changed": 0,
+    "parcel_missing_from_latest_source": 0,
+    "parcel_reappeared": 0
+   }
+  },
+  "canonical": {
+   "runId": "run_319d5ae51a23dd4dce1aca63affc5674",
+   "normalizedDigest": "85726d243d40a4f2ea22601020c73bc00a9894d572f44ffedb26d6c7f8a0823f",
+   "globalDigest": "5c46d1e308c36aa03dd2bb5ad61f40a75ff97939e577cb83dc9da7a9488caf52",
+   "resolved": 0,
+   "conflicts": 0,
+   "contactObservations": 6276204,
+   "canonicalEvents": 18129889
+  },
+  "releasedBeforeForce": [
+   "# released before forced attempt 2; bytes<TAB>path",
+   "5870853919\t<var>/archive/data-fabric/ny_statewide_parcels/2025-2605/sha256-3969c4a08c9f88b61271c3d77c4e16eb44855dce547413e1a2617c7a26f61301",
+   "CURRENT gen-munjs3ob-jf3dmq in <var>/derived/runs/run_319d5ae51a23dd4dce1aca63affc5674",
+   "8054699075\t<var>/derived/runs/run_319d5ae51a23dd4dce1aca63affc5674/gen-munjs3ob-jf3dmq",
+   "CURRENT gen-munjs3ob-jf3dmq in <var>/restricted/runs/run_319d5ae51a23dd4dce1aca63affc5674",
+   "593882441\t<var>/restricted/runs/run_319d5ae51a23dd4dce1aca63affc5674/gen-munjs3ob-jf3dmq"
+  ],
+  "partitions": {
+   "skipped": 62,
+   "activated": [
+    "organization/us"
+   ]
+  },
+  "sameRunId": true,
+  "sameNormalizedDigest": true,
+  "sameGlobalDigest": true,
+  "sameBundle": true,
+  "samePublisherArtifact": true,
+  "estateDiff": {
+   "partitions": {
+    "added": 0,
+    "removed": 0,
+    "changed": [
+     "organization/us"
+    ],
+    "unchangedCount": 193,
+    "addedIds": [],
+    "removedIds": [],
+    "minnesotaTouched": [],
+    "wisconsinTouched": []
+   },
+   "indexes": {
+    "added": 0,
+    "removed": 0,
+    "changed": [],
+    "unchangedCount": 3,
+    "addedIds": [],
+    "removedIds": [],
+    "minnesotaTouched": [],
+    "wisconsinTouched": []
+   }
+  },
+  "timings": {
+   "pipeline": {
+    "discover": 7674,
+    "verify_archive": 635,
+    "derive": 135472,
+    "ingest": 5719564,
+    "companion": 2310
+   },
+   "runtime": {
+    "acquire": 6168,
+    "parse_normalize": 4601774,
+    "project": 1107631
+   }
+  },
+  "memory": {
+   "pipelinePeakHeapMB": 153,
+   "pipelinePeakRssMB": 1167,
+   "pipelinePeakExternalMB": 1059,
+   "runtimePeakHeapMB": 155
+  },
+  "process": {
+   "maxRSSKB": 1215224,
+   "userCPUms": 5867742,
+   "systemCPUms": 1135848
+  },
+  "disk": {
+   "samples": 391,
+   "intervalSeconds": 15,
+   "peakScratchBytes": 4685083506,
+   "diskUsedAtStartBytes": 20590301184,
+   "peakDiskUsedBytes": 35219120128,
+   "peakDiskGrowthBytes": 14628818944
+  }
+ }
+}

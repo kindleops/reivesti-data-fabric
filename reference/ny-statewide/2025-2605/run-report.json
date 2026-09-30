@@ -349,6 +349,25 @@
   "captured 0b-before-ny 2026-09-30T01:03:21Z free=25069510656",
   "1-ny-auto rc=0 6499s 2026-09-30T02:51:40Z free=4444528640",
   "captured 1-after-ny 2026-09-30T02:52:01Z free=4444180480",
-  "quality rc=0 129s 2026-09-30T02:54:11Z free=4443881472"
+  "quality rc=0 129s 2026-09-30T02:54:11Z free=4443881472",
+  "leak rc=0 1099s 2026-09-30T03:12:31Z free=4443361280",
+  "ids-ny rc=0 484s 2026-09-30T03:20:35Z free=3720675328",
+  "pid-reuse rc=0 395s 2026-09-30T03:27:19Z free=4236976128",
+  "2-ny-noop rc=0 9s 2026-09-30T03:27:28Z free=4671356928",
+  "captured 2-after-noop 2026-09-30T03:27:47Z free=4670980096",
+  "3-ny-force rc=1 4952s 2026-09-30T04:50:29Z free=4671934464",
+  "stop 2026-09-30T04:50:29Z free=4671934464",
+  "force-attempt-1 ENOSPC in post-commit organization fold; canonical rows committed (CURRENT gen-munjs3ob-jf3dmq); partitions+indexes untouched (capture 3x) 2026-09-30T04:54:36Z",
+  "continue-start 2026-09-30T05:08:34Z free=4671066112",
+  "scratch-on-tmpfs 2026-09-30T05:08:34Z free=4671070208",
+  "3-ny-force-2 rc=0 5866s 2026-09-30T06:46:28Z free=4333092864",
+  "captured 3-after-force 2026-09-30T06:46:50Z free=4332728320",
+  "swept-ny-org-generations 2026-09-30T06:46:51Z free=4670447616",
+  "deleting NY derived outputs run=run_319d5ae51a23dd4dce1aca63affc5674 bundle=3969c4a08c9f88b61271c3d77c4e16eb44855dce547413e1a2617c7a26f61301 2026-09-30T06:46:51Z free=4670447616",
+  "captured 4a-ny-deleted 2026-09-30T06:47:09Z free=23590776832",
+  "4-ny-replay rc=0 6236s 2026-09-30T08:31:05Z free=4330422272",
+  "captured 4-after-replay 2026-09-30T08:31:22Z free=4330074112",
+  "git-audit rc=0 45s 2026-09-30T08:32:07Z free=4330061824",
+  "done 2026-09-30T08:32:07Z free=4330061824"
  ]
 }

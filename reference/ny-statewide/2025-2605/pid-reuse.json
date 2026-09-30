@@ -1,0 +1,40 @@
+{
+ "identifierFiles": {
+  "mn-wi": {
+   "identifiers": 6161211
+  },
+  "ny": {
+   "identifiers": 5503228
+  }
+ },
+ "identifiers": 11664439,
+ "identifiersByState": {
+  "WI": 3513111,
+  "MN": 2648100,
+  "NY": 5503228
+ },
+ "stringsInSeveralCountiesOfOneState": {
+  "WI": 117040,
+  "MN": 92874
+ },
+ "canonicalStringsInSeveralStates": {
+  "MN+WI": 30988,
+  "MN+NY": 0,
+  "WI+NY": 0,
+  "MN+WI+NY": 0
+ },
+ "foldedKeysInSeveralStates": {
+  "MN+WI": 32970,
+  "MN+NY": 0,
+  "WI+NY": 0,
+  "MN+WI+NY": 0
+ },
+ "nyLocalSblInOtherStates": {
+  "MN+WI": 30988,
+  "MN+NY": 143,
+  "WI+NY": 26,
+  "MN+WI+NY": 0
+ },
+ "propertyIdCollisions": 0,
+ "distinctPropertiesAcrossStateReuse": true
+}
