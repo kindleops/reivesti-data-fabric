@@ -1,0 +1,18 @@
+{
+ "claim": "`df artifacts catalog` on the certifying worker, after the DF-0M runs: every raw artifact the certification read is present in the workspace; none has a durable copy (production durable storage is deferred infrastructure).",
+ "command": "DF_VAR=<estate> df artifacts catalog",
+ "entries": 211,
+ "durableBackend": "NO_DURABLE_BACKEND",
+ "byState": {
+  "fl_dor_nal|publisher_raw|expected REACQUIRABLE|now EPHEMERAL_ONLY|workspace True": 67,
+  "fl_dor_sdf|publisher_raw|expected REACQUIRABLE|now EPHEMERAL_ONLY|workspace True": 67,
+  "fl_statewide_cadastral|publisher_raw|expected REACQUIRABLE|now EPHEMERAL_ONLY|workspace True": 69,
+  "mn_hennepin_county_parcels|publisher_raw|expected LOST_EXACT_BYTES|now LOST_EXACT_BYTES|workspace False": 1,
+  "mn_statewide_parcels|derived_bundle|expected LOST_EXACT_BYTES|now LOST_EXACT_BYTES|workspace False": 2,
+  "mn_statewide_parcels|derived_bundle|expected REGENERABLE|now REGENERABLE|workspace False": 1,
+  "mn_statewide_parcels|publisher_raw|expected LOST_EXACT_BYTES|now LOST_EXACT_BYTES|workspace False": 1,
+  "mn_statewide_parcels|publisher_raw|expected REACQUIRABLE|now EPHEMERAL_ONLY|workspace True": 1,
+  "wi_statewide_parcels|derived_bundle|expected REGENERABLE|now REGENERABLE|workspace False": 1,
+  "wi_statewide_parcels|publisher_raw|expected REACQUIRABLE|now EPHEMERAL_ONLY|workspace True": 1
+ }
+}

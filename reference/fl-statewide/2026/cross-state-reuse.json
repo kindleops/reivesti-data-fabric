@@ -1,0 +1,10 @@
+{
+ "claim": "A parcel string shared across counties or states is never one property: identity is (county, parcel).",
+ "resolvedProperties": 17251703,
+ "propertiesByState": {"12": 11090492, "27": 2648100, "55": 3513111},
+ "distinctParcelStrings": {"12": 11071278, "27": 2436598, "55": 3280609},
+ "parcelStringsInBoth": {"FL_MN": 852, "FL_WI": 1318, "MN_WI": 30988, "FL_MN_WI": 16},
+ "floridaParcelStringsInSeveralFloridaCounties": 18863,
+ "propertyIdsNamingMoreThanOneCountyParcel": 0,
+ "countyParcelsWithMoreThanOnePropertyId": 0
+}
