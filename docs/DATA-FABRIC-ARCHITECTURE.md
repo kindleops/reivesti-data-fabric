@@ -668,7 +668,7 @@ view; `df runs` lists history. No admin UI in this phase, by design.
 ## National integration (DF-0O)
 
 Minnesota, Wisconsin and New York are certified together on one `main`
-(`THREE_STATE_INTEGRATION: PASS`; Florida not yet present). DF-0O added no
+(`THREE_STATE_INTEGRATION: PASS`; Florida, certified on its own branch, integrates next). DF-0O added no
 source and no state; it added the cross-state guards a fourth state will need:
 
 - `src/registry/lifecycle.ts` — one derived lifecycle per mapping, per-state

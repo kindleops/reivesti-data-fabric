@@ -363,6 +363,6 @@ one derived lifecycle per mapping — `df national`, `src/registry/lifecycle.ts`
 Automated-core parcel jurisdictions remain **193**, now computed by
 `automatedCoreJurisdictions` rather than asserted as a literal. Sale
 economics, transfer, deed, mortgage, release, lien and foreclosure stay at
-**0**. The full table, and Florida's integration contract, are in
+**0**. Florida (67 counties, certified on its own branch) is not yet merged and not counted here. The full table, and Florida's integration contract, are in
 [NATIONAL-INTEGRATION-CERTIFICATION.md](NATIONAL-INTEGRATION-CERTIFICATION.md).
 No new state was added in DF-0O.

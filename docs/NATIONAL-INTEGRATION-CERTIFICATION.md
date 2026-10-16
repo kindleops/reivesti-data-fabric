@@ -1,11 +1,13 @@
 # National integration certification (DF-0O)
 
 Minnesota, Wisconsin and New York, integrated on one `main`, certified
-together; Florida's integration contract written down for when it arrives.
+together. Florida is certified on its own branch and integrates next, under
+the contract in §2.
 This document records what was proven, at what level, on what evidence — and,
 as carefully, what was not.
 
-**Gate.** `THREE_STATE_INTEGRATION: PASS` · `FOUR_STATE_INTEGRATION: WAITING_ON_FLORIDA`.
+**Gate.** `THREE_STATE_INTEGRATION: PASS` · `FOUR_STATE_INTEGRATION: PENDING_FLORIDA_INTEGRATION`
+(Florida's branch is certified; it is not yet merged with this one).
 
 ---
 
@@ -18,16 +20,17 @@ as carefully, what was not.
 | Merges before it | #1 DF-0A/B, #2 DF-0C, #3 DF-0K Wisconsin + DF-0L durable artifacts |
 | Migrations on `main` | 11 drafts, unchanged by DF-0N and DF-0O; no duplicate numbers; no production DDL |
 | Branch protection | the protection API returns 403 to this session; the rulesets endpoint lists none. PR #4 merged through the normal merge API with checks green — nothing was bypassed |
-| Florida (DF-0M) | **not found**: no branch, no pull request and no visible session on 2026-10-16. Not certified, not counted, not merged |
+| Florida (DF-0M) | **on branch `claude/wisconsin-parcel-ingestion-1zz3r9`** (misnamed: it carried DF-0K/DF-0L as PR #3 and then received Florida), HEAD `c868376`, 13 commits beyond the PR #3 merge base `e9ada40`, no pull request. Certified there (2026-09-30): 67 counties, 11,090,492 properties, three sources, network-off replay, idempotency, migration 0012 chain twice. **Not merged and not counted here** — this document certifies `main`. An earlier draft of DF-0O recorded Florida as "not found": the branch was in the listing, but it was taken for the already-merged Wisconsin branch without checking for commits ahead of `main`. That was wrong. |
 
 ## 2. Florida: the integration contract
 
-A pending Florida branch can never cause certification here. When one appears,
-it integrates on these terms, and fails them loudly otherwise:
+A branch's own certification is never `main`'s. Florida (§1) integrates on
+these terms, and fails them loudly otherwise:
 
-1. **It is merged only after its own certification**: full statewide ingest,
-   NOOP, forced re-ingest and a network-off replay, the same proof levels as
-   §6, with evidence in `reference/fl-*`.
+1. **It is merged only after its own certification** — full statewide ingest,
+   NOOP, forced re-ingest and a network-off replay, evidence in
+   `reference/fl-statewide/2026/` (Florida has this) — and through a
+   history-preserving merge into current `main`, never a re-implementation.
 2. **Registry**: its source(s) and mapping(s) append to `SOURCES`/`MAPPINGS`
    with unique ids (`tests/national-integration.test.ts` fails on a duplicate).
    Its lifecycle is derived (`src/registry/lifecycle.ts`); nothing is declared.
