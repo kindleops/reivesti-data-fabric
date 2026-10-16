@@ -1,0 +1,28 @@
+{
+ "sampledStrings": 148332,
+ "trackedFiles": 278,
+ "filesContainingSampledLiveStrings": 23,
+ "positiveControlFiles": 4,
+ "credentialPatternLinesAddedByBranch": 0,
+ "binaryFilesAddedOrChanged": 0,
+ "filesOver1MiB": 0,
+ "rawArtifactLikePaths": 0,
+ "machineSpecificPathLines": 0,
+ "sample": "every 97th publisher row: PRIMARY_OWNER, ADD_OWNER, MAIL_ADDR, ADD_MAIL_ADDR, PARCEL_ADDR values of 12+ characters, matched case-insensitively against every tracked file at HEAD",
+ "classification": {
+  "distinctMatchedStrings": 21,
+  "alreadyInBaseCommit": {
+   "count": 19,
+   "kinds": {
+    "federal county names (reference/geography Census files, docs)": 9,
+    "entity-type vocabulary (name normalization, business-register domain)": 4,
+    "place or roll vocabulary (e.g. \"New York State\", \"Right of Way\")": 6
+   }
+  },
+  "introducedByThisBranch": {
+   "count": 2,
+   "what": "ORPTS roll-section names quoted from 20 NYCRR 8190 in the ROLL_SECTION field description (\"ceiling railroad\", \"wholly exempt\")"
+  },
+  "livePersonalNamesOrMailingAddressesCommitted": 0
+ }
+}

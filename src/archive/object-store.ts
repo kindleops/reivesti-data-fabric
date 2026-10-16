@@ -9,10 +9,11 @@
  */
 import { createHash } from 'node:crypto';
 import { constants, createReadStream, createWriteStream } from 'node:fs';
-import { access, chmod, mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+import { access, chmod, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { once } from 'node:events';
 import { dirname, join, relative, sep } from 'node:path';
 import { fail } from '../core/errors.ts';
+import { OWNER_READ_ONLY_FILE, ensurePrivateDir, tightenFile } from '../core/private-fs.ts';
 
 export type PutResult = {
   /** false when an identical object already existed: a safe, idempotent no-op. */
@@ -54,7 +55,13 @@ export function createFilesystemObjectStore(root: string): ObjectStore {
       const existing = await readIfPresent(path);
       if (existing) {
         const existingSha = createHash('sha256').update(existing).digest('hex');
-        if (existingSha === sha256) return { created: false, sha256, byteLength: bytes.byteLength };
+        if (existingSha === sha256) {
+          // Identical bytes already retained — possibly by older code that left
+          // 0755 directories and a 0444 file. Repair them on the way out.
+          await ensurePrivateDir(dirname(path), root);
+          await tightenFile(path);
+          return { created: false, sha256, byteLength: bytes.byteLength };
+        }
         fail('IMMUTABILITY', `refusing to overwrite retained object "${key}"`, {
           key,
           retainedSha256: existingSha,
@@ -62,11 +69,11 @@ export function createFilesystemObjectStore(root: string): ObjectStore {
         });
       }
 
-      await mkdir(dirname(path), { recursive: true });
+      await ensurePrivateDir(dirname(path), root);
       // Write to a temp name then rename: a crash mid-write can never leave a
       // truncated object under a key that callers will later trust.
       const tmp = `${path}.${process.pid}.tmp`;
-      await writeFile(tmp, bytes, { mode: 0o444 });
+      await writeFile(tmp, bytes, { mode: OWNER_READ_ONLY_FILE });
       try {
         await rename(tmp, path);
       } catch (e) {
@@ -77,7 +84,7 @@ export function createFilesystemObjectStore(root: string): ObjectStore {
         }
         throw e;
       }
-      await chmod(path, 0o444).catch(() => {}); // read-only is a guard rail, not a guarantee
+      await chmod(path, OWNER_READ_ONLY_FILE).catch(() => {}); // read-only is a guard rail, not a guarantee
       return { created: true, sha256, byteLength: bytes.byteLength };
     },
 
@@ -178,7 +185,7 @@ export function createStreamingFilesystemObjectStore(root: string): StreamingObj
 
     async stage(produce) {
       const stagingDir = join(root, '.staging');
-      await mkdir(stagingDir, { recursive: true });
+      await ensurePrivateDir(stagingDir, root);
       const path = join(stagingDir, `stage-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
       const hash = createHash('sha256');
@@ -230,12 +237,14 @@ export function createStreamingFilesystemObjectStore(root: string): StreamingObj
                 key, retainedSha256: retained.sha256, incomingSha256: sha256,
               });
             }
+            await ensurePrivateDir(dirname(destination), root);
+            await tightenFile(destination);
             return { created: false, sha256, byteLength };
           }
 
-          await mkdir(dirname(destination), { recursive: true });
+          await ensurePrivateDir(dirname(destination), root);
           await rename(path, destination);
-          await chmod(destination, 0o444).catch(() => {});
+          await chmod(destination, OWNER_READ_ONLY_FILE).catch(() => {});
           return { created: true, sha256, byteLength };
         },
         async discard() {

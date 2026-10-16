@@ -300,6 +300,10 @@ Streaming adds temporary files, so it adds places personal data could linger.
 
 - Restricted rows are written to a **separate root** (`var/restricted/`) with mode
   `0600`, per generation, exactly as the buffered store does.
+  Since DF-0O the directories are owner-only too (`0700`, every level from
+  `var/restricted/` down, tightened if an older run created them wider), and
+  the restricted `CURRENT` pointer is `0600`; `df permissions [--fix]` audits an
+  existing estate.
 - Artifact staging files are created `0600` and are either promoted or removed;
   a failure removes them.
 - The scratch directory holding sort spills and contribution files is deleted in a

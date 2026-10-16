@@ -45,6 +45,7 @@
  */
 import { createHash } from 'node:crypto';
 import { readFile, readdir, rename, rm, stat, writeFile, mkdir } from 'node:fs/promises';
+import { ensurePrivateDir } from '../core/private-fs.ts';
 import { dirname, join } from 'node:path';
 import { fail } from '../core/errors.ts';
 
@@ -270,11 +271,11 @@ export class SnapshotIndex {
  * was never accepted, and every parcel the rejected delivery happened to omit
  * would be reported absent.
  */
-export async function activateSnapshotIndex(path: string, index: SnapshotIndex): Promise<void> {
+export async function activateSnapshotIndex(path: string, index: SnapshotIndex, root?: string): Promise<void> {
   if (index.lifecycle !== 'COMPLETE') {
     fail('CONFIG', `refusing to activate a ${index.lifecycle} snapshot index`, { path });
   }
-  await mkdir(dirname(path), { recursive: true });
+  await indexDir(path, root);
   const temp = `${path}.${process.pid}.tmp`;
   try {
     await writeFile(temp, index.toBytes(), { mode: 0o600 });
@@ -284,6 +285,16 @@ export async function activateSnapshotIndex(path: string, index: SnapshotIndex):
     throw error;
   }
   index.markActivated();
+}
+
+/**
+ * Index directories are owner-only. Given the index root, every directory
+ * from it down is tightened too, so an estate written by older code (0755) is
+ * repaired; without one, only newly created directories are 0700.
+ */
+async function indexDir(path: string, root: string | undefined): Promise<void> {
+  if (root === undefined) await mkdir(dirname(path), { recursive: true, mode: 0o700 });
+  else await ensurePrivateDir(dirname(path), root);
 }
 
 /** Former name. Kept as an alias so callers read one way of saying this. */
@@ -479,12 +490,12 @@ export async function readTombstones(path: string): Promise<TombstoneSet> {
 }
 
 /** Written only beside an activated index; an empty set removes the file. */
-export async function writeTombstones(path: string, set: TombstoneSet): Promise<void> {
+export async function writeTombstones(path: string, set: TombstoneSet, root?: string): Promise<void> {
   if (set.size === 0) {
     await rm(path, { force: true });
     return;
   }
-  await mkdir(dirname(path), { recursive: true });
+  await indexDir(path, root);
   const temp = `${path}.${process.pid}.tmp`;
   await writeFile(temp, set.toBytes(), { mode: 0o600 });
   await rename(temp, path);

@@ -339,13 +339,14 @@ test('the national report counts jurisdictions with a verified core source, not 
   //
   // DF-0K adds 72 back — honestly this time: the Wisconsin Statewide Parcel Map
   // is an archive at a stable URL that a scheduler retrieves with nobody
-  // present. Parcel, not transfer: 59 + 72 = 131.
-  assert.equal(report.jurisdictionsWithCoreSource, 131);
+  // present. Parcel, not transfer: 59 + 72 = 131. DF-0N adds New York's 62 from
+  // the statewide centroid archive, also retrieved unattended: 193.
+  assert.equal(report.jurisdictionsWithCoreSource, 193);
   assert.equal(report.sources.paidOptional, 1);
   assert.ok(report.byCapability.length === TRACKED_CAPABILITIES.length);
 
   const parcel = report.byCapability.find((c) => c.capability === 'parcel');
-  assert.equal(parcel?.covered, 131);
+  assert.equal(parcel?.covered, 193);
   // Zero transfer coverage, nationally. Both statewide transfer sources are real,
   // free and parsed, and neither can be fetched: Wisconsin RETR needs a human in a
   // portal, Minnesota eCRV needs a request nobody has sent. This is the estate's

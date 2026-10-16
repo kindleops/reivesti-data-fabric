@@ -1,0 +1,273 @@
+{
+ "discovery": {
+  "referencePeriod": "2025-2605",
+  "releaseFingerprint": "dc3012911b9528630635cad59a12d2cd2f9b70e341b17c0e3e3022fcb0019397",
+  "head": {
+   "url": "https://gisdata.ny.gov/GISData/State/Parcels/NYS-Tax-Parcel-Centroid-Points.gdb.zip",
+   "etag": "\"218b0e96-65c39faa0d700\"",
+   "lastModified": "Thu, 24 Sep 2026 12:45:48 GMT",
+   "contentLength": 562761366,
+   "versionId": null,
+   "acceptRanges": true
+  },
+  "archive": {
+   "url": "https://gisdata.ny.gov/GISData/State/Parcels/NYS-Tax-Parcel-Centroid-Points.gdb.zip",
+   "filename": "NYS-Tax-Parcel-Centroid-Points.gdb.zip",
+   "label": {
+    "rollYear": 2025,
+    "build": "2605",
+    "referencePeriod": "2025-2605",
+    "geodatabase": "NYS_2025_Tax_Parcels_Centroid_Points_2605.gdb",
+    "source": "archive_directory"
+   },
+   "entryCount": 66
+  },
+  "access": {
+   "credentialsRequired": false,
+   "sessionRequired": false,
+   "captchaObserved": false,
+   "archiveAcceptsRanges": true
+  },
+  "migration": {
+   "legacyHost": "gisservices.its.ny.gov",
+   "dependsOnLegacyHost": false,
+   "legacyLinksIgnored": [],
+   "witnessHost": "nysgeohub.ny.gov",
+   "archiveHost": "gisdata.ny.gov"
+  },
+  "serviceMatchesArchive": true,
+  "programLinks": {
+   "centroidArchives": [
+    "https://gisdata.ny.gov/GISData/State/Parcels/NYS-Tax-Parcel-Centroid-Points.gdb.zip"
+   ],
+   "polygonArchives": [
+    "https://gisdata.ny.gov/GISData/State/Parcels/NYS-Tax-Parcels.zip"
+   ],
+   "centroidServices": [
+    "https://nysgeohub.ny.gov/arcgis/rest/services/Parcels/NYS_Tax_Parcel_Centroid_Points/FeatureServer"
+   ],
+   "polygonServices": [
+    "https://nysgeohub.ny.gov/arcgis/rest/services/Parcels/NYS_Tax_Parcels_Public/FeatureServer"
+   ],
+   "refusedNonOfficial": []
+  },
+  "companion": {
+   "url": "https://gisdata.ny.gov/GISData/State/Parcels/NYS-Tax-Parcels.zip",
+   "filename": "NYS-Tax-Parcels.zip",
+   "head": {
+    "url": "https://gisdata.ny.gov/GISData/State/Parcels/NYS-Tax-Parcels.zip",
+    "etag": "\"2fcbd815-65c3aea1ea780\"",
+    "lastModified": "Thu, 24 Sep 2026 13:52:46 GMT",
+    "contentLength": 801888277,
+    "versionId": null,
+    "acceptRanges": true
+   },
+   "releaseFingerprint": "43066a0725ac417852201a53db90467dae7d5b5963a3b363eddb76fee1046344",
+   "label": {
+    "rollYear": 2025,
+    "build": "2605",
+    "referencePeriod": "2025-2605",
+    "geodatabase": "NYS_2025_Tax_Parcels_Public_2605.gdb",
+    "source": "archive_directory"
+   },
+   "serviceCount": 3827530,
+   "serviceUrl": "https://nysgeohub.ny.gov/arcgis/rest/services/Parcels/NYS_Tax_Parcels_Public/FeatureServer"
+  },
+  "companionError": null
+ },
+ "discoveryRequestsByHost": {
+  "measuredAt": "2026-09-30T00:15Z",
+  "command": "df auto ny_statewide_parcels__all_ny_counties --discover-only, with a preload recording method and host of every fetch",
+  "releaseFingerprint": "dc3012911b9528630635cad59a12d2cd2f9b70e341b17c0e3e3022fcb0019397",
+  "requestsByHost": {
+   "GET gis.ny.gov": 1,
+   "GET gisdata.ny.gov (range)": 2,
+   "GET nysgeohub.ny.gov": 4,
+   "HEAD gisdata.ny.gov": 2
+  },
+  "legacyHostRequests": 0
+ },
+ "witness": {
+  "serviceUrl": "https://nysgeohub.ny.gov/arcgis/rest/services/Parcels/NYS_Tax_Parcel_Centroid_Points/FeatureServer",
+  "layerId": 0,
+  "discoveredVia": "program_page",
+  "onLegacyHost": false,
+  "serverVersion": 11.5,
+  "serviceItemId": "a83d82c6042f49b28f370f2797c9dc9b",
+  "title": "NYS 2025 Tax Parcel Centroid Points",
+  "layerName": "NYS Tax Parcel Centroid Points",
+  "count": 5510061,
+  "capabilities": "Query,Extract",
+  "maxRecordCount": 2000,
+  "supportsPagination": true,
+  "objectIdField": "OBJECTID",
+  "geometryType": "esriGeometryPoint",
+  "fields": 73,
+  "fieldSetDigest": "2c0ad408c074e384f437fcd153ddc10b91dbc97e83c48135c11eee9a77f19b44",
+  "copyrightText": "Contributing counties, NYS Office of Information Technology Services Geospatial Services and NYS Department of Taxation and Finance\u2019s Office of Real Property Tax Services (ORPTS). Primary Contact:  nysgis@its.ny.gov, 518-242-5029.",
+  "label": {
+   "rollYear": 2025,
+   "build": "2605",
+   "referencePeriod": "2025-2605",
+   "geodatabase": null,
+   "source": "service_metadata"
+  }
+ },
+ "publisherArtifact": {
+  "sha256": "7c5b51644712692143afc6e927c7c383fef1191fa7f9d8ab47154d81bd90719b",
+  "bytes": 562761366,
+  "filename": "NYS-Tax-Parcel-Centroid-Points.gdb.zip",
+  "url": "https://gisdata.ny.gov/GISData/State/Parcels/NYS-Tax-Parcel-Centroid-Points.gdb.zip",
+  "retrievedAt": "2026-09-30T01:03:28.229Z",
+  "effectiveAt": "2026-09-24T12:45:48.000Z"
+ },
+ "bundleArtifact": {
+  "sha256": "3969c4a08c9f88b61271c3d77c4e16eb44855dce547413e1a2617c7a26f61301",
+  "bytes": 5870851846
+ },
+ "derivation": {
+  "geodatabase": "NYS_2025_Tax_Parcels_Centroid_Points_2605.gdb",
+  "label": {
+   "rollYear": 2025,
+   "build": "2605",
+   "referencePeriod": "2025-2605",
+   "geodatabase": "NYS_2025_Tax_Parcels_Centroid_Points_2605.gdb",
+   "source": "archive_directory"
+  },
+  "tableName": "NYS_Tax_Parcels_Centroid_Points",
+  "catalogTables": [
+   "NYC_BldgClass_Codes",
+   "NYC_LandUse_Codes",
+   "NYS_Name_Source_Table",
+   "NYS_Property_Class_Codes",
+   "NYS_Tax_Parcels_Centroid_Points",
+   "SWIS_Muni_Codes"
+  ],
+  "validRowCount": 5510061,
+  "rowsWritten": 5510061,
+  "rowsWithoutGeometry": 0,
+  "rowsByCountyName": {
+   "Albany": 112804,
+   "Allegany": 33683,
+   "Bronx": 89229,
+   "Broome": 85058,
+   "Cattaraugus": 50459,
+   "Cayuga": 39127,
+   "Chautauqua": 88396,
+   "Chemung": 39390,
+   "Chenango": 32232,
+   "Clinton": 38741,
+   "Columbia": 35973,
+   "Cortland": 22662,
+   "Delaware": 43000,
+   "Dutchess": 110364,
+   "Erie": 370424,
+   "Essex": 37213,
+   "Franklin": 32387,
+   "Fulton": 33209,
+   "Genesee": 28266,
+   "Greene": 38418,
+   "Hamilton": 12947,
+   "Herkimer": 41442,
+   "Jefferson": 58979,
+   "Kings": 275680,
+   "Lewis": 24688,
+   "Livingston": 28780,
+   "Madison": 37627,
+   "Monroe": 267414,
+   "Montgomery": 25260,
+   "Nassau": 423430,
+   "NewYork": 42061,
+   "Niagara": 93673,
+   "Oneida": 105058,
+   "Onondaga": 181909,
+   "Ontario": 51318,
+   "Orange": 145694,
+   "Orleans": 20538,
+   "Oswego": 59567,
+   "Otsego": 39706,
+   "Putnam": 42291,
+   "Queens": 324164,
+   "Rensselaer": 64346,
+   "Richmond": 125536,
+   "Rockland": 92620,
+   "Saratoga": 102202,
+   "Schenectady": 58472,
+   "Schoharie": 23033,
+   "Schuyler": 13274,
+   "Seneca": 17737,
+   "StLawrence": 67717,
+   "Steuben": 55384,
+   "Suffolk": 586600,
+   "Sullivan": 67340,
+   "Tioga": 26133,
+   "Tompkins": 35369,
+   "Ulster": 88260,
+   "Warren": 45869,
+   "Washington": 35431,
+   "Wayne": 43900,
+   "Westchester": 258145,
+   "Wyoming": 23530,
+   "Yates": 15902
+  },
+  "deletedSlots": 0,
+  "fields": 73,
+  "sourceSchemaDigest": "2c0ad408c074e384f437fcd153ddc10b91dbc97e83c48135c11eee9a77f19b44",
+  "geometry": {
+   "type": "point",
+   "spatialReference": "NAD_1983_UTM_Zone_18N",
+   "hasZ": true,
+   "hasM": true
+  },
+  "extractMs": 14544,
+  "readMs": 115937
+ },
+ "crossCheck": {
+  "archiveRows": 5510061,
+  "serviceCount": 5510061,
+  "difference": 0,
+  "agrees": true,
+  "countAgrees": true,
+  "schemaAgrees": true,
+  "releaseAgrees": true,
+  "serviceUrl": "https://nysgeohub.ny.gov/arcgis/rest/services/Parcels/NYS_Tax_Parcel_Centroid_Points/FeatureServer",
+  "serviceOnLegacyHost": false,
+  "serviceLayerName": "NYS Tax Parcel Centroid Points",
+  "archiveTable": "NYS_Tax_Parcels_Centroid_Points",
+  "archiveGeodatabase": "NYS_2025_Tax_Parcels_Centroid_Points_2605.gdb",
+  "serviceSchemaDigest": "2c0ad408c074e384f437fcd153ddc10b91dbc97e83c48135c11eee9a77f19b44",
+  "archiveSchemaDigest": "2c0ad408c074e384f437fcd153ddc10b91dbc97e83c48135c11eee9a77f19b44",
+  "onlyInService": [],
+  "onlyInArchive": []
+ },
+ "plan": {
+  "action": "ACQUIRE",
+  "reason": "FIRST_RELEASE",
+  "schemaValidationRequired": false
+ },
+ "companion": {
+  "status": "RETAINED",
+  "url": "https://gisdata.ny.gov/GISData/State/Parcels/NYS-Tax-Parcels.zip",
+  "releaseFingerprint": "43066a0725ac417852201a53db90467dae7d5b5963a3b363eddb76fee1046344",
+  "referencePeriod": "2025-2605",
+  "serviceCount": 3827530,
+  "sha256": "ea803fbdb9ac5e6dfe61f90b38ddfe342274fb00b3e6898de2c7532c79de740f",
+  "bytes": 801888277,
+  "note": null
+ },
+ "ledger": {
+  "at": "2026-09-30T02:49:19.751Z",
+  "sourceId": "ny_statewide_parcels",
+  "referencePeriod": "2025-2605",
+  "releaseFingerprint": "dc3012911b9528630635cad59a12d2cd2f9b70e341b17c0e3e3022fcb0019397",
+  "action": "ACQUIRED_AND_INGESTED",
+  "publisherSha256": "7c5b51644712692143afc6e927c7c383fef1191fa7f9d8ab47154d81bd90719b",
+  "publisherBytes": 562761366,
+  "bundleSha256": "3969c4a08c9f88b61271c3d77c4e16eb44855dce547413e1a2617c7a26f61301",
+  "runId": "run_319d5ae51a23dd4dce1aca63affc5674",
+  "runStatus": "completed",
+  "normalizedDigest": "85726d243d40a4f2ea22601020c73bc00a9894d572f44ffedb26d6c7f8a0823f",
+  "estateDigest": "5c46d1e308c36aa03dd2bb5ad61f40a75ff97939e577cb83dc9da7a9488caf52",
+  "note": "FIRST_RELEASE"
+ }
+}

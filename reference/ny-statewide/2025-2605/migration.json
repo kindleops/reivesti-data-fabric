@@ -1,0 +1,56 @@
+{
+ "verifiedAt": "2026-09-30T01:10Z",
+ "migrationPage": "https://gis.ny.gov/migration-web-services",
+ "statements": [
+  "Vector services on the legacy environment will stop receiving updates on September 18th, 2026.",
+  "All legacy services will remain online through October.",
+  "As part of the migration, all GeoHub service URLs are different than the legacy URLs."
+ ],
+ "parcelServices": [
+  {
+   "service": "NYS Tax Parcel Centroid Points",
+   "legacy": "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcel_Centroid_Points/FeatureServer",
+   "plannedRetirement": "10/2026",
+   "geohub": "https://nysgeohub.ny.gov/arcgis/rest/services/Parcels/NYS_Tax_Parcel_Centroid_Points/FeatureServer"
+  },
+  {
+   "service": "NYS Tax Parcels - Public",
+   "legacy": "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcels_Public/FeatureServer",
+   "plannedRetirement": "10/2026",
+   "geohub": "https://nysgeohub.ny.gov/arcgis/rest/services/Parcels/NYS_Tax_Parcels_Public/FeatureServer"
+  },
+  {
+   "service": "NYS Tax Parcels - State Owned",
+   "legacy": "https://gisservices.its.ny.gov/arcgis/rest/services/NYS_Tax_Parcels_State_Owned/FeatureServer",
+   "plannedRetirement": "10/2026",
+   "geohub": "https://nysgeohub.ny.gov/arcgis/rest/services/Parcels/NYS_Tax_Parcels_State_Owned/FeatureServer"
+  }
+ ],
+ "legacyCentroidServiceObserved": {
+  "httpStatus": 200,
+  "currentVersion": 10.81,
+  "maxRecordCount": 1000,
+  "title": "NYS 2025 Tax Parcel Centroid Points",
+  "count": 5510061,
+  "note": "One report-only status request, made outside the connector; the connector never requests this host."
+ },
+ "catalogItem": {
+  "id": "b25e828955bd4391ad17650d6893edde",
+  "owner": "NYSGIS_GPO",
+  "urlRepointedToGeoHub": "2026-08-27T16:41Z"
+ },
+ "bulkDownloadHost": "gisdata.ny.gov (not listed by the migration; linked by the program page)",
+ "connectorDiscovery": "program page https://gis.ny.gov/parcels -> exactly one current link per product; publisher catalogue item as fallback for the witness; a legacy-only result fails discovery naming the migration",
+ "liveDiscoveryRequests": {
+  "measuredAt": "2026-09-30T00:15Z",
+  "command": "df auto ny_statewide_parcels__all_ny_counties --discover-only, with a preload recording method and host of every fetch",
+  "releaseFingerprint": "dc3012911b9528630635cad59a12d2cd2f9b70e341b17c0e3e3022fcb0019397",
+  "requestsByHost": {
+   "GET gis.ny.gov": 1,
+   "GET gisdata.ny.gov (range)": 2,
+   "GET nysgeohub.ny.gov": 4,
+   "HEAD gisdata.ny.gov": 2
+  },
+  "legacyHostRequests": 0
+ }
+}
