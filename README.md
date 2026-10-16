@@ -12,7 +12,11 @@ DF-0E (recorded instruments, instrument graph, ownership foundation) + DF-0F
 (Minnesota Secretary of State business register, organization identity) + DF-0G
 (zero-cost doctrine, national jurisdiction registry, projection partitioning,
 source discovery) + DF-0H (Minnesota statewide parcels: 59 counties, 2.71M
-parcels, field-level source authority).
+parcels, field-level source authority) + DF-0I (off-heap scale hardening) +
+DF-0J / DF-0J.1A (Wisconsin RETR; the automated-acquisition gate) + DF-0K
+(Wisconsin statewide parcels: 72 counties) + DF-0L (durable artifact estate) +
+DF-0M (Florida statewide property fabric: 67 counties from three Department of
+Revenue sources — the parcel map, the NAL roll and the Sale Data File).
 
 ---
 
@@ -74,6 +78,9 @@ src/
     mn-sos-business/        domain vocabularies, heterogeneous CSV, licensed delivery
     mn-statewide-parcels/   59 counties from one source; bulk GeoPackage + ArcGIS
     ny-statewide-parcels/   62 counties from one source; bulk File Geodatabase, discovery through the GeoHub migration
+    wi-statewide-parcels/   72 counties from one annual archive
+    fl-dor/                 Florida DOR library: county table, discovery, acquisition, release manifests, sales
+    fl-cadastral/ fl-nal/ fl-sdf/   the three Florida sources, each gated and certified on its own
   cli/          df
 db/migrations/  data_fabric + data_fabric_restricted — DRAFTS, NOT APPLIED to
                 any Reivesti database; executed for real against a disposable one
@@ -81,7 +88,7 @@ reference/      pinned federal geography files the jurisdiction registry is
                 built from, verified by digest at load
 docs/           architecture, source registry, MN eCRV, DB topology, decisions
 fixtures/       the pinned eCRV XSD and synthetic test documents, all invented
-tests/          520 tests plus 47 real-PostgreSQL migration assertions
+tests/          813 tests plus 60 real-PostgreSQL migration assertions
 ```
 
 ---
@@ -90,6 +97,9 @@ tests/          520 tests plus 47 real-PostgreSQL migration assertions
 
 | Document | Covers |
 |---|---|
+| [FLORIDA-STATEWIDE-PROPERTY-FABRIC.md](docs/FLORIDA-STATEWIDE-PROPERTY-FABRIC.md) | Florida's three sources as one fabric: release model, identity, convergence, sales, runs, replay, leakage audit, coverage |
+| [FLORIDA-CADASTRAL.md](docs/FLORIDA-CADASTRAL.md) · [FLORIDA-DOR-NAL.md](docs/FLORIDA-DOR-NAL.md) · [FLORIDA-DOR-SDF.md](docs/FLORIDA-DOR-SDF.md) | Each Florida source: authority, refusals, every column's disposition |
+| [WISCONSIN-STATEWIDE-PARCELS.md](docs/WISCONSIN-STATEWIDE-PARCELS.md) | The 72-county annual archive: discovery, schema, identity, the statewide run, isolation and replay |
 | [MN-STATEWIDE-PARCELS.md](docs/MN-STATEWIDE-PARCELS.md) | The 59-county source: acquisition trade-off, field map, sale-echo semantics, Hennepin overlap and field authority |
 | [NEW-YORK-STATEWIDE-PROPERTY.md](docs/NEW-YORK-STATEWIDE-PROPERTY.md) | The 62-county NYS centroid source: the 2026 GeoHub migration and migration-tolerant discovery, SWIS+SBL identity, NYC MapPLUTO lineage, polygon policy, parallel-integration notes |
 | [ZERO-COST-DATA-DOCTRINE.md](docs/ZERO-COST-DATA-DOCTRINE.md) | Why Reivesti does not pay for core data, cost classification, the activation evaluator, paid-source non-dependency |
@@ -126,8 +136,11 @@ tests/          520 tests plus 47 real-PostgreSQL migration assertions
 | DF-0G national jurisdiction registry | complete — 3,244 county-equivalents from pinned Census files |
 | DF-0G projection partitioning | complete — one-county update: 143 ms, zero writes elsewhere |
 | DF-0H Minnesota statewide parcels | complete — 2,710,201 parcels, 59 county partitions |
+| DF-0K Wisconsin statewide parcels | complete — 3,574,646 rows, 72 county partitions |
+| DF-0L durable artifact estate | architecture complete; production durable store deferred (infrastructure) |
+| DF-0M Florida statewide property fabric | complete — 10,951,117 map records, 11,090,242 roll rows, 1,726,627 sale observations; 67 property + 67 sale partitions; network-off replay identical |
 | DF-0N New York statewide property | complete — 5,510,061 rows (5,503,228 parcels), 62 county partitions, unattended through the GeoHub migration, replayed network-off; parcel/assessor/ownership only (no tax, no transfer) |
-| National coverage | 3,222 active jurisdictions, **193** with an automated-core parcel source (MN 59 + WI 72 + NY 62) |
+| National coverage | 3,222 active jurisdictions, **260** with an active automated-core parcel source in the integrated registry (MN 59 + WI 72 + NY 62 + FL 67), each state certified by its own statewide run; transfer **0** |
 | Production DDL | **not applied**, and not ready to be |
 | Scheduled ingestion | not activated |
 

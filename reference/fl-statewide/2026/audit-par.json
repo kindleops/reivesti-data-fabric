@@ -1,0 +1,3448 @@
+{
+ "source": "fl_statewide_cadastral",
+ "releaseManifestSha256": "a087c0358d0e4be4bae125134c89d369467616c92d623086c51221cec9a504f8",
+ "referencePeriod": "2026",
+ "files": 69,
+ "totalRecords": 10951117,
+ "totalUnjoined": 97339,
+ "fieldSetVariants": {
+  "1b994d43b5444824": 9,
+  "de142f2e7f49ba62": 24,
+  "218e7597e4233f0e": 4,
+  "75e523eb906289ef": 1,
+  "0423547d2397bee8": 1,
+  "c8bb0d799bc48a48": 16,
+  "796fdba2843e70ce": 1,
+  "b4da9f7bbe575ec7": 1,
+  "989b7379ac2dd2af": 3,
+  "da80672d471122d9": 1,
+  "77bcc1d3febb4814": 1,
+  "008a6c9ae85230d8": 1,
+  "7145a142948f65f6": 2,
+  "3271b52724e53fa4": 1,
+  "93a674bc932597c6": 1,
+  "44c2b5a6b7ca7665": 1,
+  "c4d222a779bac3e4": 1
+ },
+ "perFile": [
+  {
+   "dorCode": "11",
+   "countyFips": "12001",
+   "role": "county_parcels",
+   "file": "alachua_2026Ppar.zip",
+   "bytes": 35775816,
+   "entries": [
+    "alachua_2026Ppar.cpg",
+    "alachua_2026Ppar.dbf",
+    "alachua_2026Ppar.prj",
+    "alachua_2026Ppar.sbn",
+    "alachua_2026Ppar.sbx",
+    "alachua_2026Ppar.shp",
+    "alachua_2026Ppar.shp.xml",
+    "alachua_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 119125,
+   "deleted": 0,
+   "unjoined": 586,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 5,
+    "distinct": 109502,
+    "repeated": 7913,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 118539,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 108940,
+    "withMoreThanOnePolygon": 7900,
+    "extraPolygons": 9599
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 2,
+    "zeroArea": 0,
+    "multiPart": 9356,
+    "shapeTypes": {
+     "15": 119125
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "12",
+   "countyFips": "12003",
+   "role": "county_parcels",
+   "file": "baker_2026Ppar.zip",
+   "bytes": 4082320,
+   "entries": [
+    "baker_2026Ppar.cpg",
+    "baker_2026Ppar.dbf",
+    "baker_2026Ppar.prj",
+    "baker_2026Ppar.sbn",
+    "baker_2026Ppar.sbx",
+    "baker_2026Ppar.shp",
+    "baker_2026Ppar.shp.xml",
+    "baker_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_2011_StatePlane_Florida_North_FIPS_0903_Ft_US",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 13226,
+   "deleted": 0,
+   "unjoined": 184,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 21,
+    "distinct": 12784,
+    "repeated": 241,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 13042,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 12656,
+    "withMoreThanOnePolygon": 232,
+    "extraPolygons": 386
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 600,
+    "shapeTypes": {
+     "5": 13226
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "13",
+   "countyFips": "12005",
+   "role": "county_parcels",
+   "file": "bay_2026Ppar.zip",
+   "bytes": 30687408,
+   "entries": [
+    "bay_2026Ppar.cpg",
+    "bay_2026Ppar.dbf",
+    "bay_2026Ppar.prj",
+    "bay_2026Ppar.sbn",
+    "bay_2026Ppar.sbx",
+    "bay_2026Ppar.shp",
+    "bay_2026Ppar.shp.xml",
+    "bay_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 135074,
+   "deleted": 0,
+   "unjoined": 1092,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 33,
+    "distinct": 131471,
+    "repeated": 2024,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 133982,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 130626,
+    "withMoreThanOnePolygon": 1964,
+    "extraPolygons": 3356
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 6,
+    "zeroArea": 0,
+    "multiPart": 1280,
+    "shapeTypes": {
+     "5": 135074
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "14",
+   "countyFips": "12007",
+   "role": "county_parcels",
+   "file": "bradford_2026Ppar.zip",
+   "bytes": 8447549,
+   "entries": [
+    "bradford_2026Ppar.cpg",
+    "bradford_2026Ppar.dbf",
+    "bradford_2026Ppar.prj",
+    "bradford_2026Ppar.sbn",
+    "bradford_2026Ppar.sbx",
+    "bradford_2026Ppar.shp",
+    "bradford_2026Ppar.shp.xml",
+    "bradford_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_North_FIPS_0903",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 15798,
+   "deleted": 0,
+   "unjoined": 207,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 6,
+    "distinct": 15748,
+    "repeated": 31,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 15591,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 15559,
+    "withMoreThanOnePolygon": 30,
+    "extraPolygons": 32
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 739,
+    "shapeTypes": {
+     "5": 15798
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "15",
+   "countyFips": "12009",
+   "role": "county_parcels",
+   "file": "brevard_2026Ppar.zip",
+   "bytes": 82100525,
+   "entries": [
+    "brevard_2026Ppar.cpg",
+    "brevard_2026Ppar.dbf",
+    "brevard_2026Ppar.prj",
+    "brevard_2026Ppar.sbn",
+    "brevard_2026Ppar.sbx",
+    "brevard_2026Ppar.shp",
+    "brevard_2026Ppar.shp.xml",
+    "brevard_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 351614,
+   "deleted": 0,
+   "unjoined": 2352,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 351613,
+    "repeated": 1,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 349262,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 349261,
+    "withMoreThanOnePolygon": 1,
+    "extraPolygons": 1
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 6031,
+    "shapeTypes": {
+     "5": 351614
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "16",
+   "countyFips": "12011",
+   "role": "county_parcels",
+   "file": "broward_2026Ppar.zip",
+   "bytes": 717359897,
+   "entries": [
+    "broward_2026Ppar.cpg",
+    "broward_2026Ppar.dbf",
+    "broward_2026Ppar.prj",
+    "broward_2026Ppar.sbn",
+    "broward_2026Ppar.sbx",
+    "broward_2026Ppar.shp",
+    "broward_2026Ppar.shp.xml",
+    "broward_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 788824,
+   "deleted": 0,
+   "unjoined": 22005,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 766929,
+    "repeated": 8108,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 766819,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 754339,
+    "withMoreThanOnePolygon": 5062,
+    "extraPolygons": 12480
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 90624,
+    "shapeTypes": {
+     "5": 788824
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "17",
+   "countyFips": "12013",
+   "role": "county_parcels",
+   "file": "calhoun_2026Ppar.zip",
+   "bytes": 4241951,
+   "entries": [
+    "calhoun_2026Ppar.cpg",
+    "calhoun_2026Ppar.dbf",
+    "calhoun_2026Ppar.prj",
+    "calhoun_2026Ppar.sbn",
+    "calhoun_2026Ppar.sbx",
+    "calhoun_2026Ppar.shp",
+    "calhoun_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-24",
+   "fields": 118,
+   "rows": 12207,
+   "deleted": 0,
+   "unjoined": 589,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 11725,
+    "repeated": 14,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 11618,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 11607,
+    "withMoreThanOnePolygon": 10,
+    "extraPolygons": 11
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 537,
+    "shapeTypes": {
+     "5": 12207
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "18",
+   "countyFips": "12015",
+   "role": "county_parcels",
+   "file": "charlotte_2026Ppar.zip",
+   "bytes": 102234916,
+   "entries": [
+    "charlotte_2026Ppar.cpg",
+    "charlotte_2026Ppar.dbf",
+    "charlotte_2026Ppar.prj",
+    "charlotte_2026Ppar.sbn",
+    "charlotte_2026Ppar.sbx",
+    "charlotte_2026Ppar.shp",
+    "charlotte_2026Ppar.shp.xml",
+    "charlotte_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 232676,
+   "deleted": 0,
+   "unjoined": 1101,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 4,
+    "distinct": 223415,
+    "repeated": 747,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 231575,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 222318,
+    "withMoreThanOnePolygon": 747,
+    "extraPolygons": 9257
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 9,
+    "zeroArea": 7,
+    "multiPart": 1474,
+    "shapeTypes": {
+     "5": 232676
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "19",
+   "countyFips": "12017",
+   "role": "county_parcels",
+   "file": "citrus_2026Ppar.zip",
+   "bytes": 46956213,
+   "entries": [
+    "citrus_2026Ppar.cpg",
+    "citrus_2026Ppar.dbf",
+    "citrus_2026Ppar.prj",
+    "citrus_2026Ppar.sbn",
+    "citrus_2026Ppar.sbx",
+    "citrus_2026Ppar.shp",
+    "citrus_2026Ppar.shp.xml",
+    "citrus_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 147962,
+   "deleted": 0,
+   "unjoined": 780,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 147961,
+    "repeated": 1,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 147182,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 147181,
+    "withMoreThanOnePolygon": 1,
+    "extraPolygons": 1
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 4,
+    "zeroArea": 0,
+    "multiPart": 1633,
+    "shapeTypes": {
+     "5": 147962
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "20",
+   "countyFips": "12019",
+   "role": "county_parcels",
+   "file": "clay_2026Ppar.zip",
+   "bytes": 52650330,
+   "entries": [
+    "clay_2026Ppar.cpg",
+    "clay_2026Ppar.dbf",
+    "clay_2026Ppar.prj",
+    "clay_2026Ppar.sbn",
+    "clay_2026Ppar.sbx",
+    "clay_2026Ppar.shp",
+    "clay_2026Ppar.shp.xml",
+    "clay_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 105430,
+   "deleted": 0,
+   "unjoined": 503,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 105430,
+    "repeated": 0,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 104927,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 104927,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 1016,
+    "shapeTypes": {
+     "5": 105430
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "21",
+   "countyFips": "12021",
+   "role": "county_parcels",
+   "file": "collier_2026Ppar.zip",
+   "bytes": 206924573,
+   "entries": [
+    "collier_2026Ppar.cpg",
+    "collier_2026Ppar.dbf",
+    "collier_2026Ppar.prj",
+    "collier_2026Ppar.sbn",
+    "collier_2026Ppar.sbx",
+    "collier_2026Ppar.shp",
+    "collier_2026Ppar.shp.xml",
+    "collier_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 368982,
+   "deleted": 0,
+   "unjoined": 657,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 294402,
+    "repeated": 25377,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 368325,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 293859,
+    "withMoreThanOnePolygon": 25356,
+    "extraPolygons": 74466
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 5020,
+    "shapeTypes": {
+     "5": 368982
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "22",
+   "countyFips": "12023",
+   "role": "county_parcels",
+   "file": "columbia_2026Ppar.zip",
+   "bytes": 10768204,
+   "entries": [
+    "columbia_2026Ppar.cpg",
+    "columbia_2026Ppar.dbf",
+    "columbia_2026Ppar.prj",
+    "columbia_2026Ppar.sbn",
+    "columbia_2026Ppar.sbx",
+    "columbia_2026Ppar.shp",
+    "columbia_2026Ppar.shp.xml",
+    "columbia_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 37782,
+   "deleted": 0,
+   "unjoined": 377,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 37695,
+    "repeated": 1,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 37405,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 37405,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 1215,
+    "shapeTypes": {
+     "5": 37782
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "23",
+   "countyFips": "12086",
+   "role": "condo_related",
+   "file": "miamidade_condos_2026.zip",
+   "bytes": 78143264,
+   "entries": [
+    "miamidade_condos_2026.cpg",
+    "miamidade_condos_2026.dbf",
+    "miamidade_condos_2026.prj",
+    "miamidade_condos_2026.sbn",
+    "miamidade_condos_2026.sbx",
+    "miamidade_condos_2026.shp",
+    "miamidade_condos_2026.shp.xml",
+    "miamidade_condos_2026.shx"
+   ],
+   "fields": 186,
+   "rows": 352530,
+   "shapeTypes": {
+    "1": 352530
+   }
+  },
+  {
+   "dorCode": "23",
+   "countyFips": "12086",
+   "role": "county_parcels",
+   "file": "miamidade_2026Ppar.zip",
+   "bytes": 184287329,
+   "entries": [
+    "miamidade_2026Ppar.cpg",
+    "miamidade_2026Ppar.dbf",
+    "miamidade_2026Ppar.prj",
+    "miamidade_2026Ppar.sbn",
+    "miamidade_2026Ppar.sbx",
+    "miamidade_2026Ppar.shp",
+    "miamidade_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 596837,
+   "deleted": 0,
+   "unjoined": 5734,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 590410,
+    "repeated": 3607,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 591103,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 584724,
+    "withMoreThanOnePolygon": 3562,
+    "extraPolygons": 6379
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 1649,
+    "shapeTypes": {
+     "5": 596837
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "24",
+   "countyFips": "12027",
+   "role": "county_parcels",
+   "file": "desoto_2026Ppar.zip",
+   "bytes": 4955993,
+   "entries": [
+    "desoto_2026Ppar.cpg",
+    "desoto_2026Ppar.dbf",
+    "desoto_2026Ppar.prj",
+    "desoto_2026Ppar.sbn",
+    "desoto_2026Ppar.sbx",
+    "desoto_2026Ppar.shp",
+    "desoto_2026Ppar.shp.xml",
+    "desoto_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 20557,
+   "deleted": 0,
+   "unjoined": 130,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 12,
+    "distinct": 20136,
+    "repeated": 226,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 20427,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 20018,
+    "withMoreThanOnePolygon": 226,
+    "extraPolygons": 409
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 214,
+    "shapeTypes": {
+     "5": 20557
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "25",
+   "countyFips": "12029",
+   "role": "county_parcels",
+   "file": "dixie_2026Ppar.zip",
+   "bytes": 12301746,
+   "entries": [
+    "dixie_2026Ppar.cpg",
+    "dixie_2026Ppar.dbf",
+    "dixie_2026Ppar.prj",
+    "dixie_2026Ppar.sbn",
+    "dixie_2026Ppar.sbx",
+    "dixie_2026Ppar.shp",
+    "dixie_2026Ppar.shp.xml",
+    "dixie_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 16388,
+   "deleted": 0,
+   "unjoined": 66,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 1,
+    "distinct": 16383,
+    "repeated": 4,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 16322,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 16318,
+    "withMoreThanOnePolygon": 4,
+    "extraPolygons": 4
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 532,
+    "shapeTypes": {
+     "5": 16388
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "26",
+   "countyFips": "12031",
+   "role": "county_parcels",
+   "file": "duval_2026Ppar.zip",
+   "bytes": 192382098,
+   "entries": [
+    "duval_2026Ppar.cpg",
+    "duval_2026Ppar.dbf",
+    "duval_2026Ppar.prj",
+    "duval_2026Ppar.sbn",
+    "duval_2026Ppar.sbx",
+    "duval_2026Ppar.shp",
+    "duval_2026Ppar.shp.xml",
+    "duval_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 405716,
+   "deleted": 0,
+   "unjoined": 1903,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 405716,
+    "repeated": 0,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 403813,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 403813,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 2705,
+    "shapeTypes": {
+     "5": 405716
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "27",
+   "countyFips": "12033",
+   "role": "county_parcels",
+   "file": "escambia_2026Ppar.zip",
+   "bytes": 39698942,
+   "entries": [
+    "escambia_2026Ppar.cpg",
+    "escambia_2026Ppar.dbf",
+    "escambia_2026Ppar.prj",
+    "escambia_2026Ppar.sbn",
+    "escambia_2026Ppar.sbx",
+    "escambia_2026Ppar.shp",
+    "escambia_2026Ppar.shp.xml",
+    "escambia_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 163853,
+   "deleted": 0,
+   "unjoined": 2433,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 163796,
+    "repeated": 2,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 161420,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 161420,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 4726,
+    "shapeTypes": {
+     "5": 163853
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "28",
+   "countyFips": "12035",
+   "role": "county_parcels",
+   "file": "flagler_2026Ppar.zip",
+   "bytes": 20896367,
+   "entries": [
+    "flagler_2026Ppar.cpg",
+    "flagler_2026Ppar.dbf",
+    "flagler_2026Ppar.prj",
+    "flagler_2026Ppar.sbn",
+    "flagler_2026Ppar.sbx",
+    "flagler_2026Ppar.shp",
+    "flagler_2026Ppar.shp.xml",
+    "flagler_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 88733,
+   "deleted": 0,
+   "unjoined": 736,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 88732,
+    "repeated": 1,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 87997,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 87996,
+    "withMoreThanOnePolygon": 1,
+    "extraPolygons": 1
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 797,
+    "shapeTypes": {
+     "5": 88733
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "29",
+   "countyFips": "12037",
+   "role": "county_parcels",
+   "file": "franklin_2026Ppar.zip",
+   "bytes": 5194036,
+   "entries": [
+    "franklin_2026Ppar.cpg",
+    "franklin_2026Ppar.dbf",
+    "franklin_2026Ppar.prj",
+    "franklin_2026Ppar.sbn",
+    "franklin_2026Ppar.sbx",
+    "franklin_2026Ppar.shp",
+    "franklin_2026Ppar.shp.xml",
+    "franklin_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 18722,
+   "deleted": 0,
+   "unjoined": 215,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 18217,
+    "repeated": 293,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 18507,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 18065,
+    "withMoreThanOnePolygon": 282,
+    "extraPolygons": 442
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 745,
+    "shapeTypes": {
+     "5": 18722
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "30",
+   "countyFips": "12039",
+   "role": "county_parcels",
+   "file": "gadsden_2026Ppar.zip",
+   "bytes": 8617190,
+   "entries": [
+    "gadsden_2026Ppar.cpg",
+    "gadsden_2026Ppar.dbf",
+    "gadsden_2026Ppar.prj",
+    "gadsden_2026Ppar.sbn",
+    "gadsden_2026Ppar.sbx",
+    "gadsden_2026Ppar.shp",
+    "gadsden_2026Ppar.shp.xml",
+    "gadsden_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 27567,
+   "deleted": 0,
+   "unjoined": 277,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 2,
+    "distinct": 27560,
+    "repeated": 4,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 27290,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 27285,
+    "withMoreThanOnePolygon": 4,
+    "extraPolygons": 5
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 2,
+    "zeroArea": 0,
+    "multiPart": 1001,
+    "shapeTypes": {
+     "5": 27567
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "31",
+   "countyFips": "12041",
+   "role": "county_parcels",
+   "file": "gilchrist_2026Ppar.zip",
+   "bytes": 4969287,
+   "entries": [
+    "gilchrist_2026Ppar.cpg",
+    "gilchrist_2026Ppar.dbf",
+    "gilchrist_2026Ppar.prj",
+    "gilchrist_2026Ppar.sbn",
+    "gilchrist_2026Ppar.sbx",
+    "gilchrist_2026Ppar.shp",
+    "gilchrist_2026Ppar.shp.xml",
+    "gilchrist_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 15428,
+   "deleted": 0,
+   "unjoined": 800,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 614,
+    "distinct": 14114,
+    "repeated": 510,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 14628,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 13956,
+    "withMoreThanOnePolygon": 505,
+    "extraPolygons": 672
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 178,
+    "shapeTypes": {
+     "5": 15428
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "32",
+   "countyFips": "12043",
+   "role": "county_parcels",
+   "file": "glades_2026Ppar.zip",
+   "bytes": 3932022,
+   "entries": [
+    "glades_2026Ppar.cpg",
+    "glades_2026Ppar.dbf",
+    "glades_2026Ppar.prj",
+    "glades_2026Ppar.sbn",
+    "glades_2026Ppar.sbx",
+    "glades_2026Ppar.shp",
+    "glades_2026Ppar.shp.xml",
+    "glades_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_2011_StatePlane_Florida_East_FIPS_0901_Ft_US",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 11395,
+   "deleted": 0,
+   "unjoined": 59,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 11380,
+    "repeated": 9,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 11336,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 11321,
+    "withMoreThanOnePolygon": 9,
+    "extraPolygons": 15
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 512,
+    "shapeTypes": {
+     "5": 11395
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "33",
+   "countyFips": "12045",
+   "role": "county_parcels",
+   "file": "gulf_2026Ppar.zip",
+   "bytes": 7999083,
+   "entries": [
+    "gulf_2026Ppar.cpg",
+    "gulf_2026Ppar.dbf",
+    "gulf_2026Ppar.prj",
+    "gulf_2026Ppar.sbn",
+    "gulf_2026Ppar.sbx",
+    "gulf_2026Ppar.shp",
+    "gulf_2026Ppar.shp.xml",
+    "gulf_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 19248,
+   "deleted": 0,
+   "unjoined": 146,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 62,
+    "distinct": 19186,
+    "repeated": 0,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 19102,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 19102,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 2,
+    "zeroArea": 0,
+    "multiPart": 554,
+    "shapeTypes": {
+     "5": 19248
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "34",
+   "countyFips": "12047",
+   "role": "county_parcels",
+   "file": "hamilton_2026Ppar.zip",
+   "bytes": 10597760,
+   "entries": [
+    "hamilton_2026Ppar.cpg",
+    "hamilton_2026Ppar.dbf",
+    "hamilton_2026Ppar.prj",
+    "hamilton_2026Ppar.sbn",
+    "hamilton_2026Ppar.sbx",
+    "hamilton_2026Ppar.shp",
+    "hamilton_2026Ppar.shp.xml",
+    "hamilton_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 14404,
+   "deleted": 0,
+   "unjoined": 447,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 101,
+    "distinct": 12903,
+    "repeated": 814,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 13957,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 12839,
+    "withMoreThanOnePolygon": 803,
+    "extraPolygons": 1118
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 260,
+    "shapeTypes": {
+     "5": 14404
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "35",
+   "countyFips": "12049",
+   "role": "county_parcels",
+   "file": "hardee_2026Ppar.zip",
+   "bytes": 3572437,
+   "entries": [
+    "hardee_2026Ppar.cpg",
+    "hardee_2026Ppar.dbf",
+    "hardee_2026Ppar.prj",
+    "hardee_2026Ppar.sbn",
+    "hardee_2026Ppar.sbx",
+    "hardee_2026Ppar.shp",
+    "hardee_2026Ppar.shp.xml",
+    "hardee_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 14852,
+   "deleted": 0,
+   "unjoined": 91,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 14785,
+    "repeated": 9,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 14761,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 14753,
+    "withMoreThanOnePolygon": 8,
+    "extraPolygons": 8
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 516,
+    "shapeTypes": {
+     "5": 14852
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "36",
+   "countyFips": "12051",
+   "role": "county_parcels",
+   "file": "hendry_2026Ppar.zip",
+   "bytes": 11058304,
+   "entries": [
+    "hendry_2026Ppar.cpg",
+    "hendry_2026Ppar.dbf",
+    "hendry_2026Ppar.prj",
+    "hendry_2026Ppar.sbn",
+    "hendry_2026Ppar.sbx",
+    "hendry_2026Ppar.shp",
+    "hendry_2026Ppar.shp.xml",
+    "hendry_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 35882,
+   "deleted": 0,
+   "unjoined": 227,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 1,
+    "distinct": 35873,
+    "repeated": 8,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 35655,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 35647,
+    "withMoreThanOnePolygon": 8,
+    "extraPolygons": 8
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 210,
+    "shapeTypes": {
+     "5": 35882
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "37",
+   "countyFips": "12053",
+   "role": "county_parcels",
+   "file": "hernando_2026Ppar.zip",
+   "bytes": 63690355,
+   "entries": [
+    "hernando_2026Ppar.cpg",
+    "hernando_2026Ppar.dbf",
+    "hernando_2026Ppar.prj",
+    "hernando_2026Ppar.sbn",
+    "hernando_2026Ppar.sbx",
+    "hernando_2026Ppar.shp",
+    "hernando_2026Ppar.shp.xml",
+    "hernando_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 121482,
+   "deleted": 0,
+   "unjoined": 1295,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 1208,
+    "distinct": 120267,
+    "repeated": 6,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 120187,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 120180,
+    "withMoreThanOnePolygon": 6,
+    "extraPolygons": 7
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 782,
+    "shapeTypes": {
+     "5": 121482
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "38",
+   "countyFips": "12055",
+   "role": "county_parcels",
+   "file": "highlands_2026Ppar.zip",
+   "bytes": 28624577,
+   "entries": [
+    "highlands_2026Ppar.cpg",
+    "highlands_2026Ppar.dbf",
+    "highlands_2026Ppar.prj",
+    "highlands_2026Ppar.sbn",
+    "highlands_2026Ppar.sbx",
+    "highlands_2026Ppar.shp",
+    "highlands_2026Ppar.shp.xml",
+    "highlands_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 113197,
+   "deleted": 0,
+   "unjoined": 475,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 1,
+    "distinct": 113146,
+    "repeated": 45,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 112722,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 112672,
+    "withMoreThanOnePolygon": 45,
+    "extraPolygons": 50
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 2,
+    "zeroArea": 0,
+    "multiPart": 2067,
+    "shapeTypes": {
+     "5": 113197
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "39",
+   "countyFips": "12057",
+   "role": "county_parcels",
+   "file": "hillsborough_2026Ppar.zip",
+   "bytes": 123017397,
+   "entries": [
+    "hillsborough_2026Ppar.cpg",
+    "hillsborough_2026Ppar.dbf",
+    "hillsborough_2026Ppar.prj",
+    "hillsborough_2026Ppar.sbn",
+    "hillsborough_2026Ppar.sbx",
+    "hillsborough_2026Ppar.shp",
+    "hillsborough_2026Ppar.shp.xml",
+    "hillsborough_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 540638,
+   "deleted": 0,
+   "unjoined": 4289,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 114,
+    "distinct": 530855,
+    "repeated": 4066,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 536349,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 527009,
+    "withMoreThanOnePolygon": 3996,
+    "extraPolygons": 9340
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 3538,
+    "shapeTypes": {
+     "5": 540638
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "40",
+   "countyFips": "12059",
+   "role": "county_parcels",
+   "file": "holmes_2026Ppar.zip",
+   "bytes": 4379049,
+   "entries": [
+    "holmes_2026Ppar.cpg",
+    "holmes_2026Ppar.dbf",
+    "holmes_2026Ppar.prj",
+    "holmes_2026Ppar.sbn",
+    "holmes_2026Ppar.sbx",
+    "holmes_2026Ppar.shp",
+    "holmes_2026Ppar.shp.xml",
+    "holmes_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 14981,
+   "deleted": 0,
+   "unjoined": 83,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 14610,
+    "repeated": 351,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 14898,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 14536,
+    "withMoreThanOnePolygon": 350,
+    "extraPolygons": 362
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 2,
+    "zeroArea": 0,
+    "multiPart": 1314,
+    "shapeTypes": {
+     "15": 14981
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "41",
+   "countyFips": "12061",
+   "role": "county_parcels",
+   "file": "indianriver_2026Ppar.zip",
+   "bytes": 21784940,
+   "entries": [
+    "indianriver_2026Ppar.cpg",
+    "indianriver_2026Ppar.dbf",
+    "indianriver_2026Ppar.prj",
+    "indianriver_2026Ppar.sbn",
+    "indianriver_2026Ppar.sbx",
+    "indianriver_2026Ppar.shp",
+    "indianriver_2026Ppar.shp.xml",
+    "indianriver_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 95904,
+   "deleted": 0,
+   "unjoined": 678,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 95904,
+    "repeated": 0,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 95226,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 95226,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 4087,
+    "shapeTypes": {
+     "15": 95904
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "42",
+   "countyFips": "12063",
+   "role": "county_parcels",
+   "file": "jackson_2026Ppar.zip",
+   "bytes": 10585558,
+   "entries": [
+    "jackson_2026Ppar.cpg",
+    "jackson_2026Ppar.dbf",
+    "jackson_2026Ppar.prj",
+    "jackson_2026Ppar.sbn",
+    "jackson_2026Ppar.sbx",
+    "jackson_2026Ppar.shp",
+    "jackson_2026Ppar.shp.xml",
+    "jackson_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 43246,
+   "deleted": 0,
+   "unjoined": 245,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 68,
+    "distinct": 40134,
+    "repeated": 2323,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 43001,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 39989,
+    "withMoreThanOnePolygon": 2307,
+    "extraPolygons": 3012
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 150,
+    "shapeTypes": {
+     "5": 43246
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "43",
+   "countyFips": "12065",
+   "role": "county_parcels",
+   "file": "jefferson_2026Ppar.zip",
+   "bytes": 4582192,
+   "entries": [
+    "jefferson_2026Ppar.cpg",
+    "jefferson_2026Ppar.dbf",
+    "jefferson_2026Ppar.prj",
+    "jefferson_2026Ppar.sbn",
+    "jefferson_2026Ppar.sbx",
+    "jefferson_2026Ppar.shp",
+    "jefferson_2026Ppar.shp.xml",
+    "jefferson_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 12496,
+   "deleted": 0,
+   "unjoined": 569,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 12149,
+    "repeated": 1,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 11927,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 11927,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 451,
+    "shapeTypes": {
+     "5": 12496
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "44",
+   "countyFips": "12067",
+   "role": "county_parcels",
+   "file": "lafayette_2026Ppar.zip",
+   "bytes": 1777289,
+   "entries": [
+    "lafayette_2026Ppar.cpg",
+    "lafayette_2026Ppar.dbf",
+    "lafayette_2026Ppar.prj",
+    "lafayette_2026Ppar.sbn",
+    "lafayette_2026Ppar.sbx",
+    "lafayette_2026Ppar.shp",
+    "lafayette_2026Ppar.shp.xml",
+    "lafayette_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.30480060960121924
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 7507,
+   "deleted": 0,
+   "unjoined": 105,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 42,
+    "distinct": 7268,
+    "repeated": 161,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 7402,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 7205,
+    "withMoreThanOnePolygon": 161,
+    "extraPolygons": 197
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 107,
+    "shapeTypes": {
+     "5": 7507
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "45",
+   "countyFips": "12069",
+   "role": "county_parcels",
+   "file": "lake_2026Ppar.zip",
+   "bytes": 98023107,
+   "entries": [
+    "lake_2026Ppar.cpg",
+    "lake_2026Ppar.dbf",
+    "lake_2026Ppar.prj",
+    "lake_2026Ppar.sbn",
+    "lake_2026Ppar.sbx",
+    "lake_2026Ppar.shp",
+    "lake_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 217709,
+   "deleted": 0,
+   "unjoined": 1273,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 216737,
+    "repeated": 856,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 216436,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 215470,
+    "withMoreThanOnePolygon": 850,
+    "extraPolygons": 966
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 4,
+    "zeroArea": 0,
+    "multiPart": 2579,
+    "shapeTypes": {
+     "5": 217709
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "46",
+   "countyFips": "12071",
+   "role": "county_parcels",
+   "file": "lee_2026Ppar.zip",
+   "bytes": 177493451,
+   "entries": [
+    "lee_2026Ppar.cpg",
+    "lee_2026Ppar.dbf",
+    "lee_2026Ppar.prj",
+    "lee_2026Ppar.sbn",
+    "lee_2026Ppar.sbx",
+    "lee_2026Ppar.shp",
+    "lee_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 562753,
+   "deleted": 0,
+   "unjoined": 3071,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 562753,
+    "repeated": 0,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 559682,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 559682,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 1,
+    "zeroArea": 0,
+    "multiPart": 3971,
+    "shapeTypes": {
+     "15": 562753
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "47",
+   "countyFips": "12073",
+   "role": "county_parcels",
+   "file": "leon_2026Ppar.zip",
+   "bytes": 30208824,
+   "entries": [
+    "leon_2026Ppar.cpg",
+    "leon_2026Ppar.dbf",
+    "leon_2026Ppar.prj",
+    "leon_2026Ppar.sbn",
+    "leon_2026Ppar.sbx",
+    "leon_2026Ppar.shp",
+    "leon_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 112841,
+   "deleted": 0,
+   "unjoined": 1804,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 112840,
+    "repeated": 1,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 111037,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 111036,
+    "withMoreThanOnePolygon": 1,
+    "extraPolygons": 1
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 11,
+    "zeroArea": 0,
+    "multiPart": 1297,
+    "shapeTypes": {
+     "5": 112841
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "48",
+   "countyFips": "12075",
+   "role": "county_parcels",
+   "file": "levy_2026Ppar.zip",
+   "bytes": 13272188,
+   "entries": [
+    "levy_2026Ppar.cpg",
+    "levy_2026Ppar.dbf",
+    "levy_2026Ppar.prj",
+    "levy_2026Ppar.sbn",
+    "levy_2026Ppar.sbx",
+    "levy_2026Ppar.shp",
+    "levy_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 48418,
+   "deleted": 0,
+   "unjoined": 245,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 6,
+    "distinct": 47528,
+    "repeated": 595,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 48173,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 47299,
+    "withMoreThanOnePolygon": 589,
+    "extraPolygons": 874
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 2,
+    "zeroArea": 1,
+    "multiPart": 224,
+    "shapeTypes": {
+     "5": 48418
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "49",
+   "countyFips": "12077",
+   "role": "county_parcels",
+   "file": "liberty_2026Ppar.zip",
+   "bytes": 2115224,
+   "entries": [
+    "liberty_2026Ppar.cpg",
+    "liberty_2026Ppar.dbf",
+    "liberty_2026Ppar.prj",
+    "liberty_2026Ppar.sbn",
+    "liberty_2026Ppar.sbx",
+    "liberty_2026Ppar.shp",
+    "liberty_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 6420,
+   "deleted": 0,
+   "unjoined": 53,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 2,
+    "distinct": 5976,
+    "repeated": 339,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 6367,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 5928,
+    "withMoreThanOnePolygon": 338,
+    "extraPolygons": 439
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 1,
+    "zeroArea": 1,
+    "multiPart": 185,
+    "shapeTypes": {
+     "5": 6420
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "50",
+   "countyFips": "12079",
+   "role": "county_parcels",
+   "file": "madison_2026Ppar.zip",
+   "bytes": 5057221,
+   "entries": [
+    "madison_2026Ppar.cpg",
+    "madison_2026Ppar.dbf",
+    "madison_2026Ppar.prj",
+    "madison_2026Ppar.sbn",
+    "madison_2026Ppar.sbx",
+    "madison_2026Ppar.shp",
+    "madison_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_2011_StatePlane_Florida_North_FIPS_0903_Ft_US",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 16626,
+   "deleted": 0,
+   "unjoined": 225,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 8,
+    "distinct": 16551,
+    "repeated": 64,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 16401,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 16336,
+    "withMoreThanOnePolygon": 62,
+    "extraPolygons": 65
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 821,
+    "shapeTypes": {
+     "5": 16626
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "51",
+   "countyFips": "12081",
+   "role": "county_parcels",
+   "file": "manatee_2026Ppar.zip",
+   "bytes": 70778378,
+   "entries": [
+    "manatee_2026Ppar.cpg",
+    "manatee_2026Ppar.dbf",
+    "manatee_2026Ppar.prj",
+    "manatee_2026Ppar.sbn",
+    "manatee_2026Ppar.sbx",
+    "manatee_2026Ppar.shp",
+    "manatee_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 234245,
+   "deleted": 0,
+   "unjoined": 304,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 234245,
+    "repeated": 0,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 233941,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 233941,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 9747,
+    "shapeTypes": {
+     "15": 234245
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "52",
+   "countyFips": "12083",
+   "role": "county_parcels",
+   "file": "marion_2026Ppar.zip",
+   "bytes": 66224561,
+   "entries": [
+    "marion_2026Ppar.cpg",
+    "marion_2026Ppar.dbf",
+    "marion_2026Ppar.prj",
+    "marion_2026Ppar.sbn",
+    "marion_2026Ppar.sbx",
+    "marion_2026Ppar.shp",
+    "marion_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 288115,
+   "deleted": 0,
+   "unjoined": 1840,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 287845,
+    "repeated": 77,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 286275,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 286006,
+    "withMoreThanOnePolygon": 76,
+    "extraPolygons": 269
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 1967,
+    "shapeTypes": {
+     "5": 288115
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "53",
+   "countyFips": "12085",
+   "role": "county_parcels",
+   "file": "martin_2026Ppar.zip",
+   "bytes": 27622723,
+   "entries": [
+    "martin_2026Ppar.cpg",
+    "martin_2026Ppar.dbf",
+    "martin_2026Ppar.prj",
+    "martin_2026Ppar.sbn",
+    "martin_2026Ppar.sbx",
+    "martin_2026Ppar.shp",
+    "martin_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 98300,
+   "deleted": 0,
+   "unjoined": 735,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 98287,
+    "repeated": 13,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 97565,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 97552,
+    "withMoreThanOnePolygon": 13,
+    "extraPolygons": 13
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 5523,
+    "shapeTypes": {
+     "5": 98300
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "54",
+   "countyFips": "12087",
+   "role": "county_parcels",
+   "file": "monroe_2026Ppar.zip",
+   "bytes": 26065959,
+   "entries": [
+    "monroe_2026Ppar.cpg",
+    "monroe_2026Ppar.dbf",
+    "monroe_2026Ppar.prj",
+    "monroe_2026Ppar.sbn",
+    "monroe_2026Ppar.sbx",
+    "monroe_2026Ppar.shp",
+    "monroe_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 89023,
+   "deleted": 0,
+   "unjoined": 466,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 89021,
+    "repeated": 2,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 88557,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 88555,
+    "withMoreThanOnePolygon": 2,
+    "extraPolygons": 2
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 4,
+    "zeroArea": 0,
+    "multiPart": 3272,
+    "shapeTypes": {
+     "5": 89023
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "55",
+   "countyFips": "12089",
+   "role": "county_parcels",
+   "file": "nassau_2026Ppar.zip",
+   "bytes": 53190432,
+   "entries": [
+    "nassau_2026Ppar.cpg",
+    "nassau_2026Ppar.dbf",
+    "nassau_2026Ppar.prj",
+    "nassau_2026Ppar.sbn",
+    "nassau_2026Ppar.sbx",
+    "nassau_2026Ppar.shp",
+    "nassau_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 59837,
+   "deleted": 0,
+   "unjoined": 292,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 59341,
+    "repeated": 436,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 59545,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 59055,
+    "withMoreThanOnePolygon": 431,
+    "extraPolygons": 490
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 2073,
+    "shapeTypes": {
+     "5": 59837
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "56",
+   "countyFips": "12091",
+   "role": "county_parcels",
+   "file": "okaloosa_2026Ppar.zip",
+   "bytes": 46219652,
+   "entries": [
+    "okaloosa_2026Ppar.cpg",
+    "okaloosa_2026Ppar.dbf",
+    "okaloosa_2026Ppar.prj",
+    "okaloosa_2026Ppar.sbn",
+    "okaloosa_2026Ppar.sbx",
+    "okaloosa_2026Ppar.shp",
+    "okaloosa_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 113571,
+   "deleted": 0,
+   "unjoined": 1182,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 113571,
+    "repeated": 0,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 112389,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 112389,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 2423,
+    "shapeTypes": {
+     "5": 113571
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "57",
+   "countyFips": "12093",
+   "role": "county_parcels",
+   "file": "okeechobee_2026Ppar.zip",
+   "bytes": 6272683,
+   "entries": [
+    "okeechobee_2026Ppar.cpg",
+    "okeechobee_2026Ppar.dbf",
+    "okeechobee_2026Ppar.prj",
+    "okeechobee_2026Ppar.sbn",
+    "okeechobee_2026Ppar.sbx",
+    "okeechobee_2026Ppar.shp",
+    "okeechobee_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 31689,
+   "deleted": 0,
+   "unjoined": 384,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 31663,
+    "repeated": 14,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 31305,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 31280,
+    "withMoreThanOnePolygon": 13,
+    "extraPolygons": 25
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 3,
+    "zeroArea": 2,
+    "multiPart": 339,
+    "shapeTypes": {
+     "5": 31689
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "58",
+   "countyFips": "12095",
+   "role": "county_parcels",
+   "file": "orange_2026Ppar.zip",
+   "bytes": 296219199,
+   "entries": [
+    "orange_2026Ppar.cpg",
+    "orange_2026Ppar.dbf",
+    "orange_2026Ppar.prj",
+    "orange_2026Ppar.sbn",
+    "orange_2026Ppar.sbx",
+    "orange_2026Ppar.shp",
+    "orange_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-27",
+   "fields": 118,
+   "rows": 496050,
+   "deleted": 0,
+   "unjoined": 3244,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 495277,
+    "repeated": 537,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 492806,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 492035,
+    "withMoreThanOnePolygon": 535,
+    "extraPolygons": 771
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 1808,
+    "shapeTypes": {
+     "15": 496050
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "59",
+   "countyFips": "12097",
+   "role": "county_parcels",
+   "file": "osceola_2026Ppar.zip",
+   "bytes": 51761784,
+   "entries": [
+    "osceola_2026Ppar.cpg",
+    "osceola_2026Ppar.dbf",
+    "osceola_2026Ppar.prj",
+    "osceola_2026Ppar.sbn",
+    "osceola_2026Ppar.sbx",
+    "osceola_2026Ppar.shp",
+    "osceola_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 213106,
+   "deleted": 0,
+   "unjoined": 935,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 213106,
+    "repeated": 0,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 212171,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 212171,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 1,
+    "zeroArea": 0,
+    "multiPart": 2034,
+    "shapeTypes": {
+     "15": 213106
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "60",
+   "countyFips": "12099",
+   "role": "county_parcels",
+   "file": "palmbeach_2026Ppar.zip",
+   "bytes": 170030258,
+   "entries": [
+    "palmbeach_2026Ppar.cpg",
+    "palmbeach_2026Ppar.dbf",
+    "palmbeach_2026Ppar.prj",
+    "palmbeach_2026Ppar.sbn",
+    "palmbeach_2026Ppar.sbx",
+    "palmbeach_2026Ppar.shp",
+    "palmbeach_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 692285,
+   "deleted": 0,
+   "unjoined": 5185,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 661572,
+    "repeated": 15166,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 687100,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 656525,
+    "withMoreThanOnePolygon": 15068,
+    "extraPolygons": 30575
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 10,
+    "zeroArea": 1,
+    "multiPart": 73167,
+    "shapeTypes": {
+     "5": 692285
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "61",
+   "countyFips": "12101",
+   "role": "county_parcels",
+   "file": "pasco_2026Ppar.zip",
+   "bytes": 77645965,
+   "entries": [
+    "pasco_2026Ppar.cpg",
+    "pasco_2026Ppar.dbf",
+    "pasco_2026Ppar.prj",
+    "pasco_2026Ppar.sbn",
+    "pasco_2026Ppar.sbx",
+    "pasco_2026Ppar.shp",
+    "pasco_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 322366,
+   "deleted": 0,
+   "unjoined": 4450,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 142,
+    "distinct": 321876,
+    "repeated": 223,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 317916,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 317612,
+    "withMoreThanOnePolygon": 204,
+    "extraPolygons": 304
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 54,
+    "zeroArea": 47,
+    "multiPart": 2739,
+    "shapeTypes": {
+     "5": 322366
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "62",
+   "countyFips": "12103",
+   "role": "county_parcels",
+   "file": "pinellas_2026Ppar.zip",
+   "bytes": 97497117,
+   "entries": [
+    "pinellas_2026Ppar.cpg",
+    "pinellas_2026Ppar.dbf",
+    "pinellas_2026Ppar.prj",
+    "pinellas_2026Ppar.sbn",
+    "pinellas_2026Ppar.sbx",
+    "pinellas_2026Ppar.shp",
+    "pinellas_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 437411,
+   "deleted": 0,
+   "unjoined": 3892,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 29,
+    "distinct": 437079,
+    "repeated": 206,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 433519,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 433217,
+    "withMoreThanOnePolygon": 205,
+    "extraPolygons": 302
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 6826,
+    "shapeTypes": {
+     "15": 437411
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "63",
+   "countyFips": "12105",
+   "role": "county_parcels",
+   "file": "polk_2026Ppar.zip",
+   "bytes": 110216693,
+   "entries": [
+    "polk_2026Ppar.cpg",
+    "polk_2026Ppar.dbf",
+    "polk_2026Ppar.prj",
+    "polk_2026Ppar.sbn",
+    "polk_2026Ppar.sbx",
+    "polk_2026Ppar.shp",
+    "polk_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 435954,
+   "deleted": 0,
+   "unjoined": 1950,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 435954,
+    "repeated": 0,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 434004,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 434004,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 5006,
+    "shapeTypes": {
+     "5": 435954
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "64",
+   "countyFips": "12107",
+   "role": "county_parcels",
+   "file": "putnam_2026Ppar.zip",
+   "bytes": 22871315,
+   "entries": [
+    "putnam_2026Ppar.cpg",
+    "putnam_2026Ppar.dbf",
+    "putnam_2026Ppar.prj",
+    "putnam_2026Ppar.sbn",
+    "putnam_2026Ppar.sbx",
+    "putnam_2026Ppar.shp",
+    "putnam_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "US survey foot",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 97834,
+   "deleted": 0,
+   "unjoined": 518,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 2,
+    "distinct": 97829,
+    "repeated": 3,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 97316,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 97313,
+    "withMoreThanOnePolygon": 3,
+    "extraPolygons": 3
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 1596,
+    "shapeTypes": {
+     "5": 97834
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "65",
+   "countyFips": "12109",
+   "role": "condo_related",
+   "file": "stjohnscondos_2026.zip",
+   "bytes": 785247,
+   "entries": [
+    "stjohnscondos_2026.cpg",
+    "stjohnscondos_2026.dbf",
+    "stjohnscondos_2026.dbf.xml"
+   ],
+   "fields": 12,
+   "rows": 18112,
+   "shapeTypes": {}
+  },
+  {
+   "dorCode": "65",
+   "countyFips": "12109",
+   "role": "county_parcels",
+   "file": "stjohns_2026Ppar.zip",
+   "bytes": 74556453,
+   "entries": [
+    "stjohns_2026Ppar.cpg",
+    "stjohns_2026Ppar.dbf",
+    "stjohns_2026Ppar.prj",
+    "stjohns_2026Ppar.sbn",
+    "stjohns_2026Ppar.sbx",
+    "stjohns_2026Ppar.shp",
+    "stjohns_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 212363,
+   "deleted": 0,
+   "unjoined": 4083,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 154216,
+    "repeated": 21664,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 208280,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 152576,
+    "withMoreThanOnePolygon": 21456,
+    "extraPolygons": 55704
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 1776,
+    "shapeTypes": {
+     "5": 212363
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "66",
+   "countyFips": "12111",
+   "role": "county_parcels",
+   "file": "stlucie_2026Ppar.zip",
+   "bytes": 40535165,
+   "entries": [
+    "stlucie_2026Ppar.cpg",
+    "stlucie_2026Ppar.dbf",
+    "stlucie_2026Ppar.prj",
+    "stlucie_2026Ppar.sbn",
+    "stlucie_2026Ppar.sbx",
+    "stlucie_2026Ppar.shp",
+    "stlucie_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 191786,
+   "deleted": 0,
+   "unjoined": 1585,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 191693,
+    "repeated": 85,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 190201,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 190108,
+    "withMoreThanOnePolygon": 85,
+    "extraPolygons": 93
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 4669,
+    "shapeTypes": {
+     "5": 191786
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "67",
+   "countyFips": "12113",
+   "role": "county_parcels",
+   "file": "santarosa_2026Ppar.zip",
+   "bytes": 28396676,
+   "entries": [
+    "santarosa_2026Ppar.cpg",
+    "santarosa_2026Ppar.dbf",
+    "santarosa_2026Ppar.prj",
+    "santarosa_2026Ppar.sbn",
+    "santarosa_2026Ppar.sbx",
+    "santarosa_2026Ppar.shp",
+    "santarosa_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 113861,
+   "deleted": 0,
+   "unjoined": 1113,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 111396,
+    "repeated": 1567,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 112748,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 110298,
+    "withMoreThanOnePolygon": 1555,
+    "extraPolygons": 2450
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 1,
+    "multiPart": 410,
+    "shapeTypes": {
+     "5": 113861
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "68",
+   "countyFips": "12115",
+   "role": "county_parcels",
+   "file": "sarasota_2026Ppar.zip",
+   "bytes": 175467764,
+   "entries": [
+    "sarasota_2026Ppar.cpg",
+    "sarasota_2026Ppar.dbf",
+    "sarasota_2026Ppar.prj",
+    "sarasota_2026Ppar.sbn",
+    "sarasota_2026Ppar.sbx",
+    "sarasota_2026Ppar.shp",
+    "sarasota_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 308246,
+   "deleted": 0,
+   "unjoined": 1073,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 308213,
+    "repeated": 1,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 307173,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 307173,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 12046,
+    "shapeTypes": {
+     "5": 308246
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "69",
+   "countyFips": "12117",
+   "role": "county_parcels",
+   "file": "seminole_2026Ppar.zip",
+   "bytes": 57721253,
+   "entries": [
+    "seminole_2026Ppar.cpg",
+    "seminole_2026Ppar.dbf",
+    "seminole_2026Ppar.prj",
+    "seminole_2026Ppar.sbn",
+    "seminole_2026Ppar.sbx",
+    "seminole_2026Ppar.shp",
+    "seminole_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 180961,
+   "deleted": 0,
+   "unjoined": 1519,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 180961,
+    "repeated": 0,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 179442,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 179442,
+    "withMoreThanOnePolygon": 0,
+    "extraPolygons": 0
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 909,
+    "shapeTypes": {
+     "5": 180961
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "70",
+   "countyFips": "12119",
+   "role": "county_parcels",
+   "file": "sumter_2026Ppar.zip",
+   "bytes": 37064280,
+   "entries": [
+    "sumter_2026Ppar.cpg",
+    "sumter_2026Ppar.dbf",
+    "sumter_2026Ppar.prj",
+    "sumter_2026Ppar.sbn",
+    "sumter_2026Ppar.sbx",
+    "sumter_2026Ppar.shp",
+    "sumter_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_West_FIPS_0902_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 104337,
+   "deleted": 0,
+   "unjoined": 190,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 104308,
+    "repeated": 6,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 104147,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 104118,
+    "withMoreThanOnePolygon": 6,
+    "extraPolygons": 29
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 1280,
+    "shapeTypes": {
+     "5": 104337
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "71",
+   "countyFips": "12121",
+   "role": "county_parcels",
+   "file": "suwannee_2026Ppar.zip",
+   "bytes": 7759337,
+   "entries": [
+    "suwannee_2026Ppar.cpg",
+    "suwannee_2026Ppar.dbf",
+    "suwannee_2026Ppar.prj",
+    "suwannee_2026Ppar.sbn",
+    "suwannee_2026Ppar.sbx",
+    "suwannee_2026Ppar.shp",
+    "suwannee_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 32336,
+   "deleted": 0,
+   "unjoined": 197,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 5,
+    "distinct": 32146,
+    "repeated": 135,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 32139,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 31970,
+    "withMoreThanOnePolygon": 133,
+    "extraPolygons": 169
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 1059,
+    "shapeTypes": {
+     "5": 32336
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "72",
+   "countyFips": "12123",
+   "role": "county_parcels",
+   "file": "taylor_2026Ppar.zip",
+   "bytes": 8269591,
+   "entries": [
+    "taylor_2026Ppar.cpg",
+    "taylor_2026Ppar.dbf",
+    "taylor_2026Ppar.prj",
+    "taylor_2026Ppar.sbn",
+    "taylor_2026Ppar.sbx",
+    "taylor_2026Ppar.shp",
+    "taylor_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 18866,
+   "deleted": 0,
+   "unjoined": 100,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 1,
+    "distinct": 18810,
+    "repeated": 41,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 18766,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 18714,
+    "withMoreThanOnePolygon": 40,
+    "extraPolygons": 52
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 3,
+    "zeroArea": 1,
+    "multiPart": 634,
+    "shapeTypes": {
+     "5": 18866
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "73",
+   "countyFips": "12125",
+   "role": "county_parcels",
+   "file": "union_2026Ppar.zip",
+   "bytes": 2092461,
+   "entries": [
+    "union_2026Ppar.cpg",
+    "union_2026Ppar.dbf",
+    "union_2026Ppar.prj",
+    "union_2026Ppar.sbn",
+    "union_2026Ppar.sbx",
+    "union_2026Ppar.shp",
+    "union_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 7414,
+   "deleted": 0,
+   "unjoined": 90,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 1,
+    "distinct": 7046,
+    "repeated": 286,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 7324,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 6975,
+    "withMoreThanOnePolygon": 282,
+    "extraPolygons": 349
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 160,
+    "shapeTypes": {
+     "15": 7414
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "74",
+   "countyFips": "12127",
+   "role": "county_parcels",
+   "file": "volusia_2026Ppar.zip",
+   "bytes": 69746848,
+   "entries": [
+    "volusia_2026Ppar.cpg",
+    "volusia_2026Ppar.dbf",
+    "volusia_2026Ppar.prj",
+    "volusia_2026Ppar.sbn",
+    "volusia_2026Ppar.sbx",
+    "volusia_2026Ppar.shp",
+    "volusia_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_HARN_StatePlane_Florida_East_FIPS_0901_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 311589,
+   "deleted": 0,
+   "unjoined": 2731,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 0,
+    "distinct": 311398,
+    "repeated": 191,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 308858,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 308667,
+    "withMoreThanOnePolygon": 191,
+    "extraPolygons": 191
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 8630,
+    "shapeTypes": {
+     "5": 311589
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "75",
+   "countyFips": "12129",
+   "role": "county_parcels",
+   "file": "wakulla_2026Ppar.zip",
+   "bytes": 6741469,
+   "entries": [
+    "wakulla_2026Ppar.cpg",
+    "wakulla_2026Ppar.dbf",
+    "wakulla_2026Ppar.prj",
+    "wakulla_2026Ppar.sbn",
+    "wakulla_2026Ppar.sbx",
+    "wakulla_2026Ppar.shp",
+    "wakulla_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 27053,
+   "deleted": 0,
+   "unjoined": 441,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 3,
+    "distinct": 26973,
+    "repeated": 54,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 26612,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 26542,
+    "withMoreThanOnePolygon": 50,
+    "extraPolygons": 70
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 737,
+    "shapeTypes": {
+     "15": 27053
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "76",
+   "countyFips": "12131",
+   "role": "county_parcels",
+   "file": "walton_2026Ppar.zip",
+   "bytes": 23723515,
+   "entries": [
+    "walton_2026Ppar.cpg",
+    "walton_2026Ppar.dbf",
+    "walton_2026Ppar.prj",
+    "walton_2026Ppar.sbn",
+    "walton_2026Ppar.sbx",
+    "walton_2026Ppar.shp",
+    "walton_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 96126,
+   "deleted": 0,
+   "unjoined": 602,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 5,
+    "distinct": 90886,
+    "repeated": 2738,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 95524,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 90352,
+    "withMoreThanOnePolygon": 2703,
+    "extraPolygons": 5172
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 120,
+    "zeroArea": 118,
+    "multiPart": 1217,
+    "shapeTypes": {
+     "5": 96126
+    }
+   },
+   "decodeReplacements": 0
+  },
+  {
+   "dorCode": "77",
+   "countyFips": "12133",
+   "role": "county_parcels",
+   "file": "washington_2026Ppar.zip",
+   "bytes": 10292416,
+   "entries": [
+    "washington_2026Ppar.cpg",
+    "washington_2026Ppar.dbf",
+    "washington_2026Ppar.prj",
+    "washington_2026Ppar.sbn",
+    "washington_2026Ppar.sbx",
+    "washington_2026Ppar.shp",
+    "washington_2026Ppar.shx"
+   ],
+   "crs": "NAD_1983_StatePlane_Florida_North_FIPS_0903_Feet",
+   "unit": {
+    "name": "Foot_US",
+    "metres": 0.3048006096012192
+   },
+   "codePage": "UTF-8",
+   "dbfLastUpdate": "2026-07-28",
+   "fields": 118,
+   "rows": 43893,
+   "deleted": 0,
+   "unjoined": 131,
+   "coNoMismatchWithFile": 0,
+   "parcelNo": {
+    "blank": 6,
+    "distinct": 43858,
+    "repeated": 19,
+    "joinedWherePARCEL_IDEqualsPARCELNO": 43762,
+    "joinedWhereTheyDiffer": 0
+   },
+   "joinedParcelIds": {
+    "distinct": 43733,
+    "withMoreThanOnePolygon": 19,
+    "extraPolygons": 29
+   },
+   "geometry": {
+    "nullShapes": 0,
+    "openRings": 0,
+    "zeroArea": 0,
+    "multiPart": 1322,
+    "shapeTypes": {
+     "5": 43893
+    }
+   },
+   "decodeReplacements": 0
+  }
+ ]
+}

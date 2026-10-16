@@ -886,7 +886,7 @@ test('no live transfer coverage is claimed for Wisconsin', () => {
 // 12. Coverage
 // ===========================================================================
 
-test('automated core parcel coverage is 59 Minnesota plus 72 Wisconsin, derived', () => {
+test('automated core parcel coverage is 59 Minnesota plus 72 Wisconsin active, derived', () => {
   const registry = defaultRegistry();
   const matrix = buildCoverage(registry);
   const covered = (state: string) => registry.jurisdictions
@@ -895,8 +895,9 @@ test('automated core parcel coverage is 59 Minnesota plus 72 Wisconsin, derived'
   assert.equal(covered('MN'), 59);
   assert.equal(covered('WI'), 72);
   const report = nationalCoverageReport(registry, matrix, RUN_INSTANT);
-  // Nationally, with New York's 62 (DF-0N): 59 + 72 + 62.
-  assert.equal(report.byCapability.find((c) => c.capability === 'parcel')?.covered, 193);
+  // ACTIVE is certified: 59 Minnesota + 72 Wisconsin + 62 New York (DF-0N) + 67 Florida (DF-0M).
+  assert.equal(report.byCapability.find((c) => c.capability === 'parcel')?.covered, 59 + 72 + 62 + 67);
+  assert.equal(report.byCapability.find((c) => c.capability === 'parcel')?.active, 59 + 72 + 62 + 67);
   for (const unclaimed of ['transfer', 'deed', 'mortgage', 'lien', 'foreclosure_notice'] as const) {
     assert.equal(matrix.coreStateOf('us-county-55079', unclaimed) === 'ACTIVE', false, unclaimed);
   }

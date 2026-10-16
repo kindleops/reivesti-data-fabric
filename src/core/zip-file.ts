@@ -167,3 +167,57 @@ export async function extractZipEntry(zipPath: string, entry: ZipFileEntry, dest
     });
   }
 }
+
+/**
+ * Streams one entry's inflated bytes, verifying CRC-32 and length as they pass.
+ *
+ * For entries read sequentially and never needed on disk — a 2 GB shapefile
+ * attribute table, a county's roll CSV. The verification completes only when
+ * the stream is exhausted: a corrupt entry throws on the last chunk, so a
+ * caller must treat everything it derived as unverified until iteration ends,
+ * and must discard it on a throw. The artifact store's staging does exactly that.
+ */
+export async function* readZipEntry(zipPath: string, entry: ZipFileEntry): AsyncGenerator<Buffer> {
+  if (entry.isDirectory) fail('CONFIG', `zip entry "${entry.name}" is a directory`);
+  if (entry.method !== 0 && entry.method !== 8) {
+    fail('PARSE', `zip entry "${entry.name}" uses unsupported compression method ${entry.method}`);
+  }
+  const handle = await open(zipPath, 'r');
+  let dataStart: number;
+  try {
+    const local = Buffer.alloc(30);
+    await handle.read(local, 0, 30, entry.localHeaderOffset);
+    if (local.readUInt32LE(0) !== LOCAL_SIGNATURE) fail('PARSE', `zip entry "${entry.name}" has a malformed local header`);
+    dataStart = entry.localHeaderOffset + 30 + local.readUInt16LE(26) + local.readUInt16LE(28);
+  } finally {
+    await handle.close();
+  }
+
+  let crc = 0;
+  let length = 0;
+  if (entry.compressedSize > 0) {
+    const source = createReadStream(zipPath, {
+      start: dataStart, end: dataStart + entry.compressedSize - 1, highWaterMark: 1 << 20,
+    });
+    const stream = entry.method === 8 ? source.pipe(createInflateRaw()) : source;
+    if (stream !== source) source.on('error', (e) => stream.destroy(e));
+    try {
+      for await (const chunk of stream as AsyncIterable<Buffer>) {
+        crc = nativeCrc32(chunk, crc);
+        length += chunk.length;
+        yield chunk;
+      }
+    } finally {
+      stream.destroy();
+      source.destroy();
+    }
+  }
+  if (length !== entry.uncompressedSize) {
+    fail('PARSE', `zip entry "${entry.name}" length mismatch: header says ${entry.uncompressedSize}, got ${length}`);
+  }
+  if ((crc >>> 0) !== entry.crc32) {
+    fail('PARSE', `zip entry "${entry.name}" failed CRC-32 verification`, {
+      expected: entry.crc32.toString(16), actual: (crc >>> 0).toString(16),
+    });
+  }
+}

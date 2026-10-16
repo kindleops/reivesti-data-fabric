@@ -281,7 +281,8 @@ async function fingerprints(root: string): Promise<Record<string, string>> {
   for (const key of await store.listPartitions()) {
     const dir = join(root, 'derived', 'partitions', ...partitionId(key).split('/'));
     const generation = (await readFile(join(dir, 'CURRENT'), 'utf8')).trim();
-    const info = await stat(join(dir, generation, 'resolutions.ndjson'));
+    // Whichever encoding the estate was written in (DF_DERIVED_GZIP).
+    const info = await stat(join(dir, generation, 'resolutions.ndjson.gz')).catch(() => stat(join(dir, generation, 'resolutions.ndjson')));
     out[partitionId(key)] = `${generation}|${info.mtimeMs}|${info.size}`;
   }
   return out;
@@ -582,11 +583,12 @@ test('the statewide source added 59 parcel jurisdictions', () => {
   const covered = new Set(
     matrix.entries
       .filter((e) => e.capability === 'parcel' && e.countsAsCore && e.state === 'ACTIVE'
-        && e.sourceId !== 'wi_statewide_parcels' && e.sourceId !== 'ny_statewide_parcels')
+        && e.sourceId !== 'wi_statewide_parcels' && e.sourceId !== 'ny_statewide_parcels'
+        && !e.sourceId.startsWith('fl_'))
       .map((e) => e.jurisdictionId),
   );
-  // Wisconsin's statewide map (DF-0K) adds its own 72 and New York's (DF-0N) its
-  // own 62; this one is Minnesota's.
+  // Wisconsin's statewide map (DF-0K) adds its own 72, New York's (DF-0N) its
+  // own 62 and Florida's DOR sources (DF-0M) their 67; this one is Minnesota's.
   assert.equal(covered.size, 59);
   assert.ok(covered.has(countyJurisdictionId(RAMSEY)));
   assert.ok(covered.has(countyJurisdictionId(HENNEPIN)));

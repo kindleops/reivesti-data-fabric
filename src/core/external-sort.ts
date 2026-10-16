@@ -20,7 +20,7 @@ import { mkdir, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fail } from './errors.ts';
-import { createLineWriter, readLines } from './lines.ts';
+import { gzipLineWriter, readLines, type LineWriter } from './lines.ts';
 
 export const DEFAULT_CHUNK_LINES = 50_000;
 
@@ -66,10 +66,8 @@ export async function* externalSort(
   const spill = async (): Promise<void> => {
     if (chunk.length === 0) return;
     chunk.sort(compareEntries);
-    const path = join(scratch, `run-${runFiles.length}.ndjson`);
-    // 0600: a spill run holds source rows verbatim, including any contact-shaped
-    // columns the connector has not yet routed to the restricted plane.
-    const writer = createLineWriter(createWriteStream(path, { mode: 0o600 }));
+    const path = join(scratch, `run-${runFiles.length}.ndjson.gz`);
+    const writer = spillWriter(path);
     for (const entry of chunk) await writer.write(entry.line);
     await writer.close();
     runFiles.push(path);
@@ -91,10 +89,28 @@ export async function* externalSort(
     }
 
     await spill();
-    yield* mergeSortedFiles(runFiles, keyOf, scratch);
+    yield* mergeSortedFiles(runFiles, keyOf, scratch, { consumeInputs: true });
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
+}
+
+/**
+ * Opens a spill file: owner-only, gzip level 1.
+ *
+ * 0600: a spill run holds source rows verbatim, including any contact-shaped
+ * columns the connector has not yet routed to the restricted plane.
+ *
+ * Compressed because a sort's scratch is a copy of its input, and a sort that
+ * merges in passes holds two (the runs, then the passes) beside the input
+ * itself. DF-0M's Florida roll made that concrete: ~12 million contribution
+ * lines, ~3.7 GB as plain NDJSON, so ~11 GB at the peak of one distribution —
+ * more than a worker's disk. Contribution lines compress about sixfold at
+ * level 1. `readLines` decompresses a `.gz` path on the fly, and ordering is
+ * untouched: the bytes a sort yields are the same either way.
+ */
+function spillWriter(path: string): LineWriter {
+  return gzipLineWriter(createWriteStream(path, { mode: 0o600 }));
 }
 
 function compareEntries(a: { key: string; line: string }, b: { key: string; line: string }): number {
@@ -143,6 +159,15 @@ export async function* mergeSortedFiles(
   paths: readonly string[],
   keyOf: (line: string) => string,
   scratch?: string,
+  options: {
+    /**
+     * The inputs are the sort's own spill files: once a group has been merged
+     * into a pass file it is never read again, so it is deleted there and then
+     * instead of when the sort finishes. Without this a multi-pass merge holds
+     * its whole input twice over. Never set for files the caller owns.
+     */
+    readonly consumeInputs?: boolean;
+  } = {},
 ): AsyncGenerator<string> {
   if (paths.length > MAX_MERGE_FANIN && scratch !== undefined) {
     const merged: string[] = [];
@@ -151,15 +176,18 @@ export async function* mergeSortedFiles(
       // The same counter the spill directories use. A timestamp alone collides
       // across recursion levels, where `merged.length` restarts at zero — which
       // is precisely the shape of the DF-0F bug this counter was added for.
-      const path = join(scratch, `pass-${nextSortId()}.ndjson`);
-      const writer = createLineWriter(createWriteStream(path, { mode: 0o600 }));
+      const path = join(scratch, `pass-${nextSortId()}.ndjson.gz`);
+      const writer = spillWriter(path);
       for await (const line of mergeSortedFiles(group, keyOf)) await writer.write(line);
       await writer.close();
       merged.push(path);
+      if (options.consumeInputs === true) {
+        for (const input of group) await rm(input, { force: true });
+      }
     }
-    // The intermediate runs are inside the sort's own scratch directory, which
-    // the caller removes when the sort finishes.
-    yield* mergeSortedFiles(merged, keyOf, scratch);
+    // The pass files are the sort's own, inside its scratch directory, which the
+    // caller removes when the sort finishes; each is released as soon as it is merged.
+    yield* mergeSortedFiles(merged, keyOf, scratch, { consumeInputs: true });
     return;
   }
 

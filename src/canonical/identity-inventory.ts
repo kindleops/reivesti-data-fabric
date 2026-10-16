@@ -105,6 +105,29 @@ export const IDENTITY_CONTRACTS: readonly IdentityContract[] = [
     refused: '6,606 rows with no SBL; 19 Westchester label rows; 208 exact duplicates',
     derivation: 'propertyIdFromCountyParcel(countyFips, normalizedParcel)',
   },
+  // Florida (DF-0M): one rule, `flParcelIdentity`, shared by all three DOR
+  // sources so the map, the roll and the sales converge without consulting
+  // each other. The SDF names a parcel and never creates one.
+  ...(['fl_dor_nal', 'fl_statewide_cadastral', 'fl_dor_sdf'] as const).map((sourceId): IdentityContract => ({
+    sourceId,
+    stateCode: 'FL',
+    stateFips: '12',
+    contractVersion: NORMALIZATION_CONTRACT_VERSION,
+    extension: PARCEL_IDENTIFIER_EXTENSION,
+    scheme: 'PUNCTUATION_PRESERVING',
+    identifierSemantics: sourceId === 'fl_dor_sdf'
+      ? 'PARCEL_ID of the parcel a sale names (county); a sale is keyed by the appraiser\'s SALE_ID_CD and never mints a property'
+      : 'the county property appraiser\'s PARCEL_ID, unique within the county',
+    normalizedParcel: 'PARCEL_ID with outer whitespace trimmed and case folded; nothing else',
+    leadingZeros: 'PRESERVED',
+    punctuation: 'PRESERVED',
+    countyRouting: 'CO_NO through the Department\'s own county table to FIPS; a row naming another county than its file is quarantined (0 measured)',
+    collisionEvidence: 'over 11,090,242 NAL ids: trim/upper/whitespace/leading-zero folds merge 0; stripping separators would merge 1,856 ids, all punctuation 7,584; 18,863 id strings recur across counties and stay distinct',
+    refused: sourceId === 'fl_statewide_cadastral'
+      ? '231,025 second polygons of a parcel already read; 97,339 unjoined polygons (CO_NO 0)'
+      : 'none in the 2026 release',
+    derivation: 'propertyIdFromCountyParcel(countyFips, normalizedParcel)',
+  })),
 ];
 
 export function identityContractOf(sourceId: string): IdentityContract | null {

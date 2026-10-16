@@ -1,0 +1,64 @@
+{
+ "claim": "A Florida run writes no Minnesota or Wisconsin partition: every MN/WI manifest is identical before and after, generation included.",
+ "before": {
+  "global": "82ee7a7b5856734c220dae3f2f5ce8835c1d674fa1f070036eb4d20f8cf7cf0d",
+  "counts": {
+   "all": 132,
+   "mn": 59,
+   "wi": 72,
+   "fl": 0,
+   "flProperty": 0,
+   "flTransaction": 0,
+   "national": 1
+  }
+ },
+ "after": {
+  "global": "40d87b18d8d6a0ce4ef617886f3585679148e5c3091e87dcfe34a2718f45d283",
+  "counts": {
+   "all": 266,
+   "mn": 59,
+   "wi": 72,
+   "fl": 134,
+   "flProperty": 67,
+   "flTransaction": 67,
+   "national": 1
+  }
+ },
+ "minnesota": {
+  "partitions": 59,
+  "compared": 59,
+  "identical": 59,
+  "differing": []
+ },
+ "wisconsin": {
+  "partitions": 72,
+  "compared": 72,
+  "identical": 72,
+  "differing": []
+ },
+ "nonFloridaPartitionsAfter": 131,
+ "nonFloridaPartitionsBefore": 131,
+ "floridaPartitionsBefore": 0,
+ "floridaPartitionsAfter": 134,
+ "nationalOrganizationPartition": {
+  "before": {
+   "outputDigest": "6cd24fa65d316f4662fc7e6a14857cfac7941a09a0602fbc2a957def0732481a",
+   "inputDigest": "f54bc4deaae3685d92cf0f280cac25540b1ae62d0cb95464a2ddf02a9e6f4c76",
+   "generation": "gen-munchby5-79vybj",
+   "rowCount": 1385779,
+   "inputRowCount": 2771558,
+   "resolverVersion": "org_resolver_1",
+   "runId": "run_75f8ca1bfa848df79781c31788cd0ce9"
+  },
+  "after": {
+   "outputDigest": "f50a89987a7093214bd4d24eef0b0f7b58ed5cdee360213972b7095387260d38",
+   "inputDigest": "fad389e7c7477ced1f611418349b2c6b5ab5c4c647e0cc22e72ec9dd0b4f765c",
+   "generation": "gen-munkg8x9-z053sh",
+   "rowCount": 3323551,
+   "inputRowCount": 6647102,
+   "resolverVersion": "org_resolver_1",
+   "runId": "run_1c386b372a3ce7ced45b314dabb5b300"
+  },
+  "note": "The national organization fold is the one shared partition; Florida organizations enter it by design."
+ }
+}

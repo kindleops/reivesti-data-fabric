@@ -1,0 +1,9891 @@
+{
+ "source": "fl_dor_nal",
+ "releaseManifestSha256": "5829348a185813361b9acb9508d21f73c8bebcab89d208f4859500682069db09",
+ "referencePeriod": "2026",
+ "stageCounts": {
+  "FINAL": 2,
+  "PRELIMINARY": 65
+ },
+ "files": 67,
+ "totalRows": 11090242,
+ "headerVariants": 2,
+ "statewideIdShapesTop": [
+  [
+   "999999999999",
+   1000457
+  ],
+  [
+   "9999999999999",
+   981265
+  ],
+  [
+   "99999999999999999",
+   871329
+  ],
+  [
+   "999999999999999999",
+   738263
+  ],
+  [
+   "9999999999",
+   651461
+  ],
+  [
+   "999999999999999",
+   493490
+  ],
+  [
+   "99999999999",
+   442446
+  ],
+  [
+   "99 99 99 99999 999 9999",
+   433770
+  ],
+  [
+   "9999999999A",
+   404088
+  ],
+  [
+   "999999A9999999999",
+   345957
+  ],
+  [
+   "99-99-99-9999-99999-9999",
+   330718
+  ],
+  [
+   "999999AA9999",
+   269885
+  ],
+  [
+   "999A99999999999999",
+   227182
+  ],
+  [
+   "9999-999-9999-999-9",
+   192346
+  ],
+  [
+   "99-99-99-9999-999-99999",
+   189190
+  ],
+  [
+   "999A999999999999",
+   182573
+  ],
+  [
+   "9999999AA999999999999A",
+   155830
+  ],
+  [
+   "9999-999-999",
+   137494
+  ],
+  [
+   "A99 999 99 9999 9999 9999",
+   109449
+  ],
+  [
+   "99999-999-999",
+   109366
+  ],
+  [
+   "99-99-99-999999-999-99",
+   105628
+  ],
+  [
+   "999999999",
+   103758
+  ],
+  [
+   "99999999A999999999999A",
+   102963
+  ],
+  [
+   "99-99-99-9999-9999-9999",
+   99185
+  ],
+  [
+   "A99999999999999999",
+   98890
+  ]
+ ],
+ "collisionsUnderTransformStatewide": {
+  "trim": {
+   "groups": 0,
+   "idsMerged": 0
+  },
+  "trim_upper": {
+   "groups": 0,
+   "idsMerged": 0
+  },
+  "strip_whitespace": {
+   "groups": 0,
+   "idsMerged": 0
+  },
+  "strip_separators": {
+   "groups": 928,
+   "idsMerged": 1856
+  },
+  "strip_all_punctuation": {
+   "groups": 3782,
+   "idsMerged": 7584
+  },
+  "strip_leading_zeros": {
+   "groups": 0,
+   "idsMerged": 0
+  },
+  "alnum_no_leading_zeros": {
+   "groups": 3782,
+   "idsMerged": 7584
+  }
+ },
+ "crossCountyReuse": {
+  "normalizedIdsInMoreThanOneCounty": 18863,
+  "countyIdPairsInvolved": 38077
+ },
+ "perCounty": [
+  {
+   "dorCode": "11",
+   "countyFips": "12001",
+   "stage": "PRELIMINARY",
+   "file": "Alachua 11 Preliminary NAL 2026.zip",
+   "csv": "NAL11P202601.csv",
+   "bytes": 8621291,
+   "rows": 109378,
+   "columns": 165,
+   "rowWidths": {
+    "165": 109378
+   },
+   "coNo": {
+    "11": 109378
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 109378
+   },
+   "fileTypes": {
+    "R": 109378
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 109378,
+    "duplicateRows": 0,
+    "length": {
+     "min": 6,
+     "median": 13,
+     "max": 13
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 109366,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 86171,
+    "topShapes": [
+     [
+      "99999-999-999",
+      109366
+     ],
+     [
+      "999999",
+      12
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 0.9999,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9954,
+    "NO_LND_UNTS": 0.9731,
+    "ACT_YR_BLT": 0.8157,
+    "EFF_YR_BLT": 0.8366,
+    "TOT_LVG_AREA": 0.8126,
+    "NO_BULDNG": 0.6861,
+    "NO_RES_UNTS": 0.7693,
+    "SALE_PRC1": 0.1291,
+    "SALE_YR1": 0.1291,
+    "QUAL_CD1": 0.1291,
+    "SALE_PRC2": 0.0233,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9998,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9992,
+    "OWN_STATE_DOM": 0.9999,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 0.9999,
+    "PHY_ADDR1": 0.9984,
+    "PHY_CITY": 0.996,
+    "PHY_ZIPCD": 0.996,
+    "CENSUS_BK": 0.9981,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.99,
+    "ALT_KEY": 0.9999,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5011,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4977,
+    "PUBLIC_LND": 0.0176,
+    "MKT_AR": 0.9767,
+    "NBRHD_CD": 0.9999,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9992
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "12",
+   "countyFips": "12003",
+   "stage": "PRELIMINARY",
+   "file": "Baker 12 Preliminary NAL 2026.zip",
+   "csv": "NAL12P202601.csv",
+   "bytes": 1080740,
+   "rows": 13182,
+   "columns": 165,
+   "rowWidths": {
+    "165": 13182
+   },
+   "coNo": {
+    "12": 13182
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 13182
+   },
+   "fileTypes": {
+    "R": 13182
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 13182,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 3565,
+    "topShapes": [
+     [
+      "999A99999999999999",
+      13103
+     ],
+     [
+      "999A99AAAA99999999",
+      75
+     ],
+     [
+      "999999999999999999",
+      4
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9997,
+    "NO_LND_UNTS": 0.9991,
+    "ACT_YR_BLT": 0.7183,
+    "EFF_YR_BLT": 0.7183,
+    "TOT_LVG_AREA": 0.7183,
+    "NO_BULDNG": 0.7183,
+    "NO_RES_UNTS": 0.6912,
+    "SALE_PRC1": 0.1271,
+    "SALE_YR1": 0.1271,
+    "QUAL_CD1": 0.1271,
+    "SALE_PRC2": 0.0262,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9907,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9961,
+    "PHY_CITY": 0.9961,
+    "PHY_ZIPCD": 0.9961,
+    "CENSUS_BK": 0.9997,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4932,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4932,
+    "PUBLIC_LND": 0.0446,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9972,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9995
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "13",
+   "countyFips": "12005",
+   "stage": "PRELIMINARY",
+   "file": "Bay 13 Preliminary NAL 2026.zip",
+   "csv": "NAL13P202601.csv",
+   "bytes": 9416854,
+   "rows": 131060,
+   "columns": 165,
+   "rowWidths": {
+    "165": 131060
+   },
+   "coNo": {
+    "13": 131060
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 131060
+   },
+   "fileTypes": {
+    "R": 131060
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 131060,
+    "duplicateRows": 0,
+    "length": {
+     "min": 11,
+     "median": 11,
+     "max": 11
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 37246,
+    "topShapes": [
+     [
+      "99999999999",
+      131060
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.8423,
+    "NO_LND_UNTS": 0.9924,
+    "ACT_YR_BLT": 0.7867,
+    "EFF_YR_BLT": 0.7867,
+    "TOT_LVG_AREA": 0.7865,
+    "NO_BULDNG": 0.7867,
+    "NO_RES_UNTS": 0.7526,
+    "SALE_PRC1": 0.1494,
+    "SALE_YR1": 0.1494,
+    "QUAL_CD1": 0.1494,
+    "SALE_PRC2": 0.0219,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9996,
+    "OWN_STATE": 0.9997,
+    "OWN_ZIPCD": 0.9956,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3502,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3502,
+    "PUBLIC_LND": 0.0161,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "14",
+   "countyFips": "12007",
+   "stage": "PRELIMINARY",
+   "file": "Bradford 14 Preliminary NAL 2026.zip",
+   "csv": "NAL14P202601.csv",
+   "bytes": 1228672,
+   "rows": 15883,
+   "columns": 165,
+   "rowWidths": {
+    "165": 15883
+   },
+   "coNo": {
+    "14": 15883
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 15883
+   },
+   "fileTypes": {
+    "R": 15883
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 15883,
+    "duplicateRows": 0,
+    "length": {
+     "min": 11,
+     "median": 11,
+     "max": 11
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 13,
+    "leadingZero": 15883,
+    "topShapes": [
+     [
+      "99999999999",
+      13751
+     ],
+     [
+      "99999A99999",
+      1982
+     ],
+     [
+      "99999999A99",
+      66
+     ],
+     [
+      "99999A9999A",
+      20
+     ],
+     [
+      "9999999999A",
+      19
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.8937,
+    "NO_LND_UNTS": 0.9785,
+    "ACT_YR_BLT": 0.6685,
+    "EFF_YR_BLT": 0.6685,
+    "TOT_LVG_AREA": 0.6684,
+    "NO_BULDNG": 0.6685,
+    "NO_RES_UNTS": 0.6308,
+    "SALE_PRC1": 0.1388,
+    "SALE_YR1": 0.1388,
+    "QUAL_CD1": 0.1388,
+    "SALE_PRC2": 0.0432,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9999,
+    "OWN_STATE": 0.9999,
+    "OWN_ZIPCD": 0.9996,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9999,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 0.9997,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9997,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4451,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4435,
+    "PUBLIC_LND": 0.0179,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9996
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "15",
+   "countyFips": "12009",
+   "stage": "PRELIMINARY",
+   "file": "Brevard 15 Preliminary NAL 2026.zip",
+   "csv": "NAL15P202601.csv",
+   "bytes": 25864378,
+   "rows": 350710,
+   "columns": 165,
+   "rowWidths": {
+    "165": 350710
+   },
+   "coNo": {
+    "15": 350710
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 350710
+   },
+   "fileTypes": {
+    "R": 350710
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 350710,
+    "duplicateRows": 0,
+    "length": {
+     "min": 12,
+     "median": 15,
+     "max": 23
+    },
+    "lowercase": 0,
+    "internalWhitespace": 345560,
+    "dash": 350710,
+    "dot": 51168,
+    "slash": 0,
+    "otherPunctuation": 91695,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "99 9999-99-*-99",
+      36100
+     ],
+     [
+      "99 9999-99-A-99",
+      28372
+     ],
+     [
+      "99 9999-AA-9999-99",
+      23318
+     ],
+     [
+      "99 9999-99-A-9",
+      20816
+     ],
+     [
+      "99 9999-99-999",
+      19669
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 559,
+      "idsMerged": 1118
+     },
+     "strip_all_punctuation": {
+      "groups": 759,
+      "idsMerged": 1519
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 759,
+      "idsMerged": 1519
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9984,
+    "NO_LND_UNTS": 0.9998,
+    "ACT_YR_BLT": 0.7913,
+    "EFF_YR_BLT": 0.7913,
+    "TOT_LVG_AREA": 0.789,
+    "NO_BULDNG": 0.7977,
+    "NO_RES_UNTS": 0.7698,
+    "SALE_PRC1": 0.1318,
+    "SALE_YR1": 0.1318,
+    "QUAL_CD1": 0.1318,
+    "SALE_PRC2": 0.0239,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9964,
+    "OWN_CITY": 0.9925,
+    "OWN_STATE": 0.9957,
+    "OWN_ZIPCD": 0.9886,
+    "OWN_STATE_DOM": 0.9957,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 0.8849,
+    "PHY_ZIPCD": 0.8849,
+    "CENSUS_BK": 0.9985,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4914,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.488,
+    "PUBLIC_LND": 0.026,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "16",
+   "countyFips": "12011",
+   "stage": "PRELIMINARY",
+   "file": "Broward Preliminary NAL 2026.zip",
+   "csv": "NAL16P202601.csv",
+   "bytes": 50460442,
+   "rows": 754549,
+   "columns": 165,
+   "rowWidths": {
+    "165": 754549
+   },
+   "coNo": {
+    "16": 754549
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 754549
+   },
+   "fileTypes": {
+    "R": 754549
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 754549,
+    "duplicateRows": 0,
+    "length": {
+     "min": 12,
+     "median": 12,
+     "max": 12
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "999999999999",
+      478630
+     ],
+     [
+      "999999AA9999",
+      269874
+     ],
+     [
+      "999999A99999",
+      5614
+     ],
+     [
+      "9999999A9999",
+      431
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.6932,
+    "NO_LND_UNTS": 0.6356,
+    "ACT_YR_BLT": 0.9443,
+    "EFF_YR_BLT": 0.9443,
+    "TOT_LVG_AREA": 0.9391,
+    "NO_BULDNG": 0.6042,
+    "NO_RES_UNTS": 0.9152,
+    "SALE_PRC1": 0.1074,
+    "SALE_YR1": 0.1074,
+    "QUAL_CD1": 0.1074,
+    "SALE_PRC2": 0.0168,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9748,
+    "OWN_STATE_DOM": 0.5478,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 0.9996,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5478,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3785,
+    "PUBLIC_LND": 0.0299,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9324,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "17",
+   "countyFips": "12013",
+   "stage": "PRELIMINARY",
+   "file": "Calhoun 17 Preliminary NAL 2026.zip",
+   "csv": "NAL17P202601.csv",
+   "bytes": 1052871,
+   "rows": 13294,
+   "columns": 165,
+   "rowWidths": {
+    "165": 13294
+   },
+   "coNo": {
+    "17": 13294
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 13294
+   },
+   "fileTypes": {
+    "R": 13294
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 13294,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 2769,
+    "topShapes": [
+     [
+      "999A99999999999999",
+      11048
+     ],
+     [
+      "999A99AAAA99999999",
+      1585
+     ],
+     [
+      "999A999999999A9999",
+      624
+     ],
+     [
+      "999A9999999999999A",
+      15
+     ],
+     [
+      "999A999999A9999999",
+      11
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.8807,
+    "NO_LND_UNTS": 0.9879,
+    "ACT_YR_BLT": 0.3863,
+    "EFF_YR_BLT": 0.3863,
+    "TOT_LVG_AREA": 0.3863,
+    "NO_BULDNG": 0.3863,
+    "NO_RES_UNTS": 0.3861,
+    "SALE_PRC1": 0.0919,
+    "SALE_YR1": 0.0919,
+    "QUAL_CD1": 0.0919,
+    "SALE_PRC2": 0.0153,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9987,
+    "OWN_CITY": 0.9995,
+    "OWN_STATE": 0.9997,
+    "OWN_ZIPCD": 0.9983,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 0.9963,
+    "PHY_ZIPCD": 0.9963,
+    "CENSUS_BK": 0.9146,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2463,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2461,
+    "PUBLIC_LND": 0.0245,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9999,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9992
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "18",
+   "countyFips": "12015",
+   "stage": "PRELIMINARY",
+   "file": "Charlotte 18 Preliminary NAL 2026.zip",
+   "csv": "NAL18P202601.csv",
+   "bytes": 16076450,
+   "rows": 222623,
+   "columns": 165,
+   "rowWidths": {
+    "165": 222623
+   },
+   "coNo": {
+    "18": 222623
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 222623
+   },
+   "fileTypes": {
+    "R": 222623
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 222623,
+    "duplicateRows": 0,
+    "length": {
+     "min": 12,
+     "median": 12,
+     "max": 12
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "999999999999",
+      222623
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9988,
+    "NO_LND_UNTS": 0.8973,
+    "ACT_YR_BLT": 0.5621,
+    "EFF_YR_BLT": 0.5621,
+    "TOT_LVG_AREA": 0.562,
+    "NO_BULDNG": 0.4835,
+    "NO_RES_UNTS": 0.5377,
+    "SALE_PRC1": 0.1509,
+    "SALE_YR1": 0.1509,
+    "QUAL_CD1": 0.1509,
+    "SALE_PRC2": 0.0252,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.0428,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.965,
+    "OWN_STATE_DOM": 1,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9767,
+    "PHY_CITY": 0.9767,
+    "PHY_ZIPCD": 0.9999,
+    "CENSUS_BK": 0.9977,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3032,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3124,
+    "PUBLIC_LND": 0.0192,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "19",
+   "countyFips": "12017",
+   "stage": "FINAL",
+   "file": "Citrus 19 Final NAL 2026.zip",
+   "csv": "NAL19F202601.csv",
+   "bytes": 11517969,
+   "rows": 147815,
+   "columns": 167,
+   "rowWidths": {
+    "167": 147815
+   },
+   "coNo": {
+    "19": 147815
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 147815
+   },
+   "fileTypes": {
+    "R": 147815
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 147815,
+    "duplicateRows": 0,
+    "length": {
+     "min": 19,
+     "median": 24,
+     "max": 24
+    },
+    "lowercase": 0,
+    "internalWhitespace": 147815,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "99A99A999999  99999 9999",
+      78083
+     ],
+     [
+      "99A99A999999  999A9 9999",
+      18941
+     ],
+     [
+      "99A99A999999        9999",
+      16986
+     ],
+     [
+      "99A99A99      9A999 9999",
+      8120
+     ],
+     [
+      "99A99A99      99999 9999",
+      6459
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9994,
+    "NO_LND_UNTS": 0.9786,
+    "ACT_YR_BLT": 0.5723,
+    "EFF_YR_BLT": 0.5723,
+    "TOT_LVG_AREA": 0.5723,
+    "NO_BULDNG": 0.589,
+    "NO_RES_UNTS": 0.5563,
+    "SALE_PRC1": 0.1662,
+    "SALE_YR1": 0.1662,
+    "QUAL_CD1": 0.1662,
+    "SALE_PRC2": 0.0355,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9888,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9888,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9999,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 0.9999,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9999,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3799,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3799,
+    "PUBLIC_LND": 0.0198,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9988
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "20",
+   "countyFips": "12019",
+   "stage": "PRELIMINARY",
+   "file": "Clay 20 Preliminary NAL 2026.zip",
+   "csv": "NAL20P202601.csv",
+   "bytes": 8111356,
+   "rows": 105837,
+   "columns": 165,
+   "rowWidths": {
+    "165": 105837
+   },
+   "coNo": {
+    "20": 105837
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 105837
+   },
+   "fileTypes": {
+    "R": 105837
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 105837,
+    "duplicateRows": 0,
+    "length": {
+     "min": 22,
+     "median": 22,
+     "max": 22
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 105837,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 30190,
+    "topShapes": [
+     [
+      "99-99-99-999999-999-99",
+      105628
+     ],
+     [
+      "99-99-99-A99999-999-99",
+      203
+     ],
+     [
+      "99-99-99-999999-999-A9",
+      5
+     ],
+     [
+      "99-99-99-999999-999-9A",
+      1
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9999,
+    "NO_LND_UNTS": 1,
+    "ACT_YR_BLT": 0.8069,
+    "EFF_YR_BLT": 0.8069,
+    "TOT_LVG_AREA": 0.8068,
+    "NO_BULDNG": 0.8069,
+    "NO_RES_UNTS": 0.783,
+    "SALE_PRC1": 0.1364,
+    "SALE_YR1": 0.1364,
+    "QUAL_CD1": 0.1364,
+    "SALE_PRC2": 0.026,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9999,
+    "OWN_STATE": 0.9997,
+    "OWN_ZIPCD": 0.9953,
+    "OWN_STATE_DOM": 0.9997,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 0.9981,
+    "PHY_ZIPCD": 0.9981,
+    "CENSUS_BK": 0.9981,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5685,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5651,
+    "PUBLIC_LND": 0.0262,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "21",
+   "countyFips": "12021",
+   "stage": "PRELIMINARY",
+   "file": "Collier 21 Preliminary NAL 2026.zip",
+   "csv": "NAL21P202602.csv",
+   "bytes": 19586857,
+   "rows": 297635,
+   "columns": 165,
+   "rowWidths": {
+    "165": 297635
+   },
+   "coNo": {
+    "21": 297635
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 297635
+   },
+   "fileTypes": {
+    "R": 297635
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 297635,
+    "duplicateRows": 0,
+    "length": {
+     "min": 11,
+     "median": 11,
+     "max": 11
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 36147,
+    "topShapes": [
+     [
+      "99999999999",
+      297635
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.6387,
+    "NO_LND_UNTS": 0.6519,
+    "ACT_YR_BLT": 0.7708,
+    "EFF_YR_BLT": 0.7708,
+    "TOT_LVG_AREA": 0.7657,
+    "NO_BULDNG": 0.426,
+    "NO_RES_UNTS": 0.7616,
+    "SALE_PRC1": 0.122,
+    "SALE_YR1": 0.122,
+    "QUAL_CD1": 0.122,
+    "SALE_PRC2": 0.0289,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9999,
+    "OWN_CITY": 0.9998,
+    "OWN_STATE": 0.9998,
+    "OWN_ZIPCD": 0.9785,
+    "OWN_STATE_DOM": 0.9999,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.8129,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 0.9904,
+    "CENSUS_BK": 0.9903,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3643,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3617,
+    "PUBLIC_LND": 0.1355,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "22",
+   "countyFips": "12023",
+   "stage": "PRELIMINARY",
+   "file": "Columbia 22 Preliminary NAL 2026.zip",
+   "csv": "NAL22P202601.csv",
+   "bytes": 3119482,
+   "rows": 37646,
+   "columns": 165,
+   "rowWidths": {
+    "165": 37646
+   },
+   "coNo": {
+    "22": 37646
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 37646
+   },
+   "fileTypes": {
+    "R": 37646
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 37646,
+    "duplicateRows": 0,
+    "length": {
+     "min": 14,
+     "median": 14,
+     "max": 14
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 13041,
+    "topShapes": [
+     [
+      "999A9999999999",
+      32464
+     ],
+     [
+      "99999999999999",
+      5182
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9995,
+    "NO_LND_UNTS": 0.994,
+    "ACT_YR_BLT": 0.6931,
+    "EFF_YR_BLT": 0.6931,
+    "TOT_LVG_AREA": 0.6938,
+    "NO_BULDNG": 0.6938,
+    "NO_RES_UNTS": 0,
+    "SALE_PRC1": 0.1227,
+    "SALE_YR1": 0.1227,
+    "QUAL_CD1": 0.1227,
+    "SALE_PRC2": 0.0203,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9914,
+    "OWN_CITY": 0.9912,
+    "OWN_STATE": 0.9915,
+    "OWN_ZIPCD": 0.9903,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 0.9998,
+    "PHY_ADDR1": 0.7828,
+    "PHY_CITY": 0.7829,
+    "PHY_ZIPCD": 0.7828,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9966,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4461,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.445,
+    "PUBLIC_LND": 0.0287,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9998,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9982
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "23",
+   "countyFips": "12086",
+   "stage": "PRELIMINARY",
+   "file": "Dade 23 Preliminary NAL 2026.zip",
+   "csv": "NAL23P202601.csv",
+   "bytes": 59486889,
+   "rows": 938308,
+   "columns": 165,
+   "rowWidths": {
+    "165": 938308
+   },
+   "coNo": {
+    "23": 938308
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 938308
+   },
+   "fileTypes": {
+    "R": 938308
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 938308,
+    "duplicateRows": 0,
+    "length": {
+     "min": 13,
+     "median": 13,
+     "max": 13
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 323206,
+    "topShapes": [
+     [
+      "9999999999999",
+      938308
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.6136,
+    "NO_LND_UNTS": 0.6319,
+    "ACT_YR_BLT": 0.9259,
+    "EFF_YR_BLT": 0.9259,
+    "TOT_LVG_AREA": 0.9252,
+    "NO_BULDNG": 0.9262,
+    "NO_RES_UNTS": 0.8864,
+    "SALE_PRC1": 0.0967,
+    "SALE_YR1": 0.0967,
+    "QUAL_CD1": 0.0967,
+    "SALE_PRC2": 0.0123,
+    "OWN_NAME": 0.9987,
+    "OWN_ADDR1": 0.9918,
+    "OWN_CITY": 0.9915,
+    "OWN_STATE": 0.9919,
+    "OWN_ZIPCD": 0.2801,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9481,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 0.9985,
+    "CENSUS_BK": 0.999,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4809,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4809,
+    "PUBLIC_LND": 0.0264,
+    "MKT_AR": 0.9987,
+    "NBRHD_CD": 0.9979,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "24",
+   "countyFips": "12027",
+   "stage": "PRELIMINARY",
+   "file": "DeSoto 24 Preliminary NAL 2026.zip",
+   "csv": "NAL24P202601.csv",
+   "bytes": 1492194,
+   "rows": 20199,
+   "columns": 165,
+   "rowWidths": {
+    "165": 20199
+   },
+   "coNo": {
+    "24": 20199
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 20199
+   },
+   "fileTypes": {
+    "R": 20199
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 20199,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 4407,
+    "topShapes": [
+     [
+      "999999999999999999",
+      15840
+     ],
+     [
+      "999999999999A99999",
+      3193
+     ],
+     [
+      "9999999A9999999999",
+      539
+     ],
+     [
+      "99999999999999999A",
+      193
+     ],
+     [
+      "9999999999999999A9",
+      119
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9646,
+    "NO_LND_UNTS": 0.9658,
+    "ACT_YR_BLT": 0.5803,
+    "EFF_YR_BLT": 0.5803,
+    "TOT_LVG_AREA": 0.5821,
+    "NO_BULDNG": 0.5821,
+    "NO_RES_UNTS": 0.5501,
+    "SALE_PRC1": 0.103,
+    "SALE_YR1": 0.103,
+    "QUAL_CD1": 0.1026,
+    "SALE_PRC2": 0.0141,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9998,
+    "OWN_STATE": 0.9998,
+    "OWN_ZIPCD": 0.9968,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 0.996,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9995,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3162,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3162,
+    "PUBLIC_LND": 0.0213,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9998,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "25",
+   "countyFips": "12029",
+   "stage": "PRELIMINARY",
+   "file": "Dixie 25 Preliminary NAL 2026.zip",
+   "csv": "NAL25P202601.csv",
+   "bytes": 1697127,
+   "rows": 16514,
+   "columns": 165,
+   "rowWidths": {
+    "165": 16514
+   },
+   "coNo": {
+    "25": 16514
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 16514
+   },
+   "fileTypes": {
+    "R": 16514
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 16514,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 3837,
+    "topShapes": [
+     [
+      "999999999999999999",
+      14635
+     ],
+     [
+      "9999999999999A9999",
+      854
+     ],
+     [
+      "999999999999A99999",
+      552
+     ],
+     [
+      "999999AAAA99999999",
+      147
+     ],
+     [
+      "9999999999999999A9",
+      51
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9899,
+    "NO_LND_UNTS": 1,
+    "ACT_YR_BLT": 0.4893,
+    "EFF_YR_BLT": 0.4893,
+    "TOT_LVG_AREA": 0.4891,
+    "NO_BULDNG": 0.4875,
+    "NO_RES_UNTS": 0.4961,
+    "SALE_PRC1": 0.1309,
+    "SALE_YR1": 0.1309,
+    "QUAL_CD1": 0.1309,
+    "SALE_PRC2": 0.0263,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.992,
+    "OWN_CITY": 0.997,
+    "OWN_STATE": 0.997,
+    "OWN_ZIPCD": 0.9949,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 0.9999,
+    "CENSUS_BK": 0.9823,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2974,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2838,
+    "PUBLIC_LND": 0.0408,
+    "MKT_AR": 0.9586,
+    "NBRHD_CD": 0.9883,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "26",
+   "countyFips": "12031",
+   "stage": "FINAL",
+   "file": "Duval 26 Final NAL 2026.zip",
+   "csv": "NAL26F202601.csv",
+   "bytes": 29573563,
+   "rows": 404069,
+   "columns": 167,
+   "rowWidths": {
+    "167": 404069
+   },
+   "coNo": {
+    "26": 404069
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 404069
+   },
+   "fileTypes": {
+    "R": 404069
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 404069,
+    "duplicateRows": 0,
+    "length": {
+     "min": 11,
+     "median": 11,
+     "max": 11
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 170312,
+    "topShapes": [
+     [
+      "9999999999A",
+      404069
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 1,
+    "NO_LND_UNTS": 1,
+    "ACT_YR_BLT": 0.8887,
+    "EFF_YR_BLT": 0.8887,
+    "TOT_LVG_AREA": 0.8871,
+    "NO_BULDNG": 0.8887,
+    "NO_RES_UNTS": 0.8447,
+    "SALE_PRC1": 0.1457,
+    "SALE_YR1": 0.1457,
+    "QUAL_CD1": 0.1457,
+    "SALE_PRC2": 0.0319,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 0.998,
+    "OWN_ZIPCD": 0.998,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5301,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5301,
+    "PUBLIC_LND": 0.0175,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "27",
+   "countyFips": "12033",
+   "stage": "PRELIMINARY",
+   "file": "Escambia 27 Preliminary NAL 2026.zip",
+   "csv": "NAL27P202602.csv",
+   "bytes": 13814543,
+   "rows": 171483,
+   "columns": 165,
+   "rowWidths": {
+    "165": 171483
+   },
+   "coNo": {
+    "27": 171483
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 171483
+   },
+   "fileTypes": {
+    "R": 171483
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 171483,
+    "duplicateRows": 0,
+    "length": {
+     "min": 16,
+     "median": 16,
+     "max": 16
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 49140,
+    "topShapes": [
+     [
+      "999A999999999999",
+      171452
+     ],
+     [
+      "9999999999999999",
+      31
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 0.9997,
+    "AV_SD": 0.9997,
+    "AV_NSD": 0.9997,
+    "TV_SD": 0.9358,
+    "TV_NSD": 0.9185,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9429,
+    "NO_LND_UNTS": 0.9434,
+    "ACT_YR_BLT": 0.776,
+    "EFF_YR_BLT": 0.776,
+    "TOT_LVG_AREA": 0.776,
+    "NO_BULDNG": 0.776,
+    "NO_RES_UNTS": 0.7441,
+    "SALE_PRC1": 0.1293,
+    "SALE_YR1": 0.1293,
+    "QUAL_CD1": 0.1293,
+    "SALE_PRC2": 0.0314,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9999,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9996,
+    "OWN_STATE_DOM": 0.0004,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9257,
+    "PHY_CITY": 0.9249,
+    "PHY_ZIPCD": 0.9249,
+    "CENSUS_BK": 0.9152,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4447,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2594,
+    "PUBLIC_LND": 0.0215,
+    "MKT_AR": 0.9998,
+    "NBRHD_CD": 0,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9999
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "28",
+   "countyFips": "12035",
+   "stage": "PRELIMINARY",
+   "file": "Flagler 28 Preliminary NAL 2026.zip",
+   "csv": "NAL28P202601.csv",
+   "bytes": 6772495,
+   "rows": 89043,
+   "columns": 165,
+   "rowWidths": {
+    "165": 89043
+   },
+   "coNo": {
+    "28": 89043
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 89043
+   },
+   "fileTypes": {
+    "R": 89043
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 89043,
+    "duplicateRows": 0,
+    "length": {
+     "min": 24,
+     "median": 24,
+     "max": 24
+    },
+    "lowercase": 0,
+    "internalWhitespace": 4,
+    "dash": 89043,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 58489,
+    "topShapes": [
+     [
+      "99-99-99-9999-99999-9999",
+      80750
+     ],
+     [
+      "99-99-99-9999-999A9-9999",
+      2358
+     ],
+     [
+      "99-99-99-9999-99999-99A9",
+      2127
+     ],
+     [
+      "99-99-99-9999-9AA99-9999",
+      987
+     ],
+     [
+      "99-99-99-9999-9A999-9999",
+      469
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9891,
+    "NO_LND_UNTS": 0.967,
+    "ACT_YR_BLT": 0.7456,
+    "EFF_YR_BLT": 0.7456,
+    "TOT_LVG_AREA": 0.7297,
+    "NO_BULDNG": 0.6803,
+    "NO_RES_UNTS": 0.7193,
+    "SALE_PRC1": 0.1491,
+    "SALE_YR1": 0.1491,
+    "QUAL_CD1": 0.1491,
+    "SALE_PRC2": 0.0212,
+    "OWN_NAME": 0.9995,
+    "OWN_ADDR1": 0.9986,
+    "OWN_CITY": 0.9969,
+    "OWN_STATE": 0.9933,
+    "OWN_ZIPCD": 0.9915,
+    "OWN_STATE_DOM": 0.9942,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 0.9999,
+    "PHY_ADDR1": 0.9074,
+    "PHY_CITY": 0.9981,
+    "PHY_ZIPCD": 0.9981,
+    "CENSUS_BK": 0.9999,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9999,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4903,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4829,
+    "PUBLIC_LND": 0.0177,
+    "MKT_AR": 0.9946,
+    "NBRHD_CD": 0.8726,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.985
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "29",
+   "countyFips": "12037",
+   "stage": "PRELIMINARY",
+   "file": "Franklin 29 Preliminary NAL 2026.zip",
+   "csv": "NAL29P202601.csv",
+   "bytes": 1390063,
+   "rows": 18561,
+   "columns": 165,
+   "rowWidths": {
+    "165": 18561
+   },
+   "coNo": {
+    "29": 18561
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 18561
+   },
+   "fileTypes": {
+    "R": 18561
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 18561,
+    "duplicateRows": 0,
+    "length": {
+     "min": 20,
+     "median": 20,
+     "max": 20
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 4782,
+    "topShapes": [
+     [
+      "9999A99A999999999999",
+      13558
+     ],
+     [
+      "9999A99A9999999A9999",
+      3713
+     ],
+     [
+      "9999A99A99999A999999",
+      420
+     ],
+     [
+      "9999A99A999999A99999",
+      283
+     ],
+     [
+      "9999A99A99999999A999",
+      118
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.4264,
+    "NO_LND_UNTS": 0.9811,
+    "ACT_YR_BLT": 0.5091,
+    "EFF_YR_BLT": 0.5091,
+    "TOT_LVG_AREA": 0.509,
+    "NO_BULDNG": 0.5091,
+    "NO_RES_UNTS": 0,
+    "SALE_PRC1": 0.1074,
+    "SALE_YR1": 0.1074,
+    "QUAL_CD1": 0.1074,
+    "SALE_PRC2": 0.0136,
+    "OWN_NAME": 0.9999,
+    "OWN_ADDR1": 0.9954,
+    "OWN_CITY": 0.9929,
+    "OWN_STATE": 0.9952,
+    "OWN_ZIPCD": 0.9901,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.8734,
+    "PHY_CITY": 0.592,
+    "PHY_ZIPCD": 0.9235,
+    "CENSUS_BK": 0.9737,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.7054,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.1871,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.187,
+    "PUBLIC_LND": 0.0856,
+    "MKT_AR": 0.9939,
+    "NBRHD_CD": 0.8805,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9995
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "30",
+   "countyFips": "12039",
+   "stage": "PRELIMINARY",
+   "file": "Gadsden 30 Preliminary NAL 2026.zip",
+   "csv": "NAL30P202601.csv",
+   "bytes": 2446861,
+   "rows": 27927,
+   "columns": 165,
+   "rowWidths": {
+    "165": 27927
+   },
+   "coNo": {
+    "30": 27927
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 27927
+   },
+   "fileTypes": {
+    "R": 27927
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 27927,
+    "duplicateRows": 0,
+    "length": {
+     "min": 26,
+     "median": 26,
+     "max": 26
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 27927,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "9-99-9A-9A-9999-99999-9999",
+      21175
+     ],
+     [
+      "9-99-9A-9A-9999-9999A-9999",
+      5602
+     ],
+     [
+      "9-9A-9A-9A-9999-99999-9999",
+      714
+     ],
+     [
+      "9-9A-9A-9A-9999-9999A-9999",
+      241
+     ],
+     [
+      "9-99-9A-9A-9999-999AA-9999",
+      123
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.983,
+    "NO_LND_UNTS": 0.9999,
+    "ACT_YR_BLT": 0.6336,
+    "EFF_YR_BLT": 0.6335,
+    "TOT_LVG_AREA": 0.6335,
+    "NO_BULDNG": 0.6336,
+    "NO_RES_UNTS": 0.5288,
+    "SALE_PRC1": 0.0885,
+    "SALE_YR1": 0.0885,
+    "QUAL_CD1": 0.0885,
+    "SALE_PRC2": 0.0148,
+    "OWN_NAME": 0.9998,
+    "OWN_ADDR1": 0.9993,
+    "OWN_CITY": 0.9992,
+    "OWN_STATE": 0.9987,
+    "OWN_ZIPCD": 0.9985,
+    "OWN_STATE_DOM": 0.9987,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9995,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 0.9988,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9652,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.372,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3486,
+    "PUBLIC_LND": 0.0378,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.983,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "31",
+   "countyFips": "12041",
+   "stage": "PRELIMINARY",
+   "file": "Gilchrist 31 Preliminary NAL 2026.zip",
+   "csv": "NAL31P202601.csv",
+   "bytes": 1172095,
+   "rows": 14763,
+   "columns": 165,
+   "rowWidths": {
+    "165": 14763
+   },
+   "coNo": {
+    "31": 14763
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 14763
+   },
+   "fileTypes": {
+    "R": 14763
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 14763,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 3375,
+    "topShapes": [
+     [
+      "999999999999999999",
+      13193
+     ],
+     [
+      "9999A9999999999999",
+      781
+     ],
+     [
+      "9999999999999A9999",
+      687
+     ],
+     [
+      "99999999999999999A",
+      50
+     ],
+     [
+      "9999999999999999A9",
+      49
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9472,
+    "NO_LND_UNTS": 0.7367,
+    "ACT_YR_BLT": 0.5391,
+    "EFF_YR_BLT": 0.5391,
+    "TOT_LVG_AREA": 0.5391,
+    "NO_BULDNG": 0.5391,
+    "NO_RES_UNTS": 0.5173,
+    "SALE_PRC1": 0.1162,
+    "SALE_YR1": 0.1162,
+    "QUAL_CD1": 0.1162,
+    "SALE_PRC2": 0.0189,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9988,
+    "OWN_CITY": 0.9988,
+    "OWN_STATE": 0.9989,
+    "OWN_ZIPCD": 0.9955,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 0.9516,
+    "PHY_ZIPCD": 0.9515,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3829,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3829,
+    "PUBLIC_LND": 0.0262,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9988,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9996
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "32",
+   "countyFips": "12043",
+   "stage": "PRELIMINARY",
+   "file": "Glades 32 Preliminary NAL 2026.zip",
+   "csv": "NAL32P202602.csv",
+   "bytes": 869249,
+   "rows": 11648,
+   "columns": 165,
+   "rowWidths": {
+    "165": 11648
+   },
+   "coNo": {
+    "32": 11648
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 11648
+   },
+   "fileTypes": {
+    "R": 11648
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 11648,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "A99999999999999999",
+      5548
+     ],
+     [
+      "A999999A9999999999",
+      3174
+     ],
+     [
+      "A999999A99999A9999",
+      1611
+     ],
+     [
+      "A999999999999A9999",
+      905
+     ],
+     [
+      "A9999999999999999A",
+      110
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9961,
+    "NO_LND_UNTS": 0.9898,
+    "ACT_YR_BLT": 0.4922,
+    "EFF_YR_BLT": 0.4922,
+    "TOT_LVG_AREA": 0.4922,
+    "NO_BULDNG": 0.4922,
+    "NO_RES_UNTS": 0.4579,
+    "SALE_PRC1": 0.1041,
+    "SALE_YR1": 0.1041,
+    "QUAL_CD1": 0.1041,
+    "SALE_PRC2": 0.023,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9888,
+    "OWN_CITY": 0.9812,
+    "OWN_STATE": 0.9991,
+    "OWN_ZIPCD": 0.9753,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9996,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2351,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2351,
+    "PUBLIC_LND": 0.1098,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9733
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "33",
+   "countyFips": "12045",
+   "stage": "PRELIMINARY",
+   "file": "Gulf 33 Preliminary NAL 2026.zip",
+   "csv": "NAL33P202601.csv",
+   "bytes": 1424775,
+   "rows": 20168,
+   "columns": 165,
+   "rowWidths": {
+    "165": 20168
+   },
+   "coNo": {
+    "33": 20168
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 20168
+   },
+   "fileTypes": {
+    "R": 20168
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 20168,
+    "duplicateRows": 0,
+    "length": {
+     "min": 9,
+     "median": 9,
+     "max": 9
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 20168,
+    "topShapes": [
+     [
+      "99999999A",
+      20168
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 1,
+    "NO_LND_UNTS": 0.9611,
+    "ACT_YR_BLT": 0.5179,
+    "EFF_YR_BLT": 0.5179,
+    "TOT_LVG_AREA": 0.5179,
+    "NO_BULDNG": 0.5179,
+    "NO_RES_UNTS": 0.4953,
+    "SALE_PRC1": 0.1366,
+    "SALE_YR1": 0.1366,
+    "QUAL_CD1": 0.1366,
+    "SALE_PRC2": 0.0241,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 0.9999,
+    "OWN_ZIPCD": 0.9982,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9521,
+    "PHY_CITY": 0.9999,
+    "PHY_ZIPCD": 0.9999,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2092,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2092,
+    "PUBLIC_LND": 0.023,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9998,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "34",
+   "countyFips": "12047",
+   "stage": "PRELIMINARY",
+   "file": "Hamilton 34 Preliminary NAL 2026.zip",
+   "csv": "NAL34P202601.csv",
+   "bytes": 913957,
+   "rows": 13197,
+   "columns": 165,
+   "rowWidths": {
+    "165": 13197
+   },
+   "coNo": {
+    "34": 13197
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 13197
+   },
+   "fileTypes": {
+    "R": 13197
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 13197,
+    "duplicateRows": 0,
+    "length": {
+     "min": 7,
+     "median": 7,
+     "max": 7
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 3,
+    "topShapes": [
+     [
+      "9999999",
+      13197
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9119,
+    "NO_LND_UNTS": 0.9983,
+    "ACT_YR_BLT": 0.295,
+    "EFF_YR_BLT": 0.3623,
+    "TOT_LVG_AREA": 0.3623,
+    "NO_BULDNG": 0.3623,
+    "NO_RES_UNTS": 0.3343,
+    "SALE_PRC1": 0.111,
+    "SALE_YR1": 0.111,
+    "QUAL_CD1": 0.111,
+    "SALE_PRC2": 0.0228,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9998,
+    "OWN_CITY": 0.9998,
+    "OWN_STATE": 0.9999,
+    "OWN_ZIPCD": 0.9985,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.4895,
+    "PHY_CITY": 0.5116,
+    "PHY_ZIPCD": 0.5116,
+    "CENSUS_BK": 0.9956,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9998,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2198,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2196,
+    "PUBLIC_LND": 0.0462,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9998,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9986
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "35",
+   "countyFips": "12049",
+   "stage": "PRELIMINARY",
+   "file": "Hardee 35 Preliminary NAL 2026.zip",
+   "csv": "NAL35P202601.csv",
+   "bytes": 1202472,
+   "rows": 15312,
+   "columns": 165,
+   "rowWidths": {
+    "165": 15312
+   },
+   "coNo": {
+    "35": 15312
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 15312
+   },
+   "fileTypes": {
+    "R": 15312
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 15312,
+    "duplicateRows": 0,
+    "length": {
+     "min": 19,
+     "median": 19,
+     "max": 19
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 6070,
+    "topShapes": [
+     [
+      "9999999999999999999",
+      13359
+     ],
+     [
+      "99999999999999A9999",
+      1422
+     ],
+     [
+      "999999999999999999A",
+      361
+     ],
+     [
+      "99999999999999999A9",
+      58
+     ],
+     [
+      "99999999999999A99AA",
+      42
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 1,
+    "NO_LND_UNTS": 0.9943,
+    "ACT_YR_BLT": 0.5445,
+    "EFF_YR_BLT": 0.5445,
+    "TOT_LVG_AREA": 0.5417,
+    "NO_BULDNG": 0.5445,
+    "NO_RES_UNTS": 0.5076,
+    "SALE_PRC1": 0.1155,
+    "SALE_YR1": 0.1155,
+    "QUAL_CD1": 0.1155,
+    "SALE_PRC2": 0.0163,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9981,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9978,
+    "PHY_CITY": 0.9701,
+    "PHY_ZIPCD": 0.97,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2995,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2995,
+    "PUBLIC_LND": 0.0217,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9997,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "36",
+   "countyFips": "12051",
+   "stage": "PRELIMINARY",
+   "file": "Hendry 36 Preliminary NAL 2026.zip",
+   "csv": "NAL36P202601.csv",
+   "bytes": 2532335,
+   "rows": 35810,
+   "columns": 165,
+   "rowWidths": {
+    "165": 35810
+   },
+   "coNo": {
+    "36": 35810
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 35810
+   },
+   "fileTypes": {
+    "R": 35810
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 35810,
+    "duplicateRows": 0,
+    "length": {
+     "min": 8,
+     "median": 25,
+     "max": 25
+    },
+    "lowercase": 0,
+    "internalWhitespace": 35810,
+    "dash": 24453,
+    "dot": 35797,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "9 99 99 99 999 9999-999.9",
+      20226
+     ],
+     [
+      "9 99 99 99 A99 9999.9999",
+      11212
+     ],
+     [
+      "9 99 99 99 999 999A-999.9",
+      3566
+     ],
+     [
+      "9 99 99 99 999 99A9-999.9",
+      237
+     ],
+     [
+      "9 99 99 99 AA9 9999-999.9",
+      176
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 0.9999,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9953,
+    "NO_LND_UNTS": 0.9844,
+    "ACT_YR_BLT": 0.48,
+    "EFF_YR_BLT": 0.4799,
+    "TOT_LVG_AREA": 0.4343,
+    "NO_BULDNG": 0.4243,
+    "NO_RES_UNTS": 0.4202,
+    "SALE_PRC1": 0.1195,
+    "SALE_YR1": 0.1195,
+    "QUAL_CD1": 0.1195,
+    "SALE_PRC2": 0.0249,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9966,
+    "OWN_CITY": 0.9998,
+    "OWN_STATE": 0.9957,
+    "OWN_ZIPCD": 0.9878,
+    "OWN_STATE_DOM": 0.9973,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9575,
+    "PHY_CITY": 0.9332,
+    "PHY_ZIPCD": 0.925,
+    "CENSUS_BK": 0.998,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9998,
+    "ALT_KEY": 0.9999,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2436,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2436,
+    "PUBLIC_LND": 0.0501,
+    "MKT_AR": 0.9999,
+    "NBRHD_CD": 0.9999,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9999
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "37",
+   "countyFips": "12053",
+   "stage": "PRELIMINARY",
+   "file": "Hernando 37 Preliminary NAL 2026.zip",
+   "csv": "NAL37P202601.csv",
+   "bytes": 9821527,
+   "rows": 120408,
+   "columns": 165,
+   "rowWidths": {
+    "165": 120408
+   },
+   "coNo": {
+    "37": 120408
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 120408
+   },
+   "fileTypes": {
+    "R": 120408
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 120408,
+    "duplicateRows": 0,
+    "length": {
+     "min": 20,
+     "median": 25,
+     "max": 25
+    },
+    "lowercase": 0,
+    "internalWhitespace": 120408,
+    "dash": 104,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "A99 999 99 9999 9999 9999",
+      109449
+     ],
+     [
+      "A99 999 99 9999 99A9 9999",
+      6253
+     ],
+     [
+      "A99 999 99 9999 9999 99A9",
+      1841
+     ],
+     [
+      "A99 999 99 9999 9999 999A",
+      1103
+     ],
+     [
+      "A99 999 99 9999 999A 9999",
+      809
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 0,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9937,
+    "NO_LND_UNTS": 0.9996,
+    "ACT_YR_BLT": 0.7519,
+    "EFF_YR_BLT": 0.7519,
+    "TOT_LVG_AREA": 0.7518,
+    "NO_BULDNG": 0.7466,
+    "NO_RES_UNTS": 0.729,
+    "SALE_PRC1": 0.1376,
+    "SALE_YR1": 0.1376,
+    "QUAL_CD1": 0.1376,
+    "SALE_PRC2": 0.0234,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9998,
+    "OWN_CITY": 1,
+    "OWN_STATE": 0.9598,
+    "OWN_ZIPCD": 0.9929,
+    "OWN_STATE_DOM": 0.9598,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9999,
+    "PHY_CITY": 0.9999,
+    "PHY_ZIPCD": 0.9999,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4923,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5173,
+    "PUBLIC_LND": 0.0427,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9061,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "38",
+   "countyFips": "12055",
+   "stage": "PRELIMINARY",
+   "file": "Highlands 38 Preliminary NAL 2026.zip",
+   "csv": "NAL38P202601.csv",
+   "bytes": 7501577,
+   "rows": 112748,
+   "columns": 165,
+   "rowWidths": {
+    "165": 112748
+   },
+   "coNo": {
+    "38": 112748
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 112748
+   },
+   "fileTypes": {
+    "R": 112748
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 112748,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "A99999999999999999",
+      93342
+     ],
+     [
+      "A99999999999A99999",
+      7863
+     ],
+     [
+      "A999999A9999999999",
+      5465
+     ],
+     [
+      "A999999999999999A9",
+      1462
+     ],
+     [
+      "A9999999999999999A",
+      1368
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 0.0001,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9992,
+    "NO_LND_UNTS": 0.9868,
+    "ACT_YR_BLT": 0.4325,
+    "EFF_YR_BLT": 0.4325,
+    "TOT_LVG_AREA": 0.4305,
+    "NO_BULDNG": 0.4325,
+    "NO_RES_UNTS": 0.4114,
+    "SALE_PRC1": 0.1427,
+    "SALE_YR1": 0.1427,
+    "QUAL_CD1": 0.1427,
+    "SALE_PRC2": 0.0363,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9977,
+    "OWN_CITY": 0.9977,
+    "OWN_STATE": 0.9974,
+    "OWN_ZIPCD": 0.9749,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9758,
+    "PHY_CITY": 0.9758,
+    "PHY_ZIPCD": 0.9867,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9999,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2398,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2398,
+    "PUBLIC_LND": 0.0489,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "39",
+   "countyFips": "12057",
+   "stage": "PRELIMINARY",
+   "file": "Hillsborough 39 Preliminary NAL 2026.zip",
+   "csv": "NAL39P202601.csv",
+   "bytes": 40153447,
+   "rows": 527636,
+   "columns": 165,
+   "rowWidths": {
+    "165": 527636
+   },
+   "coNo": {
+    "39": 527636
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 527636
+   },
+   "fileTypes": {
+    "R": 527636
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 527636,
+    "duplicateRows": 0,
+    "length": {
+     "min": 22,
+     "median": 22,
+     "max": 22
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "9999999AA999999999999A",
+      155830
+     ],
+     [
+      "99999999A999999999999A",
+      102963
+     ],
+     [
+      "9999999A9999999999999A",
+      57948
+     ],
+     [
+      "999999AAA999999999999A",
+      49941
+     ],
+     [
+      "999999A9A999999999999A",
+      42894
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 1,
+    "NO_LND_UNTS": 0.9559,
+    "ACT_YR_BLT": 0.9063,
+    "EFF_YR_BLT": 0.9066,
+    "TOT_LVG_AREA": 0.9063,
+    "NO_BULDNG": 0.9111,
+    "NO_RES_UNTS": 0.8685,
+    "SALE_PRC1": 0.1161,
+    "SALE_YR1": 0.1161,
+    "QUAL_CD1": 0.1161,
+    "SALE_PRC2": 0.018,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9994,
+    "OWN_STATE": 0.9994,
+    "OWN_ZIPCD": 0.9966,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9732,
+    "PHY_CITY": 0.9953,
+    "PHY_ZIPCD": 0.9945,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5966,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5966,
+    "PUBLIC_LND": 0.0192,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "40",
+   "countyFips": "12059",
+   "stage": "PRELIMINARY",
+   "file": "Holmes 40 Preliminary NAL 2026.zip",
+   "csv": "NAL40P202601.csv",
+   "bytes": 1254702,
+   "rows": 14631,
+   "columns": 165,
+   "rowWidths": {
+    "165": 14631
+   },
+   "coNo": {
+    "40": 14631
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 14631
+   },
+   "fileTypes": {
+    "R": 14631
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 14631,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 7373,
+    "topShapes": [
+     [
+      "999999999999999999",
+      13749
+     ],
+     [
+      "99999999999A999999",
+      625
+     ],
+     [
+      "99999999A999999999",
+      99
+     ],
+     [
+      "99999999A99A999999",
+      75
+     ],
+     [
+      "99999999999999A999",
+      63
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9998,
+    "NO_LND_UNTS": 0.9923,
+    "ACT_YR_BLT": 0.5323,
+    "EFF_YR_BLT": 0.5324,
+    "TOT_LVG_AREA": 0.5324,
+    "NO_BULDNG": 0.5324,
+    "NO_RES_UNTS": 0.5027,
+    "SALE_PRC1": 0.1135,
+    "SALE_YR1": 0.1135,
+    "QUAL_CD1": 0.1135,
+    "SALE_PRC2": 0.0219,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9991,
+    "OWN_CITY": 0.9998,
+    "OWN_STATE": 0.9997,
+    "OWN_ZIPCD": 0.9992,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 0.9999,
+    "PHY_ADDR1": 0.6734,
+    "PHY_CITY": 0.6114,
+    "PHY_ZIPCD": 0.3726,
+    "CENSUS_BK": 0.9818,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9998,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3364,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3218,
+    "PUBLIC_LND": 0.0272,
+    "MKT_AR": 0.9929,
+    "NBRHD_CD": 0.0317,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9975
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "41",
+   "countyFips": "12061",
+   "stage": "PRELIMINARY",
+   "file": "Indian River 41 Preliminary NAL 2026.zip",
+   "csv": "NAL41P202601.csv",
+   "bytes": 7329145,
+   "rows": 95446,
+   "columns": 165,
+   "rowWidths": {
+    "165": 95446
+   },
+   "coNo": {
+    "41": 95446
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 95446
+   },
+   "fileTypes": {
+    "R": 95446
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 95446,
+    "duplicateRows": 0,
+    "length": {
+     "min": 21,
+     "median": 22,
+     "max": 22
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 95446,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "99999999999999999999.9",
+      95430
+     ],
+     [
+      "9999999999999999999.9",
+      16
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 0.1702,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.843,
+    "NO_LND_UNTS": 0.9722,
+    "ACT_YR_BLT": 0.8568,
+    "EFF_YR_BLT": 0.8569,
+    "TOT_LVG_AREA": 0.8454,
+    "NO_BULDNG": 0.6932,
+    "NO_RES_UNTS": 0.8198,
+    "SALE_PRC1": 0.131,
+    "SALE_YR1": 0.131,
+    "QUAL_CD1": 0.131,
+    "SALE_PRC2": 0.0208,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9995,
+    "OWN_CITY": 1,
+    "OWN_STATE": 0.9999,
+    "OWN_ZIPCD": 0.9942,
+    "OWN_STATE_DOM": 0.9999,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9999,
+    "PHY_CITY": 0.9999,
+    "PHY_ZIPCD": 0.9999,
+    "CENSUS_BK": 0.9999,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9999,
+    "ALT_KEY": 0.9999,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5346,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5346,
+    "PUBLIC_LND": 0.0152,
+    "MKT_AR": 0.9999,
+    "NBRHD_CD": 0.9999,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9998
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "42",
+   "countyFips": "12063",
+   "stage": "PRELIMINARY",
+   "file": "Jackson 42 Preliminary NAL 2026.zip",
+   "csv": "NAL42P202602.csv",
+   "bytes": 3396940,
+   "rows": 40301,
+   "columns": 165,
+   "rowWidths": {
+    "165": 40301
+   },
+   "coNo": {
+    "42": 40301
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 40301
+   },
+   "fileTypes": {
+    "R": 40301
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 40301,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 16993,
+    "topShapes": [
+     [
+      "999A99999999999999",
+      35446
+     ],
+     [
+      "999A99999999A99999",
+      3820
+     ],
+     [
+      "999A9999999AA99999",
+      279
+     ],
+     [
+      "999A999999999999A9",
+      221
+     ],
+     [
+      "999A99999999AA9999",
+      206
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9956,
+    "NO_LND_UNTS": 0.9938,
+    "ACT_YR_BLT": 0.4334,
+    "EFF_YR_BLT": 0.4334,
+    "TOT_LVG_AREA": 0.4334,
+    "NO_BULDNG": 0.4334,
+    "NO_RES_UNTS": 0.3955,
+    "SALE_PRC1": 0.1108,
+    "SALE_YR1": 0.1108,
+    "QUAL_CD1": 0.1108,
+    "SALE_PRC2": 0.02,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.998,
+    "OWN_STATE": 0.9988,
+    "OWN_ZIPCD": 0.9945,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9999,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2626,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2615,
+    "PUBLIC_LND": 0.0196,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.0481,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9999
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "43",
+   "countyFips": "12065",
+   "stage": "PRELIMINARY",
+   "file": "Jefferson 43 Preliminary NAL 2026.zip",
+   "csv": "NAL43P202601.csv",
+   "bytes": 1123484,
+   "rows": 12353,
+   "columns": 165,
+   "rowWidths": {
+    "165": 12353
+   },
+   "coNo": {
+    "43": 12353
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 12353
+   },
+   "fileTypes": {
+    "R": 12353
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 12353,
+    "duplicateRows": 0,
+    "length": {
+     "min": 23,
+     "median": 23,
+     "max": 23
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 12353,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 3820,
+    "topShapes": [
+     [
+      "99-9A-9A-9999-9999-9999",
+      8779
+     ],
+     [
+      "99-9A-9A-9999-999A-9999",
+      1760
+     ],
+     [
+      "99-99-99-9999-9999-9999",
+      1149
+     ],
+     [
+      "99-9A-9A-AAAA-9999-9999",
+      372
+     ],
+     [
+      "99-9A-9A-9999-9999-999A",
+      73
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 0.9998,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9998,
+    "NO_LND_UNTS": 0.9641,
+    "ACT_YR_BLT": 0.5979,
+    "EFF_YR_BLT": 0.5979,
+    "TOT_LVG_AREA": 0.5168,
+    "NO_BULDNG": 0.5165,
+    "NO_RES_UNTS": 0.4758,
+    "SALE_PRC1": 0.0984,
+    "SALE_YR1": 0.0984,
+    "QUAL_CD1": 0.0984,
+    "SALE_PRC2": 0.0154,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9998,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9998,
+    "OWN_STATE_DOM": 0.9998,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9998,
+    "PHY_CITY": 0.9998,
+    "PHY_ZIPCD": 0.9998,
+    "CENSUS_BK": 0.9679,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9998,
+    "ALT_KEY": 0.9998,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3196,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3128,
+    "PUBLIC_LND": 0.0348,
+    "MKT_AR": 0.9998,
+    "NBRHD_CD": 0.9671,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "44",
+   "countyFips": "12067",
+   "stage": "PRELIMINARY",
+   "file": "Lafayette 44 Preliminary NAL 2026.zip",
+   "csv": "NAL44P202601.csv",
+   "bytes": 568801,
+   "rows": 7463,
+   "columns": 165,
+   "rowWidths": {
+    "165": 7463
+   },
+   "coNo": {
+    "44": 7463
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 7463
+   },
+   "fileTypes": {
+    "R": 7463
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 7463,
+    "duplicateRows": 0,
+    "length": {
+     "min": 19,
+     "median": 19,
+     "max": 19
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 1535,
+    "topShapes": [
+     [
+      "9999999999999999999",
+      7012
+     ],
+     [
+      "999999999999A999999",
+      287
+     ],
+     [
+      "999999AAAA999999999",
+      144
+     ],
+     [
+      "999999999999999999A",
+      9
+     ],
+     [
+      "99999999999999999A9",
+      7
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 1,
+    "NO_LND_UNTS": 0.9979,
+    "ACT_YR_BLT": 0.4024,
+    "EFF_YR_BLT": 0.4024,
+    "TOT_LVG_AREA": 0.4037,
+    "NO_BULDNG": 0.4037,
+    "NO_RES_UNTS": 0.3846,
+    "SALE_PRC1": 0.1324,
+    "SALE_YR1": 0.1323,
+    "QUAL_CD1": 0.1324,
+    "SALE_PRC2": 0.0391,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 0.9999,
+    "OWN_ZIPCD": 0.9993,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9854,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 0.9999,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.249,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2479,
+    "PUBLIC_LND": 0.0397,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "45",
+   "countyFips": "12069",
+   "stage": "PRELIMINARY",
+   "file": "Lake 45 Preliminary NAL 2026.zip",
+   "csv": "NAL45P202601.csv",
+   "bytes": 18297748,
+   "rows": 215806,
+   "columns": 165,
+   "rowWidths": {
+    "165": 215806
+   },
+   "coNo": {
+    "45": 215806
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 215806
+   },
+   "fileTypes": {
+    "R": 215806
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 215806,
+    "duplicateRows": 0,
+    "length": {
+     "min": 23,
+     "median": 23,
+     "max": 23
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 215806,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 55621,
+    "topShapes": [
+     [
+      "99-99-99-9999-999-99999",
+      189190
+     ],
+     [
+      "99-99-99-9999-99A-99999",
+      18490
+     ],
+     [
+      "99-99-99-9999-999-99A99",
+      2351
+     ],
+     [
+      "99-99-99-9999-999-999A9",
+      2069
+     ],
+     [
+      "99-99-99-9999-A99-99999",
+      1084
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9991,
+    "NO_LND_UNTS": 0.9938,
+    "ACT_YR_BLT": 0.7831,
+    "EFF_YR_BLT": 0.7831,
+    "TOT_LVG_AREA": 0.7831,
+    "NO_BULDNG": 0.7687,
+    "NO_RES_UNTS": 0.646,
+    "SALE_PRC1": 0.1435,
+    "SALE_YR1": 0.1435,
+    "QUAL_CD1": 0.1435,
+    "SALE_PRC2": 0.023,
+    "OWN_NAME": 0.9991,
+    "OWN_ADDR1": 0.9991,
+    "OWN_CITY": 0.9989,
+    "OWN_STATE": 0.9922,
+    "OWN_ZIPCD": 0.9922,
+    "OWN_STATE_DOM": 0.9922,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9841,
+    "PHY_CITY": 0.9858,
+    "PHY_ZIPCD": 0.9858,
+    "CENSUS_BK": 0.9982,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5286,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2511,
+    "PUBLIC_LND": 0.0215,
+    "MKT_AR": 0.973,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9956
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "46",
+   "countyFips": "12071",
+   "stage": "PRELIMINARY",
+   "file": "Lee 46 Preliminary NAL 2026.zip",
+   "csv": "NAL46P202601.csv",
+   "bytes": 43316780,
+   "rows": 561559,
+   "columns": 165,
+   "rowWidths": {
+    "165": 561559
+   },
+   "coNo": {
+    "46": 561559
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 561559
+   },
+   "fileTypes": {
+    "R": 561559
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 561559,
+    "duplicateRows": 0,
+    "length": {
+     "min": 17,
+     "median": 17,
+     "max": 17
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 155196,
+    "topShapes": [
+     [
+      "999999A9999999999",
+      345957
+     ],
+     [
+      "99999999999999999",
+      113887
+     ],
+     [
+      "999999A99999A9999",
+      32897
+     ],
+     [
+      "999999999999A9999",
+      23394
+     ],
+     [
+      "999999A999999999A",
+      7927
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9928,
+    "NO_LND_UNTS": 0.8411,
+    "ACT_YR_BLT": 0.7273,
+    "EFF_YR_BLT": 0.7273,
+    "TOT_LVG_AREA": 0.7278,
+    "NO_BULDNG": 0.7286,
+    "NO_RES_UNTS": 0.7125,
+    "SALE_PRC1": 0.1425,
+    "SALE_YR1": 0.1425,
+    "QUAL_CD1": 0.1425,
+    "SALE_PRC2": 0.023,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9998,
+    "OWN_CITY": 0.9998,
+    "OWN_STATE": 0.9998,
+    "OWN_ZIPCD": 0.9749,
+    "OWN_STATE_DOM": 0.9998,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 0.9998,
+    "PHY_ZIPCD": 0.9891,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3819,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3819,
+    "PUBLIC_LND": 0.0132,
+    "MKT_AR": 0.9998,
+    "NBRHD_CD": 0.9998,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9978
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "47",
+   "countyFips": "12073",
+   "stage": "PRELIMINARY",
+   "file": "Leon 47 Preliminary NAL 2026.zip",
+   "csv": "NAL47P202601.csv",
+   "bytes": 8002773,
+   "rows": 111379,
+   "columns": 165,
+   "rowWidths": {
+    "165": 111379
+   },
+   "coNo": {
+    "47": 111379
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 111379
+   },
+   "fileTypes": {
+    "R": 111379
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 111379,
+    "duplicateRows": 0,
+    "length": {
+     "min": 13,
+     "median": 13,
+     "max": 13
+    },
+    "lowercase": 0,
+    "internalWhitespace": 65016,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "999999  A9999",
+      56534
+     ],
+     [
+      "9999999999999",
+      42957
+     ],
+     [
+      "999999 AA9999",
+      6495
+     ],
+     [
+      "99999999A9999",
+      2887
+     ],
+     [
+      "999999   9999",
+      1362
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 1,
+    "NO_LND_UNTS": 0.9922,
+    "ACT_YR_BLT": 0.8568,
+    "EFF_YR_BLT": 0.8568,
+    "TOT_LVG_AREA": 0.8567,
+    "NO_BULDNG": 0.823,
+    "NO_RES_UNTS": 0.814,
+    "SALE_PRC1": 0.1204,
+    "SALE_YR1": 0.1204,
+    "QUAL_CD1": 0.1204,
+    "SALE_PRC2": 0.0241,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9989,
+    "OWN_CITY": 0.9992,
+    "OWN_STATE": 0.9992,
+    "OWN_ZIPCD": 0.999,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0.4307,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5216,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4335,
+    "PUBLIC_LND": 0.0217,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "48",
+   "countyFips": "12075",
+   "stage": "PRELIMINARY",
+   "file": "Levy 48 Preliminary NAL 2026.zip",
+   "csv": "NAL48P202601.csv",
+   "bytes": 3332418,
+   "rows": 47381,
+   "columns": 165,
+   "rowWidths": {
+    "165": 47381
+   },
+   "coNo": {
+    "48": 47381
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 47381
+   },
+   "fileTypes": {
+    "R": 47381
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 47381,
+    "duplicateRows": 0,
+    "length": {
+     "min": 10,
+     "median": 10,
+     "max": 10
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 36061,
+    "topShapes": [
+     [
+      "9999999999",
+      44424
+     ],
+     [
+      "999999999A",
+      2523
+     ],
+     [
+      "9999999A99",
+      375
+     ],
+     [
+      "99999999AA",
+      36
+     ],
+     [
+      "99999999A9",
+      21
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9921,
+    "NO_LND_UNTS": 1,
+    "ACT_YR_BLT": 0.4713,
+    "EFF_YR_BLT": 0.4713,
+    "TOT_LVG_AREA": 0.4712,
+    "NO_BULDNG": 0.4713,
+    "NO_RES_UNTS": 0.4758,
+    "SALE_PRC1": 0.132,
+    "SALE_YR1": 0.132,
+    "QUAL_CD1": 0.132,
+    "SALE_PRC2": 0.0254,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9973,
+    "OWN_CITY": 0.9995,
+    "OWN_STATE": 0.9994,
+    "OWN_ZIPCD": 0.9949,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.5324,
+    "PHY_CITY": 0.5242,
+    "PHY_ZIPCD": 0.2996,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9999,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3002,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3002,
+    "PUBLIC_LND": 0.0222,
+    "MKT_AR": 0.9999,
+    "NBRHD_CD": 0.9858,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9977
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "49",
+   "countyFips": "12077",
+   "stage": "PRELIMINARY",
+   "file": "Liberty 49 Preliminary NAL 2026.zip",
+   "csv": "NAL49P202601.csv",
+   "bytes": 466431,
+   "rows": 6012,
+   "columns": 165,
+   "rowWidths": {
+    "165": 6012
+   },
+   "coNo": {
+    "49": 6012
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 6012
+   },
+   "fileTypes": {
+    "R": 6012
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 6012,
+    "duplicateRows": 0,
+    "length": {
+     "min": 15,
+     "median": 15,
+     "max": 15
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 6012,
+    "topShapes": [
+     [
+      "9999A9A99999999",
+      6012
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 1,
+    "NO_LND_UNTS": 0.9952,
+    "ACT_YR_BLT": 0.4819,
+    "EFF_YR_BLT": 0.4819,
+    "TOT_LVG_AREA": 0.4822,
+    "NO_BULDNG": 0.4822,
+    "NO_RES_UNTS": 0.4508,
+    "SALE_PRC1": 0.0823,
+    "SALE_YR1": 0.0823,
+    "QUAL_CD1": 0.0822,
+    "SALE_PRC2": 0.0115,
+    "OWN_NAME": 0.9998,
+    "OWN_ADDR1": 0.9987,
+    "OWN_CITY": 0.9995,
+    "OWN_STATE": 0.9997,
+    "OWN_ZIPCD": 0.9978,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.5843,
+    "PHY_CITY": 0.9601,
+    "PHY_ZIPCD": 0.9599,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9985,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2698,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.26,
+    "PUBLIC_LND": 0.1334,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.8698,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9802
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "50",
+   "countyFips": "12079",
+   "stage": "PRELIMINARY",
+   "file": "Madison 50 Preliminary NAL 2026.zip",
+   "csv": "NAL50P202602.csv",
+   "bytes": 1336178,
+   "rows": 16483,
+   "columns": 165,
+   "rowWidths": {
+    "165": 16483
+   },
+   "coNo": {
+    "50": 16483
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 16483
+   },
+   "fileTypes": {
+    "R": 16483
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 16483,
+    "duplicateRows": 0,
+    "length": {
+     "min": 16,
+     "median": 16,
+     "max": 16
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 6296,
+    "topShapes": [
+     [
+      "999A999999999999",
+      11121
+     ],
+     [
+      "9999999999999999",
+      2301
+     ],
+     [
+      "999A99999999A999",
+      1175
+     ],
+     [
+      "999A9999999AA999",
+      907
+     ],
+     [
+      "999A99999999999A",
+      432
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9996,
+    "NO_LND_UNTS": 0.9993,
+    "ACT_YR_BLT": 0.4424,
+    "EFF_YR_BLT": 0.4424,
+    "TOT_LVG_AREA": 0.4424,
+    "NO_BULDNG": 0.4424,
+    "NO_RES_UNTS": 0.4114,
+    "SALE_PRC1": 0.1201,
+    "SALE_YR1": 0.1201,
+    "QUAL_CD1": 0.1201,
+    "SALE_PRC2": 0.0261,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9976,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 0.9996,
+    "PHY_ZIPCD": 0.9996,
+    "CENSUS_BK": 0.9996,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9965,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2608,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2608,
+    "PUBLIC_LND": 0.0306,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.2969,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "51",
+   "countyFips": "12081",
+   "stage": "PRELIMINARY",
+   "file": "Manatee 51 Preliminary NAL 2026.zip",
+   "csv": "NAL51P202601.csv",
+   "bytes": 16468447,
+   "rows": 236531,
+   "columns": 165,
+   "rowWidths": {
+    "165": 236531
+   },
+   "coNo": {
+    "51": 236531
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 236531
+   },
+   "fileTypes": {
+    "R": 236531
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 236531,
+    "duplicateRows": 0,
+    "length": {
+     "min": 6,
+     "median": 10,
+     "max": 10
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "9999999999",
+      131412
+     ],
+     [
+      "999999999",
+      103758
+     ],
+     [
+      "99999999",
+      1267
+     ],
+     [
+      "9999999",
+      89
+     ],
+     [
+      "999999",
+      5
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.8641,
+    "NO_LND_UNTS": 0.9642,
+    "ACT_YR_BLT": 0.8161,
+    "EFF_YR_BLT": 0.8161,
+    "TOT_LVG_AREA": 0.8176,
+    "NO_BULDNG": 0.6853,
+    "NO_RES_UNTS": 0.8272,
+    "SALE_PRC1": 0.1513,
+    "SALE_YR1": 0.1513,
+    "QUAL_CD1": 0.1513,
+    "SALE_PRC2": 0.0214,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9869,
+    "OWN_STATE": 0.9999,
+    "OWN_ZIPCD": 0.9869,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 0.999,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4678,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.479,
+    "PUBLIC_LND": 0.0129,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "52",
+   "countyFips": "12083",
+   "stage": "PRELIMINARY",
+   "file": "Marion 52 Preliminary NAL 2026.zip",
+   "csv": "NAL52P202601.csv",
+   "bytes": 20787297,
+   "rows": 286148,
+   "columns": 165,
+   "rowWidths": {
+    "165": 286148
+   },
+   "coNo": {
+    "52": 286148
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 286148
+   },
+   "fileTypes": {
+    "R": 286148
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 286148,
+    "duplicateRows": 0,
+    "length": {
+     "min": 12,
+     "median": 12,
+     "max": 12
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 286100,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 3767,
+    "leadingZero": 22136,
+    "topShapes": [
+     [
+      "9999-999-999",
+      137494
+     ],
+     [
+      "99999-999-99",
+      70212
+     ],
+     [
+      "9999-9999-99",
+      60761
+     ],
+     [
+      "99999-99-999",
+      9029
+     ],
+     [
+      "9999-9999999",
+      2652
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 369,
+      "idsMerged": 738
+     },
+     "strip_all_punctuation": {
+      "groups": 3023,
+      "idsMerged": 6065
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 3023,
+      "idsMerged": 6065
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 0,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9999,
+    "NO_LND_UNTS": 0.8361,
+    "ACT_YR_BLT": 0.6526,
+    "EFF_YR_BLT": 0.6526,
+    "TOT_LVG_AREA": 0.6526,
+    "NO_BULDNG": 0.6526,
+    "NO_RES_UNTS": 0.6319,
+    "SALE_PRC1": 0.1571,
+    "SALE_YR1": 0.1571,
+    "QUAL_CD1": 0.1571,
+    "SALE_PRC2": 0.04,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9991,
+    "OWN_STATE": 0.9894,
+    "OWN_ZIPCD": 0.9896,
+    "OWN_STATE_DOM": 1,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 0.9999,
+    "PHY_ZIPCD": 0.9999,
+    "CENSUS_BK": 0.9999,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4086,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4177,
+    "PUBLIC_LND": 0.022,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "53",
+   "countyFips": "12085",
+   "stage": "PRELIMINARY",
+   "file": "Martin 53 Preliminary NAL 2026.zip",
+   "csv": "NAL53P202601.csv",
+   "bytes": 6947142,
+   "rows": 98197,
+   "columns": 165,
+   "rowWidths": {
+    "165": 98197
+   },
+   "coNo": {
+    "53": 98197
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 98197
+   },
+   "fileTypes": {
+    "R": 98197
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 98197,
+    "duplicateRows": 0,
+    "length": {
+     "min": 24,
+     "median": 24,
+     "max": 25
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 98197,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 19633,
+    "topShapes": [
+     [
+      "99-99-99-999-999-99999-9",
+      98196
+     ],
+     [
+      "99-99-99-999-999-999999-9",
+      1
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.8402,
+    "NO_LND_UNTS": 1,
+    "ACT_YR_BLT": 0.7781,
+    "EFF_YR_BLT": 0.7781,
+    "TOT_LVG_AREA": 0.778,
+    "NO_BULDNG": 0.7863,
+    "NO_RES_UNTS": 0.7024,
+    "SALE_PRC1": 0.152,
+    "SALE_YR1": 0.152,
+    "QUAL_CD1": 0.152,
+    "SALE_PRC2": 0.015,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9991,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9954,
+    "OWN_STATE_DOM": 1,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 0.9976,
+    "PHY_ZIPCD": 0.9593,
+    "CENSUS_BK": 0.986,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.499,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4939,
+    "PUBLIC_LND": 0.0859,
+    "MKT_AR": 0.9708,
+    "NBRHD_CD": 0.9999,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "54",
+   "countyFips": "12087",
+   "stage": "PRELIMINARY",
+   "file": "Monroe 54 Preliminary NAL 2026.zip",
+   "csv": "NAL54P202601.csv",
+   "bytes": 6034513,
+   "rows": 89162,
+   "columns": 165,
+   "rowWidths": {
+    "165": 89162
+   },
+   "coNo": {
+    "54": 89162
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 89162
+   },
+   "fileTypes": {
+    "R": 89162
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 89162,
+    "duplicateRows": 0,
+    "length": {
+     "min": 21,
+     "median": 22,
+     "max": 22
+    },
+    "lowercase": 0,
+    "internalWhitespace": 89162,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 29315,
+    "topShapes": [
+     [
+      "9999 99 99999999999999",
+      89161
+     ],
+     [
+      "999 99 99999999999999",
+      1
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9082,
+    "NO_LND_UNTS": 0.9101,
+    "ACT_YR_BLT": 0.5497,
+    "EFF_YR_BLT": 0.5497,
+    "TOT_LVG_AREA": 0.5397,
+    "NO_BULDNG": 0.5497,
+    "NO_RES_UNTS": 0.5023,
+    "SALE_PRC1": 0.0824,
+    "SALE_YR1": 0.0824,
+    "QUAL_CD1": 0.0824,
+    "SALE_PRC2": 0.0114,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9999,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9963,
+    "OWN_STATE_DOM": 1,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9935,
+    "PHY_CITY": 0.9934,
+    "PHY_ZIPCD": 0.9934,
+    "CENSUS_BK": 0.9935,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.1709,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.176,
+    "PUBLIC_LND": 0.3299,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "55",
+   "countyFips": "12089",
+   "stage": "PRELIMINARY",
+   "file": "Nassau 55 Preliminary NAL 2026.zip",
+   "csv": "NAL55P202602.csv",
+   "bytes": 4609222,
+   "rows": 59943,
+   "columns": 165,
+   "rowWidths": {
+    "165": 59943
+   },
+   "coNo": {
+    "55": 59943
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 59943
+   },
+   "fileTypes": {
+    "R": 59943
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 59943,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 23313,
+    "topShapes": [
+     [
+      "999A99999999999999",
+      35528
+     ],
+     [
+      "999999999999999999",
+      6654
+     ],
+     [
+      "999A99999A99999999",
+      5643
+     ],
+     [
+      "999999999A99999999",
+      4306
+     ],
+     [
+      "999A999999999A9999",
+      1263
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9284,
+    "NO_LND_UNTS": 0.9943,
+    "ACT_YR_BLT": 0.7806,
+    "EFF_YR_BLT": 0.7806,
+    "TOT_LVG_AREA": 0.7806,
+    "NO_BULDNG": 0.7806,
+    "NO_RES_UNTS": 0.7549,
+    "SALE_PRC1": 0.1315,
+    "SALE_YR1": 0.1315,
+    "QUAL_CD1": 0.1315,
+    "SALE_PRC2": 0.0212,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9991,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9999,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5054,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5054,
+    "PUBLIC_LND": 0.017,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9997,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "56",
+   "countyFips": "12091",
+   "stage": "PRELIMINARY",
+   "file": "Okaloosa 56 Preliminary NAL 2026.zip",
+   "csv": "NAL56P202602.csv",
+   "bytes": 8238264,
+   "rows": 113908,
+   "columns": 165,
+   "rowWidths": {
+    "165": 113908
+   },
+   "coNo": {
+    "56": 113908
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 113908
+   },
+   "fileTypes": {
+    "R": 113908
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 113908,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 52903,
+    "topShapes": [
+     [
+      "999A99999999999999",
+      61419
+     ],
+     [
+      "999A999999999A9999",
+      26713
+     ],
+     [
+      "999A99999A99999999",
+      8706
+     ],
+     [
+      "999A9999999999999A",
+      7360
+     ],
+     [
+      "999A99999A999A9999",
+      4079
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.8382,
+    "NO_LND_UNTS": 0.9965,
+    "ACT_YR_BLT": 0.8475,
+    "EFF_YR_BLT": 0.8475,
+    "TOT_LVG_AREA": 0.8472,
+    "NO_BULDNG": 0.8475,
+    "NO_RES_UNTS": 0.8068,
+    "SALE_PRC1": 0.1267,
+    "SALE_YR1": 0.1267,
+    "QUAL_CD1": 0.1267,
+    "SALE_PRC2": 0.0175,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.999,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9991,
+    "PHY_CITY": 0.9895,
+    "PHY_ZIPCD": 0.989,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9995,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4505,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4505,
+    "PUBLIC_LND": 0.0139,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9896,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9861
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "57",
+   "countyFips": "12093",
+   "stage": "PRELIMINARY",
+   "file": "Okeechobee 57 Preliminary NAL 2026.zip",
+   "csv": "NAL57P202601.csv",
+   "bytes": 2273592,
+   "rows": 31383,
+   "columns": 165,
+   "rowWidths": {
+    "165": 31383
+   },
+   "coNo": {
+    "57": 31383
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 31383
+   },
+   "fileTypes": {
+    "R": 31383
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 31383,
+    "duplicateRows": 0,
+    "length": {
+     "min": 20,
+     "median": 20,
+     "max": 20
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "99999999999999999999",
+      14416
+     ],
+     [
+      "99999999A9999999A999",
+      11063
+     ],
+     [
+      "99999999A99999999999",
+      3329
+     ],
+     [
+      "9999999999999999999A",
+      596
+     ],
+     [
+      "99999999A9999999999A",
+      499
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 1,
+    "NO_LND_UNTS": 0.9858,
+    "ACT_YR_BLT": 0.5403,
+    "EFF_YR_BLT": 0.5403,
+    "TOT_LVG_AREA": 0.5279,
+    "NO_BULDNG": 0.5403,
+    "NO_RES_UNTS": 0.4924,
+    "SALE_PRC1": 0.1413,
+    "SALE_YR1": 0.1413,
+    "QUAL_CD1": 0.1413,
+    "SALE_PRC2": 0.0337,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9986,
+    "OWN_CITY": 0.9856,
+    "OWN_STATE": 0.9973,
+    "OWN_ZIPCD": 0.985,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.285,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2849,
+    "PUBLIC_LND": 0.026,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "58",
+   "countyFips": "12095",
+   "stage": "PRELIMINARY",
+   "file": "Orange 58 Preliminary NAL 2026.zip",
+   "csv": "NAL58P202601.csv",
+   "bytes": 35449645,
+   "rows": 493489,
+   "columns": 165,
+   "rowWidths": {
+    "165": 493489
+   },
+   "coNo": {
+    "58": 493489
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 493489
+   },
+   "fileTypes": {
+    "R": 493489
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 493489,
+    "duplicateRows": 0,
+    "length": {
+     "min": 15,
+     "median": 15,
+     "max": 15
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 126265,
+    "topShapes": [
+     [
+      "999999999999999",
+      493489
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 1,
+    "NO_LND_UNTS": 0.8741,
+    "ACT_YR_BLT": 0.888,
+    "EFF_YR_BLT": 0.888,
+    "TOT_LVG_AREA": 0.8879,
+    "NO_BULDNG": 0.8034,
+    "NO_RES_UNTS": 0.8323,
+    "SALE_PRC1": 0.109,
+    "SALE_YR1": 0.109,
+    "QUAL_CD1": 0.109,
+    "SALE_PRC2": 0.0133,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9999,
+    "OWN_CITY": 0.9881,
+    "OWN_STATE": 0.9998,
+    "OWN_ZIPCD": 0.9881,
+    "OWN_STATE_DOM": 0.9879,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5183,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4612,
+    "PUBLIC_LND": 0.0225,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9982
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "59",
+   "countyFips": "12097",
+   "stage": "PRELIMINARY",
+   "file": "Osceola 59 Preliminary NAL 2026.zip",
+   "csv": "NAL59P202601.csv",
+   "bytes": 13996663,
+   "rows": 214335,
+   "columns": 165,
+   "rowWidths": {
+    "165": 214335
+   },
+   "coNo": {
+    "59": 214335
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 214335
+   },
+   "fileTypes": {
+    "R": 214335
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 214335,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 71970,
+    "topShapes": [
+     [
+      "999999999999999999",
+      181399
+     ],
+     [
+      "9999999999999A9999",
+      10344
+     ],
+     [
+      "99999999999999999A",
+      6814
+     ],
+     [
+      "9999999999999999A9",
+      5885
+     ],
+     [
+      "9999999999AAAA9999",
+      2063
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9828,
+    "NO_LND_UNTS": 1,
+    "ACT_YR_BLT": 0.7916,
+    "EFF_YR_BLT": 0.7916,
+    "TOT_LVG_AREA": 0.7916,
+    "NO_BULDNG": 0.7916,
+    "NO_RES_UNTS": 0.7725,
+    "SALE_PRC1": 0.1271,
+    "SALE_YR1": 0.1271,
+    "QUAL_CD1": 0.1271,
+    "SALE_PRC2": 0.0193,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9999,
+    "OWN_CITY": 0.9999,
+    "OWN_STATE": 0.9999,
+    "OWN_ZIPCD": 0.9732,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9917,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0.6436,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4071,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4071,
+    "PUBLIC_LND": 0.0256,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "60",
+   "countyFips": "12099",
+   "stage": "PRELIMINARY",
+   "file": "Palm Beach 60 Preliminary NAL 2026.zip",
+   "csv": "NAL60P202601.csv",
+   "bytes": 45175604,
+   "rows": 657490,
+   "columns": 165,
+   "rowWidths": {
+    "165": 657490
+   },
+   "coNo": {
+    "60": 657490
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 657490
+   },
+   "fileTypes": {
+    "R": 657490
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 657490,
+    "duplicateRows": 0,
+    "length": {
+     "min": 17,
+     "median": 17,
+     "max": 17
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 368525,
+    "topShapes": [
+     [
+      "99999999999999999",
+      655575
+     ],
+     [
+      "99999999A99999999",
+      1760
+     ],
+     [
+      "99999999999A99999",
+      147
+     ],
+     [
+      "9999999999A999999",
+      8
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.6995,
+    "NO_LND_UNTS": 0.698,
+    "ACT_YR_BLT": 0.9367,
+    "EFF_YR_BLT": 0.9367,
+    "TOT_LVG_AREA": 0.9349,
+    "NO_BULDNG": 0.6638,
+    "NO_RES_UNTS": 0.9092,
+    "SALE_PRC1": 0.1212,
+    "SALE_YR1": 0.1212,
+    "QUAL_CD1": 0.1212,
+    "SALE_PRC2": 0.0139,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9855,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9855,
+    "OWN_STATE_DOM": 1,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9752,
+    "PHY_CITY": 0.9822,
+    "PHY_ZIPCD": 0.9679,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0.0879,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5496,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5568,
+    "PUBLIC_LND": 0.0161,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9898
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "61",
+   "countyFips": "12101",
+   "stage": "PRELIMINARY",
+   "file": "Pasco 61 Preliminary NAL 2026.zip",
+   "csv": "NAL61P202601.csv",
+   "bytes": 24816250,
+   "rows": 335738,
+   "columns": 165,
+   "rowWidths": {
+    "165": 335738
+   },
+   "coNo": {
+    "61": 335738
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 335738
+   },
+   "fileTypes": {
+    "R": 335738
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 335738,
+    "duplicateRows": 0,
+    "length": {
+     "min": 6,
+     "median": 24,
+     "max": 25
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 335734,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 69765,
+    "topShapes": [
+     [
+      "99-99-99-9999-99999-9999",
+      249968
+     ],
+     [
+      "99-99-99-999A-99999-9999",
+      31155
+     ],
+     [
+      "99-99-99-9999-99A99-9999",
+      16594
+     ],
+     [
+      "99-99-99-9999-99999-9999A",
+      14243
+     ],
+     [
+      "99-99-99-9999-99999-99A9",
+      6158
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 1,
+    "NO_LND_UNTS": 0.9224,
+    "ACT_YR_BLT": 0.7712,
+    "EFF_YR_BLT": 0.7712,
+    "TOT_LVG_AREA": 0.7712,
+    "NO_BULDNG": 0.7342,
+    "NO_RES_UNTS": 0.7267,
+    "SALE_PRC1": 0.1423,
+    "SALE_YR1": 0.1423,
+    "QUAL_CD1": 0.1423,
+    "SALE_PRC2": 0.0302,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9955,
+    "OWN_STATE": 0.9952,
+    "OWN_ZIPCD": 0.9952,
+    "OWN_STATE_DOM": 0.9952,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.8375,
+    "PHY_CITY": 0.8375,
+    "PHY_ZIPCD": 0.8375,
+    "CENSUS_BK": 0.9999,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5043,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4976,
+    "PUBLIC_LND": 0.0358,
+    "MKT_AR": 0.953,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9964
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "62",
+   "countyFips": "12103",
+   "stage": "PRELIMINARY",
+   "file": "Pinellas 62 Preliminary NAL 2026.zip",
+   "csv": "NAL62P202601.csv",
+   "bytes": 53587747,
+   "rows": 433770,
+   "columns": 165,
+   "rowWidths": {
+    "165": 433770
+   },
+   "coNo": {
+    "62": 433770
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 433770
+   },
+   "fileTypes": {
+    "R": 433770
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 433770,
+    "duplicateRows": 0,
+    "length": {
+     "min": 23,
+     "median": 23,
+     "max": 23
+    },
+    "lowercase": 0,
+    "internalWhitespace": 433770,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "99 99 99 99999 999 9999",
+      433770
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.6476,
+    "NO_LND_UNTS": 1,
+    "ACT_YR_BLT": 0.9453,
+    "EFF_YR_BLT": 0.9453,
+    "TOT_LVG_AREA": 0.9453,
+    "NO_BULDNG": 0.9453,
+    "NO_RES_UNTS": 0.8894,
+    "SALE_PRC1": 0.1264,
+    "SALE_YR1": 0.1264,
+    "QUAL_CD1": 0.1264,
+    "SALE_PRC2": 0.0185,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 0.9999,
+    "OWN_ZIPCD": 0.9856,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5773,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5773,
+    "PUBLIC_LND": 0.0115,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "63",
+   "countyFips": "12105",
+   "stage": "PRELIMINARY",
+   "file": "Polk 63 Preliminary NAL 2026.zip",
+   "csv": "NAL63P202601.csv",
+   "bytes": 29837354,
+   "rows": 435650,
+   "columns": 165,
+   "rowWidths": {
+    "165": 435650
+   },
+   "coNo": {
+    "63": 435650
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 435650
+   },
+   "fileTypes": {
+    "R": 435650
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 435650,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "999999999999999999",
+      435650
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9643,
+    "NO_LND_UNTS": 1,
+    "ACT_YR_BLT": 0.6856,
+    "EFF_YR_BLT": 0.6856,
+    "TOT_LVG_AREA": 0.6856,
+    "NO_BULDNG": 0.6856,
+    "NO_RES_UNTS": 0.6856,
+    "SALE_PRC1": 0.1365,
+    "SALE_YR1": 0.1365,
+    "QUAL_CD1": 0.1365,
+    "SALE_PRC2": 0.03,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9873,
+    "OWN_STATE": 0.9994,
+    "OWN_ZIPCD": 0.9873,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9305,
+    "PHY_CITY": 0.9997,
+    "PHY_ZIPCD": 0.9997,
+    "CENSUS_BK": 0.9999,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9999,
+    "ALT_KEY": 0.0086,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4,
+    "PUBLIC_LND": 0.0216,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "64",
+   "countyFips": "12107",
+   "stage": "PRELIMINARY",
+   "file": "Putnam 64 Preliminary NAL 2026.zip",
+   "csv": "NAL64P202602.csv",
+   "bytes": 7247126,
+   "rows": 98036,
+   "columns": 165,
+   "rowWidths": {
+    "165": 98036
+   },
+   "coNo": {
+    "64": 98036
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 98036
+   },
+   "fileTypes": {
+    "R": 98036
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 98036,
+    "duplicateRows": 0,
+    "length": {
+     "min": 23,
+     "median": 23,
+     "max": 23
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 98036,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 28594,
+    "topShapes": [
+     [
+      "99-99-99-9999-9999-9999",
+      98036
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9923,
+    "NO_LND_UNTS": 0.9967,
+    "ACT_YR_BLT": 0.3673,
+    "EFF_YR_BLT": 0.3673,
+    "TOT_LVG_AREA": 0.3673,
+    "NO_BULDNG": 0.3653,
+    "NO_RES_UNTS": 0.3492,
+    "SALE_PRC1": 0.1396,
+    "SALE_YR1": 0.1396,
+    "QUAL_CD1": 0.1396,
+    "SALE_PRC2": 0.0324,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.994,
+    "OWN_STATE": 0.9828,
+    "OWN_ZIPCD": 0.9833,
+    "OWN_STATE_DOM": 0.9828,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.6473,
+    "PHY_CITY": 0.6473,
+    "PHY_ZIPCD": 0.6472,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2144,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2033,
+    "PUBLIC_LND": 0.0113,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.7345,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9783
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "65",
+   "countyFips": "12109",
+   "stage": "PRELIMINARY",
+   "file": "Saint Johns 65 Preliminary NAL 2026.zip",
+   "csv": "NAL65P202601.csv",
+   "bytes": 12247535,
+   "rows": 168448,
+   "columns": 165,
+   "rowWidths": {
+    "165": 168448
+   },
+   "coNo": {
+    "65": 168448
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 168448
+   },
+   "fileTypes": {
+    "R": 168448
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 168448,
+    "duplicateRows": 0,
+    "length": {
+     "min": 10,
+     "median": 10,
+     "max": 10
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 107027,
+    "topShapes": [
+     [
+      "9999999999",
+      168448
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9056,
+    "NO_LND_UNTS": 0.9055,
+    "ACT_YR_BLT": 0.8406,
+    "EFF_YR_BLT": 0.8406,
+    "TOT_LVG_AREA": 0.8326,
+    "NO_BULDNG": 0.8406,
+    "NO_RES_UNTS": 0.8162,
+    "SALE_PRC1": 0.1529,
+    "SALE_YR1": 0.1529,
+    "QUAL_CD1": 0.1529,
+    "SALE_PRC2": 0.0242,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9843,
+    "OWN_CITY": 0.9842,
+    "OWN_STATE": 0.9843,
+    "OWN_ZIPCD": 0.9831,
+    "OWN_STATE_DOM": 0.9843,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5731,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5462,
+    "PUBLIC_LND": 0.0101,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "66",
+   "countyFips": "12111",
+   "stage": "PRELIMINARY",
+   "file": "Saint Lucie 66 Preliminary NAL 2026.zip",
+   "csv": "NAL66P202601.csv",
+   "bytes": 14063098,
+   "rows": 192346,
+   "columns": 165,
+   "rowWidths": {
+    "165": 192346
+   },
+   "coNo": {
+    "66": 192346
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 192346
+   },
+   "fileTypes": {
+    "R": 192346
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 192346,
+    "duplicateRows": 0,
+    "length": {
+     "min": 19,
+     "median": 19,
+     "max": 19
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 192346,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "9999-999-9999-999-9",
+      192346
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9999,
+    "NO_LND_UNTS": 0.9999,
+    "ACT_YR_BLT": 0.8164,
+    "EFF_YR_BLT": 0.8164,
+    "TOT_LVG_AREA": 0.8138,
+    "NO_BULDNG": 0.8164,
+    "NO_RES_UNTS": 0.7905,
+    "SALE_PRC1": 0.1342,
+    "SALE_YR1": 0.1342,
+    "QUAL_CD1": 0.1342,
+    "SALE_PRC2": 0.0208,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9926,
+    "OWN_STATE_DOM": 1,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 0.9786,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5515,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5503,
+    "PUBLIC_LND": 0.03,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "67",
+   "countyFips": "12113",
+   "stage": "PRELIMINARY",
+   "file": "Santa Rosa 67 Preliminary NAL 2026.zip",
+   "csv": "NAL67P202601.csv",
+   "bytes": 9501076,
+   "rows": 122244,
+   "columns": 165,
+   "rowWidths": {
+    "165": 122244
+   },
+   "coNo": {
+    "67": 122244
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 122244
+   },
+   "fileTypes": {
+    "R": 122244
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 122244,
+    "duplicateRows": 0,
+    "length": {
+     "min": 24,
+     "median": 24,
+     "max": 26
+    },
+    "lowercase": 0,
+    "internalWhitespace": 10962,
+    "dash": 122244,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 3,
+    "leadingZero": 24465,
+    "topShapes": [
+     [
+      "99-9A-99-9999-99999-9999",
+      69303
+     ],
+     [
+      "99-9A-99-9999-99A99-9999",
+      38684
+     ],
+     [
+      "99-9A-99-9999-99999-9999 A",
+      10595
+     ],
+     [
+      "99-9A-99-9999-99999-AAAA",
+      828
+     ],
+     [
+      "99-9A-99-9999-99999-99A9",
+      706
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9458,
+    "NO_LND_UNTS": 0.9532,
+    "ACT_YR_BLT": 0.6704,
+    "EFF_YR_BLT": 0.6704,
+    "TOT_LVG_AREA": 0.6704,
+    "NO_BULDNG": 0.6704,
+    "NO_RES_UNTS": 0.6504,
+    "SALE_PRC1": 0.1297,
+    "SALE_YR1": 0.1297,
+    "QUAL_CD1": 0.1297,
+    "SALE_PRC2": 0.0203,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.3387,
+    "OWN_CITY": 0.9982,
+    "OWN_STATE": 0.9981,
+    "OWN_ZIPCD": 0.9961,
+    "OWN_STATE_DOM": 0.9981,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.7794,
+    "PHY_CITY": 0.7676,
+    "PHY_ZIPCD": 0.6532,
+    "CENSUS_BK": 0.9087,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4521,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4394,
+    "PUBLIC_LND": 0.016,
+    "MKT_AR": 0.9987,
+    "NBRHD_CD": 0.909,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9896
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "68",
+   "countyFips": "12115",
+   "stage": "PRELIMINARY",
+   "file": "Sarasota 68 Preliminary NAL 2026.zip",
+   "csv": "NAL68P202601.csv",
+   "bytes": 22995443,
+   "rows": 307177,
+   "columns": 165,
+   "rowWidths": {
+    "165": 307177
+   },
+   "coNo": {
+    "68": 307177
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 307177
+   },
+   "fileTypes": {
+    "R": 307177
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 307177,
+    "duplicateRows": 0,
+    "length": {
+     "min": 10,
+     "median": 10,
+     "max": 10
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 248884,
+    "topShapes": [
+     [
+      "9999999999",
+      307177
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.8168,
+    "NO_LND_UNTS": 1,
+    "ACT_YR_BLT": 0.8136,
+    "EFF_YR_BLT": 0.8136,
+    "TOT_LVG_AREA": 0.8136,
+    "NO_BULDNG": 0.8136,
+    "NO_RES_UNTS": 0.7827,
+    "SALE_PRC1": 0.1467,
+    "SALE_YR1": 0.1467,
+    "QUAL_CD1": 0.1467,
+    "SALE_PRC2": 0.0172,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9798,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4529,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4529,
+    "PUBLIC_LND": 0.0098,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "69",
+   "countyFips": "12117",
+   "stage": "PRELIMINARY",
+   "file": "Seminole 58 Preliminary NAL 2026.zip",
+   "csv": "NAL69P202601.csv",
+   "bytes": 14420406,
+   "rows": 179705,
+   "columns": 165,
+   "rowWidths": {
+    "165": 179705
+   },
+   "coNo": {
+    "69": 179705
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 179705
+   },
+   "fileTypes": {
+    "R": 179705
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 179705,
+    "duplicateRows": 0,
+    "length": {
+     "min": 17,
+     "median": 17,
+     "max": 17
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 38026,
+    "topShapes": [
+     [
+      "99999999999999999",
+      101867
+     ],
+     [
+      "9999999AA99999999",
+      30898
+     ],
+     [
+      "9999999999A999999",
+      24924
+     ],
+     [
+      "999999999999A9999",
+      5383
+     ],
+     [
+      "9999999AA9A999999",
+      4834
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9087,
+    "NO_LND_UNTS": 0.9677,
+    "ACT_YR_BLT": 0.8921,
+    "EFF_YR_BLT": 0.8921,
+    "TOT_LVG_AREA": 0.8916,
+    "NO_BULDNG": 0.8081,
+    "NO_RES_UNTS": 0.8531,
+    "SALE_PRC1": 0.1084,
+    "SALE_YR1": 0.1084,
+    "QUAL_CD1": 0.1084,
+    "SALE_PRC2": 0.0142,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9999,
+    "OWN_CITY": 0.9975,
+    "OWN_STATE": 0.9974,
+    "OWN_ZIPCD": 0.9952,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9161,
+    "PHY_CITY": 0.9164,
+    "PHY_ZIPCD": 0.9164,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5947,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.1798,
+    "PUBLIC_LND": 0.02,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 1
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "70",
+   "countyFips": "12119",
+   "stage": "PRELIMINARY",
+   "file": "Sumter 70 Preliminary NAL 2026.zip",
+   "csv": "NAL70P202601.csv",
+   "bytes": 8453591,
+   "rows": 105716,
+   "columns": 165,
+   "rowWidths": {
+    "165": 105716
+   },
+   "coNo": {
+    "70": 105716
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 105716
+   },
+   "fileTypes": {
+    "R": 105716
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 105716,
+    "duplicateRows": 0,
+    "length": {
+     "min": 7,
+     "median": 7,
+     "max": 11
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 15011,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 0,
+    "topShapes": [
+     [
+      "A99A999",
+      88226
+     ],
+     [
+      "A99-999",
+      13292
+     ],
+     [
+      "A99A-A999",
+      1378
+     ],
+     [
+      "A99AA999",
+      1280
+     ],
+     [
+      "A99A9999",
+      523
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9951,
+    "NO_LND_UNTS": 0.9944,
+    "ACT_YR_BLT": 0.8384,
+    "EFF_YR_BLT": 0.8384,
+    "TOT_LVG_AREA": 0.8384,
+    "NO_BULDNG": 0.8335,
+    "NO_RES_UNTS": 0.8266,
+    "SALE_PRC1": 0.1865,
+    "SALE_YR1": 0.1865,
+    "QUAL_CD1": 0.1865,
+    "SALE_PRC2": 0.0267,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9997,
+    "OWN_STATE": 0.9997,
+    "OWN_ZIPCD": 0.9961,
+    "OWN_STATE_DOM": 0.9997,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.924,
+    "PHY_CITY": 0.9245,
+    "PHY_ZIPCD": 0.9245,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.5686,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5661,
+    "PUBLIC_LND": 0.0159,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9998
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "71",
+   "countyFips": "12121",
+   "stage": "PRELIMINARY",
+   "file": "Suwannee 71 Preliminary NAL 2026.zip",
+   "csv": "NAL71P202602.csv",
+   "bytes": 2923759,
+   "rows": 39023,
+   "columns": 165,
+   "rowWidths": {
+    "165": 39023
+   },
+   "coNo": {
+    "71": 39023
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 39023
+   },
+   "fileTypes": {
+    "R": 39023
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 39023,
+    "duplicateRows": 0,
+    "length": {
+     "min": 19,
+     "median": 19,
+     "max": 19
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 10026,
+    "topShapes": [
+     [
+      "9999A99A99999999999",
+      39021
+     ],
+     [
+      "9999999999999999999",
+      2
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9313,
+    "NO_LND_UNTS": 0.997,
+    "ACT_YR_BLT": 0.4487,
+    "EFF_YR_BLT": 0.4487,
+    "TOT_LVG_AREA": 0.4487,
+    "NO_BULDNG": 0.4487,
+    "NO_RES_UNTS": 0.4276,
+    "SALE_PRC1": 0.1131,
+    "SALE_YR1": 0.1131,
+    "QUAL_CD1": 0.1131,
+    "SALE_PRC2": 0.0228,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9974,
+    "OWN_CITY": 1,
+    "OWN_STATE": 0.9993,
+    "OWN_ZIPCD": 0.9991,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.4828,
+    "PHY_CITY": 0.4828,
+    "PHY_ZIPCD": 0.4827,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2819,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.279,
+    "PUBLIC_LND": 0.0149,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9999,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9984
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "72",
+   "countyFips": "12123",
+   "stage": "PRELIMINARY",
+   "file": "Taylor 72 Preliminary NAL 2026.zip",
+   "csv": "NAL72P202601.csv",
+   "bytes": 1619878,
+   "rows": 19729,
+   "columns": 165,
+   "rowWidths": {
+    "165": 19729
+   },
+   "coNo": {
+    "72": 19729
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 19729
+   },
+   "fileTypes": {
+    "R": 19729
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 19729,
+    "duplicateRows": 0,
+    "length": {
+     "min": 9,
+     "median": 9,
+     "max": 9
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 19729,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 18471,
+    "topShapes": [
+     [
+      "99999-999",
+      19729
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9931,
+    "NO_LND_UNTS": 0.9918,
+    "ACT_YR_BLT": 0.4978,
+    "EFF_YR_BLT": 0.4978,
+    "TOT_LVG_AREA": 0.4978,
+    "NO_BULDNG": 0.494,
+    "NO_RES_UNTS": 0.4602,
+    "SALE_PRC1": 0.1067,
+    "SALE_YR1": 0.1067,
+    "QUAL_CD1": 0.1067,
+    "SALE_PRC2": 0.0176,
+    "OWN_NAME": 0.9978,
+    "OWN_ADDR1": 0.9978,
+    "OWN_CITY": 0.9976,
+    "OWN_STATE": 0.9974,
+    "OWN_ZIPCD": 0.9973,
+    "OWN_STATE_DOM": 0.9974,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.6482,
+    "PHY_CITY": 0.9821,
+    "PHY_ZIPCD": 0.982,
+    "CENSUS_BK": 0.9993,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9999,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2774,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2756,
+    "PUBLIC_LND": 0.0465,
+    "MKT_AR": 0.9993,
+    "NBRHD_CD": 0.7811,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9985
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "73",
+   "countyFips": "12125",
+   "stage": "PRELIMINARY",
+   "file": "Union 73 Preliminary NAL 2026.zip",
+   "csv": "NAL73P202601.csv",
+   "bytes": 611218,
+   "rows": 7111,
+   "columns": 165,
+   "rowWidths": {
+    "165": 7111
+   },
+   "coNo": {
+    "73": 7111
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 7111
+   },
+   "fileTypes": {
+    "R": 7111
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 7111,
+    "duplicateRows": 0,
+    "length": {
+     "min": 15,
+     "median": 16,
+     "max": 16
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 1735,
+    "topShapes": [
+     [
+      "9999999999999999",
+      6714
+     ],
+     [
+      "9999999A99999999",
+      200
+     ],
+     [
+      "9999999999A99999",
+      82
+     ],
+     [
+      "999999999999999A",
+      59
+     ],
+     [
+      "99999999999999A9",
+      55
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9947,
+    "NO_LND_UNTS": 0.9977,
+    "ACT_YR_BLT": 0.5808,
+    "EFF_YR_BLT": 0.5808,
+    "TOT_LVG_AREA": 0.5809,
+    "NO_BULDNG": 0.5809,
+    "NO_RES_UNTS": 0.5475,
+    "SALE_PRC1": 0.1318,
+    "SALE_YR1": 0.1318,
+    "QUAL_CD1": 0.1318,
+    "SALE_PRC2": 0.0338,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 1,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.0013,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9968,
+    "PHY_CITY": 0.9999,
+    "PHY_ZIPCD": 0.989,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9924,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4192,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.4078,
+    "PUBLIC_LND": 0.0179,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.2268,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.954
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "74",
+   "countyFips": "12127",
+   "stage": "PRELIMINARY",
+   "file": "Volusia 74 Preliminary NAL 2026.zip",
+   "csv": "NAL74P202601.csv",
+   "bytes": 23988948,
+   "rows": 310941,
+   "columns": 165,
+   "rowWidths": {
+    "165": 310941
+   },
+   "coNo": {
+    "74": 310941
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 310941
+   },
+   "fileTypes": {
+    "R": 310941
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 310941,
+    "duplicateRows": 0,
+    "length": {
+     "min": 12,
+     "median": 12,
+     "max": 12
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 572,
+    "topShapes": [
+     [
+      "999999999999",
+      299204
+     ],
+     [
+      "99999999999A",
+      4006
+     ],
+     [
+      "99999999A999",
+      2259
+     ],
+     [
+      "9999999A9999",
+      1859
+     ],
+     [
+      "9999999999A9",
+      1073
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.8181,
+    "NO_LND_UNTS": 0.9209,
+    "ACT_YR_BLT": 0.7942,
+    "EFF_YR_BLT": 0.7942,
+    "TOT_LVG_AREA": 0.7949,
+    "NO_BULDNG": 0.7057,
+    "NO_RES_UNTS": 0.7617,
+    "SALE_PRC1": 0.1253,
+    "SALE_YR1": 0.1253,
+    "QUAL_CD1": 0.1253,
+    "SALE_PRC2": 0.0204,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 1,
+    "OWN_CITY": 0.9949,
+    "OWN_STATE": 1,
+    "OWN_ZIPCD": 0.9949,
+    "OWN_STATE_DOM": 1,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 1,
+    "PHY_CITY": 0.999,
+    "PHY_ZIPCD": 0.9958,
+    "CENSUS_BK": 0.9955,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 1,
+    "ALT_KEY": 1,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.4878,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.5014,
+    "PUBLIC_LND": 0.0296,
+    "MKT_AR": 1,
+    "NBRHD_CD": 1,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9996
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "75",
+   "countyFips": "12129",
+   "stage": "PRELIMINARY",
+   "file": "Wakulla 75 Preliminary NAL 2026.zip",
+   "csv": "NAL75P202601.csv",
+   "bytes": 1900303,
+   "rows": 26729,
+   "columns": 165,
+   "rowWidths": {
+    "165": 26729
+   },
+   "coNo": {
+    "75": 26729
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 26729
+   },
+   "fileTypes": {
+    "R": 26729
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 26729,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 16766,
+    "topShapes": [
+     [
+      "999A99A99999999999",
+      11504
+     ],
+     [
+      "999999999999999999",
+      10667
+     ],
+     [
+      "999A99A99999999A99",
+      2340
+     ],
+     [
+      "999999999999999A99",
+      1774
+     ],
+     [
+      "99999999999999999A",
+      188
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9687,
+    "NO_LND_UNTS": 0.9961,
+    "ACT_YR_BLT": 0.5962,
+    "EFF_YR_BLT": 0.5962,
+    "TOT_LVG_AREA": 0.5963,
+    "NO_BULDNG": 0.5963,
+    "NO_RES_UNTS": 0.5502,
+    "SALE_PRC1": 0.1348,
+    "SALE_YR1": 0.1348,
+    "QUAL_CD1": 0.1348,
+    "SALE_PRC2": 0.0275,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9813,
+    "OWN_CITY": 0.9816,
+    "OWN_STATE": 0.9821,
+    "OWN_ZIPCD": 0.9798,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.956,
+    "PHY_CITY": 1,
+    "PHY_ZIPCD": 1,
+    "CENSUS_BK": 1,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.4087,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.3941,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.3938,
+    "PUBLIC_LND": 0.0406,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.5331,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9854
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "76",
+   "countyFips": "12131",
+   "stage": "PRELIMINARY",
+   "file": "Walton 76 Preliminary NAL 2026.zip",
+   "csv": "NAL76P202601.csv",
+   "bytes": 7097862,
+   "rows": 94601,
+   "columns": 165,
+   "rowWidths": {
+    "165": 94601
+   },
+   "coNo": {
+    "76": 94601
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 94601
+   },
+   "fileTypes": {
+    "R": 94601
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 94601,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 15008,
+    "topShapes": [
+     [
+      "999A99999999999999",
+      70638
+     ],
+     [
+      "999A999999999A9999",
+      15180
+     ],
+     [
+      "999AA9AAAA99999999",
+      3468
+     ],
+     [
+      "999A999999999999A9",
+      1863
+     ],
+     [
+      "999A9999999999999A",
+      1708
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.8628,
+    "NO_LND_UNTS": 0.9911,
+    "ACT_YR_BLT": 0.6566,
+    "EFF_YR_BLT": 0.6566,
+    "TOT_LVG_AREA": 0.6557,
+    "NO_BULDNG": 0.6566,
+    "NO_RES_UNTS": 0.6358,
+    "SALE_PRC1": 0.1545,
+    "SALE_YR1": 0.1545,
+    "QUAL_CD1": 0.1545,
+    "SALE_PRC2": 0.0246,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9994,
+    "OWN_CITY": 0.9994,
+    "OWN_STATE": 0.9995,
+    "OWN_ZIPCD": 0.9974,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.8711,
+    "PHY_CITY": 0.9586,
+    "PHY_ZIPCD": 0.9585,
+    "CENSUS_BK": 0.9958,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.993,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.2409,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.2407,
+    "PUBLIC_LND": 0.0106,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.9972,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9299
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  },
+  {
+   "dorCode": "77",
+   "countyFips": "12133",
+   "stage": "PRELIMINARY",
+   "file": "Washington 77 Preliminary NAL 2026.zip",
+   "csv": "NAL77P202601.csv",
+   "bytes": 2661951,
+   "rows": 46472,
+   "columns": 165,
+   "rowWidths": {
+    "165": 46472
+   },
+   "coNo": {
+    "77": 46472
+   },
+   "coNoRoutesToFileCounty": true,
+   "assessmentYears": {
+    "2026": 46472
+   },
+   "fileTypes": {
+    "R": 46472
+   },
+   "encoding": {
+    "nonAscii": 0,
+    "replacement": 0
+   },
+   "parcelId": {
+    "blank": 0,
+    "distinct": 46472,
+    "duplicateRows": 0,
+    "length": {
+     "min": 18,
+     "median": 18,
+     "max": 18
+    },
+    "lowercase": 0,
+    "internalWhitespace": 0,
+    "dash": 0,
+    "dot": 0,
+    "slash": 0,
+    "otherPunctuation": 0,
+    "leadingZero": 46472,
+    "topShapes": [
+     [
+      "999999999999999999",
+      46472
+     ]
+    ],
+    "collisionsUnderTransform": {
+     "trim": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "trim_upper": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_whitespace": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_separators": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_all_punctuation": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "strip_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     },
+     "alnum_no_leading_zeros": {
+      "groups": 0,
+      "idsMerged": 0
+     }
+    }
+   },
+   "completeness": {
+    "PARCEL_ID": 1,
+    "DOR_UC": 1,
+    "PA_UC": 1,
+    "JV": 1,
+    "AV_SD": 1,
+    "AV_NSD": 1,
+    "TV_SD": 1,
+    "TV_NSD": 1,
+    "LND_VAL": 1,
+    "LND_SQFOOT": 0.9409,
+    "NO_LND_UNTS": 0.9979,
+    "ACT_YR_BLT": 0.2312,
+    "EFF_YR_BLT": 0.2312,
+    "TOT_LVG_AREA": 0.2312,
+    "NO_BULDNG": 0.2312,
+    "NO_RES_UNTS": 0.2182,
+    "SALE_PRC1": 0.0788,
+    "SALE_YR1": 0.0788,
+    "QUAL_CD1": 0.0788,
+    "SALE_PRC2": 0.0148,
+    "OWN_NAME": 1,
+    "OWN_ADDR1": 0.9994,
+    "OWN_CITY": 0.99,
+    "OWN_STATE": 0.9999,
+    "OWN_ZIPCD": 0.9875,
+    "OWN_STATE_DOM": 0,
+    "FIDU_NAME": 0,
+    "S_LEGAL": 1,
+    "PHY_ADDR1": 0.9434,
+    "PHY_CITY": 0.9996,
+    "PHY_ZIPCD": 0.9995,
+    "CENSUS_BK": 0.9431,
+    "TWN": 1,
+    "RNG": 1,
+    "SEC": 0.9987,
+    "ALT_KEY": 0,
+    "MP_ID": 1,
+    "STATE_PAR_ID": 1,
+    "SEQ_NO": 1,
+    "RS_ID": 1,
+    "EXMPT_01": 0.138,
+    "SPC_CIR_CD": 0,
+    "APP_STAT": 0.1377,
+    "PUBLIC_LND": 0.0163,
+    "MKT_AR": 1,
+    "NBRHD_CD": 0.4215,
+    "TAX_AUTH_CD": 1,
+    "DT_LAST_INSPT": 0.9999
+   },
+   "money": {
+    "negative": 0,
+    "fractional": 0,
+    "nonNumeric": 0
+   }
+  }
+ ]
+}

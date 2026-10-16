@@ -132,13 +132,17 @@ export function sourceLifecycles(registry: Registry): readonly LifecycleAssessme
 
 /**
  * The capabilities the national dashboard reports. Most are registry
- * capabilities by another name. Two are not, and are derived from what a
- * source's connector actually emits — never from a column existing:
+ * capabilities by another name. The two sale capabilities are the registry's
+ * own `sale_observation` / `sale_economics` where a mapping declares them
+ * (Florida's SDF, DF-0M), and otherwise derived from what a source's
+ * connector actually emits — never from a column existing:
  *
- *   SALE_OBSERVATION  an assessor's echo of a sale (ASSESSOR_REPORTED_SALE_OBSERVATION):
- *                     evidence that a sale happened, not a filed declaration.
- *   SALE_ECONOMICS    a filed declaration of consideration (eCRV, RETR): the
- *                     price with statutory backing.
+ *   SALE_OBSERVATION  a publisher's statement that a sale happened: an
+ *                     appraiser's sale record (FL SDF) or an assessor's echo
+ *                     (MN, ASSESSOR_REPORTED_SALE_OBSERVATION). Not a deed.
+ *   SALE_ECONOMICS    the sale's price as published: a filed declaration of
+ *                     consideration (eCRV, RETR) or a publisher-derived price
+ *                     (FL, SALE_PRICE_DOC_STAMP_DERIVED).
  */
 export const DASHBOARD_CAPABILITIES = [
   'PARCEL', 'ASSESSOR', 'OWNERSHIP_CURRENT', 'TAX', 'SALE_OBSERVATION', 'SALE_ECONOMICS',
@@ -161,8 +165,14 @@ const REGISTRY_CAPABILITY: Readonly<Partial<Record<DashboardCapability, Capabili
 
 /** Whether a mapping claims a dashboard capability. */
 export function mappingClaims(mapping: SourceJurisdictionMapping, capability: DashboardCapability): boolean {
-  if (capability === 'SALE_OBSERVATION') return SALE_OBSERVATION_SOURCES.has(mapping.sourceId) && mapping.capabilities.includes('parcel');
-  if (capability === 'SALE_ECONOMICS') return SALE_ECONOMICS_SOURCES.has(mapping.sourceId) && mapping.capabilities.includes('transfer');
+  if (capability === 'SALE_OBSERVATION') {
+    return mapping.capabilities.includes('sale_observation')
+      || (SALE_OBSERVATION_SOURCES.has(mapping.sourceId) && mapping.capabilities.includes('parcel'));
+  }
+  if (capability === 'SALE_ECONOMICS') {
+    return mapping.capabilities.includes('sale_economics')
+      || (SALE_ECONOMICS_SOURCES.has(mapping.sourceId) && mapping.capabilities.includes('transfer'));
+  }
   const registryCapability = REGISTRY_CAPABILITY[capability];
   return registryCapability !== undefined && mapping.capabilities.includes(registryCapability);
 }

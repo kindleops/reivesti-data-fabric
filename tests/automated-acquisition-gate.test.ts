@@ -128,7 +128,12 @@ test('no manually-acquired source contributes to national core coverage', () => 
   // still zero nationally. Both statewide transfer sources are parsed and
   // neither is reachable — the gap the next phase has to close. New York's 62
   // (DF-0N, a statewide centroid archive, unattended) make 193.
-  assert.equal(report.jurisdictionsWithCoreSource, 193);
+  //
+  // DF-0M adds Florida's 67 counties from three DOR sources. They were
+  // ELIGIBLE (READY) from registry facts first and became ACTIVE only when the
+  // statewide ingestion and network-off replay certified them: 59 + 72 + 62 + 67.
+  assert.equal(report.jurisdictionsWithCoreSource, 59 + 72 + 62 + 67);
+  assert.equal(report.jurisdictionsWithActiveCoreSource, 59 + 72 + 62 + 67);
   assert.equal(report.byCapability.find((c) => c.capability === 'transfer')?.covered, 0);
 });
 

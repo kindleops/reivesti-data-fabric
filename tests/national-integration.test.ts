@@ -6,7 +6,8 @@
  *   registry   one lifecycle per mapping, derived; nothing manual-only,
  *              prohibited or unpriced can read as automated core; totals are
  *              computed, never typed in; NOT_SUPPORTED where nothing claims a
- *              capability; no sale economics, transfer or deed is claimed live
+ *              capability; Florida's sale observations are not transfers, and
+ *              no transfer, deed, mortgage or lien is claimed live
  *   identity   pinned ids per state, cross-state distinctness, and an identity
  *              contract for every source that mints a property id
  *   orgs       the national organization fold records which runs it read and
@@ -36,6 +37,7 @@ import { normalizeParcelId, propertyIdFromCountyParcel } from '../src/canonical/
 import { IDENTITY_CONTRACTS, identityContractOf } from '../src/canonical/identity-inventory.ts';
 import { wiParcelIdentity, WI_PARCEL_IDENTIFIER_SCHEME } from '../src/connectors/wi-statewide-parcels/identity.ts';
 import { nyParcelIdentity, NY_PARCEL_IDENTIFIER_SCHEME } from '../src/connectors/ny-statewide-parcels/identity.ts';
+import { flParcelIdentity, FL_PARCEL_IDENTIFIER_SCHEME } from '../src/connectors/fl-dor/identity.ts';
 import { assessOrganizationCompleteness, organizationCompletenessOf } from '../src/canonical/organization-completeness.ts';
 import { nationPartition } from '../src/canonical/partitions.ts';
 import { createPartitionStore } from '../src/runtime/partition-store.ts';
@@ -98,20 +100,25 @@ test('registry: a lifecycle follows the facts — an unsanctioned copy of a core
   assert.equal(lifecycleOf(ny, { ...mapping, status: 'fixture_only' }).lifecycle, 'FIXTURE_ONLY');
 });
 
-test('registry: the state baselines are 59 / 72 / 62 and the national parcel total is computed from them', () => {
+test('registry: the state baselines are 59 / 72 / 62 / 67 and the national parcel total is computed from them', () => {
   const count = (mappingId: string) => registry.expand(registry.mapping(mappingId)).length;
   assert.equal(count('mn_statewide_parcels__opt_in_counties'), 59);
   assert.equal(count('wi_statewide_parcels__all_wi_counties'), 72);
   assert.equal(count('ny_statewide_parcels__all_ny_counties'), 62);
-  // Hennepin's own feed is inside Minnesota's 59, so the union is the sum.
-  assert.equal(automatedCoreJurisdictions(registry, 'PARCEL'), 59 + 72 + 62);
+  for (const fl of ['fl_statewide_cadastral__all_fl_counties', 'fl_dor_nal__all_fl_counties', 'fl_dor_sdf__all_fl_counties']) {
+    assert.equal(count(fl), 67, fl);
+  }
+  // Hennepin's own feed is inside Minnesota's 59, and Florida's map and roll
+  // cover the same 67, so the union is the sum of the four states.
+  assert.equal(automatedCoreJurisdictions(registry, 'PARCEL'), 59 + 72 + 62 + 67);
   const coverage = capabilityCoverage(registry);
   const parcel = (state: string) => coverage.find((c) => c.stateCode === state && c.capability === 'PARCEL')!;
   assert.equal(parcel('MN').byLifecycle.ACTIVE_AUTOMATED_CORE, 59);
   assert.equal(parcel('WI').byLifecycle.ACTIVE_AUTOMATED_CORE, 72);
   assert.equal(parcel('NY').byLifecycle.ACTIVE_AUTOMATED_CORE, 62);
+  assert.equal(parcel('FL').byLifecycle.ACTIVE_AUTOMATED_CORE, 67);
   // A state the registry does not cover is not in the table — it is not "zero percent covered".
-  assert.equal(coverage.some((c) => c.stateCode === 'FL'), false);
+  assert.equal(coverage.some((c) => c.stateCode === 'CA'), false);
 });
 
 test('registry: NOT_SUPPORTED wherever no source claims a capability, and every county is counted once', () => {
@@ -125,12 +132,21 @@ test('registry: NOT_SUPPORTED wherever no source claims a capability, and every 
   assert.deepEqual(cell('NY', 'SALE_OBSERVATION').byLifecycle, { NOT_SUPPORTED: 62 });
   assert.deepEqual(cell('WI', 'SALE_OBSERVATION').byLifecycle, { NOT_SUPPORTED: 72 }, 'WI V12 has no sale fields');
   assert.equal(cell('MN', 'SALE_OBSERVATION').byLifecycle.ACTIVE_AUTOMATED_CORE, 59, 'MN assessor sale echo');
+  assert.deepEqual(cell('FL', 'SALE_OBSERVATION').byLifecycle, { ACTIVE_AUTOMATED_CORE: 67 }, 'FL SDF');
+  assert.deepEqual(cell('FL', 'SALE_ECONOMICS').byLifecycle, { ACTIVE_AUTOMATED_CORE: 67 }, 'FL doc-stamp-derived price');
+  assert.deepEqual(cell('FL', 'TAX').byLifecycle, { ACTIVE_AUTOMATED_CORE: 67 }, 'FL NAL');
   assert.equal(coverage.filter((c) => c.capability === 'PARCEL').length, new Set(coverage.map((c) => c.stateCode)).size);
   assert.deepEqual([...new Set(coverage.map((c) => c.capability))], [...DASHBOARD_CAPABILITIES]);
 });
 
-test('registry: no sale economics, transfer, deed, mortgage, lien or foreclosure is claimed live anywhere', () => {
-  for (const capability of ['SALE_ECONOMICS', 'TRANSFER', 'DEED', 'MORTGAGE', 'MORTGAGE_RELEASE', 'LIEN', 'FORECLOSURE_NOTICE'] as const) {
+test('registry: no transfer, deed, mortgage, lien or foreclosure is claimed live anywhere; sale economics only where published', () => {
+  // Florida's SDF price is the publisher's doc-stamp derivation (SALE_ECONOMICS),
+  // and only there: a sale observation is never a transfer, deed or declaration.
+  assert.equal(automatedCoreJurisdictions(registry, 'SALE_ECONOMICS'), 67);
+  for (const c of capabilityCoverage(registry).filter((x) => x.capability === 'SALE_ECONOMICS' && x.stateCode !== 'FL')) {
+    assert.equal(c.byLifecycle.ACTIVE_AUTOMATED_CORE, undefined, `${c.stateCode} SALE_ECONOMICS`);
+  }
+  for (const capability of ['TRANSFER', 'DEED', 'MORTGAGE', 'MORTGAGE_RELEASE', 'LIEN', 'FORECLOSURE_NOTICE'] as const) {
     assert.equal(automatedCoreJurisdictions(registry, capability), 0, capability);
     for (const c of capabilityCoverage(registry).filter((x) => x.capability === capability)) {
       assert.equal(c.byLifecycle.ACTIVE_AUTOMATED_CORE, undefined, `${c.stateCode} ${capability}`);
@@ -167,15 +183,20 @@ test('identity: pinned property ids for each state do not move', () => {
   assert.equal(wiParcelIdentity('55009', '11-109').propertyId, 'prop_94b3b400a9f5a2860f1aae0bcc30db78');
   assert.equal(nyParcelIdentity('36001', '010100', '00100000010010000000').propertyId, 'prop_758bf9dbac68cda8dbbdf541c3e16351');
   assert.equal(nyParcelIdentity('36047', '610100', '3012340056').propertyId, 'prop_84da89525abc661b9a39e0ad933a780a');
+  assert.equal(flParcelIdentity('12086', '01-3132-001-0010').propertyId, 'prop_a16922693a29b587f506144136627c5b');
+  // Leading zeros are identity in Florida.
+  assert.equal(flParcelIdentity('12086', '0000012345').propertyId, 'prop_b9abd6f0b09b2e8e1d58f5c5cc191947');
+  assert.equal(flParcelIdentity('12086', '12345').propertyId, 'prop_1136b0b259e72c48b5b68d0794712964');
 });
 
-test('identity: the same parcel string in MN, WI and NY is three properties; a reused identifier never collides', () => {
+test('identity: the same parcel string in MN, WI, NY and FL is four properties; a reused identifier never collides', () => {
   const ids = new Set([
     propertyIdFromCountyParcel('27053', '1234'),
     propertyIdFromCountyParcel('55009', '1234'),
     propertyIdFromCountyParcel('36001', '1234'),
+    propertyIdFromCountyParcel('12086', '1234'),
   ]);
-  assert.equal(ids.size, 3);
+  assert.equal(ids.size, 4);
   // Minnesota folds punctuation; Wisconsin keeps it. The same raw string is
   // two different normalized parcels — and, scoped by county, two ids anyway.
   assert.equal(normalizeParcelId('1-1109'), '11109');
@@ -193,6 +214,9 @@ test('identity: every source that mints property ids has a contract, and the con
   }
   assert.equal(identityContractOf('wi_statewide_parcels')!.scheme, WI_PARCEL_IDENTIFIER_SCHEME);
   assert.equal(identityContractOf('ny_statewide_parcels')!.scheme, NY_PARCEL_IDENTIFIER_SCHEME);
+  for (const fl of ['fl_dor_nal', 'fl_statewide_cadastral', 'fl_dor_sdf']) {
+    assert.equal(identityContractOf(fl)!.scheme, FL_PARCEL_IDENTIFIER_SCHEME, fl);
+  }
   assert.equal(identityContractOf('mn_statewide_parcels')!.scheme, 'PUNCTUATION_FOLDED');
   const fips = new Map<string, string>();
   for (const c of IDENTITY_CONTRACTS) {

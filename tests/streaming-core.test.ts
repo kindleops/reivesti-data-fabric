@@ -110,6 +110,39 @@ test('external sort breaks ties deterministically', async () => {
   assert.deepEqual(out, ['k|a', 'k|b', 'k|c']);
 });
 
+test('a multi-pass sort spills compressed and releases each merged group before the final merge', async () => {
+  // 200 runs of one line force a merge in passes (fan-in 64). By the time the
+  // first line is yielded every run file has been merged into a pass and
+  // deleted — the spill is on disk once, not twice — and every spill is gzip.
+  const scratch = tempRoot('df-sort-pass-');
+  const sorted = externalSort(shuffled(200), keyOf, { chunkLines: 1, scratchDir: scratch })[Symbol.asyncIterator]();
+  const first = await sorted.next();
+  assert.equal(first.done, false);
+  const [dir] = readdirSync(scratch);
+  const files = readdirSync(join(scratch, dir as string));
+  assert.deepEqual(files.filter((f) => f.startsWith('run-')), [], 'merged runs are released at once');
+  assert.equal(files.filter((f) => f.startsWith('pass-')).length, Math.ceil(200 / 64));
+  assert.ok(files.every((f) => f.endsWith('.ndjson.gz')), 'every spill is compressed');
+  const out = [first.value as string];
+  for (let next = await sorted.next(); !next.done; next = await sorted.next()) out.push(next.value);
+  const inMemory: string[] = [];
+  for await (const line of externalSort(shuffled(200), keyOf, { chunkLines: 10_000 })) inMemory.push(line);
+  assert.deepEqual(out, inMemory, 'compression and early release change no byte of the output');
+  assert.deepEqual(readdirSync(scratch), []);
+});
+
+test('a gzip line writer is readable the moment close() returns', async () => {
+  const { createFileLineWriter } = await import('../src/core/lines.ts');
+  const path = join(tempRoot('df-gzlines-'), 'lines.ndjson.gz');
+  const writer = await createFileLineWriter(path, { gzip: true });
+  for (let i = 0; i < 10_000; i++) await writer.write(`{"i":${i}}`);
+  assert.equal(await writer.close(), 10_000);
+  assert.equal(statSync(path).mode & 0o777, 0o600);
+  let n = 0;
+  for await (const line of readLines(path)) { assert.equal(line, `{"i":${n}}`); n += 1; }
+  assert.equal(n, 10_000);
+});
+
 test('external sort cleans up its spill directory', async () => {
   const scratch = tempRoot('df-sort-');
   const out: string[] = [];

@@ -14,7 +14,7 @@ import { mkdir, rename, rm } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { once } from 'node:events';
 import type { Readable, Writable } from 'node:stream';
-import { createGunzip } from 'node:zlib';
+import { createGunzip, createGzip } from 'node:zlib';
 import { fail } from './errors.ts';
 
 const DEFAULT_HIGH_WATER_MARK = 1 << 20; // 1 MiB
@@ -123,13 +123,41 @@ export function createLineWriter(stream: Writable): LineWriter {
  */
 export async function createFileLineWriter(
   path: string,
-  options: { readonly mode?: number } = {},
+  options: { readonly mode?: number; readonly gzip?: boolean } = {},
 ): Promise<LineWriter> {
   await mkdir(dirname(path), { recursive: true });
-  return createLineWriter(createWriteStream(path, {
+  const file = createWriteStream(path, {
     mode: options.mode ?? 0o600,
     highWaterMark: DEFAULT_HIGH_WATER_MARK,
-  }));
+  });
+  return options.gzip === true ? gzipLineWriter(file) : createLineWriter(file);
+}
+
+/**
+ * A line writer that gzips (level 1) into `file`, and whose close() resolves
+ * only when the FILE is closed — not merely when the compressor has drained —
+ * so the file can be read back the moment close() returns. `readLines`
+ * decompresses a `.gz` path on the fly. Level 1: the point is disk, not ratio.
+ */
+export function gzipLineWriter(file: Writable): LineWriter {
+  const closed = once(file, 'close');
+  // Observed from the start so an early file error is never an unhandled rejection; close() still surfaces it.
+  closed.catch(() => {});
+  const gzip = createGzip({ level: 1 });
+  gzip.on('error', (e) => file.destroy(e));
+  gzip.pipe(file);
+  const inner = createLineWriter(gzip);
+  return {
+    get lineCount() {
+      return inner.lineCount;
+    },
+    write: (line) => inner.write(line),
+    async close() {
+      const count = await inner.close();
+      await closed;
+      return count;
+    },
+  };
 }
 
 /**
@@ -171,4 +199,32 @@ export async function* inBatches<T>(source: AsyncIterable<T>, size: number): Asy
     }
   }
   if (batch.length > 0) yield batch;
+}
+
+/**
+ * Lines out of a byte stream — a zip entry, typically — decoded as UTF-8 or
+ * Latin-1. CR before LF is dropped, so CRLF files read like LF files; blank
+ * lines are skipped as `readLines` skips them. A multi-byte UTF-8 sequence
+ * split across chunks is reassembled, never mangled.
+ */
+export async function* linesFromChunks(
+  chunks: AsyncIterable<Buffer>,
+  encoding: 'utf8' | 'latin1' = 'utf8',
+): AsyncGenerator<string> {
+  const decoder = new TextDecoder(encoding === 'utf8' ? 'utf-8' : 'latin1');
+  let carry = '';
+  for await (const chunk of chunks) {
+    const text = carry + decoder.decode(chunk, { stream: true });
+    let start = 0;
+    for (;;) {
+      const nl = text.indexOf('\n', start);
+      if (nl === -1) { carry = text.slice(start); break; }
+      const end = nl > start && text.charCodeAt(nl - 1) === 13 ? nl - 1 : nl;
+      if (end > start) yield text.slice(start, end);
+      start = nl + 1;
+    }
+  }
+  const tail = carry + decoder.decode();
+  const trimmed = tail.endsWith('\r') ? tail.slice(0, -1) : tail;
+  if (trimmed.length > 0) yield trimmed;
 }

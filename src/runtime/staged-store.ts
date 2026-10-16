@@ -44,6 +44,13 @@ export const STAGED_TABLES = [
   // here: they are personal data and go to the restricted tables below.
   'business_entities', 'business_entity_names', 'business_entity_addresses',
   'business_entity_filings', 'business_filing_parties',
+  // Sale-observation economics and classification (DF-0M): one row per figure
+  // and per classification, each naming the publisher field it was read from.
+  'transfer_considerations', 'transfer_classifications',
+  // Every organization-shaped party name the run observed, one line each: the
+  // national organization fold's input. Written in every retention mode, so
+  // the fold never has to parse whole bundles to find them.
+  'organization_observations',
 ] as const;
 export const RESTRICTED_TABLES = ['contacts'] as const;
 export type StagedTable = (typeof STAGED_TABLES)[number] | (typeof RESTRICTED_TABLES)[number];
@@ -64,6 +71,8 @@ export type GenerationStore = {
   /** Streams a table's rows for the active generation of every run. */
   readTable(table: StagedTable): AsyncGenerator<string>;
   readRunTable(runId: string, table: StagedTable): AsyncGenerator<string>;
+  /** Whether the run's active generation has this table at all — empty counts; absent does not. */
+  hasRunTable(runId: string, table: StagedTable): Promise<boolean>;
   listRuns(): Promise<readonly string[]>;
   /** Runs whose active generation holds `table` — what a reader can actually read now. */
   committedRuns(table: StagedTable): Promise<readonly string[]>;
@@ -234,6 +243,14 @@ export function createGenerationStore(root: string, options: GenerationStoreOpti
         if (await access(plain).then(() => true, () => access(`${plain}.gz`).then(() => true, () => false))) out.push(runId);
       }
       return out;
+    },
+
+    async hasRunTable(runId, table) {
+      const base = dirOfRun(table, runId);
+      const generation = await currentGeneration(base);
+      if (!generation) return false;
+      const plain = join(base, generation, `${table}.ndjson`);
+      return access(`${plain}.gz`).then(() => true, () => access(plain).then(() => true, () => false));
     },
 
     async listRuns() {
