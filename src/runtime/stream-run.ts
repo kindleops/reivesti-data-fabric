@@ -20,7 +20,7 @@
  *    generation directory; only a successful commit swaps the CURRENT pointer.
  */
 import { performance } from 'node:perf_hooks';
-import { mkdir, rm } from 'node:fs/promises';
+import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { ArchivedArtifact, StreamingArtifactStore } from '../archive/artifact-store.ts';
 import type { CanonicalBundle, PropertyIdentifierObservation, SourceEvidence } from '../canonical/models.ts';
@@ -83,6 +83,7 @@ import { createGenerationStore, type GenerationStore, type StagedTable } from '.
 import { createCheckpointStore } from './checkpoint.ts';
 import { assertAutomationPermitted } from './transport.ts';
 import type { RateLimiter, RetryPolicy, Sleep } from './retry.ts';
+import { ensurePrivateDir } from '../core/private-fs.ts';
 
 export type BatchConfiguration = {
   /** Rows per source query. Clamped to the layer's own maximum. */
@@ -292,7 +293,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     }
     // 0700: the run's scratch holds contributions and sort spills, both of which
     // are source rows before the contact plane has split them.
-    await mkdir(scratch, { recursive: true, mode: 0o700 });
+    await ensurePrivateDir(scratch, join(varRoot, 'scratch'));
 
     // ---- acquire ----------------------------------------------------------
     const acquireStart = performance.now();

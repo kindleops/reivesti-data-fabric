@@ -658,6 +658,23 @@ async function main(): Promise<number> {
       return 0;
     }
 
+    case 'permissions': {
+      // Audits — and with --fix tightens — the trees that hold restricted rows,
+      // raw publisher bytes, snapshot indexes and scratch. Only under DF_VAR and
+      // DF_ARCHIVE; never a system directory. Group/other bits are dropped and
+      // the owner's kept, so read-only evidence stays read-only.
+      const { tightenTree } = await import('../core/private-fs.ts');
+      const fix = flags['fix'] === true;
+      const roots = [
+        `${VAR_ROOT}/restricted`, `${VAR_ROOT}/scratch`, `${VAR_ROOT}/indexes`, ARCHIVE_ROOT_DIR,
+      ];
+      const reports = [];
+      for (const root of roots) reports.push(await tightenTree(root, { fix }));
+      const open = reports.reduce((n, r) => n + r.directoriesOpen + r.filesOpen, 0);
+      out({ fix, roots: reports, openEntries: open, ownerOnly: fix || open === 0 });
+      return fix || open === 0 ? 0 : 1;
+    }
+
     case 'runs': {
       const fabricStore = createNdjsonFabricStore(VAR_ROOT);
       out((await fabricStore.runs()).map(runReport));
@@ -916,6 +933,7 @@ async function main(): Promise<number> {
           '  df stream <mappingId> --file <p> --period <l>      bounded-memory ingest of a local bundle',
           '  df stream <mappingId> --artifact <sha256> --period <l>   replay, no network',
           '  df sweep                                          reclaim abandoned run generations',
+          '  df permissions [--fix]                            audit (or tighten) restricted, scratch, index and archive trees to owner-only',
           '  df checkpoints                                    completed acquisitions available to --resume',
           '  df replay <mappingId> --artifact <sha256> --period <label>',
           '  df overlap-audit --direct <sourceId> --aggregation <sourceId> [--county <fips>]',

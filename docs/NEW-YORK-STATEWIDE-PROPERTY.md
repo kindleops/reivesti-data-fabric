@@ -691,9 +691,17 @@ change kind — differ from the first run's, and some hits were on those):
 **No mailing value was copied into a canonical row.** That is true by
 construction — the mailing parts reach only the restricted contact rows and a
 one-way hash inside the ownership field-group digest — and, measured, not one
-hit sits in a field that is not the parcel's own public data. Restricted
-directories inherit the process umask (`0755`); their files are `0600`
-(§14, proposal 6).
+hit sits in a field that is not the parcel's own public data.
+
+**Directory permissions (fixed in DF-0O).** The live audit found restricted
+directories at `0755` above `0600` files. Restricted run directories, scratch,
+snapshot-index directories and the artifact store are now created owner-only
+(`0700`), every pre-existing directory between the restricted root and a new
+one is tightened, `CURRENT` pointers in the restricted plane are `0600`, and
+retained publisher bytes and derived bundles are `0400` (they carry the raw
+mailing fields). `df permissions [--fix]` audits and repairs an existing
+estate; on the DF-0N estate it tightened 27 entries and re-audited at 0 open
+(`tests/restricted-permissions.test.ts`).
 
 ---
 
@@ -747,7 +755,7 @@ resolution touched either connector.
    national totals, which is the one conflict class every new state creates.
 5. **`df.filegdb.snapshot/1`** is declared by both Wisconsin and New York; it
    belongs in a shared module.
-6. **Restricted run directories inherit the process umask.** The restricted row
+6. **RESOLVED in DF-0O — restricted run directories inherited the process umask.** The restricted row
    files are `0600`, as documented; the run and generation directories holding
    them are created without a mode, so under the usual `022` umask they are
    `0755` — a listing of run ids, generation ids and table names, never the

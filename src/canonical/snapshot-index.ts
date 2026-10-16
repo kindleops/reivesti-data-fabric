@@ -274,7 +274,7 @@ export async function activateSnapshotIndex(path: string, index: SnapshotIndex):
   if (index.lifecycle !== 'COMPLETE') {
     fail('CONFIG', `refusing to activate a ${index.lifecycle} snapshot index`, { path });
   }
-  await mkdir(dirname(path), { recursive: true });
+  await mkdir(dirname(path), { recursive: true, mode: 0o700 });
   const temp = `${path}.${process.pid}.tmp`;
   try {
     await writeFile(temp, index.toBytes(), { mode: 0o600 });
@@ -484,7 +484,7 @@ export async function writeTombstones(path: string, set: TombstoneSet): Promise<
     await rm(path, { force: true });
     return;
   }
-  await mkdir(dirname(path), { recursive: true });
+  await mkdir(dirname(path), { recursive: true, mode: 0o700 });
   const temp = `${path}.${process.pid}.tmp`;
   await writeFile(temp, set.toBytes(), { mode: 0o600 });
   await rename(temp, path);

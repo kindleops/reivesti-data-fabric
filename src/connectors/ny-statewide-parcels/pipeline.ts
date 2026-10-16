@@ -72,6 +72,7 @@ import {
   createNyStatewideParcelConnector,
 } from './index.ts';
 import { NY_CENTROID_LAYER_ID, discoverNyRelease, type NyDiscoveredRelease } from './release.ts';
+import { ensurePrivateDir } from '../../core/private-fs.ts';
 
 export const NY_STATEWIDE_MAPPING_ID = 'ny_statewide_parcels__all_ny_counties';
 
@@ -415,7 +416,7 @@ async function deriveAndIngest(
   // ---- derive ----------------------------------------------------------------
   t = performance.now();
   const scratch = join(options.varRoot, 'scratch', `ny-derive-${Date.now().toString(36)}`);
-  await mkdir(scratch, { recursive: true, mode: 0o700 });
+  await ensurePrivateDir(scratch, join(options.varRoot, 'scratch'));
   let derivation: NyBundleDerivation | null = null;
   const archivePath = options.artifactStore.localPath(publisher);
   const bundle = await options.artifactStore.archiveStream(

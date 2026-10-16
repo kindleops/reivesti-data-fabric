@@ -18,7 +18,7 @@
  * and `acquire`. `replayFromArchive` runs every later step with no network at
  * all, from the retained archive.
  */
-import { mkdir, rm } from 'node:fs/promises';
+import { rm } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -57,6 +57,7 @@ import {
   createWiStatewideParcelConnector,
 } from './index.ts';
 import { discoverWiRelease, WI_FEATURE_LAYER_ID, WI_FEATURE_SERVICE_URL, type WiDiscoveredRelease } from './release.ts';
+import { ensurePrivateDir } from '../../core/private-fs.ts';
 
 export const WI_STATEWIDE_MAPPING_ID = 'wi_statewide_parcels__all_wi_counties';
 
@@ -369,7 +370,7 @@ async function deriveAndIngest(
   // ---- derive ----------------------------------------------------------------
   t = performance.now();
   const scratch = join(options.varRoot, 'scratch', `wi-derive-${Date.now().toString(36)}`);
-  await mkdir(scratch, { recursive: true, mode: 0o700 });
+  await ensurePrivateDir(scratch, join(options.varRoot, 'scratch'));
   let derivation: BundleDerivation | null = null;
   const archivePath = options.artifactStore.localPath(publisher);
   const bundle = await options.artifactStore.archiveStream(

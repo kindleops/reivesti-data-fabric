@@ -22,6 +22,7 @@ import type { ContactObservation } from '../contact/contact-plane.ts';
 import { canonicalJson } from '../core/hash.ts';
 import type { ArchivedArtifact } from '../archive/artifact-store.ts';
 import type { SourceRelease, SourceRun } from './connector.ts';
+import { ensurePrivateDir } from '../core/private-fs.ts';
 
 export type FabricStore = {
   putRun(run: SourceRun): Promise<void>;
@@ -166,7 +167,8 @@ export function createNdjsonFabricStore(root: string): FabricStore {
 
   const write = async (table: string, partition: string, rows: readonly unknown[]): Promise<void> => {
     const path = pathFor(table, partition);
-    await mkdir(dirname(path), { recursive: true });
+    if (RESTRICTED_TABLES.has(table)) await ensurePrivateDir(dirname(path), join(root, 'restricted'));
+    else await mkdir(dirname(path), { recursive: true });
     const body = rows.map((r) => canonicalJson(r)).join('\n');
     const tmp = `${path}.${process.pid}.tmp`;
     await writeFile(tmp, rows.length > 0 ? `${body}\n` : '', { mode: RESTRICTED_TABLES.has(table) ? 0o600 : 0o644 });

@@ -28,6 +28,7 @@ import { once } from 'node:events';
 import { canonicalJson } from '../core/hash.ts';
 import { fail } from '../core/errors.ts';
 import { readLines } from '../core/lines.ts';
+import { OWNER_ONLY_FILE, ensurePrivateDir } from '../core/private-fs.ts';
 
 export const CURRENT_POINTER = 'CURRENT';
 
@@ -94,6 +95,12 @@ export function createGenerationStore(root: string, options: GenerationStoreOpti
   const restrictedRunDir = (runId: string): string => join(root, 'restricted', 'runs', safe(runId));
   const dirOfRun = (table: StagedTable, runId: string): string =>
     (RESTRICTED_TABLES as readonly string[]).includes(table) ? restrictedRunDir(runId) : runDir(runId);
+  const restrictedRoot = join(root, 'restricted');
+  /** Restricted directories are owner-only all the way down from the restricted root. */
+  const makeDir = async (table: StagedTable, dir: string): Promise<void> => {
+    if ((RESTRICTED_TABLES as readonly string[]).includes(table)) await ensurePrivateDir(dir, restrictedRoot);
+    else await mkdir(dir, { recursive: true });
+  };
 
   const currentGeneration = async (base: string): Promise<string | null> => {
     try {
@@ -115,7 +122,7 @@ export function createGenerationStore(root: string, options: GenerationStoreOpti
         const existing = streams.get(table);
         if (existing) return existing;
         const dir = join(dirOfRun(table, runId), generation);
-        await mkdir(dir, { recursive: true });
+        await makeDir(table, dir);
         const restricted = (RESTRICTED_TABLES as readonly string[]).includes(table);
         const file = createWriteStream(join(dir, `${table}${suffix}`), {
           mode: restricted ? 0o600 : 0o644,
@@ -159,7 +166,7 @@ export function createGenerationStore(root: string, options: GenerationStoreOpti
           for (const table of [...STAGED_TABLES, ...RESTRICTED_TABLES] as StagedTable[]) {
             if (!streams.has(table)) {
               const dir = join(dirOfRun(table, runId), generation);
-              await mkdir(dir, { recursive: true });
+              await makeDir(table, dir);
               await writeFile(join(dir, `${table}${suffix}`), compress ? gzipSync('') : '', {
                 mode: (RESTRICTED_TABLES as readonly string[]).includes(table) ? 0o600 : 0o644,
               });
@@ -171,7 +178,7 @@ export function createGenerationStore(root: string, options: GenerationStoreOpti
           // exactly one generation, never a partial swap.
           for (const base of [runDir(runId), restrictedRunDir(runId)]) {
             const temp = join(base, `${CURRENT_POINTER}.${process.pid}.tmp`);
-            await writeFile(temp, generation, 'utf8');
+            await writeFile(temp, generation, { encoding: 'utf8', mode: base === restrictedRunDir(runId) ? OWNER_ONLY_FILE : 0o644 });
             await rename(temp, join(base, CURRENT_POINTER));
           }
         },
