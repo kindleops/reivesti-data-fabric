@@ -42,7 +42,7 @@ import {
   type PartitionPlan,
 } from '../canonical/partitions.ts';
 import { createPartitionStore, type PartitionActivation, type PartitionStore } from './partition-store.ts';
-import { recomputePartitions } from './partition-projection.ts';
+import { PROPERTY_RESOLVER_VERSION, SALE_RESOLVER_VERSION, recomputePartitions } from './partition-projection.ts';
 import type { EntityLinkDecision } from '../canonical/entity-resolution.ts';
 import { organizationObservationOf } from '../canonical/organization-projection.ts';
 import {
@@ -182,8 +182,9 @@ export type StreamRunOptions = {
    * Florida's roll is 11 million rows at ~1 KB each, compressed. The rows are
    * a pure function of retained evidence, so they are regenerated rather than
    * stored, and a replay must reproduce the normalized digest to prove it.
-   * Organization observations are still written, so the national
-   * organization fold sees every owner name either way.
+   * Organization observations, business entities and business entity
+   * addresses are still written, so the national organization fold sees
+   * every owner name and every registry entity either way.
    */
   readonly canonicalRetention?: 'full' | 'digest_only';
   /**
@@ -674,6 +675,14 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
           for (const [table, rows] of Object.entries(extraRows ?? {})) {
             for (const row of rows) await staged.write(table as StagedTable, row);
           }
+        } else {
+          // digest_only still keeps what the national organization fold reads:
+          // without the registry's entities and addresses, a fold over a
+          // digest_only registry run would see owner names and nothing to
+          // resolve them against, and could still record FULL_NATIONAL.
+          for (const table of ORGANIZATION_FOLD_TABLES) {
+            for (const row of extraRows?.[table] ?? []) await staged.write(table, row);
+          }
         }
         for (const party of bundle.parties) {
           const observation = organizationObservationOf(party);
@@ -833,10 +842,14 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
         if (partition === null || changedPartitions.has(partition) || prior.size === 0) continue;
         // Only a partition with a live projection can be left as it is — and a
         // county whose rows carry sales needs a live sale projection too.
+        // A projection made by an older resolver is not "unchanged": its
+        // conflicts and provenance would differ from a recomputation now.
         const manifest = await partitions.manifest(countyPartition('PROPERTY_RESOLUTION', partition));
-        if (manifest === null) continue;
-        if (observedSaleCounties.has(partition)
-          && await partitions.manifest(countyPartition('TRANSACTION_RESOLUTION', partition)) === null) continue;
+        if (manifest === null || manifest.resolverVersion !== PROPERTY_RESOLVER_VERSION) continue;
+        if (observedSaleCounties.has(partition)) {
+          const sales = await partitions.manifest(countyPartition('TRANSACTION_RESOLUTION', partition));
+          if (sales === null || sales.resolverVersion !== SALE_RESOLVER_VERSION) continue;
+        }
         skippedCounties.add(partition);
         skippedActivations.push({
           partitionId: manifest.partitionId, state: 'skipped', generation: manifest.generation,
@@ -1041,6 +1054,9 @@ async function* allContributions(
   }
   yield* readLines(currentPath);
 }
+
+/** Extra-row tables the national organization fold reads; kept under every retention. */
+const ORGANIZATION_FOLD_TABLES = ['business_entities', 'business_entity_addresses'] as const satisfies readonly StagedTable[];
 
 /**
  * Which runs the national organization fold must see, and which it can (DF-0O).

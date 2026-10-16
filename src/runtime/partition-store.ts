@@ -109,13 +109,17 @@ export type PartitionStoreOptions = {
 };
 
 /** Opens a line sink on `path`, gzip level 1 when asked. Level 1: the point is disk, not ratio. */
-function lineSink(path: string, compress: boolean): { stream: Writable; done: Promise<unknown> } {
+function lineSink(path: string, compress: boolean): { stream: Writable; done: Promise<unknown>; failed: Promise<never> } {
   const file = createWriteStream(path, { highWaterMark: 1 << 20 });
-  if (!compress) return { stream: file, done: once(file, 'finish') };
+  // A file error unpipes a compressor that then never drains: waiting writers
+  // race this so ENOSPC fails the projection instead of hanging it.
+  const failed = new Promise<never>((_, reject) => file.once('error', reject));
+  failed.catch(() => {});
+  if (!compress) return { stream: file, done: once(file, 'finish'), failed };
   const gzip = createGzip({ level: 1 });
   gzip.pipe(file);
   gzip.on('error', (e) => file.destroy(e));
-  return { stream: gzip, done: once(file, 'finish') };
+  return { stream: gzip, done: once(file, 'finish'), failed };
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -156,14 +160,14 @@ export function createPartitionStore(root: string, options: PartitionStoreOption
       // a partition holding half a run's evidence — which would recompute into a
       // wrong-but-plausible projection rather than an obvious failure.
       const temp = `${target}.${process.pid}.tmp`;
-      const { stream, done } = lineSink(temp, compress);
+      const { stream, done, failed } = lineSink(temp, compress);
       let count = 0;
       for await (const line of lines) {
-        if (!stream.write(`${line}\n`)) await once(stream, 'drain');
+        if (!stream.write(`${line}\n`)) await Promise.race([once(stream, 'drain'), failed]);
         count += 1;
       }
       stream.end();
-      await done;
+      await Promise.race([done, failed]);
       await rename(temp, target);
       return count;
     },
@@ -280,7 +284,8 @@ export function createPartitionStore(root: string, options: PartitionStoreOption
     },
 
     async contributingRuns(key) {
-      return (await contributionFiles(key)).map((f) => f.slice(0, -'.ndjson'.length));
+      // Contribution files are `<runId>.ndjson` or, compressed, `<runId>.ndjson.gz`.
+      return (await contributionFiles(key)).map((f) => f.replace(/\.ndjson(\.gz)?$/, ''));
     },
 
     async manifests() {

@@ -143,6 +143,11 @@ export function gzipLineWriter(file: Writable): LineWriter {
   const closed = once(file, 'close');
   // Observed from the start so an early file error is never an unhandled rejection; close() still surfaces it.
   closed.catch(() => {});
+  // A file error (ENOSPC, EIO) unpipes the compressor, whose buffer then fills
+  // and never drains: every pending and later write must fail with that error
+  // instead of waiting forever.
+  const failed = new Promise<never>((_, reject) => file.once('error', reject));
+  failed.catch(() => {});
   const gzip = createGzip({ level: 1 });
   gzip.on('error', (e) => file.destroy(e));
   gzip.pipe(file);
@@ -151,9 +156,9 @@ export function gzipLineWriter(file: Writable): LineWriter {
     get lineCount() {
       return inner.lineCount;
     },
-    write: (line) => inner.write(line),
+    write: (line) => Promise.race([inner.write(line), failed]),
     async close() {
-      const count = await inner.close();
+      const count = await Promise.race([inner.close(), failed]);
       await closed;
       return count;
     },

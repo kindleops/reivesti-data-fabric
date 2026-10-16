@@ -369,6 +369,27 @@ watermark), `partition-projection.ts`, `partition-store.ts`, `partitions.ts`.
   (`flParcelIdentity`, `PUNCTUATION_PRESERVING`, FIPS 12, routed by `CO_NO`);
   pinned Florida ids, leading zeros included, are asserted.
 
+**Independent review of the merged shared code** (CodeRabbit skipped this PR:
+101 files, one over its limit). Four real defects were found and fixed, each
+with a regression test that fails without the fix:
+
+1. `contributingRuns` truncated a compressed contribution file's run id
+   (`run_x.ndjson.gz` → `run_x.nd`): under `DF_DERIVED_GZIP=1` every national
+   organization fold would have read PARTIAL with phantom missing runs, and a
+   genuinely unreadable run would have gone undetected. (DF-0O code meeting
+   DF-0M's compressed contributions.)
+2. A gzip line writer (spills, contributions, partition files) waited forever
+   for `drain` after its file failed (ENOSPC): it now rejects, so a full disk
+   fails the run instead of hanging it.
+3. Skip-unchanged accepted a county projected by an older resolver: DF-0M moved
+   the property resolver to `property_resolver_2`, so unchanged counties would
+   have kept v1 projections beside v2 ones. A skip now requires the current
+   property (and, with sales, sale) resolver version.
+4. `digest_only` dropped `business_entities` / `business_entity_addresses`, which
+   the national organization fold reads: a registry run under that retention
+   would have left the fold nothing to resolve owners against. Those tables are
+   now kept under every retention.
+
 **Integrated source graph (`df national`, computed):**
 
 | Capability | MN (87) | WI (72) | NY (62) | FL (67) | National automated core |
@@ -416,7 +437,8 @@ run as a non-root user on the merged code, applies the full chain to two
 independent fresh databases: **60/60 pass**.
 
 **Suites on the merged code** (non-root, after PR #5's review fixes were merged
-in): 974 tests — **961 pass, 0 fail, 13 skipped** (S3 contract tests needing CI's moto). Three assertions failed on
+in, and the four review fixes above): 978 tests — **965 pass, 0 fail, 13
+skipped**; the national suite also passes with `DF_DERIVED_GZIP=1` (S3 contract tests needing CI's moto). Three assertions failed on
 the first run, each a total that one branch had pinned without the other
 state (Florida's 198, New York's 193, and "more than 3,000 uncovered", which
 260 covered counties disprove); they now assert the four-state arithmetic.
