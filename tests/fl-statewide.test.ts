@@ -218,6 +218,18 @@ test('06 a manual-only path cannot become core: the gate refuses before any requ
   assert.equal(e.portal.requests.length, 0);
 });
 
+test('06b a run the worker cannot hold is refused after discovery and before any file is fetched (DF-0O preflight)', async () => {
+  const e = estate();
+  const tiny = {
+    availableBytes: async () => 1024, device: async () => 1, isTmpfs: async () => false, freeMemoryBytes: () => 64 * 1024 ** 3,
+  };
+  await assert.rejects(e.run(FL_NAL_SPEC, { capacityProbe: tiny }), /insufficient capacity/);
+  // Discovery lists folders through the REST API; every other request is a file.
+  assert.ok(e.portal.requests.some((r) => r.url.includes('/_api/')), 'discovery ran');
+  assert.deepEqual(e.portal.requests.filter((r) => !r.url.includes('/_api/')), [], 'no county file was requested');
+  assert.equal(existsSync(join(e.root, 'archive')) ? readdirSync(join(e.root, 'archive')).length : 0, 0);
+});
+
 test('07 no silent local fallback: a portal that fails fails the run, and nothing is ingested', async () => {
   const e = estate();
   const broken = (async () => new Response('down', { status: 503 })) as typeof fetch;

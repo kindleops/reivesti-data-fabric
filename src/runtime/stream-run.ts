@@ -87,7 +87,11 @@ import { createCheckpointStore } from './checkpoint.ts';
 import { assertAutomationPermitted } from './transport.ts';
 import type { RateLimiter, RetryPolicy, Sleep } from './retry.ts';
 import { claimScratch } from './scratch.ts';
-import { assessOrganizationCompleteness, type OrganizationCompleteness } from '../canonical/organization-completeness.ts';
+import {
+  assessOrganizationCompleteness,
+  historyEstablishedAfter,
+  type OrganizationCompleteness,
+} from '../canonical/organization-completeness.ts';
 
 export type BatchConfiguration = {
   /** Rows per source query. Clamped to the layer's own maximum. */
@@ -1062,7 +1066,9 @@ export async function organizationCompleteness(
     ...await store.committedRuns('organization_observations'),
     ...await store.committedRuns('bundles'),
   ]);
-  return assessOrganizationCompleteness(expected, available);
+  return assessOrganizationCompleteness(expected, available, {
+    historyEstablished: historyEstablishedAfter(prior),
+  });
 }
 
 /**

@@ -217,13 +217,17 @@ export async function recomputePartitions(options: RecomputeOptions): Promise<Re
             ...(completeness ? { completeness } : {}),
           }));
           const partial = completeness?.status === 'PARTIAL';
+          const unverified = completeness?.status === 'UNVERIFIED';
           activations.push({
             partitionId: id, state: 'activated', generation: writer.generation,
             reason: partial
               ? `PARTIAL organization fold: ${completeness.missingRuns.length} run(s) with live evidence have no readable canonical rows`
-              : null,
+              : unverified
+                ? 'UNVERIFIED organization fold: the estate holds a fold from before the completeness watermark, so runs released before it cannot be ruled out'
+                : null,
           });
           if (partial) logger.warn('partition.organization_partial', { partitionId: id, missingRuns: completeness.missingRuns });
+          if (unverified) logger.warn('partition.organization_unverified', { partitionId: id });
           logger.info('partition.entity_links', { partitionId: id, ...summary, completeness: completeness?.status ?? 'UNVERIFIED' });
         } catch (e) {
           await writer.abort();

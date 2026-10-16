@@ -131,9 +131,15 @@ Wisconsin's run tables were released for disk during DF-0N.
 - EXPECTED = the folding run ∪ every run with a contribution file live in a
   property partition ∪ every run the previous fold read;
 - AVAILABLE = every run whose committed canonical rows are readable now;
-- `FULL_NATIONAL` only when nothing expected is missing; otherwise `PARTIAL`
-  with the missing runs named, recorded in the partition manifest, logged as
-  `partition.organization_partial`, and stated in the activation reason.
+- `FULL_NATIONAL` only when nothing expected is missing **and** the expected
+  set is known to be whole; `PARTIAL` with the missing runs named when any is
+  missing, recorded in the partition manifest, logged as
+  `partition.organization_partial`, and stated in the activation reason;
+- `UNVERIFIED` when nothing is missing but the estate already held a fold
+  written before the watermark: that fold recorded no runs, so a released run
+  that left no partition contribution (a business-registry run, say) cannot
+  be ruled out. The status is sticky on that estate until it is rebuilt from a
+  fold that started under the watermark.
 
 A `PARTIAL` fold still activates (its links are right for what it saw) but is
 never labelled, reported or counted national. A fold written before DF-0O reads
@@ -351,7 +357,11 @@ watermark), `partition-projection.ts`, `partition-store.ts`, `partitions.ts`.
 - *Florida's pipeline* claims owner-marked scratch (`claimScratch`) and runs
   the capacity preflight before acquisition and before a replay, from a
   footprint measured in DF-0M §15. Under `digest_only` the plan counts 16 bytes
-  per row of run tables; under full retention 1 KB.
+  per row of run tables; under full retention 1 KB. Every release file's bytes
+  are reserved (discovery carries no digest to prove a file is retained here),
+  so a forced re-run is refused safely rather than allowed to fill the disk.
+  Test `06b`: a run that cannot fit is refused after discovery with no county
+  file requested.
 - *Source graph*: SALE_OBSERVATION and SALE_ECONOMICS read the registry's own
   `sale_observation` / `sale_economics` capabilities when a mapping declares
   them (Florida's SDF), as well as the connector-derived cases.
@@ -405,8 +415,8 @@ to no production database). No duplicate numbers. The real-PostgreSQL gate,
 run as a non-root user on the merged code, applies the full chain to two
 independent fresh databases: **60/60 pass**.
 
-**Suites on the merged code** (non-root): 969 tests — **956 pass, 0 fail, 13
-skipped** (S3 contract tests needing CI's moto). Three assertions failed on
+**Suites on the merged code** (non-root, after PR #5's review fixes were merged
+in): 974 tests — **961 pass, 0 fail, 13 skipped** (S3 contract tests needing CI's moto). Three assertions failed on
 the first run, each a total that one branch had pinned without the other
 state (Florida's 198, New York's 193, and "more than 3,000 uncovered", which
 260 covered counties disprove); they now assert the four-state arithmetic.

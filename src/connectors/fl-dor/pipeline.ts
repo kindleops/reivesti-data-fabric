@@ -241,9 +241,11 @@ export async function runFlPipeline(spec: FlSourceSpec, options: FlPipelineOptio
 
     // ---- capacity: before any download or derivation (DF-0O) -------------------
     const releaseBytes = release.files.reduce((n, f) => n + f.file.bytes, 0);
-    await preflightFl(spec, options, `${spec.sourceId} ${release.referencePeriod}`, releaseBytes,
-      // A release already ingested is a forced re-run from retained files.
-      previous !== null ? 0 : releaseBytes);
+    // Every file's bytes are reserved: discovery carries no digest to prove a
+    // file is already retained here, and acquisition re-downloads any that are
+    // not. Over-reserving a forced re-run refuses it safely; under-reserving
+    // could fill the disk mid-run.
+    await preflightFl(spec, options, `${spec.sourceId} ${release.referencePeriod}`, releaseBytes, releaseBytes);
 
     t = performance.now();
     const acquisition = await acquireFlRelease({
