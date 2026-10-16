@@ -381,3 +381,25 @@ Everything else Wisconsin needed was already in v1: exact money from doubles via
 the decimal-string path (a sub-cent float is refused, not rounded — one such
 value exists in V12), acres → square feet with the source unit kept, `M/D/YYYY`
 load dates, a roll year as the time axis, and blank vs. zero kept apart.
+
+## 4c. The identity contract inventory (DF-0O)
+
+Three states, one rule for the id and three for the string it hashes. Every
+property id is `propertyIdFromCountyParcel(countyFips, normalizedParcel)`;
+what differs per source is how `normalizedParcel` is formed. The inventory is
+code — `IDENTITY_CONTRACTS` in `src/canonical/identity-inventory.ts` — and
+`tests/national-integration.test.ts` checks it against each connector's
+declared scheme and pins one id per state.
+
+| Source | Contract | Scheme | Identifier (unique within) | Leading zeros | Punctuation | Routing | Collision evidence |
+|---|---|---|---|---|---|---|---|
+| `mn_statewide_parcels` | v1, no extension | `PUNCTUATION_FOLDED` | COUNTY_PIN (county) | kept | folded | `co_code` via the federal catalogue | folding injective; eCRV↔Hennepin converge |
+| `mn_hennepin_county_parcels` | v1, no extension | `PUNCTUATION_FOLDED` | PID (Hennepin) | kept | folded | fixed 27053 | converges with the statewide layer |
+| `wi_statewide_parcels` | v1 + `parcel_identifier_scheme_1` | `PUNCTUATION_PRESERVING` | PARCELID (county) | kept | kept | CONAME (where the land is); PARCELFIPS provenance | folding would merge 11,411 pairs |
+| `ny_statewide_parcels` | v1 + `parcel_identifier_scheme_1` | `PUNCTUATION_PRESERVING` | SWIS + SBL (municipality) | kept | none present | COUNTY_NAME and SWIS county code must agree | raw 0 collisions; SBL alone recurs 123,246× |
+
+Cross-state: 11,664,439 identities, 0 property-id collisions; MN↔WI reuse
+30,988 canonical strings, harmlessly, because the county FIPS (state first) is
+inside every id. See
+[NATIONAL-INTEGRATION-CERTIFICATION.md §6](NATIONAL-INTEGRATION-CERTIFICATION.md).
+`NORMALIZATION_CONTRACT_VERSION` is unchanged: no id moved.

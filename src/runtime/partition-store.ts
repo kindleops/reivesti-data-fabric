@@ -81,6 +81,8 @@ export type PartitionStore = {
   /** Every activated partition, sorted by id. */
   manifests(): Promise<readonly PartitionManifest[]>;
   listPartitions(): Promise<readonly PartitionKey[]>;
+  /** The runs whose contributions this partition holds. Sorted. */
+  contributingRuns(key: PartitionKey): Promise<readonly string[]>;
   /** Removes generation directories no CURRENT pointer names. */
   sweepAbandoned(): Promise<number>;
 };
@@ -227,6 +229,10 @@ export function createPartitionStore(root: string): PartitionStore {
         if ((e as NodeJS.ErrnoException).code === 'ENOENT') return null;
         throw e;
       }
+    },
+
+    async contributingRuns(key) {
+      return (await contributionFiles(key)).map((f) => f.slice(0, -'.ndjson'.length));
     },
 
     async manifests() {

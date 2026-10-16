@@ -23,6 +23,7 @@ import type { ParcelAuthority, PropertyConflict, PropertyResolution } from '../c
 import { projectOrganizationLinks } from '../canonical/organization-projection.ts';
 import { DEFAULT_RULES, RESOLVER_VERSION, type EntityLinkDecision } from '../canonical/entity-resolution.ts';
 import type { PartitionActivation, PartitionStore } from './partition-store.ts';
+import type { OrganizationCompleteness } from '../canonical/organization-completeness.ts';
 
 /**
  * Version of the property fold.
@@ -38,6 +39,11 @@ export type OrganizationInputs = {
   observations(): AsyncIterable<string>;
   entities(): AsyncIterable<string>;
   addresses(): AsyncIterable<string>;
+  /**
+   * Which runs the fold must see and which it can (DF-0O). Recorded in the
+   * manifest; a PARTIAL fold is activated with that label, never as national.
+   */
+  completeness?(): Promise<OrganizationCompleteness>;
 };
 
 export type RecomputeOptions = {
@@ -138,6 +144,7 @@ export async function recomputePartitions(options: RecomputeOptions): Promise<Re
           });
           continue;
         }
+        const completeness = inputs.completeness ? await inputs.completeness() : undefined;
         const writer = await options.partitions.beginProjection(key, options.runId);
         const output = new MultisetDigest();
         const input = new MultisetDigest();
@@ -164,9 +171,21 @@ export async function recomputePartitions(options: RecomputeOptions): Promise<Re
             inputRowCount: input.size,
             activatedAt: options.detectedAt,
             runId: options.runId,
+            ...(completeness ? { completeness } : {}),
           }));
-          activations.push({ partitionId: id, state: 'activated', generation: writer.generation, reason: null });
-          logger.info('partition.entity_links', { partitionId: id, ...summary });
+          const partial = completeness?.status === 'PARTIAL';
+          const unverified = completeness?.status === 'UNVERIFIED';
+          activations.push({
+            partitionId: id, state: 'activated', generation: writer.generation,
+            reason: partial
+              ? `PARTIAL organization fold: ${completeness.missingRuns.length} run(s) with live evidence have no readable canonical rows`
+              : unverified
+                ? 'UNVERIFIED organization fold: the estate holds a fold from before the completeness watermark, so runs released before it cannot be ruled out'
+                : null,
+          });
+          if (partial) logger.warn('partition.organization_partial', { partitionId: id, missingRuns: completeness.missingRuns });
+          if (unverified) logger.warn('partition.organization_unverified', { partitionId: id });
+          logger.info('partition.entity_links', { partitionId: id, ...summary, completeness: completeness?.status ?? 'UNVERIFIED' });
         } catch (e) {
           await writer.abort();
           throw e;

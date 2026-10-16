@@ -664,3 +664,21 @@ Structured JSON logs only. Every run emits `run.release_selected`,
 `run.archived`, `run.parsed`, per-record `record.quarantined`, and
 `run.finished` with the full metric set. `runReport()` is the concise operator
 view; `df runs` lists history. No admin UI in this phase, by design.
+
+## National integration (DF-0O)
+
+Minnesota, Wisconsin and New York are certified together on one `main`
+(`THREE_STATE_INTEGRATION: PASS`; Florida, certified on its own branch, integrates next). DF-0O added no
+source and no state; it added the cross-state guards a fourth state will need:
+
+- `src/registry/lifecycle.ts` — one derived lifecycle per mapping, per-state
+  capability coverage with `NOT_SUPPORTED`, computed national totals.
+- `src/canonical/identity-inventory.ts` — the property-identity contract of
+  every id-minting source.
+- `src/canonical/organization-completeness.ts` — the national organization
+  fold's watermark: `FULL_NATIONAL` or `PARTIAL` with the missing runs.
+- `src/runtime/capacity.ts`, `src/runtime/scratch.ts` — the capacity preflight
+  and run-owned scratch.
+- `src/core/private-fs.ts` — owner-only storage, link-safe.
+
+See [NATIONAL-INTEGRATION-CERTIFICATION.md](NATIONAL-INTEGRATION-CERTIFICATION.md).

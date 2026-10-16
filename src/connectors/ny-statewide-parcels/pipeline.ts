@@ -72,7 +72,14 @@ import {
   createNyStatewideParcelConnector,
 } from './index.ts';
 import { NY_CENTROID_LAYER_ID, discoverNyRelease, type NyDiscoveredRelease } from './release.ts';
-import { ensurePrivateDir } from '../../core/private-fs.ts';
+import { claimScratch } from '../../runtime/scratch.ts';
+import {
+  preflightRun,
+  rowsFromArchiveBytes,
+  type CapacityProbe,
+  type CapacityVerdict,
+  type FootprintProfile,
+} from '../../runtime/capacity.ts';
 
 export const NY_STATEWIDE_MAPPING_ID = 'ny_statewide_parcels__all_ny_counties';
 
@@ -108,7 +115,39 @@ export type NyPipelineOptions = {
    * rehydrates it instead of asking the publisher again.
    */
   readonly durable?: DurableStore | null;
+  /** Disk/memory probe for the capacity preflight. Tests inject one; production measures. */
+  readonly capacityProbe?: CapacityProbe;
 };
+
+/**
+ * Measured on the full 2025-2605 statewide run (DF-0N, 5,510,061 rows, gzip
+ * run tables): derived bundle 5.87 GB, run tables 8.65 GB, partitions 4.27 GB,
+ * scratch peak 4.36 GiB at 1 MiB batches. Per row, rounded up.
+ */
+export const NY_FOOTPRINT: FootprintProfile = {
+  source: NY_STATEWIDE_SOURCE_ID,
+  measuredOn: '2025-2605 full statewide run (DF-0N)',
+  derivedBundleBytesPerRow: 1_066,
+  runTableBytesPerRow: 1_571,
+  partitionBytesPerRow: 775,
+  indexBytesPerRow: 24,
+  organizationBytesPerRow: 62,
+  scratchPeakBytesPerRow: 850,
+  archiveBytesPerRow: 103,
+};
+
+/** Refuses, before anything is downloaded, rehydrated, derived or written, a run that cannot fit. */
+function preflightNy(
+  options: Pick<NyPipelineOptions, 'varRoot' | 'capacityProbe' | 'logger'>,
+  label: string,
+  rows: number,
+  extra: Readonly<Record<string, number>>,
+  partitionsAlreadyLive: boolean,
+): Promise<CapacityVerdict> {
+  return preflightRun(options.varRoot, NY_FOOTPRINT, label, rows, extra, {
+    partitionsAlreadyLive, probe: options.capacityProbe, logger: options.logger,
+  });
+}
 
 /** How this run's raw bytes were obtained and kept. */
 export type NyDurability = {
@@ -228,18 +267,30 @@ export async function runNyStatewidePipeline(options: NyPipelineOptions): Promis
       return { outcome: 'NOOP', discovered, plan, ...empty, ledger: entry, durability: null, companion, timings, memory: memory.stop() };
     }
 
+    // ---- capacity: before any download, rehydration, derivation or write ----------
+    const rows = Math.min(discovered.witness.count, options.maxRows ?? Number.POSITIVE_INFINITY);
+    const forcedSameRelease = plan.action === 'NOOP';
+    // Located before the preflight: only an archive actually on this worker
+    // costs nothing new. A forced run that must rehydrate or download it does.
+    const retained = plan.action === 'NOOP' && plan.previous.publisherSha256 !== null
+      ? await locateRetainedArchive(options, discovered.referencePeriod, plan.previous.publisherSha256)
+      : null;
+    const companionBytes = options.retainCompanion !== false && options.maxRows === undefined
+      ? discovered.companion?.head.contentLength ?? 0 : 0;
+    await preflightNy(options, `${NY_STATEWIDE_SOURCE_ID} ${discovered.referencePeriod}`, rows, {
+      publisherArchive: retained !== null ? 0 : discovered.head.contentLength ?? 0,
+      companionArchive: retained !== null ? 0 : companionBytes,
+    }, forcedSameRelease);
+
     let result: NyPipelineResult | null = null;
-    if (plan.action === 'NOOP' && plan.previous.publisherSha256 !== null) {
+    if (retained !== null) {
       // Forced, and this exact release is already retained: re-ingest from the
       // archive we hold. Forcing is a statement about OUR pipeline; it is no
       // reason to make the publisher serve 563 MB again.
-      const retained = await locateRetainedArchive(options, discovered.referencePeriod, plan.previous.publisherSha256);
-      if (retained !== null) {
-        logger.info('ny.force_from_retained', { sha256: retained.sha256 });
-        result = await deriveAndIngest(options, {
-          discovered, plan, publisher: retained, timings, memory, ledger, action: 'REPLAYED', source: 'workspace',
-        });
-      }
+      logger.info('ny.force_from_retained', { sha256: retained.sha256 });
+      result = await deriveAndIngest(options, {
+        discovered, plan, publisher: retained, timings, memory, ledger, action: 'REPLAYED', source: 'workspace',
+      });
     }
 
     // ---- durable store: this exact release may already be kept ------------------
@@ -339,6 +390,12 @@ export async function replayNyFromArchive(
   const source = options.registry.source(NY_STATEWIDE_SOURCE_ID);
   const timings: Record<string, number> = {};
   const local = await locateRetainedArchive(options, options.referencePeriod, options.publisherSha256);
+  // A replay rebuilds from the archive: size it from the archive's bytes, which
+  // the retained manifest knows. A durable-store replay learns them on rehydrate.
+  if (local !== null) {
+    await preflightNy(options, `${NY_STATEWIDE_SOURCE_ID} replay ${options.referencePeriod}`,
+      rowsFromArchiveBytes(NY_FOOTPRINT, local.byteLength), {}, false);
+  }
   let publisher = local;
   let rehydrateMs: number | null = null;
   if (publisher === null && options.durable) {
@@ -346,6 +403,8 @@ export async function replayNyFromArchive(
     publisher = restored.artifact;
     rehydrateMs = restored.ms;
     timings['rehydrate'] = restored.ms;
+    await preflightNy(options, `${NY_STATEWIDE_SOURCE_ID} replay ${options.referencePeriod}`,
+      rowsFromArchiveBytes(NY_FOOTPRINT, restored.artifact.byteLength), {}, false);
   }
   if (publisher === null) {
     fail('REPLAY', 'no retained archive with that sha256 for that release, in the workspace or a durable store', {
@@ -415,8 +474,7 @@ async function deriveAndIngest(
 
   // ---- derive ----------------------------------------------------------------
   t = performance.now();
-  const scratch = join(options.varRoot, 'scratch', `ny-derive-${Date.now().toString(36)}`);
-  await ensurePrivateDir(scratch, join(options.varRoot, 'scratch'));
+  const scratch = await claimScratch(options.varRoot, 'ny-derive');
   let derivation: NyBundleDerivation | null = null;
   const archivePath = options.artifactStore.localPath(publisher);
   const bundle = await options.artifactStore.archiveStream(

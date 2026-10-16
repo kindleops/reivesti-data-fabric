@@ -183,3 +183,12 @@ release fetches zero publisher bytes (ledger action `REHYDRATED_AND_INGESTED`);
 its next tick is a NOOP. Manual downloads remain absent: the only way bytes enter
 the estate is `df auto`, or `df artifacts reacquire`, which accepts a
 re-download as a restoration only on an equal sha256.
+
+## Before acquisition: capacity (DF-0O)
+
+An unattended tick that would not fit is refused before its first request to
+the publisher: discovery and planning run, then the capacity preflight, then
+acquisition. A NOOP tick never reaches the preflight. A forced run of a retained
+release counts no new archive bytes and, when its partitions are already live,
+no partition or index bytes. Live discovery-only ticks on 2026-10-16: New York
+2025-2605 and Wisconsin V12.0.0-2026 unchanged (NOOP).

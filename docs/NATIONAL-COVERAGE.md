@@ -354,3 +354,15 @@ claims it; New York does not). It has no sale date or price; `BOOK`/`PAGE` point
 at the last recorded deed and produce no transfer, sale, deed or mortgage fact.
 The public polygon product (38 counties) is registered `VALIDATION_ONLY` with no
 mapping, so it adds no coverage of any kind.
+
+## The source graph, reconciled (DF-0O)
+
+Coverage is now also reported per state and per dashboard capability with
+one derived lifecycle per mapping — `df national`, `src/registry/lifecycle.ts`
+— including `NOT_SUPPORTED` where no source so much as claims a capability.
+Automated-core parcel jurisdictions remain **193**, now computed by
+`automatedCoreJurisdictions` rather than asserted as a literal. Sale
+economics, transfer, deed, mortgage, release, lien and foreclosure stay at
+**0**. Florida (67 counties, certified on its own branch) is not yet merged and not counted here. The full table, and Florida's integration contract, are in
+[NATIONAL-INTEGRATION-CERTIFICATION.md](NATIONAL-INTEGRATION-CERTIFICATION.md).
+No new state was added in DF-0O.
