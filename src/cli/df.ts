@@ -724,6 +724,11 @@ async function main(): Promise<number> {
       const { NY_FOOTPRINT } = await import('../connectors/ny-statewide-parcels/pipeline.ts');
       const { WI_FOOTPRINT } = await import('../connectors/wi-statewide-parcels/pipeline.ts');
       const rows = typeof flags['rows'] === 'string' ? Number(flags['rows']) : null;
+      // NaN would compare false against every limit and report that the run fits.
+      if (rows !== null && (!Number.isInteger(rows) || rows < 1)) {
+        process.stderr.write('--rows must be a positive integer\n');
+        return 2;
+      }
       const verdicts = [];
       for (const [profile, fullRows, archive] of [[NY_FOOTPRINT, 5_510_061, 562_761_366], [WI_FOOTPRINT, 3_574_646, 759_926_092]] as const) {
         const n = rows ?? fullRows;

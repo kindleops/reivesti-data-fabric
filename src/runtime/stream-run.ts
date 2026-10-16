@@ -84,7 +84,11 @@ import { createCheckpointStore } from './checkpoint.ts';
 import { assertAutomationPermitted } from './transport.ts';
 import type { RateLimiter, RetryPolicy, Sleep } from './retry.ts';
 import { claimScratch } from './scratch.ts';
-import { assessOrganizationCompleteness, type OrganizationCompleteness } from '../canonical/organization-completeness.ts';
+import {
+  assessOrganizationCompleteness,
+  historyEstablishedAfter,
+  type OrganizationCompleteness,
+} from '../canonical/organization-completeness.ts';
 
 export type BatchConfiguration = {
   /** Rows per source query. Clamped to the layer's own maximum. */
@@ -975,7 +979,9 @@ export async function organizationCompleteness(
   }
   const prior = await partitions.manifest(nationPartition('ORGANIZATION_RESOLUTION'));
   for (const r of prior?.completeness?.contributingRuns ?? []) expected.add(r);
-  return assessOrganizationCompleteness(expected, await store.committedRuns('bundles'));
+  return assessOrganizationCompleteness(expected, await store.committedRuns('bundles'), {
+    historyEstablished: historyEstablishedAfter(prior),
+  });
 }
 
 /**

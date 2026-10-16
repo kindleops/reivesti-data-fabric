@@ -17,10 +17,11 @@
  * another host or an earlier boot that cannot be checked from here. Nothing
  * outside `var/scratch` is touched.
  */
-import { lstat, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { chmod, lstat, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { randomBytes } from 'node:crypto';
 import { hostname } from 'node:os';
 import { join } from 'node:path';
-import { OWNER_ONLY_FILE, ensurePrivateDir } from '../core/private-fs.ts';
+import { OWNER_ONLY_DIR, OWNER_ONLY_FILE, ensurePrivateDir } from '../core/private-fs.ts';
 
 export const SCRATCH_OWNER_FILE = '.owner.json';
 
@@ -65,8 +66,10 @@ export async function currentScratchHost(): Promise<ScratchHost> {
         process.kill(pid, 0);
         return true;
       } catch (e) {
-        // EPERM: it exists, it is just not ours to signal.
-        return (e as NodeJS.ErrnoException).code === 'EPERM';
+        // Only ESRCH proves the process is gone. EPERM means it exists and is
+        // not ours to signal; any other failure proves nothing, so the owner
+        // is presumed alive and its scratch is kept.
+        return (e as NodeJS.ErrnoException).code !== 'ESRCH';
       }
     },
     async processStartedAt(pid) {
@@ -84,8 +87,12 @@ export async function currentScratchHost(): Promise<ScratchHost> {
 /** Creates an owner-only scratch directory and stamps it with this process as owner. */
 export async function claimScratch(varRoot: string, kind: string, host?: ScratchHost): Promise<string> {
   const root = join(varRoot, 'scratch');
-  const dir = join(root, `${kind}-${Date.now().toString(36)}-${process.pid}`);
-  await ensurePrivateDir(dir, root);
+  await ensurePrivateDir(root, root);
+  // Exclusive: a non-recursive mkdir fails if the name exists, and the random
+  // suffix keeps two claims in one process and one millisecond apart.
+  const dir = join(root, `${kind}-${Date.now().toString(36)}-${process.pid}-${randomBytes(6).toString('hex')}`);
+  await mkdir(dir, { mode: OWNER_ONLY_DIR });
+  await chmod(dir, OWNER_ONLY_DIR);
   const h = host ?? await currentScratchHost();
   const owner: ScratchOwner = {
     pid: process.pid, host: h.host, bootId: h.bootId, startedAt: new Date().toISOString(), purpose: kind,
@@ -104,8 +111,14 @@ export async function listScratch(varRoot: string, host?: ScratchHost): Promise<
     const path = join(root, name);
     const info = await lstat(path).catch(() => null);
     if (info === null || !info.isDirectory()) continue;
-    const owner = await readFile(join(path, SCRATCH_OWNER_FILE), 'utf8')
-      .then((s) => JSON.parse(s) as ScratchOwner, () => null);
+    // A marker cut short by a kill mid-write is no proof of anyone: UNOWNED.
+    const owner = await readFile(join(path, SCRATCH_OWNER_FILE), 'utf8').then((s) => {
+      try {
+        return JSON.parse(s) as ScratchOwner;
+      } catch {
+        return null;
+      }
+    }, () => null);
     const bytes = await treeBytes(path);
     out.push({ name, path, owner, bytes, ...(await judge(owner, h)) });
   }

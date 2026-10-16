@@ -222,22 +222,24 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
 
     // ---- capacity: before any download, rehydration, derivation or write ----------
     const forcedSameRelease = plan.action === 'NOOP';
+    // Located before the preflight: only an archive actually on this worker
+    // costs nothing new. A forced run that must rehydrate or download it does.
+    const retained = plan.action === 'NOOP' && plan.previous.publisherSha256 !== null
+      ? await locateRetainedArchive(options, discovered.referencePeriod, plan.previous.publisherSha256)
+      : null;
     await preflightWi(options, `${WI_STATEWIDE_SOURCE_ID} ${discovered.referencePeriod}`,
       Math.min(discovered.witness.count, options.maxRows ?? Number.POSITIVE_INFINITY),
-      { publisherArchive: forcedSameRelease ? 0 : discovered.head.contentLength ?? 0 },
+      { publisherArchive: retained !== null ? 0 : discovered.head.contentLength ?? 0 },
       forcedSameRelease);
 
-    if (plan.action === 'NOOP' && plan.previous.publisherSha256 !== null) {
+    if (retained !== null) {
       // Forced, and this exact release is already retained: re-ingest from the
       // archive we hold. Forcing is a statement about OUR pipeline; it is no
       // reason to make the publisher serve 760 MB again.
-      const retained = await locateRetainedArchive(options, discovered.referencePeriod, plan.previous.publisherSha256);
-      if (retained !== null) {
-        logger.info('wi.force_from_retained', { sha256: retained.sha256 });
-        return await deriveAndIngest(options, {
-          discovered, plan, publisher: retained, timings, memory, ledger, action: 'REPLAYED', source: 'workspace',
-        });
-      }
+      logger.info('wi.force_from_retained', { sha256: retained.sha256 });
+      return await deriveAndIngest(options, {
+        discovered, plan, publisher: retained, timings, memory, ledger, action: 'REPLAYED', source: 'workspace',
+      });
     }
 
     // ---- durable store: this exact release may already be kept ------------------

@@ -36,11 +36,11 @@ import { normalizeParcelId, propertyIdFromCountyParcel } from '../src/canonical/
 import { IDENTITY_CONTRACTS, identityContractOf } from '../src/canonical/identity-inventory.ts';
 import { wiParcelIdentity, WI_PARCEL_IDENTIFIER_SCHEME } from '../src/connectors/wi-statewide-parcels/identity.ts';
 import { nyParcelIdentity, NY_PARCEL_IDENTIFIER_SCHEME } from '../src/connectors/ny-statewide-parcels/identity.ts';
-import { assessOrganizationCompleteness, organizationCompletenessOf } from '../src/canonical/organization-completeness.ts';
+import { assessOrganizationCompleteness, historyEstablishedAfter, organizationCompletenessOf } from '../src/canonical/organization-completeness.ts';
 import { nationPartition } from '../src/canonical/partitions.ts';
 import { createPartitionStore } from '../src/runtime/partition-store.ts';
 import { assertCapacity, planFromProfile, preflightCapacity, type CapacityProbe } from '../src/runtime/capacity.ts';
-import { claimScratch, cleanOrphanedScratch, listScratch, SCRATCH_OWNER_FILE, type ScratchHost } from '../src/runtime/scratch.ts';
+import { claimScratch, cleanOrphanedScratch, currentScratchHost, listScratch, SCRATCH_OWNER_FILE, type ScratchHost } from '../src/runtime/scratch.ts';
 import { NY_FOOTPRINT, runNyStatewidePipeline } from '../src/connectors/ny-statewide-parcels/pipeline.ts';
 import { WI_FOOTPRINT } from '../src/connectors/wi-statewide-parcels/pipeline.ts';
 import { RUN_INSTANT, hennepinFixture, streamHarness, tempRoot } from './helpers.ts';
@@ -200,6 +200,14 @@ test('identity: every source that mints property ids has a contract, and the con
     fips.set(c.stateCode, c.stateFips);
   }
   assert.equal(new Set(fips.values()).size, fips.size, 'two states share a FIPS prefix');
+  // And each contract's state FIPS is the prefix of that state's counties in the catalogue.
+  for (const c of IDENTITY_CONTRACTS) {
+    const counties = registry.jurisdictions.filter((j) => j.jurisdictionType === 'county' && j.stateCode === c.stateCode);
+    assert.ok(counties.length > 0, `${c.sourceId}: no catalogued counties for ${c.stateCode}`);
+    for (const j of counties) {
+      assert.ok(j.countyFips?.startsWith(c.stateFips), `${c.sourceId}: stateFips ${c.stateFips} does not match ${c.stateCode} (${j.countyFips})`);
+    }
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -214,6 +222,22 @@ test('organizations: the completeness rule is a watermark — any expected run m
   assert.deepEqual(partial.expectedRuns, ['r1', 'r2']);
   assert.equal(organizationCompletenessOf(null), 'ABSENT');
   assert.equal(organizationCompletenessOf({}), 'UNVERIFIED', 'a fold from before DF-0O is not presumed complete');
+});
+
+test('organizations: a fold whose predecessor recorded no runs stays UNVERIFIED, and so do its successors', () => {
+  // Fresh estate: history established.
+  assert.equal(historyEstablishedAfter(null), true);
+  // A pre-DF-0O fold recorded nothing: a released registry-only run is invisible.
+  assert.equal(historyEstablishedAfter({}), false);
+  const next = assessOrganizationCompleteness(['r2'], ['r2'], { historyEstablished: historyEstablishedAfter({}) });
+  assert.equal(next.status, 'UNVERIFIED', 'nothing missing, but nothing proves the expected set is whole');
+  // Sticky: the fold after an UNVERIFIED one is still unverified.
+  assert.equal(historyEstablishedAfter({ completeness: next }), false);
+  // A missing run is PARTIAL whatever the history.
+  assert.equal(assessOrganizationCompleteness(['r1', 'r2'], ['r2'], { historyEstablished: false }).status, 'PARTIAL');
+  // A DF-0O fold recorded before the field existed counts as established.
+  const { historyEstablished: _drop, ...older } = assessOrganizationCompleteness(['r1'], ['r1']);
+  assert.equal(historyEstablishedAfter({ completeness: older }), true);
 });
 
 test('organizations: a fold over a released run is recorded PARTIAL, names the run, and is never reported national', async () => {
@@ -322,6 +346,41 @@ function host(o: { alive?: readonly number[]; startedAt?: Date | null; name?: st
     processStartedAt: async () => o.startedAt ?? null,
   };
 }
+
+test('scratch: two claims in the same process and millisecond get two directories', async () => {
+  const varRoot = tempRoot('df-scr-uniq-');
+  const dirs = await Promise.all(Array.from({ length: 8 }, () => claimScratch(varRoot, 'run', host())));
+  assert.equal(new Set(dirs).size, 8);
+});
+
+test('scratch: a truncated owner marker is UNOWNED and does not stop the listing; only ESRCH means dead', async () => {
+  const varRoot = tempRoot('df-scr-bad-');
+  const bad = join(varRoot, 'scratch', 'run-cut');
+  mkdirSync(bad, { recursive: true });
+  writeFileSync(join(bad, SCRATCH_OWNER_FILE), '{"pid": 12');
+  const dead = join(varRoot, 'scratch', 'run-dead');
+  mkdirSync(dead);
+  writeFileSync(join(dead, SCRATCH_OWNER_FILE), JSON.stringify({ pid: 999_999, host: 'worker-a', bootId: 'boot-1', startedAt: '2026-01-01T00:00:00Z', purpose: 'run' }));
+  const status = Object.fromEntries((await listScratch(varRoot, host())).map((e) => [e.name, e.status]));
+  assert.equal(status['run-cut'], 'UNOWNED');
+  assert.equal(status['run-dead'], 'ORPHANED');
+  const real = await currentScratchHost();
+  assert.equal(real.isAlive(process.pid), true);
+  assert.equal(real.isAlive(2 ** 22 + 1), false, 'a pid above the kernel maximum is ESRCH');
+});
+
+test('df capacity refuses a --rows that is not a positive integer rather than reporting a fit', () => {
+  const cli = join(import.meta.dirname, '..', 'src', 'cli', 'df.ts');
+  for (const bad of ['abc', '0', '-1', '2.5']) {
+    let status = 0;
+    try {
+      execFileSync(process.execPath, ['--no-warnings', cli, 'capacity', '--rows', bad], { env: { ...process.env, DF_VAR: tempRoot('df-caprows-') }, stdio: 'pipe' });
+    } catch (e) {
+      status = (e as { status: number }).status;
+    }
+    assert.equal(status, 2, `--rows ${bad}`);
+  }
+});
 
 test('scratch: a claimed directory is owner-only and stamped with its owner', async () => {
   const varRoot = tempRoot('df-scr-');

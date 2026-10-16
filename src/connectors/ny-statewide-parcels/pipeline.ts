@@ -270,26 +270,27 @@ export async function runNyStatewidePipeline(options: NyPipelineOptions): Promis
     // ---- capacity: before any download, rehydration, derivation or write ----------
     const rows = Math.min(discovered.witness.count, options.maxRows ?? Number.POSITIVE_INFINITY);
     const forcedSameRelease = plan.action === 'NOOP';
+    // Located before the preflight: only an archive actually on this worker
+    // costs nothing new. A forced run that must rehydrate or download it does.
+    const retained = plan.action === 'NOOP' && plan.previous.publisherSha256 !== null
+      ? await locateRetainedArchive(options, discovered.referencePeriod, plan.previous.publisherSha256)
+      : null;
     const companionBytes = options.retainCompanion !== false && options.maxRows === undefined
       ? discovered.companion?.head.contentLength ?? 0 : 0;
     await preflightNy(options, `${NY_STATEWIDE_SOURCE_ID} ${discovered.referencePeriod}`, rows, {
-      // A forced run of a retained release keeps no new archive bytes.
-      publisherArchive: forcedSameRelease ? 0 : discovered.head.contentLength ?? 0,
-      companionArchive: forcedSameRelease ? 0 : companionBytes,
+      publisherArchive: retained !== null ? 0 : discovered.head.contentLength ?? 0,
+      companionArchive: retained !== null ? 0 : companionBytes,
     }, forcedSameRelease);
 
     let result: NyPipelineResult | null = null;
-    if (plan.action === 'NOOP' && plan.previous.publisherSha256 !== null) {
+    if (retained !== null) {
       // Forced, and this exact release is already retained: re-ingest from the
       // archive we hold. Forcing is a statement about OUR pipeline; it is no
       // reason to make the publisher serve 563 MB again.
-      const retained = await locateRetainedArchive(options, discovered.referencePeriod, plan.previous.publisherSha256);
-      if (retained !== null) {
-        logger.info('ny.force_from_retained', { sha256: retained.sha256 });
-        result = await deriveAndIngest(options, {
-          discovered, plan, publisher: retained, timings, memory, ledger, action: 'REPLAYED', source: 'workspace',
-        });
-      }
+      logger.info('ny.force_from_retained', { sha256: retained.sha256 });
+      result = await deriveAndIngest(options, {
+        discovered, plan, publisher: retained, timings, memory, ledger, action: 'REPLAYED', source: 'workspace',
+      });
     }
 
     // ---- durable store: this exact release may already be kept ------------------

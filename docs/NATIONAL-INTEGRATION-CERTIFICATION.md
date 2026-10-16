@@ -129,9 +129,15 @@ Wisconsin's run tables were released for disk during DF-0N.
 - EXPECTED = the folding run ∪ every run with a contribution file live in a
   property partition ∪ every run the previous fold read;
 - AVAILABLE = every run whose committed canonical rows are readable now;
-- `FULL_NATIONAL` only when nothing expected is missing; otherwise `PARTIAL`
-  with the missing runs named, recorded in the partition manifest, logged as
-  `partition.organization_partial`, and stated in the activation reason.
+- `FULL_NATIONAL` only when nothing expected is missing **and** the expected
+  set is known to be whole; `PARTIAL` with the missing runs named when any is
+  missing, recorded in the partition manifest, logged as
+  `partition.organization_partial`, and stated in the activation reason;
+- `UNVERIFIED` when nothing is missing but the estate already held a fold
+  written before the watermark: that fold recorded no runs, so a released run
+  that left no partition contribution (a business-registry run, say) cannot
+  be ruled out. The status is sticky on that estate until it is rebuilt from a
+  fold that started under the watermark.
 
 A `PARTIAL` fold still activates (its links are right for what it saw) but is
 never labelled, reported or counted national. A fold written before DF-0O reads
