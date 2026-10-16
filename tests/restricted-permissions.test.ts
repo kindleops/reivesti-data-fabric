@@ -12,11 +12,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { execFileSync } from 'node:child_process';
-import { chmodSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, lstatSync, mkdirSync, readdirSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fixedClock } from '../src/core/clock.ts';
 import { captureLogger } from '../src/core/logging.ts';
 import { ensurePrivateDir, tightenTree } from '../src/core/private-fs.ts';
+import { SnapshotIndex, activateSnapshotIndex, snapshotIndexPath } from '../src/canonical/snapshot-index.ts';
 import { createGenerationStore } from '../src/runtime/staged-store.ts';
 import { createNdjsonFabricStore } from '../src/runtime/fabric-store.ts';
 import { createFilesystemObjectStore, createStreamingFilesystemObjectStore } from '../src/archive/object-store.ts';
@@ -149,6 +150,98 @@ test('retained publisher bytes are owner-read-only under owner-only directories,
   assertOwnerOnlyTree(root, 'artifact store');
   assert.equal(mode(join(root, 'data-fabric', 'src', 'p', 'sha256-a', 'source-original.zip')), 0o400);
   assert.equal(mode(join(root, 'data-fabric', 'src', 'p', 'sha256-b', 'source-original.ndjson')), 0o400);
+});
+
+test('ensurePrivateDir refuses a symbolic link below its root, and never chmods through a linked root', async () => {
+  const base = tempRoot('df-privlink-');
+  const outside = join(base, 'outside');
+  mkdirSync(outside, { recursive: true });
+  chmodSync(outside, 0o755);
+  const root = join(base, 'restricted');
+  mkdirSync(root, { recursive: true });
+  symlinkSync(outside, join(root, 'runs'));
+  await assert.rejects(ensurePrivateDir(join(root, 'runs', 'run_x'), root), /symbolic link inside a private tree/);
+  assert.equal(mode(outside), 0o755, 'the link target outside the root is untouched');
+  assert.deepEqual(readdirSync(outside), [], 'nothing was created through the link');
+
+  // A linked ROOT (an operator's scratch volume) is allowed, and not chmod-ed through.
+  const linkedRoot = join(base, 'scratch');
+  symlinkSync(outside, linkedRoot);
+  await ensurePrivateDir(join(linkedRoot, 'run-1'), linkedRoot);
+  assert.equal(mode(outside), 0o755, 'the operator-chosen target keeps its mode');
+  assert.equal(mode(join(outside, 'run-1')), 0o700);
+});
+
+test('tightenTree reports a linked root as unaudited and propagates errors other than ENOENT', async () => {
+  const base = tempRoot('df-treelink-');
+  const target = join(base, 'target');
+  mkdirSync(target);
+  writeFileSync(join(target, 'open.ndjson'), '{}\n', { mode: 0o644 });
+  symlinkSync(target, join(base, 'link'));
+  const linked = await tightenTree(join(base, 'link'), { fix: true });
+  assert.equal(linked.symlinkRoot, true);
+  assert.equal(linked.files, 0, 'the target was not walked');
+  assert.equal(mode(join(target, 'open.ndjson')), 0o644, 'nothing changed through the link');
+  assert.equal((await tightenTree(join(base, 'absent'), { fix: false })).present, false);
+  writeFileSync(join(base, 'file'), 'x');
+  await assert.rejects(tightenTree(join(base, 'file', 'below'), { fix: false }), /ENOTDIR/);
+});
+
+test('an identical re-put or re-promote repairs a retained object left wide by older code', async () => {
+  const root = tempRoot('df-objects-legacy-');
+  const key = 'data-fabric/src/p/sha256-a/source-original.zip';
+  const dir = join(root, 'data-fabric', 'src', 'p', 'sha256-a');
+  mkdirSync(dir, { recursive: true });
+  for (const d of [join(root, 'data-fabric'), join(root, 'data-fabric', 'src'), join(root, 'data-fabric', 'src', 'p'), dir]) chmodSync(d, 0o755);
+  writeFileSync(join(dir, 'source-original.zip'), 'raw bytes', { mode: 0o444 });
+  chmodSync(join(dir, 'source-original.zip'), 0o444);
+  const put = await createFilesystemObjectStore(root).put(key, Buffer.from('raw bytes'));
+  assert.equal(put.created, false);
+  assertOwnerOnlyTree(root, 'after identical put');
+  assert.equal(mode(join(dir, 'source-original.zip')), 0o400);
+
+  const key2 = 'data-fabric/src/p/sha256-b/source-original.ndjson';
+  const dir2 = join(root, 'data-fabric', 'src', 'p', 'sha256-b');
+  mkdirSync(dir2, { recursive: true });
+  chmodSync(dir2, 0o755);
+  chmodSync(join(root, 'data-fabric', 'src', 'p'), 0o755);
+  writeFileSync(join(dir2, 'source-original.ndjson'), 'streamed', { mode: 0o444 });
+  chmodSync(join(dir2, 'source-original.ndjson'), 0o444);
+  const staged = await createStreamingFilesystemObjectStore(root).stage(async (sink) => { await sink.write('streamed'); });
+  assert.equal((await staged.promote(key2)).created, false);
+  assertOwnerOnlyTree(join(root, 'data-fabric'), 'after identical promote');
+  assert.equal(mode(join(dir2, 'source-original.ndjson')), 0o400);
+});
+
+test('activating a snapshot index under its root repairs wide index directories from an older estate', async () => {
+  const indexRoot = join(tempRoot('df-idx-legacy-'), 'indexes');
+  const path = snapshotIndexPath(indexRoot, 'src_x', 'county_1');
+  mkdirSync(join(indexRoot, 'src_x'), { recursive: true });
+  chmodSync(indexRoot, 0o755);
+  chmodSync(join(indexRoot, 'src_x'), 0o755);
+  const index = new SnapshotIndex(new BigUint64Array(0), 0);
+  await activateSnapshotIndex(path, index, indexRoot);
+  assertOwnerOnlyTree(indexRoot, 'index tree');
+  assert.ok(lstatSync(path).isFile());
+});
+
+test('df auto refuses a --max that is not a positive integer before doing anything', () => {
+  const varRoot = tempRoot('df-maxcli-');
+  const cli = join(import.meta.dirname, '..', 'src', 'cli', 'df.ts');
+  for (const bad of ['NaN', '0', '-5', '1.5']) {
+    let status = 0;
+    let stderr = '';
+    try {
+      execFileSync(process.execPath, ['--no-warnings', cli, 'auto', 'ny_statewide_parcels__all_ny_counties', '--max', bad],
+        { env: { ...process.env, DF_VAR: varRoot, DF_ARCHIVE: join(varRoot, 'archive') }, stdio: 'pipe' });
+    } catch (e) {
+      status = (e as { status: number }).status;
+      stderr = String((e as { stderr: Buffer }).stderr);
+    }
+    assert.equal(status, 2, `--max ${bad}`);
+    assert.match(stderr, /--max must be a positive integer/);
+  }
+  assert.deepEqual(readdirSync(varRoot), [], 'nothing was written');
 });
 
 // ---------------------------------------------------------------------------

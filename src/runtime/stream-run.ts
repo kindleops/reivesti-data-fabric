@@ -783,9 +783,9 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
           continue;
         }
         const path = snapshotIndexPath(indexRoot, source.sourceId, partition);
-        await activateSnapshotIndex(path, built);
+        await activateSnapshotIndex(path, built, indexRoot);
         const tombstones = await tombstonesFor(partition);
-        await writeTombstones(tombstonePath(path), tombstones.next(built, newlyAbsent.get(partition) ?? []));
+        await writeTombstones(tombstonePath(path), tombstones.next(built, newlyAbsent.get(partition) ?? []), indexRoot);
       }
     } else {
       // A dry run built correct indexes and does not get to keep them.

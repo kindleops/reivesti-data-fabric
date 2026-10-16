@@ -707,11 +707,14 @@ estate; on the DF-0N estate it tightened 27 entries and re-audited at 0 open
 
 ## 14. Parallel integration (DF-0M Florida runs beside this)
 
-DF-0N was built on the same merged `main` (`e9ada40`) as DF-0M, source-locally,
-and changes **no shared architecture**: nothing under `src/runtime`, `src/core`,
-`src/canonical`, `src/archive` or `db/migrations`; no new normalization scheme;
-no migration. The New York pipeline mirrors Wisconsin's in its own module rather
-than generalising Wisconsin's while Florida may be doing the same.
+DF-0N was built on the same merged `main` (`e9ada40`) as DF-0M, source-locally:
+the New York connector itself changes no shared architecture, adds no
+normalization scheme and no migration, and mirrors Wisconsin's pipeline in its
+own module rather than generalising Wisconsin's while Florida may be doing the
+same. The DF-0O permission fix carried on this branch (§13, proposal 6) **does**
+touch shared storage code — `src/core`, `src/runtime`, `src/archive` and
+`src/canonical` — listed in the table below. It changes file and directory
+modes only: no schema, no row, no identifier, no `db/migrations`.
 
 ### Shared files touched, and the conflicts to expect
 
@@ -725,6 +728,12 @@ than generalising Wisconsin's while Florida may be doing the same.
 | `README.md` | layout, documentation and status rows; national coverage 59 → 193 | likely (same rows) | keep both rows; coverage = 193 + Florida's count |
 | `tools/README.md` | one row | possible | keep both |
 | `docs/NATIONAL-COVERAGE.md`, `docs/SOURCE-REGISTRY.md` | a New York section appended to each | likely (both append at the end) | keep both sections; recompute the national total |
+| `src/core/private-fs.ts` (new) | DF-0O: `ensurePrivateDir`, `tightenFile`, `tightenTree` | none (new file) | — |
+| `src/runtime/staged-store.ts`, `src/runtime/fabric-store.ts` | DF-0O: restricted run/generation directories via `ensurePrivateDir`; restricted `CURRENT` `0600` | possible, only if Florida edits the same `mkdir` calls | keep the owner-only calls |
+| `src/runtime/stream-run.ts` | DF-0O: run scratch via `ensurePrivateDir`; snapshot index and tombstones written with the index root | possible | keep both; the calls are mode-only |
+| `src/archive/object-store.ts` | DF-0O: artifact directories `0700`, retained objects `0400` (were `0444`), identical re-put/re-promote repairs wider legacy modes | possible | keep the owner-only modes |
+| `src/canonical/snapshot-index.ts` | DF-0O: optional index-root argument; index directories owner-only and tightened | possible | keep the optional argument |
+| `src/cli/df.ts` | DF-0O: `df permissions [--fix]`; `--max` validated on `df auto` | likely (same file as above) | keep both |
 
 New, conflict-free: `src/connectors/ny-statewide-parcels/*`,
 `tests/ny-statewide-parcels.test.ts`, `tests/support/ny-fixture.ts`,
@@ -757,12 +766,13 @@ resolution touched either connector.
    belongs in a shared module.
 6. **RESOLVED in DF-0O — restricted run directories inherited the process umask.** The restricted row
    files are `0600`, as documented; the run and generation directories holding
-   them are created without a mode, so under the usual `022` umask they are
+   them were created without a mode, so under the usual `022` umask they were
    `0755` — a listing of run ids, generation ids and table names, never the
-   content, is readable by other local users. `mode: 0o700` on those `mkdir`
-   calls is a one-line change in `src/runtime/staged-store.ts`. Not made here:
-   it is shared runtime, it is not a documented guarantee, and nothing New York
-   does depends on it. The live leak audit (§13) reports the directory modes.
+   content, was readable by other local users. Deferred during DF-0N (shared
+   runtime, parallel with Florida); **made in DF-0O** on this branch: the
+   restricted, scratch, index and artifact trees are owner-only at every level,
+   wider legacy directories are tightened, and `df permissions [--fix]` audits
+   them (§13).
 7. **A run that fails after acquisition reports a preflight run id.** The
    streaming runtime's failure path labels the run
    `deterministicId('run', …, 'preflight', startedAt)` — a time-based id —

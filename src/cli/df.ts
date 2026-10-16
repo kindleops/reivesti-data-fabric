@@ -545,6 +545,13 @@ async function main(): Promise<number> {
         process.stderr.write(`adapter "${mapping.adapterKey}" has no unattended acquisition pipeline\n`);
         return 2;
       }
+      // A smoke-run bound, when given, must be a positive integer: NaN would read
+      // every row while labelling the run a truncated smoke run.
+      const maxAuto = typeof flags['max'] === 'string' ? Number(flags['max']) : undefined;
+      if (maxAuto !== undefined && (!Number.isInteger(maxAuto) || maxAuto < 1)) {
+        process.stderr.write('--max must be a positive integer\n');
+        return 2;
+      }
       const objects = createStreamingFilesystemObjectStore(ARCHIVE_ROOT_DIR);
       const common = {
         registry,
@@ -555,7 +562,7 @@ async function main(): Promise<number> {
         logger: createLogger(),
         // Explicit, from DF_ARTIFACT_*; null when no durable store is configured.
         durable: durableStoreFromEnv(),
-        ...(typeof flags['max'] === 'string' ? { maxRows: Number(flags['max']) } : {}),
+        ...(maxAuto !== undefined ? { maxRows: maxAuto } : {}),
       };
       if (mapping.adapterKey === 'ny_statewide_parcels') {
         const ny = await runNyAuto(common, flags);
@@ -671,8 +678,11 @@ async function main(): Promise<number> {
       const reports = [];
       for (const root of roots) reports.push(await tightenTree(root, { fix }));
       const open = reports.reduce((n, r) => n + r.directoriesOpen + r.filesOpen, 0);
-      out({ fix, roots: reports, openEntries: open, ownerOnly: fix || open === 0 });
-      return fix || open === 0 ? 0 : 1;
+      // A root that is a symbolic link was not walked: it cannot be certified.
+      const unaudited = reports.filter((r) => r.symlinkRoot).map((r) => r.root);
+      const ownerOnly = unaudited.length === 0 && (fix || open === 0);
+      out({ fix, roots: reports, openEntries: open, unaudited, ownerOnly });
+      return ownerOnly ? 0 : 1;
     }
 
     case 'runs': {
