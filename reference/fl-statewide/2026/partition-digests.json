@@ -1,0 +1,1231 @@
+{
+ "global": "40d87b18d8d6a0ce4ef617886f3585679148e5c3091e87dcfe34a2718f45d283",
+ "counts": {
+  "all": 266,
+  "mn": 59,
+  "wi": 72,
+  "fl": 134,
+  "flProperty": 67,
+  "flTransaction": 67,
+  "national": 1
+ },
+ "florida": {
+  "property/us-county-12001": {
+   "outputDigest": "a13671b23cd6c7195695a1df99b8980fc5bcf017d212336187d07756efc5d328",
+   "inputDigest": "db19dae44d636846c9d4b94e1e6ecb3a9caecc5baef2d74b053771265f8cc662",
+   "generation": "gen-munmp0ti-ai9ltz",
+   "rowCount": 109378,
+   "inputRowCount": 235603,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12003": {
+   "outputDigest": "5bda59ea9db3543ccbd04afa1a75cca45db4eaf0471058f74656ba1cbdd5519a",
+   "inputDigest": "0fe56c49400658b28e85d5b031f86f4cf151350c719b5aac3f303b0f6c2fb5e7",
+   "generation": "gen-munmper8-00mxde",
+   "rowCount": 13182,
+   "inputRowCount": 27959,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12005": {
+   "outputDigest": "3a350770fc44c4666a2fa409641d7ba33c7325c8f5d63350edb632f55b1277ce",
+   "inputDigest": "51f97a72e5bc7161b729541d353c78cc84fd489354f58254d2f606d8d64a1186",
+   "generation": "gen-munmpg21-v11pqj",
+   "rowCount": 131060,
+   "inputRowCount": 284844,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12007": {
+   "outputDigest": "96922f523d745de571118e245ea720b99208a1dcbe02ab6ae27aec80cb43c506",
+   "inputDigest": "eec6df500bea5b42bf14e3c027f716a5163ced2d44e1b04615de8e4e700d1a3a",
+   "generation": "gen-munmpwxa-koa0sm",
+   "rowCount": 15883,
+   "inputRowCount": 34599,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12009": {
+   "outputDigest": "56d6640b2a407a0c6d509263bfd7b729fd0f0526abf5aa1a30d22fc58ab25e09",
+   "inputDigest": "cb7d1d9bb43a95e06e5b14cf1f3fd19eea3f67b211976de0c05b7da1c64154bb",
+   "generation": "gen-munmpzka-exd7pp",
+   "rowCount": 350710,
+   "inputRowCount": 756870,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12011": {
+   "outputDigest": "b36b5531c1eafad08ed1995385b6abe9ecf733499118c8aebd6f0c999fce230e",
+   "inputDigest": "73857a70bca6ef6a548ec8cb8198047ef48ef688133fa1a367b64a0aa8027550",
+   "generation": "gen-munmrd34-n4u99c",
+   "rowCount": 754549,
+   "inputRowCount": 1606142,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12013": {
+   "outputDigest": "aab9c8fb0d6be1f664da5134e475cfda0350f87cdebf70bc3209c69ff97ef44a",
+   "inputDigest": "54962edc60000d7d44bf08856b740bbd5c4cc771bce148f1a31af58990cfef00",
+   "generation": "gen-munmu4tu-s93jbq",
+   "rowCount": 13294,
+   "inputRowCount": 26395,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12015": {
+   "outputDigest": "c096655ff4fa0d04af1a250e86636a933b9b0796eff873c25a43ac36147e2479",
+   "inputDigest": "f803dd6131a8cc5a86bd2952825fe305fbd3a0f03b936befa981083b7b30c61c",
+   "generation": "gen-munmu6i0-zpfggn",
+   "rowCount": 222623,
+   "inputRowCount": 485820,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12017": {
+   "outputDigest": "896cb0fd7202b1be34077e39e0f07053309471a0340975290729a5ac535fcb6b",
+   "inputDigest": "1a6234f347988f91b98753a8101ef4fa67540e84f2ba91760037bedf7df477f8",
+   "generation": "gen-munmv033-j0njbf",
+   "rowCount": 147896,
+   "inputRowCount": 326580,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12019": {
+   "outputDigest": "752d994fabcef32349694b950cc75a034880000d63dc7b67c205f4a21a9bbb0a",
+   "inputDigest": "1b97946eff4527f431bee4f280e316a22bd50dd8389a20a44730bdbf4a6f7941",
+   "generation": "gen-munmvk4p-riialk",
+   "rowCount": 105837,
+   "inputRowCount": 228573,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12021": {
+   "outputDigest": "ac5a0d6c5ac629127f38d58ac46eeb9806fc6a64bfd4cc343af20064b8d061d1",
+   "inputDigest": "3bb289f09dd90211792e78a75f962648054447035bbedd6044606cd7de328c8c",
+   "generation": "gen-munmvzt0-wtbjaz",
+   "rowCount": 297635,
+   "inputRowCount": 640842,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12023": {
+   "outputDigest": "41d5f756ae58f6fb908d116c939c91732a6592f6304f0a7e0018a034daddb955",
+   "inputDigest": "76568e6d1b5b5b7fa18b00deaab71296c215b8bc260f963ada92ca8f29ea8463",
+   "generation": "gen-munmx32s-z307xq",
+   "rowCount": 37646,
+   "inputRowCount": 80629,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12027": {
+   "outputDigest": "dc05ce4b5ec9c12022b6bfc7455a0a11f47b3a970832f11e20ef5d662c1f12aa",
+   "inputDigest": "cf4c7ab6f8707b0b7145770230705fdfb225005ebfc033576dacfa1683895ddf",
+   "generation": "gen-munmx75z-ya9hja",
+   "rowCount": 20199,
+   "inputRowCount": 42639,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12029": {
+   "outputDigest": "1d847c3042defce276c9ba243097f6042862b35c3c67c2a112af3cefb07b06ab",
+   "inputDigest": "4c25d81a5071e7f937073e9d84f8b816c28273bce6a2d1a4ea7f273f5d2f6618",
+   "generation": "gen-munmx8ac-efm60r",
+   "rowCount": 16514,
+   "inputRowCount": 35537,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12031": {
+   "outputDigest": "48d9e7a1a7055ae770399925ba3d9483855b6b56b46d444eee3d772503809b90",
+   "inputDigest": "f887ed049080248b58b008bb119f5744faffb097920777dabc2ffee606482bb3",
+   "generation": "gen-munmxb53-7hcxnl",
+   "rowCount": 404238,
+   "inputRowCount": 883760,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12033": {
+   "outputDigest": "1ff61e71d3bf4cf0d9704203f1cff26ca6f2a539a00f9fcde93078e3d3752ce1",
+   "inputDigest": "e0e558cc1a075d3f2cadf1564358e8c8eaa5298931fd3487c2f560a35f9cca33",
+   "generation": "gen-munmytje-uchrty",
+   "rowCount": 171483,
+   "inputRowCount": 362737,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12035": {
+   "outputDigest": "3382b351314decb2e2cf044a881d62bc270e48bbd3e1c62f86a495e2f1ace195",
+   "inputDigest": "d0a4f33d8e5f285cced2719801baf55dcad85e5485acf6916ba62b8f44ccfa1a",
+   "generation": "gen-munmzfz1-9zm5zn",
+   "rowCount": 89043,
+   "inputRowCount": 192545,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12037": {
+   "outputDigest": "f88c7d403afaec17fa92770b59763b3e78d4708985b79daaebb8903d6e678cf8",
+   "inputDigest": "4225ffe738e65ef7701bc1a248d5c246f4065c0f1a73b3dbd3e242b79af493ca",
+   "generation": "gen-munmzru5-5at9gh",
+   "rowCount": 18561,
+   "inputRowCount": 38933,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12039": {
+   "outputDigest": "6e58fd316ba27c4c5c1e1bc5fbe5909f0573fd10f474c72e4daeef589171e8d1",
+   "inputDigest": "90b491c946498bf42cc3171610d91e5cf2badabd92b0dd5dbec9272b9ad9c467",
+   "generation": "gen-munmzsvy-scs6n2",
+   "rowCount": 27927,
+   "inputRowCount": 58214,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12041": {
+   "outputDigest": "37bf705546afe2850673668e9f451348fa798a502fd730c54b939dc9108aefc1",
+   "inputDigest": "3c642f604c440bd26c9f6007ab1663296ee7cc897a17e43a9b1a06a7150c2ef6",
+   "generation": "gen-munmzvrh-60w4e5",
+   "rowCount": 14763,
+   "inputRowCount": 30782,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12043": {
+   "outputDigest": "74290bf1925de195eb2ecb6c5c2968c859534283d07aa585f9b077e4daa934ce",
+   "inputDigest": "27ae819f4abb7402d7c3653667cf316b5a853632da49d822d9126163187c5f8a",
+   "generation": "gen-munmzwku-fco9db",
+   "rowCount": 11648,
+   "inputRowCount": 24548,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12045": {
+   "outputDigest": "bf90cb928490ae40aaef9cb808c1d3218203468030b5d5f387834c7a608e8013",
+   "inputDigest": "a383492e0d5e33fcb8de69410ef69fd11553b9e22df3c7f2f126dd47f23f34fd",
+   "generation": "gen-munmzxad-hc8mwz",
+   "rowCount": 20168,
+   "inputRowCount": 42675,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12047": {
+   "outputDigest": "a4072873a23e2a4de9639e6fcc1918e9ba31866b52f9a5111d6da5b7e1981a06",
+   "inputDigest": "6f2d8c8d7c7486de022e8bd99997ebb166f4e3081e484706e91b115bb47f1c81",
+   "generation": "gen-munmzydu-q0xzp0",
+   "rowCount": 13197,
+   "inputRowCount": 27898,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12049": {
+   "outputDigest": "477985cb76c681b90c9596ca45a145bb56597f84d2a153744492a8b988e24ca9",
+   "inputDigest": "60f22d78c3a771f5e202fb51d0be7fac228c4bbaf99d809eace969fbd5af981a",
+   "generation": "gen-munmzz5k-wyqxxo",
+   "rowCount": 15312,
+   "inputRowCount": 32146,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12051": {
+   "outputDigest": "ac28732a61d22249721ee4598d46603e92e51978e8c951cc33786e817db7cda1",
+   "inputDigest": "07cb4e83ea3d2f5b462fa3b2bbffd0049847b615b759a0ebb842f9e88f98f10b",
+   "generation": "gen-munn003f-moifwp",
+   "rowCount": 35810,
+   "inputRowCount": 76873,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12053": {
+   "outputDigest": "c0bb027ff638f3993cb775097f707a851b81cec198a0ffd38d7b67dfd0ecde59",
+   "inputDigest": "d6b5439f25cf49d9eee8d2fd8ccdd69a6c0ca0e5b4ac09fc4453a0b4116e4d00",
+   "generation": "gen-munn04e5-kzp0le",
+   "rowCount": 120408,
+   "inputRowCount": 260560,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12055": {
+   "outputDigest": "f960a6b4257e0bf0ce79ecaf8767e9602f0a4614ff7d23e3ab902fee8e271ab8",
+   "inputDigest": "9974a7bdc6fc86c8e9f592601d36797840c5a4443164ac82522d87df9fbb5201",
+   "generation": "gen-munn0k5x-envmoq",
+   "rowCount": 112748,
+   "inputRowCount": 246695,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12057": {
+   "outputDigest": "13b63f5f35ccb0b05f0912744db02b70df9fe04b3bc7692b871f3ffb8abfbe4c",
+   "inputDigest": "d9fa4a45575eea44dcc813a4aa6a976b7c17772847fc3e6725996a2d93041119",
+   "generation": "gen-munn11zk-64qzfy",
+   "rowCount": 527636,
+   "inputRowCount": 1127691,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12059": {
+   "outputDigest": "fb8da5d4f0f021b41182c1cdeaf6f707c7c4ae644e19162edb9dcb5f7ee0e095",
+   "inputDigest": "6ac11098b1b1d946540a342e6d1c7bfde2a3e476bb42554bd256fe0d49f4ae64",
+   "generation": "gen-munn30ct-59nv46",
+   "rowCount": 14631,
+   "inputRowCount": 31235,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12061": {
+   "outputDigest": "3962f644990a148f97991a97485e668d532d932d3a6dd0551497889186177be4",
+   "inputDigest": "1df187276bda5a40218d58772424f45bf35da214c65b820cd90748a6bc0dda5a",
+   "generation": "gen-munn31ks-atywvs",
+   "rowCount": 95446,
+   "inputRowCount": 205758,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12063": {
+   "outputDigest": "2e10eabece3b001db7c33351c561f25b67905d9a50a13940b9f4a2fe6d571a40",
+   "inputDigest": "d9afc8446b9959613780d465cb1b239b925bb6c2b5f4cf3f1e02aa3d1b029b79",
+   "generation": "gen-munn3ebp-f1sdjs",
+   "rowCount": 40301,
+   "inputRowCount": 85858,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12065": {
+   "outputDigest": "df3068916ecc22cf92b7ac28b83c89fec895c6fbb0b07434727142d9e20b207c",
+   "inputDigest": "7e2103b0e08abbee835dffeeb5ea26784e275fd4d8d02b02933ae76badff4834",
+   "generation": "gen-munn3ire-9njdhe",
+   "rowCount": 12353,
+   "inputRowCount": 25736,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12067": {
+   "outputDigest": "4dae440718592db01b3423f5fa7333e00a788bef52a6805f0509690f2bb849e9",
+   "inputDigest": "d5ccb36ce3f3468ebfb1b722e8b95f524652cb1f8b0a1b63fe1c4970a73858e7",
+   "generation": "gen-munn3jgf-8ezeam",
+   "rowCount": 7463,
+   "inputRowCount": 16088,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12069": {
+   "outputDigest": "8620cbc715b049442923494126a179309632c0fc027e34c3ca8afd3d43f6eea6",
+   "inputDigest": "9b71b8572b472990f31a4b2bcc40d1dbdbf0e2d53914c640a00fe5a2b6a84346",
+   "generation": "gen-munn3kzh-tx4ilk",
+   "rowCount": 215806,
+   "inputRowCount": 468296,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12071": {
+   "outputDigest": "b7828c85c5269ef6029d2e1dd8c9d78bb29125fd8ad13c8295586ee84269f084",
+   "inputDigest": "b50e71cfb8b2939cef96eb9bc05c767af9096407824f96a48d6b82534342c923",
+   "generation": "gen-munn4fq6-gi3tji",
+   "rowCount": 561559,
+   "inputRowCount": 1216285,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12073": {
+   "outputDigest": "4b313c7355ce743c0091f7029bcec07d4ab7d66b937f74907bcd58a2ab3c6dfb",
+   "inputDigest": "7c07d3dacc5ae2ed521e73e5649f1efdcac3524f5d6093aab2a53a583ec7557e",
+   "generation": "gen-munn6jyv-gauhkp",
+   "rowCount": 111379,
+   "inputRowCount": 239476,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12075": {
+   "outputDigest": "52871d8628ec5053d8d48eb9e6df2f134977c357879cf03bbcd52a91e8eec66f",
+   "inputDigest": "4171d5030ea7abbb52955366759dcdda750164ccbaa7c196fb8d37d5d5412e41",
+   "generation": "gen-munn6yu6-rpihna",
+   "rowCount": 47381,
+   "inputRowCount": 102453,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12077": {
+   "outputDigest": "f7cd3a66250bef1bbd73eae1d9e1df46d55891cf9e824b2cb2d9676b021ba4a7",
+   "inputDigest": "48b6ac5f820e1e75a30648fb588e3c8c29caa5c0e1f58ff9d946359490f3a1cb",
+   "generation": "gen-munn73oe-cmbtw4",
+   "rowCount": 6012,
+   "inputRowCount": 12518,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12079": {
+   "outputDigest": "c62bc90044b4940eaf177c121acb96fbc4247e53ed08b78030e97998229e0a71",
+   "inputDigest": "8426d7fe56f7433b13fb9bdf884a545ac3743bb2166529f1dd52bb800d827275",
+   "generation": "gen-munn7434-ae9vnj",
+   "rowCount": 16483,
+   "inputRowCount": 35367,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12081": {
+   "outputDigest": "9d1fc960ae7ced6688eb5a3f12c0b563129ef85da22de4dcbd5566462760fb5b",
+   "inputDigest": "979f35d844dc0f2bff850434a2c2d90cac0691c30578343663cda349efa62b64",
+   "generation": "gen-munn763k-4r1zvi",
+   "rowCount": 236531,
+   "inputRowCount": 512652,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12083": {
+   "outputDigest": "6dc1f355ee6b4bb93efc9f4ae9b55834691fb9a375fd64112c781d977fb386f6",
+   "inputDigest": "9fadd2554485a20215b82542f079bd873dba066035477a648af02532dd8df167",
+   "generation": "gen-munn834u-nsp8tc",
+   "rowCount": 286148,
+   "inputRowCount": 634333,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12085": {
+   "outputDigest": "5636deea8bba030df397650f9ac7775de1c645179fdff3557de4bc1f8d27112b",
+   "inputDigest": "105cb5be8c5fa8bc791a15a5cbe7f3117ce79507de43b106a270862eff40ee36",
+   "generation": "gen-munn93em-czcnpg",
+   "rowCount": 98197,
+   "inputRowCount": 212363,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12086": {
+   "outputDigest": "ea2f84465f3b4fc0bfb8058d6fec2e9f8eb1f3651f2559ddaf6130974c733d25",
+   "inputDigest": "441ddb3f7dd9916a3fe93b15011727338d9b714e7699d0f9c0566c1be942e5d4",
+   "generation": "gen-munn9jqd-bm80ux",
+   "rowCount": 938308,
+   "inputRowCount": 1628213,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12087": {
+   "outputDigest": "b1cb432ee532cd478f3a0c5e331b2ec8dbc3436151a81b8ec8a305cb6328dc16",
+   "inputDigest": "77bf71b92672075081969c144ed64397f06469bd6538654a8fa131be3a3ac989",
+   "generation": "gen-munncp91-urli67",
+   "rowCount": 89162,
+   "inputRowCount": 186313,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12089": {
+   "outputDigest": "796cdd133cd63e4c4636a170d7be18917063635475241a11da0b92a9067ea217",
+   "inputDigest": "f56b38113a95cefdc8ceb0225f0b67efe26c5c7d591a3cba24c601c6104adbec",
+   "generation": "gen-munnd00f-lth6da",
+   "rowCount": 59943,
+   "inputRowCount": 128472,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12091": {
+   "outputDigest": "64c99fbb902f336934eb77034dda248f4ec52a65c1b86b20e968541300d9bd30",
+   "inputDigest": "6e929e99edec3d4ceca3c4f141f41854c1061ebc97cafeca868fc8074f4d800a",
+   "generation": "gen-munnd85u-jbnnm9",
+   "rowCount": 113908,
+   "inputRowCount": 243158,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12093": {
+   "outputDigest": "ad5d6b5954aa4491247c2997cc617dd758e34f0480c75e470dae52c219916a9e",
+   "inputDigest": "9514007abfef05356e8f90d0e15f29fbf01353b9bfa950555257451478c02487",
+   "generation": "gen-munndmtd-odd3tf",
+   "rowCount": 31383,
+   "inputRowCount": 68474,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12095": {
+   "outputDigest": "3d1fe2dade016a614547d334296d246c06d42210169195997039620480e4ee40",
+   "inputDigest": "c4ee26dcd0244849e12a90f32447246c806fc63f1505ad5da93b57618f25ef49",
+   "generation": "gen-munndsrw-ex92ks",
+   "rowCount": 493489,
+   "inputRowCount": 1047303,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12097": {
+   "outputDigest": "aeda9f7a8444a42934fb8ed3be604e2b7aa24ca3a7b3a01dc04d4211a760c38d",
+   "inputDigest": "9f58552434868da08f1e749036e334a63483aaa2ff9130d8bbde423042faba29",
+   "generation": "gen-munnfmzg-drjbo4",
+   "rowCount": 214335,
+   "inputRowCount": 458810,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12099": {
+   "outputDigest": "bed7230180e046311080312ec372bce91c756a1e5936cf20585d795ecaef0f04",
+   "inputDigest": "3f464c16b00462351898bd00e2841f06dc283657e236c9403458f35df6926986",
+   "generation": "gen-munnghzy-d4ggve",
+   "rowCount": 657490,
+   "inputRowCount": 1404650,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12101": {
+   "outputDigest": "d9f400b4832827689d7fd832df3917ffd9300a3ba79cac572af1c52359dabf9e",
+   "inputDigest": "9b6281d3f17dcd1ad1ba438fa8206763dfb1549a6ff9c30cd961138ea2c066c6",
+   "generation": "gen-munnj0g4-7y5xp5",
+   "rowCount": 335738,
+   "inputRowCount": 714348,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12103": {
+   "outputDigest": "2a69de5351e6041328e231f26ee450b24eb0ea4350e89de77b0a5f31a0719e4c",
+   "inputDigest": "dd85f80f79ec32b9b1de28faa5879a9e1f94a8920ec2089a7fd081593d5d0a0e",
+   "generation": "gen-munnk9n6-rndahh",
+   "rowCount": 433770,
+   "inputRowCount": 932085,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12105": {
+   "outputDigest": "daa12b48097e7e38ca6ffb60e35d3775d4ff5d5f7d59185934b2e4cf863d059e",
+   "inputDigest": "d8b826e90eb669d5c7cc622d5fbd6c74f5420128a819f997767b40b6c570b06d",
+   "generation": "gen-munnly22-ex5cok",
+   "rowCount": 435650,
+   "inputRowCount": 945892,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12107": {
+   "outputDigest": "5a6aef22675c7ec32a3ba39385a6187854e2093583a8d7100d021ad8a21a3641",
+   "inputDigest": "178a7610b8631c65f706076e4ef6a73c943f6f38928818e780db0a69be501590",
+   "generation": "gen-munnnj9w-td751a",
+   "rowCount": 98036,
+   "inputRowCount": 213316,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12109": {
+   "outputDigest": "ccd20867f6e8a24f70c33acd1f9616e1134247881a7805cbe3ac5525b0b2e362",
+   "inputDigest": "cb49ac9c6cd4a0889d3e3b19a67f43c848bfd17bd25471051e75acb7e4798db3",
+   "generation": "gen-munnnwad-j91hh6",
+   "rowCount": 168448,
+   "inputRowCount": 351690,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12111": {
+   "outputDigest": "4c7a6df872fb77060d782e24e59676c0d8c8f40ff87c5f07d96bd5081289af3e",
+   "inputDigest": "2e2c2f2e1220343e654ea6785ae8599b245c333354f52302a944dfd48d3bd804",
+   "generation": "gen-munnojc6-lz51sa",
+   "rowCount": 192346,
+   "inputRowCount": 413240,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12113": {
+   "outputDigest": "1dc7f468486b00479b857663d5f46fe0259d28ca0b6f6c1214a8861912c71eca",
+   "inputDigest": "8145ecc48bb783d8e64bdaebdcdf24f4d48ca0d36a56dbc66e5e3bb91373a7e9",
+   "generation": "gen-munnp8tt-o9a5n8",
+   "rowCount": 122244,
+   "inputRowCount": 251469,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12115": {
+   "outputDigest": "2bddf2b8e4f425734d0f5bc77813f810e1f9d28cca8fb8894975e2f4fee2c7b3",
+   "inputDigest": "f421d7732300f4528b7ede1d7213ea35e4ca8dfe17daa6a2d234b5febe76a992",
+   "generation": "gen-munnpp14-61znnx",
+   "rowCount": 307177,
+   "inputRowCount": 665556,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12117": {
+   "outputDigest": "5dd227b8304c1d6044194dcbb84ba6ff6621889d398e7e67cd22385112454022",
+   "inputDigest": "1124030fb51962b2816baef22510f7a82d356efab398d4a57b480c76c504666e",
+   "generation": "gen-munnqthw-ilmt0w",
+   "rowCount": 179705,
+   "inputRowCount": 381832,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12119": {
+   "outputDigest": "cac3b18f512b4907a8285e5498bc931c22760a3e1c7443b234b3a4d7c7fee4dc",
+   "inputDigest": "427e40f0d78d056f6e4255cecd3286336c2dc70cf7e63e9c967c189122d0a49e",
+   "generation": "gen-munnrgp3-m7nuj1",
+   "rowCount": 105716,
+   "inputRowCount": 232882,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12121": {
+   "outputDigest": "56cf1180217bef025932fe2d8b50b918927bd05c2b487b6138161ed964c702c7",
+   "inputDigest": "a1ea59a1777cfa5e980106b2a5f0cc4d54d5ed4d4fa29dfc6bf1dabdafad2feb",
+   "generation": "gen-munnrul3-9w55nq",
+   "rowCount": 39023,
+   "inputRowCount": 76610,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12123": {
+   "outputDigest": "612af96763779af4021bd16868f9c2b5af7d286016d41f8439693c34d0915840",
+   "inputDigest": "f82993958e671fc46612e2854d85e84581f8073c33a0363fbd49667d8ed143c3",
+   "generation": "gen-munnryev-n4oluu",
+   "rowCount": 19729,
+   "inputRowCount": 40983,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12125": {
+   "outputDigest": "b03e447bdd3e77b05a1d944a676a2b3bbfeaf574da1e66444355cad0a8822456",
+   "inputDigest": "7f745bd31c33b8ba2e6d3062d24fa7b08cb52dca1871cd3b29f6b528232f2709",
+   "generation": "gen-munnrzgy-hy23yq",
+   "rowCount": 7111,
+   "inputRowCount": 15338,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12127": {
+   "outputDigest": "951007772a8bd2dff730cfb77c76f607bcf319e47c9c1af41a42eda910700041",
+   "inputDigest": "7d96be871d8717dde5abbf54071bd4cf19ab7751ba7c762f21ab10291ea31064",
+   "generation": "gen-munns1bq-pd2q4d",
+   "rowCount": 310941,
+   "inputRowCount": 666544,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12129": {
+   "outputDigest": "0fe29c3d3bea099762ce1d97f35bbfb468bac499f9d29233fb1f8929b97dacb7",
+   "inputDigest": "7971ff4407a02f6a3940f74d58d7f72b8ca93056c1af7f652416cfe7aba6f03f",
+   "generation": "gen-munnt4ma-55az93",
+   "rowCount": 26729,
+   "inputRowCount": 57753,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12131": {
+   "outputDigest": "3b9681b106cec6bd234d9445d65424daa455bc5c979b807618e6eb2aeacaa758",
+   "inputDigest": "366ce7ed2b2636a54816bba91b8e7df217ec2df3af51f4ce69dca17f3b752ece",
+   "generation": "gen-munnt7z1-3brjdb",
+   "rowCount": 94601,
+   "inputRowCount": 202460,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "property/us-county-12133": {
+   "outputDigest": "981b9e440e24ee4482d6e2046540c800b645d1aa8dc076330f77072febec38d0",
+   "inputDigest": "d3daa305bb5164b2c6a3c08f8d293bf8c082a46c2856ffaff7b51451c74d6946",
+   "generation": "gen-munntjor-dk1bub",
+   "rowCount": 46472,
+   "inputRowCount": 94724,
+   "resolverVersion": "property_resolver_2",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12001": {
+   "outputDigest": "a6ec85b77187170d6939ca877452d2ca2d11efb604ce8709d6fdd498d97f9fcf",
+   "inputDigest": "bb044155ef149154c0f13c8ad3083530424bf2766271e1f156367c17bf6488df",
+   "generation": "gen-munntocz-90grq3",
+   "rowCount": 17285,
+   "inputRowCount": 50608,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12003": {
+   "outputDigest": "9de0745ef4f92f0c6c9e35b6fadefacade6dde4dba78927b2da5fc2f9a3441cb",
+   "inputDigest": "04c02d26a502eb948c0cb4425ac6deb1c84f406b0f2d0968af6d594b9cf88af3",
+   "generation": "gen-munntqum-gh3wmo",
+   "rowCount": 2121,
+   "inputRowCount": 5870,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12005": {
+   "outputDigest": "9f1247d430bea5bd14eb93a4277dc638ece8dc43d439ead5f09fc46000e34dfb",
+   "inputDigest": "8f4a93d5a6a80cf098d2f8b8737bd4e80e0d98728b0bdd16476635f889856667",
+   "generation": "gen-munntr6i-tgsf5x",
+   "rowCount": 23158,
+   "inputRowCount": 67882,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12007": {
+   "outputDigest": "4f29381d335cecdc76157cf64bc32afd2bac7daedfdd50c6547af41c503d1fd4",
+   "inputDigest": "02b6064ace0bcfc0a796c528abdfed669997e96194f4472d2b759ad0b7a02133",
+   "generation": "gen-munntuji-fyqzw7",
+   "rowCount": 3157,
+   "inputRowCount": 8632,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12009": {
+   "outputDigest": "94cf0ccf5e34d9de00c376cea6e93f31f378db701dff5f159ba2b28ca7d08000",
+   "inputDigest": "3a6be6a9e418df3ca188f49fc80b7307bc34a3e81620b5dc709408b67466dc30",
+   "generation": "gen-munntv8x-cp4nle",
+   "rowCount": 56899,
+   "inputRowCount": 165846,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12011": {
+   "outputDigest": "cea13fe688c3b79f3ababa54e57bc66de888359fcff71e8cc716a3544eb07813",
+   "inputDigest": "d4bc5310e763f7ea1615fff4428b57e2d731a66215bbdeff608f5ee82929a450",
+   "generation": "gen-munnu3ux-s3fmtr",
+   "rowCount": 97254,
+   "inputRowCount": 284705,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12013": {
+   "outputDigest": "b5d7420ffc3d033fbcd493833193d2e87b585161273c1ff402fc836a691b3f8b",
+   "inputDigest": "af6dfa1e4ca707b0ca6473a2f38ea6c5011c6614d8ebccd1b3213d89fc87e0b0",
+   "generation": "gen-munnuhci-h30wz8",
+   "rowCount": 1494,
+   "inputRowCount": 4315,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12015": {
+   "outputDigest": "a1729d4f89efa4bfec6a3de74edca26220f17e08a175a0d646fe09741c809c59",
+   "inputDigest": "fd1da67b13bda0181f9b39dd5a1acb29e6934398ee380aec8901edf2f0c463f2",
+   "generation": "gen-munnuhrg-i307fw",
+   "rowCount": 40879,
+   "inputRowCount": 119234,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12017": {
+   "outputDigest": "fd5e8a20ed32c0a27e789cec1f69effcc1a2abb692cd61ae8551ae72e7df990e",
+   "inputDigest": "7b2109228d881371ccb59b6f0f3b6fe1904c22c552af31459902eddd0cda35fd",
+   "generation": "gen-munnunls-p86vl4",
+   "rowCount": 31637,
+   "inputRowCount": 86998,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12019": {
+   "outputDigest": "89ca6cea72f89680a6204869495478de65c09052971b6ab959fe5f52c3210e76",
+   "inputDigest": "5a4504805e2d0bac885ad4be506e283906cd50da2682c29429b2164ab687dd5b",
+   "generation": "gen-munnurza-bguyys",
+   "rowCount": 17809,
+   "inputRowCount": 51903,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12021": {
+   "outputDigest": "44bd7d20ff322280301849d613cc77dbf6abaf6779dd3298c1c6c4da5d601998",
+   "inputDigest": "b98c71ab6835b65bd1ae38a46c2d72594ca2d70f966e19178d9d1d06ad3cb0ed",
+   "generation": "gen-munnuute-w9275t",
+   "rowCount": 49348,
+   "inputRowCount": 139096,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12023": {
+   "outputDigest": "113902b4c5d72c93722c23c66cba55d74351fa634a2e7e06abaefce5d0776c9a",
+   "inputDigest": "394a36d9a7a3281a16374cf070ef1c48847a67bdc8835c26e1c03b6287bed1a4",
+   "generation": "gen-munnv1ew-c6dm5z",
+   "rowCount": 5578,
+   "inputRowCount": 16256,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12027": {
+   "outputDigest": "0e982bc6011a4748947a3d3805940007f3f14e1cd3488cd007194adf5e44b372",
+   "inputDigest": "d9f1e09435d9cfa37d49e7118c45e05ca84c55fc10d48c4b4a8fb899b3741c53",
+   "generation": "gen-munnv1sy-gfkpvm",
+   "rowCount": 2422,
+   "inputRowCount": 7109,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12029": {
+   "outputDigest": "5dcc8dc25d6ad405e9bc99b8d75300c57d7fc12e9e5713f0fe741f5640123278",
+   "inputDigest": "672a5db1c61e784be51a8ad0a9d4029fc1f0cc6e43c7bd38c954d338e9d5dfcc",
+   "generation": "gen-munnv203-gafmo5",
+   "rowCount": 2705,
+   "inputRowCount": 7874,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12031": {
+   "outputDigest": "e5782602e4a60d2cffe18d02dcde888c7bd9369ec9d1796abc68ceb08f9d855e",
+   "inputDigest": "c55860196ef40672c42fc7923e00d32fefae2ac17fbd9ec591f7cf4b89cef628",
+   "generation": "gen-munnv2to-h2x2qr",
+   "rowCount": 75967,
+   "inputRowCount": 209099,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12033": {
+   "outputDigest": "245d91004ce945a3bd36d41d50046eabd1f8ccfdedb938d600c4682115fb2b25",
+   "inputDigest": "e68a17cc6bc293be112215f46c8faa8397114c8ca5d455741d18e5bf007135f5",
+   "generation": "gen-munnvd78-1k19ic",
+   "rowCount": 29834,
+   "inputRowCount": 84266,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12035": {
+   "outputDigest": "3e2821f506be8ff451715e92bcf71904fb796cee76e8998b7b9765f06d6df024",
+   "inputDigest": "78087a48b280868f6422e9d6a14289c7d81bf08ba8f741013b3212bbc9e01478",
+   "generation": "gen-munnvhe6-qbrtqs",
+   "rowCount": 15506,
+   "inputRowCount": 45810,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12037": {
+   "outputDigest": "d4c6522b66d7e32779e7bdb760a8ea9823b8d1b13a3f0f4bd2179ff03b8b20ed",
+   "inputDigest": "72fe5467c205f652289fe6ea4dc5e916ebcb499b4ec12013c6c2d882b00a7da0",
+   "generation": "gen-munnvifm-f3euhq",
+   "rowCount": 2307,
+   "inputRowCount": 6750,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12039": {
+   "outputDigest": "658c00a4637798bbf1261aa104c3e929f812f84c9338244c1366eb4b922e5023",
+   "inputDigest": "35d74850b1d15a54676ed9ea465a094519b3d8e6931e237d4cad2175e378326d",
+   "generation": "gen-munnvilr-ngd8q8",
+   "rowCount": 3002,
+   "inputRowCount": 8607,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12041": {
+   "outputDigest": "5cccf2232feb679f422558722b8581345463548a5846ba7533c05ed533705138",
+   "inputDigest": "c18e59003143f814f7d69841caab13ae36942857fa0391895e1b473efca91a9f",
+   "generation": "gen-munnviu8-agwu8z",
+   "rowCount": 2063,
+   "inputRowCount": 6023,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12043": {
+   "outputDigest": "7a5b95db666d7e362d7a58ddbfc22a612775b02a9f60992af98119e78dd5e357",
+   "inputDigest": "a76c0f52929438d2fb029cfe55becb6af18bece1960a7f7295dc951b483b346d",
+   "generation": "gen-munnvizq-50tvaa",
+   "rowCount": 1579,
+   "inputRowCount": 4537,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12045": {
+   "outputDigest": "2332c4e78360c5d5be460058e03ef559d1af5a15371693a2ff75aed917a74944",
+   "inputDigest": "61fdfd10ed7b9b95017d90d31075e1ffcf403645ca27666011f493eca19a67c7",
+   "generation": "gen-munnvj4c-brane0",
+   "rowCount": 3405,
+   "inputRowCount": 9796,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12047": {
+   "outputDigest": "f5ca6fa48ed935b0bee0b6455cae8350d5c7e51ff43caca37ff831b1fe3e6e2c",
+   "inputDigest": "cea25692a225c69a79090ef164d7d16304ac5522284f244d82655d7510ff9524",
+   "generation": "gen-munnvjcr-wgmh4n",
+   "rowCount": 1862,
+   "inputRowCount": 5376,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12049": {
+   "outputDigest": "4fee609883c0dbe99f39649113e73160ddc068372b5968d6f3a1f0d041e4deaf",
+   "inputDigest": "1e65335e68714b56aa2094489a63cfff53a6cfcdeb0df4a2b465d4f9869e786f",
+   "generation": "gen-munnvjhy-izppfy",
+   "rowCount": 2081,
+   "inputRowCount": 6034,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12051": {
+   "outputDigest": "6ac05e0728124974a49352b54f0414f49ea04abca041b127f47babd071af53cb",
+   "inputDigest": "8ad41d38eec184f22ffb92ba7076c89095a0b24a46ce882e85cda86cea55d291",
+   "generation": "gen-munnvjoo-g3zwm3",
+   "rowCount": 5416,
+   "inputRowCount": 15735,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12053": {
+   "outputDigest": "d9966e386a3681f38ea47319051fa70bd329ff0cf2e8d4bcd7966f33e5833df4",
+   "inputDigest": "a8336f5193566dabb854ed8df7d54b5eca7b1d47efc1ebfb3ed19a4fdf99be05",
+   "generation": "gen-munnvk79-n9k3cg",
+   "rowCount": 19972,
+   "inputRowCount": 58705,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12055": {
+   "outputDigest": "ada4ae8529a9239eb02ad75f72a67f40f625996ec5de1331e7b49b96f82471d8",
+   "inputDigest": "edd5632d78c3e05d90f95b451b801f2476ea6c99f11f8ab07325573cd6a36232",
+   "generation": "gen-munnvn6d-kr8o47",
+   "rowCount": 21275,
+   "inputRowCount": 61562,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12057": {
+   "outputDigest": "fc2aaa64aa4631b7e6eafac992226769617da97f881ab3e3da7dcb84d86f4d12",
+   "inputDigest": "b2b68eb358c6929020a59952a2b6aa8cc2bf8ead2084313bb28543d4da105594",
+   "generation": "gen-munnvqrl-3bnjxe",
+   "rowCount": 73046,
+   "inputRowCount": 214322,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12059": {
+   "outputDigest": "0d0e6a92e11938bbecf0c62931ff4831e0ea0f34fc171ac2db6d3afc4b6235a2",
+   "inputDigest": "70e39ccb914e34158e0244d8c5756ad2327443ce71064039aeda788bedb41e08",
+   "generation": "gen-munnw162-9ytngd",
+   "rowCount": 2068,
+   "inputRowCount": 6003,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12061": {
+   "outputDigest": "5ab2265b5ea8daeb1fc693d214d454f1134bb7aa0b65648b690635c025d6f788",
+   "inputDigest": "15761547bc3501d4f70c6a8b5128eabe76acf56698cc9ee461d527870f0e20d4",
+   "generation": "gen-munnw1fm-fu3h5i",
+   "rowCount": 15086,
+   "inputRowCount": 44047,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12063": {
+   "outputDigest": "66604a664948df5ffb32ddcb8e0a547715debd2716c45642f113c38287f9c6b7",
+   "inputDigest": "22e73d2e23d7e2d6118ad7cac45f59b2ed7578e9c38df9f30cb691565cc32f97",
+   "generation": "gen-munnw2hf-krq13i",
+   "rowCount": 5568,
+   "inputRowCount": 16010,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12065": {
+   "outputDigest": "5eadcb68e69e5917a1b2e408692235457595f3d77def1f73003f1c5c8782c46a",
+   "inputDigest": "9cffd0fc9e3321c6c9c5dc3238bb16d5087f2d9a78effee6ae09d8bc210da6df",
+   "generation": "gen-munnw2uo-420sue",
+   "rowCount": 1456,
+   "inputRowCount": 4250,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12067": {
+   "outputDigest": "6b111105dea7426cf7e76afb2ab4909a1e03d88c4c08ee28b53202774963e9c8",
+   "inputDigest": "98321b502efc4d810bf0e57fd62e4d776138af0f2e548f2208fdc8808aa6f460",
+   "generation": "gen-munnw2y4-5gr8jc",
+   "rowCount": 1420,
+   "inputRowCount": 3954,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12069": {
+   "outputDigest": "d3e9779a886d8f0517ce61a4e510cd3e8c64df50ee3eeb5c6b478a288753656f",
+   "inputDigest": "0a8ef3eaaa5ce7af93703fb7b87905016aa4f1e8ecc4cf032aafbc19d3483d0c",
+   "generation": "gen-munnw3bw-jhq82o",
+   "rowCount": 37020,
+   "inputRowCount": 108788,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12071": {
+   "outputDigest": "aa7beaca3b5fc57754c589c718c6c08fe45fccc472e732aedc142a8b7cc3cb2a",
+   "inputDigest": "6327bc3e0dbbf1e724493a6dcbef5c57c15599bf84d032182a10634032db1f62",
+   "generation": "gen-munnw98k-0vtnum",
+   "rowCount": 95044,
+   "inputRowCount": 280471,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12073": {
+   "outputDigest": "e7514ce32ca8a3017274e3b900ce88f3c9a0a21a7ee43a6e1fda30dda20a4637",
+   "inputDigest": "acb814a7c3d4465ed0e50d5313c961c25f46f4ba2d936cc5cef4fcf3a64e7486",
+   "generation": "gen-munnwmws-xmnyxx",
+   "rowCount": 17061,
+   "inputRowCount": 49169,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12075": {
+   "outputDigest": "1d0e4307b573376f21e7afa90c63092368dc8345b64f3b8d75e0603dbcd52a28",
+   "inputDigest": "b0d07ce1df4e1fcfd7397535e921594806114e616d91f9ea570a442465ae81ef",
+   "generation": "gen-munnwo2h-1xgwiv",
+   "rowCount": 7773,
+   "inputRowCount": 22635,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12077": {
+   "outputDigest": "96a98702fbb6990b7b2c4c3e5b04515804931e3c8115c326a045417648ee4deb",
+   "inputDigest": "f8b41bf5ba6457758d172bd1cf386384dbfbb36f06ed177990e33be1158db743",
+   "generation": "gen-munnwokn-cgvvw7",
+   "rowCount": 578,
+   "inputRowCount": 1688,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12079": {
+   "outputDigest": "e3b6a7de5987dd4520b68c110a72b6b3134cdca692a6bcf327f546e1b46ca916",
+   "inputDigest": "c11c873327b1b3b7d475ae6cc7f5f174bde4cb14fe5971dd26656ba4c6799058",
+   "generation": "gen-munnwon0-mqup4q",
+   "rowCount": 2548,
+   "inputRowCount": 7288,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12081": {
+   "outputDigest": "c0988542aa1adda22521fda6bad931b10ac25c5a36a7246d0563cf30595401dd",
+   "inputDigest": "f406b834405599db0df63559cd3924cfd597102dbce5bb328b343a8776e43c8e",
+   "generation": "gen-munnwp4d-vy783n",
+   "rowCount": 42180,
+   "inputRowCount": 123067,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12083": {
+   "outputDigest": "f201f888b555ba7b0990d0f96850c5e56d24514e5b2d17dc4091980368ba75ff",
+   "inputDigest": "73ae7e96b7e50e285088cfd9ed7934ac175ea1206fdc56017943942a00defb4e",
+   "generation": "gen-munnwvfi-90x3cg",
+   "rowCount": 62179,
+   "inputRowCount": 174895,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12085": {
+   "outputDigest": "8bbc0121727de273eb5f488a3deeb425fb56adca109396fa67d56190267c73a6",
+   "inputDigest": "13f4a7e070dd4152aa599b41dde9d03b4cfb29d435ca2dfc0825c1fb8e4786ca",
+   "generation": "gen-munnx40q-2qf401",
+   "rowCount": 16614,
+   "inputRowCount": 49396,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12086": {
+   "outputDigest": "abaa1edfaa210763aa09bfb48b03a5c1d6a5ca8b3e327be0ce6660c713c953e1",
+   "inputDigest": "64543e1cab1f474d2336a381e6103938512be3cad56ad2266c534ce2fa24e4ca",
+   "generation": "gen-munnx5tz-u16xij",
+   "rowCount": 105181,
+   "inputRowCount": 271734,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12087": {
+   "outputDigest": "47b8a77791bc63e08aebaddc688dfeb456ccb8e6f0f2f8efada8da7aab71cb3d",
+   "inputDigest": "08cf334721c7d459201e0c95bdc2f620c7344e7e0d4cd53b2adeae8662a8afd3",
+   "generation": "gen-munnxjay-y205q5",
+   "rowCount": 8596,
+   "inputRowCount": 25304,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12089": {
+   "outputDigest": "13fa3611ffec2df6a02189310f058502cb496a14895e33b5f0d51ff84bb616ab",
+   "inputDigest": "ebf1b5901c8003b256081ed984f51aa6c99d52255f26375e2b7f17c6c43070b4",
+   "generation": "gen-munnxjxr-fi4n39",
+   "rowCount": 9474,
+   "inputRowCount": 27601,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12091": {
+   "outputDigest": "64de368a25c9af9950eba7d937467a9a3beff62db2205ce76ae37ea4d709a5e0",
+   "inputDigest": "880e96ba120dd675816e9b7d292414fc1638fc16e6ee9ce0b595866e3de38f0d",
+   "generation": "gen-munnxkob-v1cci3",
+   "rowCount": 16861,
+   "inputRowCount": 49559,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12093": {
+   "outputDigest": "68366c3e5176ac04b3ae3e64b30bf17773bad6cc1c0906d9d788f5c5522cb8a8",
+   "inputDigest": "2f791d286b2af8ee3f370c81fd8652041cf8afdd596e1ece3b3ea982106d6189",
+   "generation": "gen-munnxlt4-6t436w",
+   "rowCount": 5811,
+   "inputRowCount": 16777,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12095": {
+   "outputDigest": "54da453ab90d28a7faa909a28388ce5efd39a9b2d0455d6cc683115b1dba37e2",
+   "inputDigest": "131b06689bbff8525474632f62c82c6816bbb6aee61fbb384c2bdb02747ef526",
+   "generation": "gen-munnxmow-wu3l42",
+   "rowCount": 61779,
+   "inputRowCount": 182445,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12097": {
+   "outputDigest": "fffe4b7b7395fc9a44b7d348a221dd80e03272094a3ac47b875a8ca7c6eb08e1",
+   "inputDigest": "2dee74b52e3fa4eb1d55d5c20c20e492939cd65d33989163575a35409aa95282",
+   "generation": "gen-munnxvkh-73x79t",
+   "rowCount": 32304,
+   "inputRowCount": 94858,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12099": {
+   "outputDigest": "51577a21f4a2ef499f9745a411d61cfcded699cb27f626312baa216aab906ea9",
+   "inputDigest": "02cc8d8b1d0ed42aa9298553c9e54dd74567660ae17048342d7c443ba446db86",
+   "generation": "gen-munny0pw-zy4oht",
+   "rowCount": 90635,
+   "inputRowCount": 268218,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12101": {
+   "outputDigest": "a13b0b048fefaa5f5e99afb349aa543d8a05ca8badfae01bba984c4ee3b804f1",
+   "inputDigest": "1f832adefb58f219a943bd299dc24e709e5b62bfedd146c35e353ae8f9e90206",
+   "generation": "gen-munnye0p-mhkxni",
+   "rowCount": 60998,
+   "inputRowCount": 174000,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12103": {
+   "outputDigest": "0d68834b5a2062be33219da02c9fe97f2228bdcecdba17119ee305bbbd6827f6",
+   "inputDigest": "a6ad22ee84f0f7ad870dd70f6e28b78cef692179253d33a1ec098476d61ca6d6",
+   "generation": "gen-munnymzi-ek7vo6",
+   "rowCount": 65098,
+   "inputRowCount": 190764,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12105": {
+   "outputDigest": "643ba7918dddaaa4b7c041d263a61583b308fe55ff84b087f257bd1ff1f33cb9",
+   "inputDigest": "f3fe932463407369ee5746663a28caae064de5ac132ae995428743c7b0f0d1c8",
+   "generation": "gen-munnywt9-hn4phq",
+   "rowCount": 76238,
+   "inputRowCount": 220068,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12107": {
+   "outputDigest": "ed95dba9af599634c83b1a74ebb75ee6e75d546e734fbe1a0498f23e7edb08ae",
+   "inputDigest": "36d072e92ac4682171b1ad4948ffcaa9b04a22454ec25ad247afd8ffb98d288b",
+   "generation": "gen-munnz7ju-x2x6lc",
+   "rowCount": 17967,
+   "inputRowCount": 51628,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12109": {
+   "outputDigest": "82e839ce67d536d1bff95e39f3528a98c926e1b69ec2efeb1a7c283ebe8849d5",
+   "inputDigest": "1167c5225750352b2091a644644c033e3d92727d9009f7be31fd5df1c2730594",
+   "generation": "gen-munnza9f-5w008i",
+   "rowCount": 30666,
+   "inputRowCount": 87743,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12111": {
+   "outputDigest": "5e7343cf84a071c1e115a42c739a59ff54f507a67bea0f729ac465f546cceb9a",
+   "inputDigest": "23c109e78c9cd0aa25b1d97daac5919bfe4f305bbac5f2a0e208648f05c22752",
+   "generation": "gen-munnzemw-zlysjb",
+   "rowCount": 30786,
+   "inputRowCount": 90304,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12113": {
+   "outputDigest": "546741763ec29cf3c32a69173cfa106f1beaa4a4f075681be222b3fa81287875",
+   "inputDigest": "8707b1e589cea4f88bc4d9dba353ca7f4c329879f675c0e454296bf7db55aefa",
+   "generation": "gen-munnzj2m-0ejg0r",
+   "rowCount": 18927,
+   "inputRowCount": 55504,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12115": {
+   "outputDigest": "0aa5b6f4db88d0cf6909a42c2e0d5a7a2516bb5d32c3def19dace38a14c74988",
+   "inputDigest": "7386228d844f34950315bb1b884e5a4d1a1bd26421e3dcb5035ffa9032605d50",
+   "generation": "gen-munnzma1-bfct86",
+   "rowCount": 51206,
+   "inputRowCount": 151886,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12117": {
+   "outputDigest": "569d2c857c4a96fb1a2dabb3b9caa045a071ebcfe20562ab988b439b7dfa0f19",
+   "inputDigest": "46b18dbfd031d9627e4dfaf0eff1b335d2a47fb2fcce743a53a35f9731d1fddf",
+   "generation": "gen-munnztlh-6vi4uz",
+   "rowCount": 22685,
+   "inputRowCount": 66761,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12119": {
+   "outputDigest": "b5845627d7863e436de9ef02f95dd835a0512e744d7d8d65937636d5f5f1fe5c",
+   "inputDigest": "c6d76884fa1ce4faa8a366dcbe6cf53f2d247a453213ed517c719db24af794e0",
+   "generation": "gen-munnzwv7-atpxa7",
+   "rowCount": 23048,
+   "inputRowCount": 68062,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12121": {
+   "outputDigest": "7121b8563d011508750243eac5b593d8d5250312c171082dd0ca98894c878e2b",
+   "inputDigest": "1eccdba25d1f86bbc635dc49151a0612e4c49d9f8ab46c063aa3088986dfe62b",
+   "generation": "gen-muno003z-ykg4mg",
+   "rowCount": 5617,
+   "inputRowCount": 15940,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12123": {
+   "outputDigest": "377ba99f4a0c213114fce06f7a88e37ae846bb6200289b51962f45911c3ecec9",
+   "inputDigest": "70d60a3087774cf7d3a2fa903ae790875f6d42392c77e2b5996ef9dc7a0d6c55",
+   "generation": "gen-muno00h8-i5m2g5",
+   "rowCount": 2540,
+   "inputRowCount": 7418,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12125": {
+   "outputDigest": "c45734c482906825e671882c1029d556a38c7e71b2a1eda87c2a8aa9098751f6",
+   "inputDigest": "11a121b4edaf4a49ea05901b106e3db5903e576c4bf2b7973d93e7632e873d81",
+   "generation": "gen-muno00o2-xdxrfc",
+   "rowCount": 1252,
+   "inputRowCount": 3528,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12127": {
+   "outputDigest": "b016d7f338245adcabad5982e00f1a201b4cf4d5d0012fa111321f6375c3a4ef",
+   "inputDigest": "7ce0a410e97543f116432573ce43e9bb8857cd75bd550045787a01767780a154",
+   "generation": "gen-muno013w-mrkvd3",
+   "rowCount": 46936,
+   "inputRowCount": 137436,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12129": {
+   "outputDigest": "4222b3153f106a1496a9a45c01bb5d29662d060af997e0f8b5a822fd17072cf2",
+   "inputDigest": "5fe86321ac2c55d8c07582d5b5772855f29f41bda5c6fb4f297178dbda1581db",
+   "generation": "gen-muno07m6-1who5y",
+   "rowCount": 4482,
+   "inputRowCount": 13147,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12131": {
+   "outputDigest": "9d1a8040f22dd759173fbffc853b05197a980a6587075217926fe482071e37e2",
+   "inputDigest": "c7aca6df1549e38969f8f7803473feb1ed2bb65e0c1179056f4be97f1727681d",
+   "generation": "gen-muno0828-06uxd0",
+   "rowCount": 17507,
+   "inputRowCount": 51170,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  },
+  "transaction/us-county-12133": {
+   "outputDigest": "b5488644f236195fed27675619e9d245732e6d263094ef6dcc109bcff6ab7f09",
+   "inputDigest": "c58b65f9ac3d0f79c3cc00669478b0a907514a878b4d012660c09d772e3c6b53",
+   "generation": "gen-muno0akp-ilzunp",
+   "rowCount": 4519,
+   "inputRowCount": 13107,
+   "resolverVersion": "sale_observation_resolver_1",
+   "runId": "run_a5ab58981f8e8437ee47036bad015f56"
+  }
+ },
+ "national": {
+  "organization/us": {
+   "outputDigest": "f50a89987a7093214bd4d24eef0b0f7b58ed5cdee360213972b7095387260d38",
+   "inputDigest": "fad389e7c7477ced1f611418349b2c6b5ab5c4c647e0cc22e72ec9dd0b4f765c",
+   "generation": "gen-munkg8x9-z053sh",
+   "rowCount": 3323551,
+   "inputRowCount": 6647102,
+   "resolverVersion": "org_resolver_1",
+   "runId": "run_1c386b372a3ce7ced45b314dabb5b300"
+  }
+ }
+}

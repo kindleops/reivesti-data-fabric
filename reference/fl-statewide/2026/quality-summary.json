@@ -1,0 +1,680 @@
+{
+ "nal": {
+  "rows": 11090242,
+  "files": 67,
+  "stages": {
+   "FINAL": 2,
+   "PRELIMINARY": 65
+  },
+  "layoutsSeen": 2,
+  "rowsPerCounty": {
+   "min": 6012,
+   "minCounty": "12077",
+   "median": 98197,
+   "max": 938308,
+   "maxCounty": "12086"
+  },
+  "parcelIdBlankOrDuplicate": 0,
+  "coNoRoutesToFileCountyEverywhere": true,
+  "nonAsciiBytes": 0,
+  "moneyNegativeFractionalNonNumeric": {
+   "negative": 0,
+   "fractional": 0,
+   "nonNumeric": 0
+  },
+  "completeness": {
+   "PARCEL_ID": {
+    "statewide": 1.0,
+    "countySpread": {
+     "min": 1,
+     "minCounty": "12001",
+     "median": 1,
+     "max": 1,
+     "maxCounty": "12133"
+    }
+   },
+   "DOR_UC": {
+    "statewide": 1.0,
+    "countySpread": {
+     "min": 1,
+     "minCounty": "12001",
+     "median": 1,
+     "max": 1,
+     "maxCounty": "12133"
+    }
+   },
+   "JV": {
+    "statewide": 1.0,
+    "countySpread": {
+     "min": 0.9997,
+     "minCounty": "12033",
+     "median": 1,
+     "max": 1,
+     "maxCounty": "12133"
+    }
+   },
+   "AV_SD": {
+    "statewide": 1.0,
+    "countySpread": {
+     "min": 0.9997,
+     "minCounty": "12033",
+     "median": 1,
+     "max": 1,
+     "maxCounty": "12133"
+    }
+   },
+   "TV_SD": {
+    "statewide": 0.999,
+    "countySpread": {
+     "min": 0.9358,
+     "minCounty": "12033",
+     "median": 1,
+     "max": 1,
+     "maxCounty": "12133"
+    }
+   },
+   "LND_VAL": {
+    "statewide": 1.0,
+    "countySpread": {
+     "min": 1,
+     "minCounty": "12001",
+     "median": 1,
+     "max": 1,
+     "maxCounty": "12133"
+    }
+   },
+   "LND_SQFOOT": {
+    "statewide": 0.8744,
+    "countySpread": {
+     "min": 0.4264,
+     "minCounty": "12037",
+     "median": 0.9921,
+     "max": 1,
+     "maxCounty": "12101"
+    }
+   },
+   "ACT_YR_BLT": {
+    "statewide": 0.7994,
+    "countySpread": {
+     "min": 0.2312,
+     "minCounty": "12133",
+     "median": 0.6856,
+     "max": 0.9453,
+     "maxCounty": "12103"
+    }
+   },
+   "TOT_LVG_AREA": {
+    "statewide": 0.798,
+    "countySpread": {
+     "min": 0.2312,
+     "minCounty": "12133",
+     "median": 0.6856,
+     "max": 0.9453,
+     "maxCounty": "12103"
+    }
+   },
+   "OWN_NAME": {
+    "statewide": 0.9999,
+    "countySpread": {
+     "min": 0.9978,
+     "minCounty": "12123",
+     "median": 1,
+     "max": 1,
+     "maxCounty": "12133"
+    }
+   },
+   "OWN_ADDR1": {
+    "statewide": 0.9722,
+    "countySpread": {
+     "min": 0.0428,
+     "minCounty": "12015",
+     "median": 0.9999,
+     "max": 1,
+     "maxCounty": "12127"
+    }
+   },
+   "PHY_ADDR1": {
+    "statewide": 0.9611,
+    "countySpread": {
+     "min": 0.4828,
+     "minCounty": "12121",
+     "median": 0.9978,
+     "max": 1,
+     "maxCounty": "12127"
+    }
+   },
+   "PHY_ZIPCD": {
+    "statewide": 0.9688,
+    "countySpread": {
+     "min": 0.2996,
+     "minCounty": "12075",
+     "median": 0.9963,
+     "max": 1,
+     "maxCounty": "12129"
+    }
+   },
+   "S_LEGAL": {
+    "statewide": 1.0,
+    "countySpread": {
+     "min": 0.9998,
+     "minCounty": "12023",
+     "median": 1,
+     "max": 1,
+     "maxCounty": "12133"
+    }
+   },
+   "SALE_PRC1": {
+    "statewide": 0.1281,
+    "countySpread": {
+     "min": 0.0788,
+     "minCounty": "12133",
+     "median": 0.1293,
+     "max": 0.1865,
+     "maxCounty": "12119"
+    }
+   },
+   "STATE_PAR_ID": {
+    "statewide": 1.0,
+    "countySpread": {
+     "min": 1,
+     "minCounty": "12001",
+     "median": 1,
+     "max": 1,
+     "maxCounty": "12133"
+    }
+   }
+  },
+  "identityCollisionsUnderTransform": {
+   "trim": {
+    "groups": 0,
+    "idsMerged": 0
+   },
+   "trim_upper": {
+    "groups": 0,
+    "idsMerged": 0
+   },
+   "strip_whitespace": {
+    "groups": 0,
+    "idsMerged": 0
+   },
+   "strip_separators": {
+    "groups": 928,
+    "idsMerged": 1856
+   },
+   "strip_all_punctuation": {
+    "groups": 3782,
+    "idsMerged": 7584
+   },
+   "strip_leading_zeros": {
+    "groups": 0,
+    "idsMerged": 0
+   },
+   "alnum_no_leading_zeros": {
+    "groups": 3782,
+    "idsMerged": 7584
+   }
+  },
+  "crossCountyIdReuse": {
+   "normalizedIdsInMoreThanOneCounty": 18863,
+   "countyIdPairsInvolved": 38077
+  },
+  "stagePerCounty": {
+   "12001": "PRELIMINARY",
+   "12003": "PRELIMINARY",
+   "12005": "PRELIMINARY",
+   "12007": "PRELIMINARY",
+   "12009": "PRELIMINARY",
+   "12011": "PRELIMINARY",
+   "12013": "PRELIMINARY",
+   "12015": "PRELIMINARY",
+   "12017": "FINAL",
+   "12019": "PRELIMINARY",
+   "12021": "PRELIMINARY",
+   "12023": "PRELIMINARY",
+   "12086": "PRELIMINARY",
+   "12027": "PRELIMINARY",
+   "12029": "PRELIMINARY",
+   "12031": "FINAL",
+   "12033": "PRELIMINARY",
+   "12035": "PRELIMINARY",
+   "12037": "PRELIMINARY",
+   "12039": "PRELIMINARY",
+   "12041": "PRELIMINARY",
+   "12043": "PRELIMINARY",
+   "12045": "PRELIMINARY",
+   "12047": "PRELIMINARY",
+   "12049": "PRELIMINARY",
+   "12051": "PRELIMINARY",
+   "12053": "PRELIMINARY",
+   "12055": "PRELIMINARY",
+   "12057": "PRELIMINARY",
+   "12059": "PRELIMINARY",
+   "12061": "PRELIMINARY",
+   "12063": "PRELIMINARY",
+   "12065": "PRELIMINARY",
+   "12067": "PRELIMINARY",
+   "12069": "PRELIMINARY",
+   "12071": "PRELIMINARY",
+   "12073": "PRELIMINARY",
+   "12075": "PRELIMINARY",
+   "12077": "PRELIMINARY",
+   "12079": "PRELIMINARY",
+   "12081": "PRELIMINARY",
+   "12083": "PRELIMINARY",
+   "12085": "PRELIMINARY",
+   "12087": "PRELIMINARY",
+   "12089": "PRELIMINARY",
+   "12091": "PRELIMINARY",
+   "12093": "PRELIMINARY",
+   "12095": "PRELIMINARY",
+   "12097": "PRELIMINARY",
+   "12099": "PRELIMINARY",
+   "12101": "PRELIMINARY",
+   "12103": "PRELIMINARY",
+   "12105": "PRELIMINARY",
+   "12107": "PRELIMINARY",
+   "12109": "PRELIMINARY",
+   "12111": "PRELIMINARY",
+   "12113": "PRELIMINARY",
+   "12115": "PRELIMINARY",
+   "12117": "PRELIMINARY",
+   "12119": "PRELIMINARY",
+   "12121": "PRELIMINARY",
+   "12123": "PRELIMINARY",
+   "12125": "PRELIMINARY",
+   "12127": "PRELIMINARY",
+   "12129": "PRELIMINARY",
+   "12131": "PRELIMINARY",
+   "12133": "PRELIMINARY"
+  }
+ },
+ "sdf": {
+  "rows": 1726627,
+  "files": 67,
+  "stages": {
+   "FINAL": 2,
+   "PRELIMINARY": 65
+  },
+  "rowsPerCounty": {
+   "min": 578,
+   "minCounty": "12077",
+   "median": 17061,
+   "max": 105181,
+   "maxCounty": "12086"
+  },
+  "saleYears": {
+   "2025": 1221543,
+   "2026": 505082,
+   "": 2
+  },
+  "vacantImproved": {
+   "": 1,
+   "I": 1386816,
+   "V": 339810
+  },
+  "multiParcel": {
+   "": 1464218,
+   "C": 63369,
+   "D": 199040
+  },
+  "saleChangeCodes": {
+   "1": 5388,
+   "2": 1266,
+   "3": 15298,
+   "4": 1678,
+   "5": 841,
+   "6": 30,
+   "7": 4514,
+   "8": 718,
+   "": 1696894
+  },
+  "qualificationCodes": {
+   "11": 644807,
+   "12": 6229,
+   "13": 26,
+   "14": 84943,
+   "16": 11412,
+   "17": 2906,
+   "18": 16437,
+   "19": 14625,
+   "20": 103,
+   "21": 359,
+   "30": 51197,
+   "31": 123,
+   "32": 754,
+   "33": 496,
+   "34": 426,
+   "35": 716,
+   "36": 272,
+   "37": 33199,
+   "38": 3550,
+   "39": 952,
+   "40": 2349,
+   "41": 177,
+   "42": 11,
+   "43": 1041,
+   "98": 8661,
+   "99": 13965,
+   "": 20,
+   "01": 587911,
+   "02": 91232,
+   "03": 22126,
+   "04": 232,
+   "05": 125327,
+   "06": 43
+  },
+  "price": {
+   "blank": 2,
+   "zero": 127410,
+   "nonNumeric": 0,
+   "fractional": 0
+  },
+  "date": {
+   "badYear": 2,
+   "badMonth": 0,
+   "afterAcquisitionMonth": 19
+  },
+  "recording": {
+   "bookPage": 1207494,
+   "clerkNumber": 517298,
+   "both": 0,
+   "neither": 1835
+  },
+  "saleIdBlank": 0,
+  "parcelSaleIdPairsUniqueEverywhere": true,
+  "linkedToSameCountyNal": 1726627,
+  "parcelsWithMultipleSales": 238891,
+  "zeroPriceSharePerCounty": {
+   "min": 0.0,
+   "minCounty": "12003",
+   "median": 0.0663,
+   "max": 0.3935,
+   "maxCounty": "12035"
+  }
+ },
+ "cadastral": {
+  "records": 10951117,
+  "joined": 10853778,
+  "statewidePct": {
+   "joined": 99.11,
+   "parcelId": 100,
+   "situs": 96.31,
+   "owner": 99.98,
+   "justValue": 98.45,
+   "assessedValue": 98.45,
+   "taxableValue": 100,
+   "landArea": 89.98,
+   "geometry": 100,
+   "centroid": 100,
+   "positiveArea": 100
+  },
+  "countySpreadPct": {
+   "joined": {
+    "min": 94.81,
+    "minCounty": "12041",
+    "median": 99.25,
+    "max": 99.87,
+    "maxCounty": "12081"
+   },
+   "situs": {
+    "min": 49.98,
+    "minCounty": "12047",
+    "median": 99.94,
+    "max": 100,
+    "maxCounty": "12133"
+   },
+   "owner": {
+    "min": 99.62,
+    "minCounty": "12086",
+    "median": 100,
+    "max": 100,
+    "maxCounty": "12133"
+   },
+   "justValue": {
+    "min": 92.41,
+    "minCounty": "12109",
+    "median": 99.79,
+    "max": 100,
+    "maxCounty": "12125"
+   },
+   "landArea": {
+    "min": 43.52,
+    "minCounty": "12037",
+    "median": 99.68,
+    "max": 100,
+    "maxCounty": "12111"
+   },
+   "geometry": {
+    "min": 100,
+    "minCounty": "12001",
+    "median": 100,
+    "max": 100,
+    "maxCounty": "12133"
+   },
+   "centroid": {
+    "min": 99.74,
+    "minCounty": "12077",
+    "median": 100,
+    "max": 100,
+    "maxCounty": "12129"
+   }
+  }
+ },
+ "crossSource": {
+  "parJoinedPolygons": 10853778,
+  "matchedParcels": 10622503,
+  "nalParcelsWithoutPolygon": 467739,
+  "parJoinedWithoutNalRow": 250,
+  "agreement": {
+   "ASMNT_YR": {
+    "compared": 10622503,
+    "agreePct": 100,
+    "verdicts": {
+     "EQUAL": 10622503
+    }
+   },
+   "DOR_UC": {
+    "compared": 10622503,
+    "agreePct": 100,
+    "verdicts": {
+     "EQUAL": 10622155,
+     "DIFFERENT": 348
+    }
+   },
+   "JV": {
+    "compared": 10622503,
+    "agreePct": 99.21,
+    "verdicts": {
+     "EQUAL": 10538462,
+     "DIFFERENT": 83986,
+     "DBF_ZERO_FOR_BLANK": 55
+    }
+   },
+   "AV_SD": {
+    "compared": 10622503,
+    "agreePct": 99.55,
+    "verdicts": {
+     "EQUAL": 10574681,
+     "DIFFERENT": 47766,
+     "DBF_ZERO_FOR_BLANK": 56
+    }
+   },
+   "AV_NSD": {
+    "compared": 10622503,
+    "agreePct": 99.61,
+    "verdicts": {
+     "EQUAL": 10580565,
+     "DIFFERENT": 41882,
+     "DBF_ZERO_FOR_BLANK": 56
+    }
+   },
+   "TV_SD": {
+    "compared": 10622503,
+    "agreePct": 99.55,
+    "verdicts": {
+     "EQUAL": 10563255,
+     "DIFFERENT": 48312,
+     "DBF_ZERO_FOR_BLANK": 10936
+    }
+   },
+   "TV_NSD": {
+    "compared": 10622503,
+    "agreePct": 99.6,
+    "verdicts": {
+     "EQUAL": 10565812,
+     "DIFFERENT": 42782,
+     "DBF_ZERO_FOR_BLANK": 13909
+    }
+   },
+   "LND_VAL": {
+    "compared": 10622503,
+    "agreePct": 99.6,
+    "verdicts": {
+     "EQUAL": 10580023,
+     "DIFFERENT": 42480
+    }
+   },
+   "LND_SQFOOT": {
+    "compared": 10622503,
+    "agreePct": 99.99,
+    "verdicts": {
+     "EQUAL": 9623737,
+     "DBF_ZERO_FOR_BLANK": 997491,
+     "DIFFERENT": 1275
+    }
+   },
+   "ACT_YR_BLT": {
+    "compared": 10622503,
+    "agreePct": 100,
+    "verdicts": {
+     "EQUAL": 8495113,
+     "DBF_ZERO_FOR_BLANK": 2127299,
+     "DIFFERENT": 91
+    }
+   },
+   "TOT_LVG_AR": {
+    "compared": 10622503,
+    "agreePct": 99.99,
+    "verdicts": {
+     "EQUAL": 8479008,
+     "DBF_ZERO_FOR_BLANK": 2142502,
+     "DIFFERENT": 993
+    }
+   },
+   "NO_RES_UNT": {
+    "compared": 10622503,
+    "agreePct": 100,
+    "verdicts": {
+     "EQUAL": 8117117,
+     "DBF_ZERO_FOR_BLANK": 2505275,
+     "DIFFERENT": 111
+    }
+   },
+   "OWN_NAME": {
+    "compared": 10622503,
+    "agreePct": 99.86,
+    "verdicts": {
+     "EQUAL": 10606430,
+     "DIFFERENT": 14675,
+     "BOTH_ABSENT": 1398
+    }
+   },
+   "PHY_ADDR1": {
+    "compared": 10622503,
+    "agreePct": 100,
+    "verdicts": {
+     "EQUAL": 10250937,
+     "BOTH_ABSENT": 371117,
+     "DIFFERENT": 449
+    }
+   },
+   "PHY_CITY": {
+    "compared": 10622503,
+    "agreePct": 100,
+    "verdicts": {
+     "EQUAL": 10376991,
+     "BOTH_ABSENT": 245508,
+     "DIFFERENT": 4
+    }
+   },
+   "PHY_ZIPCD": {
+    "compared": 10622503,
+    "agreePct": 100,
+    "verdicts": {
+     "EQUAL": 10336898,
+     "DBF_ZERO_FOR_BLANK": 285599,
+     "DIFFERENT": 6
+    }
+   },
+   "S_LEGAL": {
+    "compared": 10622503,
+    "agreePct": 99.99,
+    "verdicts": {
+     "EQUAL": 10621272,
+     "BOTH_ABSENT": 31,
+     "DIFFERENT": 1199,
+     "PAR_ONLY": 1
+    }
+   },
+   "SALE_PRC1": {
+    "compared": 10622503,
+    "agreePct": 99.89,
+    "verdicts": {
+     "DBF_ZERO_FOR_BLANK": 9248322,
+     "EQUAL": 1362451,
+     "DIFFERENT": 11730
+    }
+   },
+   "SALE_YR1": {
+    "compared": 10622503,
+    "agreePct": 99.9,
+    "verdicts": {
+     "DBF_ZERO_FOR_BLANK": 9248322,
+     "EQUAL": 1363189,
+     "DIFFERENT": 10992
+    }
+   },
+   "SALE_MO1": {
+    "compared": 10622503,
+    "agreePct": 99.89,
+    "verdicts": {
+     "BOTH_ABSENT": 9248320,
+     "EQUAL": 1362282,
+     "NAL_ONLY": 10971,
+     "DIFFERENT": 913,
+     "PAR_ONLY": 17
+    }
+   },
+   "QUAL_CD1": {
+    "compared": 10622503,
+    "agreePct": 99.89,
+    "verdicts": {
+     "BOTH_ABSENT": 9248330,
+     "EQUAL": 1362144,
+     "NAL_ONLY": 10971,
+     "DIFFERENT": 1041,
+     "PAR_ONLY": 17
+    }
+   },
+   "OR_BOOK1": {
+    "compared": 10622503,
+    "agreePct": 99.89,
+    "verdicts": {
+     "BOTH_ABSENT": 9684263,
+     "EQUAL": 926300,
+     "NAL_ONLY": 10971,
+     "DIFFERENT": 952,
+     "PAR_ONLY": 17
+    }
+   },
+   "STATE_PAR_": {
+    "compared": 10622503,
+    "agreePct": 100,
+    "verdicts": {
+     "EQUAL": 10621984,
+     "DIFFERENT": 519
+    }
+   }
+  }
+ }
+}

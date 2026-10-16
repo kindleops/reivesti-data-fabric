@@ -320,7 +320,8 @@ test('unknown is reported as UNVERIFIED, never as UNAVAILABLE', () => {
   // Nobody has researched Wyoming. That is not the same as Wyoming having nothing.
   assert.equal(matrix.coreStateOf(countyJurisdictionId('56001'), 'parcel'), 'UNVERIFIED');
   const gaps = coverageGaps(defaultRegistry(), matrix, ['parcel']);
-  assert.ok((gaps[0]?.uncoveredJurisdictions ?? 0) > 3000);
+  // Everything outside the four automated states: 3,222 − (59 + 72 + 62 + 67).
+  assert.equal(gaps[0]?.uncoveredJurisdictions, ACTIVE_COUNTY_EQUIVALENTS.length - (59 + 72 + 62 + 67));
 });
 
 test('the national report counts jurisdictions with a verified core source, not candidates', () => {
@@ -340,13 +341,19 @@ test('the national report counts jurisdictions with a verified core source, not 
   // DF-0K adds 72 back — honestly this time: the Wisconsin Statewide Parcel Map
   // is an archive at a stable URL that a scheduler retrieves with nobody
   // present. Parcel, not transfer: 59 + 72 = 131. DF-0N adds New York's 62 from
-  // the statewide centroid archive, also retrieved unattended: 193.
-  assert.equal(report.jurisdictionsWithCoreSource, 193);
+  // the statewide centroid archive, also retrieved unattended.
+  //
+  // DF-0M: Florida's 67 counties were core-ELIGIBLE (ready) from registry facts
+  // and became ACTIVE when their statewide ingestion was certified: 59 + 72 + 62 + 67.
+  // Parcel, assessor, ownership, tax and sale observations — still not transfer.
+  assert.equal(report.jurisdictionsWithCoreSource, 59 + 72 + 62 + 67);
+  assert.equal(report.jurisdictionsWithActiveCoreSource, 59 + 72 + 62 + 67);
   assert.equal(report.sources.paidOptional, 1);
   assert.ok(report.byCapability.length === TRACKED_CAPABILITIES.length);
 
   const parcel = report.byCapability.find((c) => c.capability === 'parcel');
-  assert.equal(parcel?.covered, 193);
+  assert.equal(parcel?.covered, 59 + 72 + 62 + 67);
+  assert.equal(parcel?.active, 59 + 72 + 62 + 67);
   // Zero transfer coverage, nationally. Both statewide transfer sources are real,
   // free and parsed, and neither can be fetched: Wisconsin RETR needs a human in a
   // portal, Minnesota eCRV needs a request nobody has sent. This is the estate's

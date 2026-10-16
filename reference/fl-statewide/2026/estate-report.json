@@ -1,0 +1,1961 @@
+{
+ "propertiesByState": {
+  "12": 11090492,
+  "27": 2648100,
+  "55": 3513111
+ },
+ "florida": {
+  "properties": 11090492,
+  "resolutionStates": {
+   "resolved": 11090492
+  },
+  "contributingSources": {
+   "fl_dor_nal+fl_statewide_cadastral": 9248337,
+   "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1374166,
+   "fl_dor_nal": 421106,
+   "fl_dor_nal+fl_dor_sdf": 46633,
+   "fl_statewide_cadastral": 250
+  },
+  "propertyConflicts": {
+   "address_matches_different_pid": 56019
+  },
+  "sales": 1726769,
+  "saleStates": {
+   "SUPPORTED_MATCH": 1660005,
+   "SALE_OBSERVATION_ONLY": 66622,
+   "ECHO_ONLY": 142
+  },
+  "saleContributingSources": {
+   "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1592391,
+   "fl_dor_sdf": 66622,
+   "fl_dor_nal+fl_dor_sdf": 67094,
+   "fl_dor_sdf+fl_statewide_cadastral": 520,
+   "fl_statewide_cadastral": 142
+  },
+  "saleConflicts": {
+   "echo_price_differs": 3,
+   "echo_ambiguous": 408
+  },
+  "qualification": {
+   "QUALIFIED": 826927,
+   "DISQUALIFIED": 877177,
+   "PENDING": 22645,
+   "UNKNOWN": 20
+  },
+  "price": {
+   "POSITIVE": 1599357,
+   "ZERO": 127410,
+   "ABSENT:BLANK_SOURCE": 2
+  },
+  "multiParcelSales": 260819,
+  "multiParcelGroups": 49014,
+  "revisedSales": 0,
+  "salesWithDiscrepantEcho": 3
+ },
+ "perCounty": {
+  "property": {
+   "12001": {
+    "properties": 109378,
+    "states": {
+     "resolved": 109378
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 94839,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 14101,
+     "fl_dor_nal": 414,
+     "fl_dor_nal+fl_dor_sdf": 24
+    },
+    "conflicts": {
+     "address_matches_different_pid": 761
+    }
+   },
+   "12003": {
+    "properties": 13182,
+    "states": {
+     "resolved": 13182
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 11203,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1453,
+     "fl_dor_nal": 303,
+     "fl_dor_nal+fl_dor_sdf": 223
+    },
+    "conflicts": {
+     "address_matches_different_pid": 108
+    }
+   },
+   "12005": {
+    "properties": 131060,
+    "states": {
+     "resolved": 131060
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 111197,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 19429,
+     "fl_dor_nal": 284,
+     "fl_dor_nal+fl_dor_sdf": 150
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1527
+    }
+   },
+   "12007": {
+    "properties": 15883,
+    "states": {
+     "resolved": 15883
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 13566,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1993,
+     "fl_dor_nal": 112,
+     "fl_dor_nal+fl_dor_sdf": 212
+    },
+    "conflicts": {
+     "address_matches_different_pid": 631
+    }
+   },
+   "12009": {
+    "properties": 350710,
+    "states": {
+     "resolved": 350710
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 303239,
+     "fl_dor_nal": 1249,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 46022,
+     "fl_dor_nal+fl_dor_sdf": 200
+    },
+    "conflicts": {
+     "address_matches_different_pid": 69
+    }
+   },
+   "12011": {
+    "properties": 754549,
+    "states": {
+     "resolved": 754549
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 673305,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 81034,
+     "fl_dor_nal": 170,
+     "fl_dor_nal+fl_dor_sdf": 40
+    },
+    "conflicts": {
+     "address_matches_different_pid": 4434
+    }
+   },
+   "12013": {
+    "properties": 13294,
+    "states": {
+     "resolved": 13294
+    },
+    "sources": {
+     "fl_dor_nal": 1657,
+     "fl_dor_nal+fl_statewide_cadastral": 10415,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1192,
+     "fl_dor_nal+fl_dor_sdf": 30
+    },
+    "conflicts": {
+     "address_matches_different_pid": 198
+    }
+   },
+   "12015": {
+    "properties": 222623,
+    "states": {
+     "resolved": 222623
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 188789,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 33529,
+     "fl_dor_nal": 239,
+     "fl_dor_nal+fl_dor_sdf": 66
+    },
+    "conflicts": {
+     "address_matches_different_pid": 211
+    }
+   },
+   "12017": {
+    "properties": 147896,
+    "states": {
+     "resolved": 147896
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 122637,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 24463,
+     "fl_dor_nal": 607,
+     "fl_dor_nal+fl_dor_sdf": 108,
+     "fl_statewide_cadastral": 81
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1216
+    }
+   },
+   "12019": {
+    "properties": 105837,
+    "states": {
+     "resolved": 105837
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 90766,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 14161,
+     "fl_dor_nal": 632,
+     "fl_dor_nal+fl_dor_sdf": 278
+    },
+    "conflicts": {
+     "address_matches_different_pid": 448
+    }
+   },
+   "12021": {
+    "properties": 297635,
+    "states": {
+     "resolved": 297635
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 257599,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 36260,
+     "fl_dor_nal": 3722,
+     "fl_dor_nal+fl_dor_sdf": 54
+    },
+    "conflicts": {
+     "address_matches_different_pid": 8548
+    }
+   },
+   "12023": {
+    "properties": 37646,
+    "states": {
+     "resolved": 37646
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 32866,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 4539,
+     "fl_dor_nal+fl_dor_sdf": 82,
+     "fl_dor_nal": 159
+    },
+    "conflicts": {
+     "address_matches_different_pid": 41
+    }
+   },
+   "12027": {
+    "properties": 20199,
+    "states": {
+     "resolved": 20199
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 17975,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 2043,
+     "fl_dor_nal": 143,
+     "fl_dor_nal+fl_dor_sdf": 38
+    },
+    "conflicts": {
+     "address_matches_different_pid": 145
+    }
+   },
+   "12029": {
+    "properties": 16514,
+    "states": {
+     "resolved": 16514
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 14173,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 2145,
+     "fl_dor_nal": 179,
+     "fl_dor_nal+fl_dor_sdf": 17
+    },
+    "conflicts": {
+     "address_matches_different_pid": 165
+    }
+   },
+   "12031": {
+    "properties": 404238,
+    "states": {
+     "resolved": 404238
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 344961,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 58683,
+     "fl_dor_nal+fl_dor_sdf": 201,
+     "fl_dor_nal": 224,
+     "fl_statewide_cadastral": 169
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1342
+    }
+   },
+   "12033": {
+    "properties": 171483,
+    "states": {
+     "resolved": 171483
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 139749,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 21671,
+     "fl_dor_nal": 9558,
+     "fl_dor_nal+fl_dor_sdf": 505
+    },
+    "conflicts": {
+     "address_matches_different_pid": 2249
+    }
+   },
+   "12035": {
+    "properties": 89043,
+    "states": {
+     "resolved": 89043
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 74739,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 13257,
+     "fl_dor_nal": 1029,
+     "fl_dor_nal+fl_dor_sdf": 18
+    },
+    "conflicts": {
+     "address_matches_different_pid": 304
+    }
+   },
+   "12037": {
+    "properties": 18561,
+    "states": {
+     "resolved": 18561
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 16118,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1947,
+     "fl_dor_nal": 450,
+     "fl_dor_nal+fl_dor_sdf": 46
+    },
+    "conflicts": {
+     "address_matches_different_pid": 93
+    }
+   },
+   "12039": {
+    "properties": 27927,
+    "states": {
+     "resolved": 27927
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 24935,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 2350,
+     "fl_dor_nal+fl_dor_sdf": 121,
+     "fl_dor_nal": 521
+    },
+    "conflicts": {
+     "address_matches_different_pid": 428
+    }
+   },
+   "12041": {
+    "properties": 14763,
+    "states": {
+     "resolved": 14763
+    },
+    "sources": {
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1690,
+     "fl_dor_nal+fl_statewide_cadastral": 12266,
+     "fl_dor_nal": 782,
+     "fl_dor_nal+fl_dor_sdf": 25
+    },
+    "conflicts": {
+     "address_matches_different_pid": 556
+    }
+   },
+   "12043": {
+    "properties": 11648,
+    "states": {
+     "resolved": 11648
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 10111,
+     "fl_dor_nal": 325,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1210,
+     "fl_dor_nal+fl_dor_sdf": 2
+    },
+    "conflicts": {
+     "address_matches_different_pid": 111
+    }
+   },
+   "12045": {
+    "properties": 20168,
+    "states": {
+     "resolved": 20168
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 16410,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 2692,
+     "fl_dor_nal": 1003,
+     "fl_dor_nal+fl_dor_sdf": 63
+    },
+    "conflicts": {
+     "address_matches_different_pid": 146
+    }
+   },
+   "12047": {
+    "properties": 13197,
+    "states": {
+     "resolved": 13197
+    },
+    "sources": {
+     "fl_dor_nal": 342,
+     "fl_dor_nal+fl_statewide_cadastral": 11390,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1449,
+     "fl_dor_nal+fl_dor_sdf": 16
+    },
+    "conflicts": {
+     "address_matches_different_pid": 305
+    }
+   },
+   "12049": {
+    "properties": 15312,
+    "states": {
+     "resolved": 15312
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 13061,
+     "fl_dor_nal": 483,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1692,
+     "fl_dor_nal+fl_dor_sdf": 76
+    },
+    "conflicts": {
+     "address_matches_different_pid": 66
+    }
+   },
+   "12051": {
+    "properties": 35810,
+    "states": {
+     "resolved": 35810
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 31390,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 4257,
+     "fl_dor_nal": 142,
+     "fl_dor_nal+fl_dor_sdf": 21
+    },
+    "conflicts": {
+     "address_matches_different_pid": 182
+    }
+   },
+   "12053": {
+    "properties": 120408,
+    "states": {
+     "resolved": 120408
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 103639,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 16541,
+     "fl_dor_nal": 206,
+     "fl_dor_nal+fl_dor_sdf": 22
+    },
+    "conflicts": {
+     "address_matches_different_pid": 6
+    }
+   },
+   "12055": {
+    "properties": 112748,
+    "states": {
+     "resolved": 112748
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 96637,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 16035,
+     "fl_dor_nal+fl_dor_sdf": 49,
+     "fl_dor_nal": 27
+    },
+    "conflicts": {
+     "address_matches_different_pid": 220
+    }
+   },
+   "12057": {
+    "properties": 527636,
+    "states": {
+     "resolved": 527636
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 465958,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 61051,
+     "fl_dor_nal": 405,
+     "fl_dor_nal+fl_dor_sdf": 222
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1606
+    }
+   },
+   "12059": {
+    "properties": 14631,
+    "states": {
+     "resolved": 14631
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 12902,
+     "fl_dor_nal": 68,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1634,
+     "fl_dor_nal+fl_dor_sdf": 27
+    },
+    "conflicts": {
+     "address_matches_different_pid": 381
+    }
+   },
+   "12061": {
+    "properties": 95446,
+    "states": {
+     "resolved": 95446
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 82738,
+     "fl_dor_nal": 201,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 12488,
+     "fl_dor_nal+fl_dor_sdf": 19
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1433
+    }
+   },
+   "12063": {
+    "properties": 40301,
+    "states": {
+     "resolved": 40301
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 35619,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 4370,
+     "fl_dor_nal": 215,
+     "fl_dor_nal+fl_dor_sdf": 97
+    },
+    "conflicts": {
+     "address_matches_different_pid": 278
+    }
+   },
+   "12065": {
+    "properties": 12353,
+    "states": {
+     "resolved": 12353
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 10726,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1201,
+     "fl_dor_nal": 411,
+     "fl_dor_nal+fl_dor_sdf": 15
+    },
+    "conflicts": {
+     "address_matches_different_pid": 265
+    }
+   },
+   "12067": {
+    "properties": 7463,
+    "states": {
+     "resolved": 7463
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 6238,
+     "fl_dor_nal": 237,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 967,
+     "fl_dor_nal+fl_dor_sdf": 21
+    },
+    "conflicts": {
+     "address_matches_different_pid": 54
+    }
+   },
+   "12069": {
+    "properties": 215806,
+    "states": {
+     "resolved": 215806
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 184590,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 30880,
+     "fl_dor_nal": 239,
+     "fl_dor_nal+fl_dor_sdf": 97
+    },
+    "conflicts": {
+     "address_matches_different_pid": 649
+    }
+   },
+   "12071": {
+    "properties": 561559,
+    "states": {
+     "resolved": 561559
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 480023,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 79659,
+     "fl_dor_nal": 1505,
+     "fl_dor_nal+fl_dor_sdf": 372
+    },
+    "conflicts": {
+     "address_matches_different_pid": 9131
+    }
+   },
+   "12073": {
+    "properties": 111379,
+    "states": {
+     "resolved": 111379
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 97686,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 13350,
+     "fl_dor_nal": 279,
+     "fl_dor_nal+fl_dor_sdf": 64
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1260
+    }
+   },
+   "12075": {
+    "properties": 47381,
+    "states": {
+     "resolved": 47381
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 41079,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 6220,
+     "fl_dor_nal": 50,
+     "fl_dor_nal+fl_dor_sdf": 32
+    },
+    "conflicts": {
+     "address_matches_different_pid": 49
+    }
+   },
+   "12077": {
+    "properties": 6012,
+    "states": {
+     "resolved": 6012
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 5449,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 479,
+     "fl_dor_nal+fl_dor_sdf": 16,
+     "fl_dor_nal": 68
+    },
+    "conflicts": {
+     "address_matches_different_pid": 93
+    }
+   },
+   "12079": {
+    "properties": 16483,
+    "states": {
+     "resolved": 16483
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 14425,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 1911,
+     "fl_dor_nal+fl_dor_sdf": 68,
+     "fl_dor_nal": 79
+    },
+    "conflicts": {
+     "address_matches_different_pid": 86
+    }
+   },
+   "12081": {
+    "properties": 236531,
+    "states": {
+     "resolved": 236531
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 198932,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 35009,
+     "fl_dor_nal": 1821,
+     "fl_dor_nal+fl_dor_sdf": 769
+    },
+    "conflicts": {
+     "address_matches_different_pid": 870
+    }
+   },
+   "12083": {
+    "properties": 286148,
+    "states": {
+     "resolved": 286148
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 241105,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 44901,
+     "fl_dor_nal+fl_dor_sdf": 63,
+     "fl_dor_nal": 79
+    },
+    "conflicts": {
+     "address_matches_different_pid": 175
+    }
+   },
+   "12085": {
+    "properties": 98197,
+    "states": {
+     "resolved": 98197
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 82648,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 14904,
+     "fl_dor_nal": 619,
+     "fl_dor_nal+fl_dor_sdf": 26
+    },
+    "conflicts": {
+     "address_matches_different_pid": 146
+    }
+   },
+   "12086": {
+    "properties": 938308,
+    "states": {
+     "resolved": 938308
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 528862,
+     "fl_dor_nal": 318696,
+     "fl_dor_nal+fl_dor_sdf": 34888,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 55862
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1155
+    }
+   },
+   "12087": {
+    "properties": 89162,
+    "states": {
+     "resolved": 89162
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 81219,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 7336,
+     "fl_dor_nal+fl_dor_sdf": 12,
+     "fl_dor_nal": 595
+    },
+    "conflicts": {
+     "address_matches_different_pid": 361
+    }
+   },
+   "12089": {
+    "properties": 59943,
+    "states": {
+     "resolved": 59943
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 51336,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 7719,
+     "fl_dor_nal": 724,
+     "fl_dor_nal+fl_dor_sdf": 164
+    },
+    "conflicts": {
+     "address_matches_different_pid": 269
+    }
+   },
+   "12091": {
+    "properties": 113908,
+    "states": {
+     "resolved": 113908
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 98083,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 14306,
+     "fl_dor_nal": 1397,
+     "fl_dor_nal+fl_dor_sdf": 122
+    },
+    "conflicts": {
+     "address_matches_different_pid": 534
+    }
+   },
+   "12093": {
+    "properties": 31383,
+    "states": {
+     "resolved": 31383
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 26861,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 4419,
+     "fl_dor_nal": 87,
+     "fl_dor_nal+fl_dor_sdf": 16
+    },
+    "conflicts": {
+     "address_matches_different_pid": 535
+    }
+   },
+   "12095": {
+    "properties": 493489,
+    "states": {
+     "resolved": 493489
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 438322,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 53713,
+     "fl_dor_nal": 1353,
+     "fl_dor_nal+fl_dor_sdf": 101
+    },
+    "conflicts": {
+     "address_matches_different_pid": 538
+    }
+   },
+   "12097": {
+    "properties": 214335,
+    "states": {
+     "resolved": 214335
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 185088,
+     "fl_dor_nal": 2004,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 27083,
+     "fl_dor_nal+fl_dor_sdf": 160
+    },
+    "conflicts": {
+     "address_matches_different_pid": 197
+    }
+   },
+   "12099": {
+    "properties": 657490,
+    "states": {
+     "resolved": 657490
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 576933,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 79592,
+     "fl_dor_nal": 866,
+     "fl_dor_nal+fl_dor_sdf": 99
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1145
+    }
+   },
+   "12101": {
+    "properties": 335738,
+    "states": {
+     "resolved": 335738
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 271930,
+     "fl_dor_nal": 16026,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 45682,
+     "fl_dor_nal+fl_dor_sdf": 2100
+    },
+    "conflicts": {
+     "address_matches_different_pid": 755
+    }
+   },
+   "12103": {
+    "properties": 433770,
+    "states": {
+     "resolved": 433770
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 378480,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 54737,
+     "fl_dor_nal": 441,
+     "fl_dor_nal+fl_dor_sdf": 112
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1521
+    }
+   },
+   "12105": {
+    "properties": 435650,
+    "states": {
+     "resolved": 435650
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 375422,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 58582,
+     "fl_dor_nal+fl_dor_sdf": 890,
+     "fl_dor_nal": 756
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1612
+    }
+   },
+   "12107": {
+    "properties": 98036,
+    "states": {
+     "resolved": 98036
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 83685,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 13628,
+     "fl_dor_nal": 666,
+     "fl_dor_nal+fl_dor_sdf": 57
+    },
+    "conflicts": {
+     "address_matches_different_pid": 167
+    }
+   },
+   "12109": {
+    "properties": 168448,
+    "states": {
+     "resolved": 168448
+    },
+    "sources": {
+     "fl_dor_nal": 13567,
+     "fl_dor_nal+fl_statewide_cadastral": 129124,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 23452,
+     "fl_dor_nal+fl_dor_sdf": 2305
+    },
+    "conflicts": {
+     "address_matches_different_pid": 1742
+    }
+   },
+   "12111": {
+    "properties": 192346,
+    "states": {
+     "resolved": 192346
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 164404,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 25704,
+     "fl_dor_nal": 2136,
+     "fl_dor_nal+fl_dor_sdf": 102
+    },
+    "conflicts": {
+     "address_matches_different_pid": 505
+    }
+   },
+   "12113": {
+    "properties": 122244,
+    "states": {
+     "resolved": 122244
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 94546,
+     "fl_dor_nal": 11838,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 15752,
+     "fl_dor_nal+fl_dor_sdf": 108
+    },
+    "conflicts": {
+     "address_matches_different_pid": 477
+    }
+   },
+   "12115": {
+    "properties": 307177,
+    "states": {
+     "resolved": 307177
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 262121,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 45052,
+     "fl_dor_nal+fl_dor_sdf": 2,
+     "fl_dor_nal": 2
+    },
+    "conflicts": {
+     "address_matches_different_pid": 476
+    }
+   },
+   "12117": {
+    "properties": 179705,
+    "states": {
+     "resolved": 179705
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 159968,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 19474,
+     "fl_dor_nal": 255,
+     "fl_dor_nal+fl_dor_sdf": 8
+    },
+    "conflicts": {
+     "address_matches_different_pid": 40
+    }
+   },
+   "12119": {
+    "properties": 105716,
+    "states": {
+     "resolved": 105716
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 84463,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 19655,
+     "fl_dor_nal": 1538,
+     "fl_dor_nal+fl_dor_sdf": 60
+    },
+    "conflicts": {
+     "address_matches_different_pid": 326
+    }
+   },
+   "12121": {
+    "properties": 39023,
+    "states": {
+     "resolved": 39023
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 27805,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 4165,
+     "fl_dor_nal": 6806,
+     "fl_dor_nal+fl_dor_sdf": 247
+    },
+    "conflicts": {
+     "address_matches_different_pid": 219
+    }
+   },
+   "12123": {
+    "properties": 19729,
+    "states": {
+     "resolved": 19729
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 16634,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 2080,
+     "fl_dor_nal": 989,
+     "fl_dor_nal+fl_dor_sdf": 26
+    },
+    "conflicts": {
+     "address_matches_different_pid": 250
+    }
+   },
+   "12125": {
+    "properties": 7111,
+    "states": {
+     "resolved": 7111
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 6091,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 884,
+     "fl_dor_nal": 83,
+     "fl_dor_nal+fl_dor_sdf": 53
+    },
+    "conflicts": {
+     "address_matches_different_pid": 437
+    }
+   },
+   "12127": {
+    "properties": 310941,
+    "states": {
+     "resolved": 310941
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 269799,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 38868,
+     "fl_dor_nal": 2191,
+     "fl_dor_nal+fl_dor_sdf": 83
+    },
+    "conflicts": {
+     "address_matches_different_pid": 870
+    }
+   },
+   "12129": {
+    "properties": 26729,
+    "states": {
+     "resolved": 26729
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 22951,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 3591,
+     "fl_dor_nal": 174,
+     "fl_dor_nal+fl_dor_sdf": 13
+    },
+    "conflicts": {
+     "address_matches_different_pid": 61
+    }
+   },
+   "12131": {
+    "properties": 94601,
+    "states": {
+     "resolved": 94601
+    },
+    "sources": {
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 14414,
+     "fl_dor_nal+fl_statewide_cadastral": 75938,
+     "fl_dor_nal": 4049,
+     "fl_dor_nal+fl_dor_sdf": 200
+    },
+    "conflicts": {
+     "address_matches_different_pid": 505
+    }
+   },
+   "12133": {
+    "properties": 46472,
+    "states": {
+     "resolved": 46472
+    },
+    "sources": {
+     "fl_dor_nal+fl_statewide_cadastral": 40179,
+     "fl_dor_nal+fl_dor_sdf+fl_statewide_cadastral": 3554,
+     "fl_dor_nal": 2629,
+     "fl_dor_nal+fl_dor_sdf": 110
+    },
+    "conflicts": {
+     "address_matches_different_pid": 336
+    }
+   }
+  },
+  "transaction": {
+   "12001": {
+    "sales": 17285,
+    "states": {
+     "SUPPORTED_MATCH": 16678,
+     "SALE_OBSERVATION_ONLY": 607
+    },
+    "qualification": {
+     "QUALIFIED": 8126,
+     "DISQUALIFIED": 9146,
+     "PENDING": 13
+    },
+    "conflicts": {
+     "echo_price_differs": 2
+    }
+   },
+   "12003": {
+    "sales": 2121,
+    "states": {
+     "SUPPORTED_MATCH": 2021,
+     "SALE_OBSERVATION_ONLY": 100
+    },
+    "qualification": {
+     "DISQUALIFIED": 1386,
+     "QUALIFIED": 545,
+     "PENDING": 190
+    },
+    "conflicts": {}
+   },
+   "12005": {
+    "sales": 23158,
+    "states": {
+     "SUPPORTED_MATCH": 22450,
+     "SALE_OBSERVATION_ONLY": 708
+    },
+    "qualification": {
+     "QUALIFIED": 12893,
+     "DISQUALIFIED": 10265
+    },
+    "conflicts": {}
+   },
+   "12007": {
+    "sales": 3157,
+    "states": {
+     "SUPPORTED_MATCH": 2889,
+     "SALE_OBSERVATION_ONLY": 268
+    },
+    "qualification": {
+     "QUALIFIED": 819,
+     "DISQUALIFIED": 2338
+    },
+    "conflicts": {
+     "echo_ambiguous": 4
+    }
+   },
+   "12009": {
+    "sales": 56899,
+    "states": {
+     "SUPPORTED_MATCH": 54589,
+     "SALE_OBSERVATION_ONLY": 2310
+    },
+    "qualification": {
+     "DISQUALIFIED": 30288,
+     "QUALIFIED": 26526,
+     "PENDING": 85
+    },
+    "conflicts": {}
+   },
+   "12011": {
+    "sales": 97254,
+    "states": {
+     "SUPPORTED_MATCH": 93749,
+     "SALE_OBSERVATION_ONLY": 3505
+    },
+    "qualification": {
+     "DISQUALIFIED": 54349,
+     "QUALIFIED": 42600,
+     "PENDING": 305
+    },
+    "conflicts": {}
+   },
+   "12013": {
+    "sales": 1494,
+    "states": {
+     "SUPPORTED_MATCH": 1426,
+     "SALE_OBSERVATION_ONLY": 68
+    },
+    "qualification": {
+     "DISQUALIFIED": 1092,
+     "QUALIFIED": 372,
+     "PENDING": 30
+    },
+    "conflicts": {}
+   },
+   "12015": {
+    "sales": 40879,
+    "states": {
+     "SUPPORTED_MATCH": 39212,
+     "SALE_OBSERVATION_ONLY": 1667
+    },
+    "qualification": {
+     "DISQUALIFIED": 19929,
+     "QUALIFIED": 20950
+    },
+    "conflicts": {}
+   },
+   "12017": {
+    "sales": 31637,
+    "states": {
+     "SUPPORTED_MATCH": 29936,
+     "SALE_OBSERVATION_ONLY": 1648,
+     "ECHO_ONLY": 53
+    },
+    "qualification": {
+     "QUALIFIED": 14813,
+     "PENDING": 398,
+     "DISQUALIFIED": 16426
+    },
+    "conflicts": {}
+   },
+   "12019": {
+    "sales": 17809,
+    "states": {
+     "SUPPORTED_MATCH": 17075,
+     "SALE_OBSERVATION_ONLY": 734
+    },
+    "qualification": {
+     "DISQUALIFIED": 8363,
+     "QUALIFIED": 9446
+    },
+    "conflicts": {
+     "echo_ambiguous": 230
+    }
+   },
+   "12021": {
+    "sales": 49348,
+    "states": {
+     "SUPPORTED_MATCH": 44905,
+     "SALE_OBSERVATION_ONLY": 4443
+    },
+    "qualification": {
+     "DISQUALIFIED": 30866,
+     "QUALIFIED": 16669,
+     "PENDING": 1813
+    },
+    "conflicts": {}
+   },
+   "12023": {
+    "sales": 5578,
+    "states": {
+     "SUPPORTED_MATCH": 5387,
+     "SALE_OBSERVATION_ONLY": 191
+    },
+    "qualification": {
+     "QUALIFIED": 1644,
+     "DISQUALIFIED": 3923,
+     "PENDING": 11
+    },
+    "conflicts": {}
+   },
+   "12027": {
+    "sales": 2422,
+    "states": {
+     "SUPPORTED_MATCH": 2360,
+     "SALE_OBSERVATION_ONLY": 62
+    },
+    "qualification": {
+     "DISQUALIFIED": 1529,
+     "QUALIFIED": 869,
+     "UNKNOWN": 18,
+     "PENDING": 6
+    },
+    "conflicts": {
+     "echo_ambiguous": 10
+    }
+   },
+   "12029": {
+    "sales": 2705,
+    "states": {
+     "SUPPORTED_MATCH": 2596,
+     "SALE_OBSERVATION_ONLY": 109
+    },
+    "qualification": {
+     "DISQUALIFIED": 1800,
+     "QUALIFIED": 905
+    },
+    "conflicts": {}
+   },
+   "12031": {
+    "sales": 75967,
+    "states": {
+     "SUPPORTED_MATCH": 72181,
+     "SALE_OBSERVATION_ONLY": 3697,
+     "ECHO_ONLY": 89
+    },
+    "qualification": {
+     "DISQUALIFIED": 40666,
+     "QUALIFIED": 34707,
+     "PENDING": 594
+    },
+    "conflicts": {
+     "echo_price_differs": 1
+    }
+   },
+   "12033": {
+    "sales": 29834,
+    "states": {
+     "SUPPORTED_MATCH": 27557,
+     "SALE_OBSERVATION_ONLY": 2277
+    },
+    "qualification": {
+     "DISQUALIFIED": 18546,
+     "QUALIFIED": 10841,
+     "PENDING": 447
+    },
+    "conflicts": {}
+   },
+   "12035": {
+    "sales": 15506,
+    "states": {
+     "SUPPORTED_MATCH": 15162,
+     "SALE_OBSERVATION_ONLY": 344
+    },
+    "qualification": {
+     "DISQUALIFIED": 6726,
+     "QUALIFIED": 8774,
+     "PENDING": 6
+    },
+    "conflicts": {}
+   },
+   "12037": {
+    "sales": 2307,
+    "states": {
+     "SUPPORTED_MATCH": 2246,
+     "SALE_OBSERVATION_ONLY": 61
+    },
+    "qualification": {
+     "DISQUALIFIED": 1268,
+     "QUALIFIED": 1023,
+     "PENDING": 16
+    },
+    "conflicts": {}
+   },
+   "12039": {
+    "sales": 3002,
+    "states": {
+     "SALE_OBSERVATION_ONLY": 119,
+     "SUPPORTED_MATCH": 2883
+    },
+    "qualification": {
+     "DISQUALIFIED": 2098,
+     "QUALIFIED": 904
+    },
+    "conflicts": {}
+   },
+   "12041": {
+    "sales": 2063,
+    "states": {
+     "SUPPORTED_MATCH": 1994,
+     "SALE_OBSERVATION_ONLY": 69
+    },
+    "qualification": {
+     "DISQUALIFIED": 1241,
+     "QUALIFIED": 821,
+     "PENDING": 1
+    },
+    "conflicts": {}
+   },
+   "12043": {
+    "sales": 1579,
+    "states": {
+     "SUPPORTED_MATCH": 1480,
+     "SALE_OBSERVATION_ONLY": 99
+    },
+    "qualification": {
+     "QUALIFIED": 421,
+     "DISQUALIFIED": 1158
+    },
+    "conflicts": {}
+   },
+   "12045": {
+    "sales": 3405,
+    "states": {
+     "SUPPORTED_MATCH": 3241,
+     "SALE_OBSERVATION_ONLY": 164
+    },
+    "qualification": {
+     "QUALIFIED": 1605,
+     "DISQUALIFIED": 1800
+    },
+    "conflicts": {}
+   },
+   "12047": {
+    "sales": 1862,
+    "states": {
+     "SUPPORTED_MATCH": 1766,
+     "SALE_OBSERVATION_ONLY": 96
+    },
+    "qualification": {
+     "DISQUALIFIED": 1243,
+     "QUALIFIED": 619
+    },
+    "conflicts": {}
+   },
+   "12049": {
+    "sales": 2081,
+    "states": {
+     "SUPPORTED_MATCH": 2017,
+     "SALE_OBSERVATION_ONLY": 64
+    },
+    "qualification": {
+     "DISQUALIFIED": 1273,
+     "QUALIFIED": 808
+    },
+    "conflicts": {}
+   },
+   "12051": {
+    "sales": 5416,
+    "states": {
+     "SUPPORTED_MATCH": 5170,
+     "SALE_OBSERVATION_ONLY": 246
+    },
+    "qualification": {
+     "DISQUALIFIED": 3498,
+     "QUALIFIED": 1754,
+     "PENDING": 164
+    },
+    "conflicts": {}
+   },
+   "12053": {
+    "sales": 19972,
+    "states": {
+     "SUPPORTED_MATCH": 19378,
+     "SALE_OBSERVATION_ONLY": 594
+    },
+    "qualification": {
+     "QUALIFIED": 11330,
+     "DISQUALIFIED": 8642
+    },
+    "conflicts": {}
+   },
+   "12055": {
+    "sales": 21275,
+    "states": {
+     "SUPPORTED_MATCH": 20149,
+     "SALE_OBSERVATION_ONLY": 1126
+    },
+    "qualification": {
+     "QUALIFIED": 9760,
+     "DISQUALIFIED": 11421,
+     "PENDING": 94
+    },
+    "conflicts": {
+     "echo_ambiguous": 46
+    }
+   },
+   "12057": {
+    "sales": 73046,
+    "states": {
+     "SUPPORTED_MATCH": 70755,
+     "SALE_OBSERVATION_ONLY": 2291
+    },
+    "qualification": {
+     "QUALIFIED": 34817,
+     "DISQUALIFIED": 38083,
+     "PENDING": 146
+    },
+    "conflicts": {}
+   },
+   "12059": {
+    "sales": 2068,
+    "states": {
+     "SUPPORTED_MATCH": 1982,
+     "SALE_OBSERVATION_ONLY": 86
+    },
+    "qualification": {
+     "DISQUALIFIED": 1450,
+     "QUALIFIED": 601,
+     "PENDING": 17
+    },
+    "conflicts": {}
+   },
+   "12061": {
+    "sales": 15086,
+    "states": {
+     "SUPPORTED_MATCH": 14490,
+     "SALE_OBSERVATION_ONLY": 596
+    },
+    "qualification": {
+     "QUALIFIED": 7572,
+     "DISQUALIFIED": 7511,
+     "PENDING": 3
+    },
+    "conflicts": {
+     "echo_ambiguous": 2
+    }
+   },
+   "12063": {
+    "sales": 5568,
+    "states": {
+     "SUPPORTED_MATCH": 5272,
+     "SALE_OBSERVATION_ONLY": 296
+    },
+    "qualification": {
+     "QUALIFIED": 1723,
+     "DISQUALIFIED": 3845
+    },
+    "conflicts": {}
+   },
+   "12065": {
+    "sales": 1456,
+    "states": {
+     "SUPPORTED_MATCH": 1406,
+     "SALE_OBSERVATION_ONLY": 50
+    },
+    "qualification": {
+     "DISQUALIFIED": 1017,
+     "QUALIFIED": 433,
+     "PENDING": 6
+    },
+    "conflicts": {}
+   },
+   "12067": {
+    "sales": 1420,
+    "states": {
+     "SUPPORTED_MATCH": 1280,
+     "SALE_OBSERVATION_ONLY": 140
+    },
+    "qualification": {
+     "DISQUALIFIED": 1089,
+     "PENDING": 36,
+     "QUALIFIED": 295
+    },
+    "conflicts": {}
+   },
+   "12069": {
+    "sales": 37020,
+    "states": {
+     "SUPPORTED_MATCH": 35951,
+     "SALE_OBSERVATION_ONLY": 1069
+    },
+    "qualification": {
+     "QUALIFIED": 22202,
+     "DISQUALIFIED": 14772,
+     "PENDING": 46
+    },
+    "conflicts": {}
+   },
+   "12071": {
+    "sales": 95044,
+    "states": {
+     "SUPPORTED_MATCH": 92930,
+     "SALE_OBSERVATION_ONLY": 2114
+    },
+    "qualification": {
+     "DISQUALIFIED": 36314,
+     "PENDING": 12112,
+     "QUALIFIED": 46618
+    },
+    "conflicts": {}
+   },
+   "12073": {
+    "sales": 17061,
+    "states": {
+     "SUPPORTED_MATCH": 16093,
+     "SALE_OBSERVATION_ONLY": 968
+    },
+    "qualification": {
+     "QUALIFIED": 6535,
+     "DISQUALIFIED": 10425,
+     "PENDING": 101
+    },
+    "conflicts": {}
+   },
+   "12075": {
+    "sales": 7773,
+    "states": {
+     "SUPPORTED_MATCH": 7455,
+     "SALE_OBSERVATION_ONLY": 318
+    },
+    "qualification": {
+     "DISQUALIFIED": 4535,
+     "QUALIFIED": 3237,
+     "PENDING": 1
+    },
+    "conflicts": {}
+   },
+   "12077": {
+    "sales": 578,
+    "states": {
+     "SUPPORTED_MATCH": 562,
+     "SALE_OBSERVATION_ONLY": 16
+    },
+    "qualification": {
+     "DISQUALIFIED": 425,
+     "QUALIFIED": 148,
+     "PENDING": 4,
+     "UNKNOWN": 1
+    },
+    "conflicts": {
+     "echo_ambiguous": 2
+    }
+   },
+   "12079": {
+    "sales": 2548,
+    "states": {
+     "SUPPORTED_MATCH": 2409,
+     "SALE_OBSERVATION_ONLY": 139
+    },
+    "qualification": {
+     "DISQUALIFIED": 1805,
+     "QUALIFIED": 731,
+     "PENDING": 12
+    },
+    "conflicts": {}
+   },
+   "12081": {
+    "sales": 42180,
+    "states": {
+     "SUPPORTED_MATCH": 40837,
+     "SALE_OBSERVATION_ONLY": 1343
+    },
+    "qualification": {
+     "DISQUALIFIED": 17314,
+     "QUALIFIED": 24866
+    },
+    "conflicts": {}
+   },
+   "12083": {
+    "sales": 62179,
+    "states": {
+     "SUPPORTED_MATCH": 56396,
+     "SALE_OBSERVATION_ONLY": 5783
+    },
+    "qualification": {
+     "QUALIFIED": 25974,
+     "DISQUALIFIED": 36099,
+     "PENDING": 106
+    },
+    "conflicts": {
+     "echo_ambiguous": 2
+    }
+   },
+   "12085": {
+    "sales": 16614,
+    "states": {
+     "SUPPORTED_MATCH": 16394,
+     "SALE_OBSERVATION_ONLY": 220
+    },
+    "qualification": {
+     "QUALIFIED": 6667,
+     "DISQUALIFIED": 9891,
+     "PENDING": 56
+    },
+    "conflicts": {
+     "echo_ambiguous": 20
+    }
+   },
+   "12086": {
+    "sales": 105181,
+    "states": {
+     "SUPPORTED_MATCH": 102331,
+     "SALE_OBSERVATION_ONLY": 2850
+    },
+    "qualification": {
+     "DISQUALIFIED": 55838,
+     "QUALIFIED": 46066,
+     "PENDING": 3277
+    },
+    "conflicts": {}
+   },
+   "12087": {
+    "sales": 8596,
+    "states": {
+     "SUPPORTED_MATCH": 8354,
+     "SALE_OBSERVATION_ONLY": 242
+    },
+    "qualification": {
+     "QUALIFIED": 3314,
+     "DISQUALIFIED": 5086,
+     "PENDING": 196
+    },
+    "conflicts": {
+     "echo_ambiguous": 12
+    }
+   },
+   "12089": {
+    "sales": 9474,
+    "states": {
+     "SUPPORTED_MATCH": 9156,
+     "SALE_OBSERVATION_ONLY": 318
+    },
+    "qualification": {
+     "DISQUALIFIED": 5012,
+     "QUALIFIED": 4462
+    },
+    "conflicts": {}
+   },
+   "12091": {
+    "sales": 16861,
+    "states": {
+     "SUPPORTED_MATCH": 16415,
+     "SALE_OBSERVATION_ONLY": 446
+    },
+    "qualification": {
+     "QUALIFIED": 7569,
+     "DISQUALIFIED": 9292
+    },
+    "conflicts": {
+     "echo_ambiguous": 2
+    }
+   },
+   "12093": {
+    "sales": 5811,
+    "states": {
+     "SUPPORTED_MATCH": 5493,
+     "SALE_OBSERVATION_ONLY": 318
+    },
+    "qualification": {
+     "QUALIFIED": 2563,
+     "DISQUALIFIED": 3234,
+     "PENDING": 14
+    },
+    "conflicts": {}
+   },
+   "12095": {
+    "sales": 61779,
+    "states": {
+     "SUPPORTED_MATCH": 60385,
+     "SALE_OBSERVATION_ONLY": 1394
+    },
+    "qualification": {
+     "DISQUALIFIED": 28456,
+     "QUALIFIED": 33323
+    },
+    "conflicts": {
+     "echo_ambiguous": 6
+    }
+   },
+   "12097": {
+    "sales": 32304,
+    "states": {
+     "SUPPORTED_MATCH": 31371,
+     "SALE_OBSERVATION_ONLY": 933
+    },
+    "qualification": {
+     "DISQUALIFIED": 12131,
+     "QUALIFIED": 20024,
+     "PENDING": 149
+    },
+    "conflicts": {
+     "echo_ambiguous": 2
+    }
+   },
+   "12099": {
+    "sales": 90635,
+    "states": {
+     "SUPPORTED_MATCH": 88843,
+     "SALE_OBSERVATION_ONLY": 1792
+    },
+    "qualification": {
+     "QUALIFIED": 43486,
+     "DISQUALIFIED": 47149
+    },
+    "conflicts": {}
+   },
+   "12101": {
+    "sales": 60998,
+    "states": {
+     "SUPPORTED_MATCH": 57905,
+     "SALE_OBSERVATION_ONLY": 3093
+    },
+    "qualification": {
+     "DISQUALIFIED": 24963,
+     "QUALIFIED": 36035
+    },
+    "conflicts": {}
+   },
+   "12103": {
+    "sales": 65098,
+    "states": {
+     "SUPPORTED_MATCH": 62894,
+     "SALE_OBSERVATION_ONLY": 2204
+    },
+    "qualification": {
+     "QUALIFIED": 29041,
+     "DISQUALIFIED": 35948,
+     "PENDING": 109
+    },
+    "conflicts": {}
+   },
+   "12105": {
+    "sales": 76238,
+    "states": {
+     "SUPPORTED_MATCH": 72548,
+     "SALE_OBSERVATION_ONLY": 3690
+    },
+    "qualification": {
+     "DISQUALIFIED": 33758,
+     "QUALIFIED": 41407,
+     "PENDING": 1073
+    },
+    "conflicts": {}
+   },
+   "12107": {
+    "sales": 17967,
+    "states": {
+     "SUPPORTED_MATCH": 16842,
+     "SALE_OBSERVATION_ONLY": 1125
+    },
+    "qualification": {
+     "DISQUALIFIED": 11539,
+     "QUALIFIED": 5955,
+     "PENDING": 473
+    },
+    "conflicts": {
+     "echo_ambiguous": 44
+    }
+   },
+   "12109": {
+    "sales": 30666,
+    "states": {
+     "SUPPORTED_MATCH": 29826,
+     "SALE_OBSERVATION_ONLY": 840
+    },
+    "qualification": {
+     "QUALIFIED": 18187,
+     "DISQUALIFIED": 12479
+    },
+    "conflicts": {
+     "echo_ambiguous": 4
+    }
+   },
+   "12111": {
+    "sales": 30786,
+    "states": {
+     "SUPPORTED_MATCH": 29813,
+     "SALE_OBSERVATION_ONLY": 973
+    },
+    "qualification": {
+     "DISQUALIFIED": 13725,
+     "QUALIFIED": 16969,
+     "PENDING": 92
+    },
+    "conflicts": {}
+   },
+   "12113": {
+    "sales": 18927,
+    "states": {
+     "SUPPORTED_MATCH": 18345,
+     "SALE_OBSERVATION_ONLY": 582
+    },
+    "qualification": {
+     "QUALIFIED": 9762,
+     "DISQUALIFIED": 9164,
+     "PENDING": 1
+    },
+    "conflicts": {
+     "echo_ambiguous": 4
+    }
+   },
+   "12115": {
+    "sales": 51206,
+    "states": {
+     "SUPPORTED_MATCH": 50341,
+     "SALE_OBSERVATION_ONLY": 865
+    },
+    "qualification": {
+     "QUALIFIED": 26202,
+     "DISQUALIFIED": 24967,
+     "PENDING": 37
+    },
+    "conflicts": {}
+   },
+   "12117": {
+    "sales": 22685,
+    "states": {
+     "SUPPORTED_MATCH": 22042,
+     "SALE_OBSERVATION_ONLY": 643
+    },
+    "qualification": {
+     "DISQUALIFIED": 12339,
+     "QUALIFIED": 10343,
+     "PENDING": 3
+    },
+    "conflicts": {}
+   },
+   "12119": {
+    "sales": 23048,
+    "states": {
+     "SUPPORTED_MATCH": 22541,
+     "SALE_OBSERVATION_ONLY": 507
+    },
+    "qualification": {
+     "DISQUALIFIED": 10078,
+     "QUALIFIED": 12970
+    },
+    "conflicts": {}
+   },
+   "12121": {
+    "sales": 5617,
+    "states": {
+     "SUPPORTED_MATCH": 5302,
+     "SALE_OBSERVATION_ONLY": 315
+    },
+    "qualification": {
+     "DISQUALIFIED": 3593,
+     "QUALIFIED": 2007,
+     "PENDING": 17
+    },
+    "conflicts": {}
+   },
+   "12123": {
+    "sales": 2540,
+    "states": {
+     "SUPPORTED_MATCH": 2454,
+     "SALE_OBSERVATION_ONLY": 86
+    },
+    "qualification": {
+     "DISQUALIFIED": 1714,
+     "QUALIFIED": 789,
+     "PENDING": 37
+    },
+    "conflicts": {}
+   },
+   "12125": {
+    "sales": 1252,
+    "states": {
+     "SUPPORTED_MATCH": 1177,
+     "SALE_OBSERVATION_ONLY": 75
+    },
+    "qualification": {
+     "QUALIFIED": 379,
+     "DISQUALIFIED": 873
+    },
+    "conflicts": {}
+   },
+   "12127": {
+    "sales": 46936,
+    "states": {
+     "SUPPORTED_MATCH": 45294,
+     "SALE_OBSERVATION_ONLY": 1642
+    },
+    "qualification": {
+     "QUALIFIED": 19484,
+     "DISQUALIFIED": 27451,
+     "PENDING": 1
+    },
+    "conflicts": {}
+   },
+   "12129": {
+    "sales": 4482,
+    "states": {
+     "SUPPORTED_MATCH": 4336,
+     "SALE_OBSERVATION_ONLY": 146
+    },
+    "qualification": {
+     "QUALIFIED": 2290,
+     "DISQUALIFIED": 2140,
+     "PENDING": 52
+    },
+    "conflicts": {
+     "echo_ambiguous": 8
+    }
+   },
+   "12131": {
+    "sales": 17507,
+    "states": {
+     "SUPPORTED_MATCH": 16936,
+     "SALE_OBSERVATION_ONLY": 571
+    },
+    "qualification": {
+     "QUALIFIED": 9689,
+     "DISQUALIFIED": 7602,
+     "PENDING": 215,
+     "UNKNOWN": 1
+    },
+    "conflicts": {
+     "echo_ambiguous": 10
+    }
+   },
+   "12133": {
+    "sales": 4519,
+    "states": {
+     "SUPPORTED_MATCH": 4352,
+     "SALE_OBSERVATION_ONLY": 167
+    },
+    "qualification": {
+     "DISQUALIFIED": 2791,
+     "PENDING": 80,
+     "QUALIFIED": 1648
+    },
+    "conflicts": {}
+   }
+  }
+ }
+}

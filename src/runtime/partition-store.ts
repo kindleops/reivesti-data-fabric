@@ -34,8 +34,10 @@
  * which succeeded, and the run manifest records it.
  */
 import { createWriteStream } from 'node:fs';
-import { mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { once } from 'node:events';
+import type { Writable } from 'node:stream';
+import { createGzip, gzipSync } from 'node:zlib';
 import { join } from 'node:path';
 import { canonicalJson, MultisetDigest } from '../core/hash.ts';
 import { readLines } from '../core/lines.ts';
@@ -73,6 +75,12 @@ export type PartitionStore = {
   writeContributions(key: PartitionKey, runId: string, lines: AsyncIterable<string>): Promise<number>;
   /** Every contribution the partition holds, across every run. */
   readContributions(key: PartitionKey): AsyncGenerator<string>;
+  /**
+   * The same lines, each prefixed with the run whose file it came from:
+   * `<runId>\t<line>`. What a projection reads when a conflict must name the
+   * run whose evidence produced it rather than the run recomputing it.
+   */
+  readContributionsTagged(key: PartitionKey): AsyncGenerator<string>;
   /** Order-independent digest over a partition's whole input. */
   contributionDigest(key: PartitionKey): Promise<{ digest: string; rowCount: number }>;
   beginProjection(key: PartitionKey, runId: string): Promise<PartitionWriter>;
@@ -87,7 +95,40 @@ export type PartitionStore = {
   sweepAbandoned(): Promise<number>;
 };
 
-export function createPartitionStore(root: string): PartitionStore {
+export type PartitionStoreOptions = {
+  /**
+   * gzip contributions and projection outputs as they are written
+   * (`<name>.ndjson.gz`). Defaults to DF_DERIVED_GZIP=1, like the run tables.
+   *
+   * Every reader goes through `readLines`, which decompresses a `.gz` path on
+   * the fly, and every digest is computed over LINES, never file bytes — so a
+   * compressed partition has exactly the digests of an uncompressed one, and
+   * both kinds of file can sit side by side in one estate.
+   */
+  readonly compress?: boolean;
+};
+
+/** Opens a line sink on `path`, gzip level 1 when asked. Level 1: the point is disk, not ratio. */
+function lineSink(path: string, compress: boolean): { stream: Writable; done: Promise<unknown>; failed: Promise<never> } {
+  const file = createWriteStream(path, { highWaterMark: 1 << 20 });
+  // A file error unpipes a compressor that then never drains: waiting writers
+  // race this so ENOSPC fails the projection instead of hanging it.
+  const failed = new Promise<never>((_, reject) => file.once('error', reject));
+  failed.catch(() => {});
+  if (!compress) return { stream: file, done: once(file, 'finish'), failed };
+  const gzip = createGzip({ level: 1 });
+  gzip.pipe(file);
+  gzip.on('error', (e) => file.destroy(e));
+  return { stream: gzip, done: once(file, 'finish'), failed };
+}
+
+async function exists(path: string): Promise<boolean> {
+  return access(path).then(() => true, () => false);
+}
+
+export function createPartitionStore(root: string, options: PartitionStoreOptions = {}): PartitionStore {
+  const compress = options.compress ?? process.env['DF_DERIVED_GZIP'] === '1';
+  const suffix = compress ? '.ndjson.gz' : '.ndjson';
   const base = join(root, 'derived', 'partitions');
   const dirOf = (key: PartitionKey): string => join(base, ...partitionId(key).split('/'));
   const contributionsDir = (key: PartitionKey): string => join(dirOf(key), 'contributions');
@@ -103,7 +144,7 @@ export function createPartitionStore(root: string): PartitionStore {
 
   const contributionFiles = async (key: PartitionKey): Promise<readonly string[]> => {
     try {
-      return (await readdir(contributionsDir(key))).filter((f) => f.endsWith('.ndjson')).sort();
+      return (await readdir(contributionsDir(key))).filter((f) => f.endsWith('.ndjson') || f.endsWith('.ndjson.gz')).sort();
     } catch (e) {
       if ((e as NodeJS.ErrnoException).code === 'ENOENT') return [];
       throw e;
@@ -114,19 +155,19 @@ export function createPartitionStore(root: string): PartitionStore {
     async writeContributions(key, runId, lines) {
       const dir = contributionsDir(key);
       await mkdir(dir, { recursive: true });
-      const target = join(dir, `${safe(runId)}.ndjson`);
+      const target = join(dir, `${safe(runId)}${suffix}`);
       // Written to a temp file and renamed, so a crash mid-write can never leave
       // a partition holding half a run's evidence — which would recompute into a
       // wrong-but-plausible projection rather than an obvious failure.
       const temp = `${target}.${process.pid}.tmp`;
-      const stream = createWriteStream(temp, { highWaterMark: 1 << 20 });
+      const { stream, done, failed } = lineSink(temp, compress);
       let count = 0;
       for await (const line of lines) {
-        if (!stream.write(`${line}\n`)) await once(stream, 'drain');
+        if (!stream.write(`${line}\n`)) await Promise.race([once(stream, 'drain'), failed]);
         count += 1;
       }
       stream.end();
-      await once(stream, 'finish');
+      await Promise.race([done, failed]);
       await rename(temp, target);
       return count;
     },
@@ -135,6 +176,14 @@ export function createPartitionStore(root: string): PartitionStore {
       const dir = contributionsDir(key);
       for (const file of await contributionFiles(key)) {
         yield* readLines(join(dir, file));
+      }
+    },
+
+    async *readContributionsTagged(key) {
+      const dir = contributionsDir(key);
+      for (const file of await contributionFiles(key)) {
+        const runId = file.replace(/\.ndjson(\.gz)?$/, '');
+        for await (const line of readLines(join(dir, file))) yield `${runId}\t${line}`;
       }
     },
 
@@ -155,14 +204,14 @@ export function createPartitionStore(root: string): PartitionStore {
       const open = async (table: PartitionTable) => {
         const existing = streams.get(table);
         if (existing) return existing;
-        const stream = createWriteStream(join(dir, `${table}.ndjson`), { highWaterMark: 1 << 20 });
+        const { stream, done } = lineSink(join(dir, `${table}${suffix}`), compress);
         const handle = {
           async write(line: string): Promise<void> {
             if (!stream.write(`${line}\n`)) await once(stream, 'drain');
           },
           async end(): Promise<void> {
             stream.end();
-            await once(stream, 'finish');
+            await done;
           },
         };
         streams.set(table, handle);
@@ -184,7 +233,7 @@ export function createPartitionStore(root: string): PartitionStore {
           // generation with a table missing and has to guess whether that means
           // "empty" or "not written yet".
           for (const table of ['resolutions', 'conflicts', 'entity_links'] as PartitionTable[]) {
-            if (!streams.has(table)) await writeFile(join(dir, `${table}.ndjson`), '');
+            if (!streams.has(table)) await writeFile(join(dir, `${table}${suffix}`), compress ? gzipSync('') : '');
           }
 
           const manifest: PartitionManifest = {
@@ -213,8 +262,11 @@ export function createPartitionStore(root: string): PartitionStore {
     async *readTable(key, table) {
       const generation = await currentGeneration(key);
       if (!generation) return;
+      // A generation is written whole in one encoding; either file may exist.
+      const zipped = join(dirOf(key), generation, `${table}.ndjson.gz`);
+      const path = (await exists(zipped)) ? zipped : join(dirOf(key), generation, `${table}.ndjson`);
       try {
-        yield* readLines(join(dirOf(key), generation, `${table}.ndjson`));
+        yield* readLines(path);
       } catch (e) {
         if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e;
       }
@@ -232,7 +284,8 @@ export function createPartitionStore(root: string): PartitionStore {
     },
 
     async contributingRuns(key) {
-      return (await contributionFiles(key)).map((f) => f.slice(0, -'.ndjson'.length));
+      // Contribution files are `<runId>.ndjson` or, compressed, `<runId>.ndjson.gz`.
+      return (await contributionFiles(key)).map((f) => f.replace(/\.ndjson(\.gz)?$/, ''));
     },
 
     async manifests() {

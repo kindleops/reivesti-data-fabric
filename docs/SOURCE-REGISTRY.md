@@ -261,6 +261,27 @@ The estate's first statewide **transfer** source.
 Deliberately not claimed: `deed`, `mortgage`, `foreclosure_notice`. See
 `docs/WISCONSIN-RETR.md` §13 for why each was refused.
 
+## Florida (DF-0M): `fl_statewide_cadastral`, `fl_dor_nal`, `fl_dor_sdf`
+
+Three sources, one publisher library, one engine (`src/connectors/fl-dor/`), each modelled and gated
+on its own facts. All three: Florida Department of Revenue, Property Tax Oversight; public PTO Data
+Portal; anonymous GETs; `FREE_BULK` / `AUTOMATED_BULK_DOWNLOAD`; terms reviewed and permitting;
+public records; quoted fee $0; verdict **CORE_ELIGIBLE** from registry facts alone. All three mappings are
+**`active`** since the DF-0M statewide certification (full ingestion, network-off replay, idempotency and
+isolation — `FLORIDA-STATEWIDE-PROPERTY-FABRIC.md`).
+
+| Source | Capabilities | Authoritative for parcel identity | Restricted contact | Docs |
+|---|---|---|---|---|
+| `fl_statewide_cadastral` | parcel | yes — the county's own number on its own polygon | no plane: the joined owner/mailing columns are the NAL's | `FLORIDA-CADASTRAL.md` |
+| `fl_dor_nal` | parcel, assessor, ownership, tax | yes — the appraiser's roll | mailing, domicile and care-of blocks → restricted plane | `FLORIDA-DOR-NAL.md` |
+| `fl_dor_sdf` | sale_observation, sale_economics | no — a sale names a parcel, it never defines one | none: the SDF names no party | `FLORIDA-DOR-SDF.md` |
+
+Two capabilities were added for the SDF, and they are deliberately narrower than `transfer`:
+`sale_observation` (an appraiser's record that a parcel sold, in a month, and how the sale was
+qualified — not a deed, instrument or declaration) and `sale_economics` (its consideration as the
+publisher derives it, from the documentary stamp tax). `deed`, `mortgage`, `lien`,
+`foreclosure_notice` and `transfer` are NOT claimed for Florida.
+
 ## `ny_statewide_parcels` (DF-0N)
 
 | | |

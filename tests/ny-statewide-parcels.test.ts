@@ -262,9 +262,12 @@ test('the polygon product is registered as validation-only evidence with no cove
 test('national parcel coverage gains exactly New York\'s 62 counties', () => {
   const registry = defaultRegistry();
   const report = nationalCoverageReport(registry, buildCoverage(registry), RUN_INSTANT);
-  // Minnesota 59 + Wisconsin 72 + New York 62.
-  assert.equal(report.jurisdictionsWithCoreSource, 193);
-  assert.equal(report.byCapability.find((c) => c.capability === 'parcel')?.covered, 193);
+  // Minnesota 59 + Wisconsin 72 + New York 62, and Florida's 67 since DF-0M
+  // was integrated: New York contributes exactly its own 62.
+  assert.equal(report.jurisdictionsWithCoreSource, 59 + 72 + 62 + 67);
+  assert.equal(report.byCapability.find((c) => c.capability === 'parcel')?.covered, 59 + 72 + 62 + 67);
+  const ny = buildCoverage(registry).entries.filter((e) => e.sourceId === 'ny_statewide_parcels' && e.capability === 'parcel');
+  assert.equal(new Set(ny.map((e) => e.jurisdictionId)).size, 62);
   assert.equal(report.byCapability.find((c) => c.capability === 'transfer')?.covered, 0);
 });
 

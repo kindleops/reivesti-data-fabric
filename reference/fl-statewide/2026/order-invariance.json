@@ -1,0 +1,115 @@
+{
+ "claim": "The Florida property and sale projections do not depend on the order the three sources arrive in.",
+ "counties": {
+  "12039": "Gadsden",
+  "12067": "Lafayette"
+ },
+ "sources": [
+  "fl_statewide_cadastral",
+  "fl_dor_nal",
+  "fl_dor_sdf"
+ ],
+ "releases": "the certified 2026 releases (manifests a087c035…, 5829348a…, 8545336d…), filtered to the two counties",
+ "orders": {
+  "order2-par-nal-sdf": {
+   "global": "49e2764ea591631a0a1745dbae9b5ee607baeeca4b9d9c2ab978d894c02de5f9",
+   "partitions": {
+    "property/us-county-12039": {
+     "outputDigest": "6e58fd316ba27c4c5c1e1bc5fbe5909f0573fd10f474c72e4daeef589171e8d1",
+     "inputDigest": "90b491c946498bf42cc3171610d91e5cf2badabd92b0dd5dbec9272b9ad9c467",
+     "rowCount": 27927,
+     "inputRowCount": 58214,
+     "resolverVersion": "property_resolver_2"
+    },
+    "property/us-county-12067": {
+     "outputDigest": "4dae440718592db01b3423f5fa7333e00a788bef52a6805f0509690f2bb849e9",
+     "inputDigest": "d5ccb36ce3f3468ebfb1b722e8b95f524652cb1f8b0a1b63fe1c4970a73858e7",
+     "rowCount": 7463,
+     "inputRowCount": 16088,
+     "resolverVersion": "property_resolver_2"
+    },
+    "transaction/us-county-12039": {
+     "outputDigest": "658c00a4637798bbf1261aa104c3e929f812f84c9338244c1366eb4b922e5023",
+     "inputDigest": "35d74850b1d15a54676ed9ea465a094519b3d8e6931e237d4cad2175e378326d",
+     "rowCount": 3002,
+     "inputRowCount": 8607,
+     "resolverVersion": "sale_observation_resolver_1"
+    },
+    "transaction/us-county-12067": {
+     "outputDigest": "6b111105dea7426cf7e76afb2ab4909a1e03d88c4c08ee28b53202774963e9c8",
+     "inputDigest": "98321b502efc4d810bf0e57fd62e4d776138af0f2e548f2208fdc8808aa6f460",
+     "rowCount": 1420,
+     "inputRowCount": 3954,
+     "resolverVersion": "sale_observation_resolver_1"
+    }
+   }
+  },
+  "order2-nal-sdf-par": {
+   "global": "49e2764ea591631a0a1745dbae9b5ee607baeeca4b9d9c2ab978d894c02de5f9",
+   "partitions": {
+    "property/us-county-12039": {
+     "outputDigest": "6e58fd316ba27c4c5c1e1bc5fbe5909f0573fd10f474c72e4daeef589171e8d1",
+     "inputDigest": "90b491c946498bf42cc3171610d91e5cf2badabd92b0dd5dbec9272b9ad9c467",
+     "rowCount": 27927,
+     "inputRowCount": 58214,
+     "resolverVersion": "property_resolver_2"
+    },
+    "property/us-county-12067": {
+     "outputDigest": "4dae440718592db01b3423f5fa7333e00a788bef52a6805f0509690f2bb849e9",
+     "inputDigest": "d5ccb36ce3f3468ebfb1b722e8b95f524652cb1f8b0a1b63fe1c4970a73858e7",
+     "rowCount": 7463,
+     "inputRowCount": 16088,
+     "resolverVersion": "property_resolver_2"
+    },
+    "transaction/us-county-12039": {
+     "outputDigest": "658c00a4637798bbf1261aa104c3e929f812f84c9338244c1366eb4b922e5023",
+     "inputDigest": "35d74850b1d15a54676ed9ea465a094519b3d8e6931e237d4cad2175e378326d",
+     "rowCount": 3002,
+     "inputRowCount": 8607,
+     "resolverVersion": "sale_observation_resolver_1"
+    },
+    "transaction/us-county-12067": {
+     "outputDigest": "6b111105dea7426cf7e76afb2ab4909a1e03d88c4c08ee28b53202774963e9c8",
+     "inputDigest": "98321b502efc4d810bf0e57fd62e4d776138af0f2e548f2208fdc8808aa6f460",
+     "rowCount": 1420,
+     "inputRowCount": 3954,
+     "resolverVersion": "sale_observation_resolver_1"
+    }
+   }
+  },
+  "order2-sdf-par-nal": {
+   "global": "49e2764ea591631a0a1745dbae9b5ee607baeeca4b9d9c2ab978d894c02de5f9",
+   "partitions": {
+    "property/us-county-12039": {
+     "outputDigest": "6e58fd316ba27c4c5c1e1bc5fbe5909f0573fd10f474c72e4daeef589171e8d1",
+     "inputDigest": "90b491c946498bf42cc3171610d91e5cf2badabd92b0dd5dbec9272b9ad9c467",
+     "rowCount": 27927,
+     "inputRowCount": 58214,
+     "resolverVersion": "property_resolver_2"
+    },
+    "property/us-county-12067": {
+     "outputDigest": "4dae440718592db01b3423f5fa7333e00a788bef52a6805f0509690f2bb849e9",
+     "inputDigest": "d5ccb36ce3f3468ebfb1b722e8b95f524652cb1f8b0a1b63fe1c4970a73858e7",
+     "rowCount": 7463,
+     "inputRowCount": 16088,
+     "resolverVersion": "property_resolver_2"
+    },
+    "transaction/us-county-12039": {
+     "outputDigest": "658c00a4637798bbf1261aa104c3e929f812f84c9338244c1366eb4b922e5023",
+     "inputDigest": "35d74850b1d15a54676ed9ea465a094519b3d8e6931e237d4cad2175e378326d",
+     "rowCount": 3002,
+     "inputRowCount": 8607,
+     "resolverVersion": "sale_observation_resolver_1"
+    },
+    "transaction/us-county-12067": {
+     "outputDigest": "6b111105dea7426cf7e76afb2ab4909a1e03d88c4c08ee28b53202774963e9c8",
+     "inputDigest": "98321b502efc4d810bf0e57fd62e4d776138af0f2e548f2208fdc8808aa6f460",
+     "rowCount": 1420,
+     "inputRowCount": 3954,
+     "resolverVersion": "sale_observation_resolver_1"
+    }
+   }
+  }
+ },
+ "identicalAcrossOrders": true
+}

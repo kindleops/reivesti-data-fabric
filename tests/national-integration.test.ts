@@ -6,7 +6,8 @@
  *   registry   one lifecycle per mapping, derived; nothing manual-only,
  *              prohibited or unpriced can read as automated core; totals are
  *              computed, never typed in; NOT_SUPPORTED where nothing claims a
- *              capability; no sale economics, transfer or deed is claimed live
+ *              capability; Florida's sale observations are not transfers, and
+ *              no transfer, deed, mortgage or lien is claimed live
  *   identity   pinned ids per state, cross-state distinctness, and an identity
  *              contract for every source that mints a property id
  *   orgs       the national organization fold records which runs it read and
@@ -17,7 +18,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { createWriteStream, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fixedClock } from '../src/core/clock.ts';
 import { captureLogger } from '../src/core/logging.ts';
@@ -36,9 +37,14 @@ import { normalizeParcelId, propertyIdFromCountyParcel } from '../src/canonical/
 import { IDENTITY_CONTRACTS, identityContractOf } from '../src/canonical/identity-inventory.ts';
 import { wiParcelIdentity, WI_PARCEL_IDENTIFIER_SCHEME } from '../src/connectors/wi-statewide-parcels/identity.ts';
 import { nyParcelIdentity, NY_PARCEL_IDENTIFIER_SCHEME } from '../src/connectors/ny-statewide-parcels/identity.ts';
+import { flParcelIdentity, FL_PARCEL_IDENTIFIER_SCHEME } from '../src/connectors/fl-dor/identity.ts';
 import { assessOrganizationCompleteness, historyEstablishedAfter, organizationCompletenessOf } from '../src/canonical/organization-completeness.ts';
 import { nationPartition } from '../src/canonical/partitions.ts';
 import { createPartitionStore } from '../src/runtime/partition-store.ts';
+import { countyPartition, partitionId } from '../src/canonical/partitions.ts';
+import { gzipLineWriter } from '../src/core/lines.ts';
+import { PROPERTY_RESOLVER_VERSION } from '../src/runtime/partition-projection.ts';
+import { sosFixture } from './helpers.ts';
 import { assertCapacity, planFromProfile, preflightCapacity, type CapacityProbe } from '../src/runtime/capacity.ts';
 import { claimScratch, cleanOrphanedScratch, currentScratchHost, listScratch, SCRATCH_OWNER_FILE, type ScratchHost } from '../src/runtime/scratch.ts';
 import { NY_FOOTPRINT, runNyStatewidePipeline } from '../src/connectors/ny-statewide-parcels/pipeline.ts';
@@ -98,20 +104,25 @@ test('registry: a lifecycle follows the facts — an unsanctioned copy of a core
   assert.equal(lifecycleOf(ny, { ...mapping, status: 'fixture_only' }).lifecycle, 'FIXTURE_ONLY');
 });
 
-test('registry: the state baselines are 59 / 72 / 62 and the national parcel total is computed from them', () => {
+test('registry: the state baselines are 59 / 72 / 62 / 67 and the national parcel total is computed from them', () => {
   const count = (mappingId: string) => registry.expand(registry.mapping(mappingId)).length;
   assert.equal(count('mn_statewide_parcels__opt_in_counties'), 59);
   assert.equal(count('wi_statewide_parcels__all_wi_counties'), 72);
   assert.equal(count('ny_statewide_parcels__all_ny_counties'), 62);
-  // Hennepin's own feed is inside Minnesota's 59, so the union is the sum.
-  assert.equal(automatedCoreJurisdictions(registry, 'PARCEL'), 59 + 72 + 62);
+  for (const fl of ['fl_statewide_cadastral__all_fl_counties', 'fl_dor_nal__all_fl_counties', 'fl_dor_sdf__all_fl_counties']) {
+    assert.equal(count(fl), 67, fl);
+  }
+  // Hennepin's own feed is inside Minnesota's 59, and Florida's map and roll
+  // cover the same 67, so the union is the sum of the four states.
+  assert.equal(automatedCoreJurisdictions(registry, 'PARCEL'), 59 + 72 + 62 + 67);
   const coverage = capabilityCoverage(registry);
   const parcel = (state: string) => coverage.find((c) => c.stateCode === state && c.capability === 'PARCEL')!;
   assert.equal(parcel('MN').byLifecycle.ACTIVE_AUTOMATED_CORE, 59);
   assert.equal(parcel('WI').byLifecycle.ACTIVE_AUTOMATED_CORE, 72);
   assert.equal(parcel('NY').byLifecycle.ACTIVE_AUTOMATED_CORE, 62);
+  assert.equal(parcel('FL').byLifecycle.ACTIVE_AUTOMATED_CORE, 67);
   // A state the registry does not cover is not in the table — it is not "zero percent covered".
-  assert.equal(coverage.some((c) => c.stateCode === 'FL'), false);
+  assert.equal(coverage.some((c) => c.stateCode === 'CA'), false);
 });
 
 test('registry: NOT_SUPPORTED wherever no source claims a capability, and every county is counted once', () => {
@@ -125,12 +136,21 @@ test('registry: NOT_SUPPORTED wherever no source claims a capability, and every 
   assert.deepEqual(cell('NY', 'SALE_OBSERVATION').byLifecycle, { NOT_SUPPORTED: 62 });
   assert.deepEqual(cell('WI', 'SALE_OBSERVATION').byLifecycle, { NOT_SUPPORTED: 72 }, 'WI V12 has no sale fields');
   assert.equal(cell('MN', 'SALE_OBSERVATION').byLifecycle.ACTIVE_AUTOMATED_CORE, 59, 'MN assessor sale echo');
+  assert.deepEqual(cell('FL', 'SALE_OBSERVATION').byLifecycle, { ACTIVE_AUTOMATED_CORE: 67 }, 'FL SDF');
+  assert.deepEqual(cell('FL', 'SALE_ECONOMICS').byLifecycle, { ACTIVE_AUTOMATED_CORE: 67 }, 'FL doc-stamp-derived price');
+  assert.deepEqual(cell('FL', 'TAX').byLifecycle, { ACTIVE_AUTOMATED_CORE: 67 }, 'FL NAL');
   assert.equal(coverage.filter((c) => c.capability === 'PARCEL').length, new Set(coverage.map((c) => c.stateCode)).size);
   assert.deepEqual([...new Set(coverage.map((c) => c.capability))], [...DASHBOARD_CAPABILITIES]);
 });
 
-test('registry: no sale economics, transfer, deed, mortgage, lien or foreclosure is claimed live anywhere', () => {
-  for (const capability of ['SALE_ECONOMICS', 'TRANSFER', 'DEED', 'MORTGAGE', 'MORTGAGE_RELEASE', 'LIEN', 'FORECLOSURE_NOTICE'] as const) {
+test('registry: no transfer, deed, mortgage, lien or foreclosure is claimed live anywhere; sale economics only where published', () => {
+  // Florida's SDF price is the publisher's doc-stamp derivation (SALE_ECONOMICS),
+  // and only there: a sale observation is never a transfer, deed or declaration.
+  assert.equal(automatedCoreJurisdictions(registry, 'SALE_ECONOMICS'), 67);
+  for (const c of capabilityCoverage(registry).filter((x) => x.capability === 'SALE_ECONOMICS' && x.stateCode !== 'FL')) {
+    assert.equal(c.byLifecycle.ACTIVE_AUTOMATED_CORE, undefined, `${c.stateCode} SALE_ECONOMICS`);
+  }
+  for (const capability of ['TRANSFER', 'DEED', 'MORTGAGE', 'MORTGAGE_RELEASE', 'LIEN', 'FORECLOSURE_NOTICE'] as const) {
     assert.equal(automatedCoreJurisdictions(registry, capability), 0, capability);
     for (const c of capabilityCoverage(registry).filter((x) => x.capability === capability)) {
       assert.equal(c.byLifecycle.ACTIVE_AUTOMATED_CORE, undefined, `${c.stateCode} ${capability}`);
@@ -167,15 +187,20 @@ test('identity: pinned property ids for each state do not move', () => {
   assert.equal(wiParcelIdentity('55009', '11-109').propertyId, 'prop_94b3b400a9f5a2860f1aae0bcc30db78');
   assert.equal(nyParcelIdentity('36001', '010100', '00100000010010000000').propertyId, 'prop_758bf9dbac68cda8dbbdf541c3e16351');
   assert.equal(nyParcelIdentity('36047', '610100', '3012340056').propertyId, 'prop_84da89525abc661b9a39e0ad933a780a');
+  assert.equal(flParcelIdentity('12086', '01-3132-001-0010').propertyId, 'prop_a16922693a29b587f506144136627c5b');
+  // Leading zeros are identity in Florida.
+  assert.equal(flParcelIdentity('12086', '0000012345').propertyId, 'prop_b9abd6f0b09b2e8e1d58f5c5cc191947');
+  assert.equal(flParcelIdentity('12086', '12345').propertyId, 'prop_1136b0b259e72c48b5b68d0794712964');
 });
 
-test('identity: the same parcel string in MN, WI and NY is three properties; a reused identifier never collides', () => {
+test('identity: the same parcel string in MN, WI, NY and FL is four properties; a reused identifier never collides', () => {
   const ids = new Set([
     propertyIdFromCountyParcel('27053', '1234'),
     propertyIdFromCountyParcel('55009', '1234'),
     propertyIdFromCountyParcel('36001', '1234'),
+    propertyIdFromCountyParcel('12086', '1234'),
   ]);
-  assert.equal(ids.size, 3);
+  assert.equal(ids.size, 4);
   // Minnesota folds punctuation; Wisconsin keeps it. The same raw string is
   // two different normalized parcels — and, scoped by county, two ids anyway.
   assert.equal(normalizeParcelId('1-1109'), '11109');
@@ -193,6 +218,9 @@ test('identity: every source that mints property ids has a contract, and the con
   }
   assert.equal(identityContractOf('wi_statewide_parcels')!.scheme, WI_PARCEL_IDENTIFIER_SCHEME);
   assert.equal(identityContractOf('ny_statewide_parcels')!.scheme, NY_PARCEL_IDENTIFIER_SCHEME);
+  for (const fl of ['fl_dor_nal', 'fl_statewide_cadastral', 'fl_dor_sdf']) {
+    assert.equal(identityContractOf(fl)!.scheme, FL_PARCEL_IDENTIFIER_SCHEME, fl);
+  }
   assert.equal(identityContractOf('mn_statewide_parcels')!.scheme, 'PUNCTUATION_FOLDED');
   const fips = new Map<string, string>();
   for (const c of IDENTITY_CONTRACTS) {
@@ -421,4 +449,67 @@ test('scratch: only a provably dead owner\'s scratch is removed; live, unowned a
   assert.ok(existsSync(live) && existsSync(foreign) && existsSync(unowned));
   assert.equal(existsSync(dead), false);
   assert.ok(removed.find((e) => e.name === 'run-dead')!.bytes >= 100);
+});
+
+// ---------------------------------------------------------------------------
+// Four-state integration: defects found reviewing the merged shared code
+// ---------------------------------------------------------------------------
+
+test('integration: a compressed contribution file names its run, not a truncated id', async () => {
+  const store = createPartitionStore(tempRoot('df-contrib-gz-'), { compress: true });
+  const key = countyPartition('PROPERTY_RESOLUTION', '36001');
+  await store.writeContributions(key, 'run_abc', (async function* () { yield '{"x":1}'; })());
+  assert.deepEqual(await store.contributingRuns(key), ['run_abc']);
+});
+
+test('integration: a gzip line writer whose file fails rejects instead of hanging', async () => {
+  if (!existsSync('/dev/full')) return; // Linux only, like the rest of this suite's storage checks
+  const writer = gzipLineWriter(createWriteStream('/dev/full'));
+  const line = 'x'.repeat(4096);
+  const attempt = (async () => {
+    for (let i = 0; i < 10_000; i++) await writer.write(`${line}${i}`);
+    await writer.close();
+  })();
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('hung')), 5000));
+  await assert.rejects(Promise.race([attempt, timeout]), (e: Error) => e.message !== 'hung');
+});
+
+test('integration: a county projected by an older resolver is recomputed, never skipped as unchanged', async () => {
+  const publisher = nyFakePublisher();
+  publisher.publish(buildNyRelease({ rollYear: 2025, build: '2605', rows: [
+    nyParcel('Albany', '010100', '00100000010010000000'),
+    nyParcel('Erie', '140100', '11100000010010000000'),
+  ] }));
+  const h = streamHarness();
+  const run = (mode: 'scheduled' | 'force') => runNyStatewidePipeline({
+    registry, artifactStore: h.artifactStore, contactPlane: h.contactPlane, varRoot: h.varRoot,
+    clock: fixedClock(RUN_INSTANT), logger: captureLogger().logger, mode, retainCompanion: false,
+    http: { fetchImpl: publisher.fetchImpl, sleep: async () => {} }, batch: { sortChunkLines: 4 },
+  });
+  await run('scheduled');
+  const partitions = createPartitionStore(h.varRoot);
+  const albany = countyPartition('PROPERTY_RESOLUTION', '36001');
+  const before = (await partitions.manifest(albany))!;
+  assert.equal(before.resolverVersion, PROPERTY_RESOLVER_VERSION);
+  // Pretend Albany was projected by the previous resolver.
+  const manifestPath = join(h.varRoot, 'derived', 'partitions', ...before.partitionId.split('/'), before.generation, 'manifest.json');
+  const old = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+  writeFileSync(manifestPath, JSON.stringify({ ...old, resolverVersion: 'property_resolver_1' }));
+  const forced = await run('force');
+  const state = (id: string) => forced.run!.activations.find((a) => a.partitionId === id)?.state;
+  assert.equal(state(before.partitionId), 'activated', 'stale resolver: recomputed');
+  assert.equal(state(partitionId(countyPartition('PROPERTY_RESOLUTION', '36029'))), 'skipped', 'current resolver and unchanged rows: skipped');
+  assert.equal((await partitions.manifest(albany))!.resolverVersion, PROPERTY_RESOLVER_VERSION);
+});
+
+test('integration: digest_only keeps the business-registry tables the national organization fold reads', async () => {
+  const h = streamHarness();
+  const result = await h.runSos(sosFixture('register-2026-08.bundle'), { canonicalRetention: 'digest_only' });
+  assert.equal(result.run.status, 'completed');
+  const entities: unknown[] = [];
+  for await (const line of h.store.readTable('business_entities')) entities.push(line);
+  assert.ok(entities.length > 0, 'entities kept under digest_only');
+  const bundles: unknown[] = [];
+  for await (const line of h.store.readTable('bundles')) bundles.push(line);
+  assert.equal(bundles.length, 0, 'bundles still not kept');
 });

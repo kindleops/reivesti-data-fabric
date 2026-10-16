@@ -490,6 +490,58 @@ export type CanonicalEvent = {
   readonly evidence: SourceEvidence;
 };
 
+// ---------------------------------------------------------------------------
+// Sale observations
+// ---------------------------------------------------------------------------
+
+/**
+ * A sale as one source observed it.
+ *
+ * Deliberately narrower than a transaction. A state sale-data file says that a
+ * parcel changed hands in a month, at a price derived from the transfer tax,
+ * and how the appraiser judged the sale — it names no parties, carries no
+ * instrument type and no recording date. An assessor roll's sale echo is the
+ * same kind of statement, repeated on the parcel record. Neither is a deed, a
+ * recorded instrument or a transfer declaration, and neither is modelled as
+ * one: the semantic class travels on every observation.
+ *
+ * These are the inputs to TRANSACTION_RESOLUTION. Several observations of one
+ * sale — the sale-data row and the roll's echo of it — converge on one
+ * canonical sale there; an echo never becomes a second transaction.
+ */
+export type SaleObservationKind =
+  /** A row of a sale-data file: the publisher's own statement that a sale occurred. */
+  | 'SALE_OBSERVATION'
+  /** A roll's copy of a sale onto the parcel record. Evidence for a sale, never a sale by itself. */
+  | 'ASSESSOR_SALE_ECHO';
+
+export type SaleObservation = {
+  readonly observationId: string;
+  readonly kind: SaleObservationKind;
+  /** e.g. FL_DOR_SALE_OBSERVATION, FL_DOR_NAL_SALE_ECHO, FL_DOR_PAR_SALE_ECHO. */
+  readonly semanticClass: string;
+  readonly propertyId: string;
+  readonly countyFips: string;
+  readonly normalizedParcel: string;
+  /** Echo slot or row ordinal. 1 for a sale-data row. */
+  readonly ordinal: number;
+  /** The publisher's own sale identifier, when it keeps one. */
+  readonly publisherSaleId: string | null;
+  /** `YYYY-MM`. Month precision: no day is invented. Null when the source states none. */
+  readonly saleMonth: string | null;
+  /** Exact minor units as a decimal string; null when absent, with the reason. */
+  readonly priceMinor: string | null;
+  readonly priceAbsentReason: string | null;
+  /** What the price IS, e.g. SALE_PRICE_DOC_STAMP_DERIVED. */
+  readonly priceKind: string;
+  readonly qualificationCode: string | null;
+  readonly vacantImprovedCode: string | null;
+  /** `OR:<book>/<page>` or `CLK:<instrument number>`. A reference, not an instrument. */
+  readonly recordingReference: string | null;
+  readonly multiParcelCode: string | null;
+  readonly evidence: SourceEvidence;
+};
+
 /** The complete canonical output of normalising one source record. */
 export type CanonicalBundle = {
   readonly transaction: TransactionEvent;
@@ -505,4 +557,6 @@ export type CanonicalBundle = {
   readonly assessments?: readonly AssessmentObservation[];
   readonly characteristics?: readonly PropertyCharacteristicObservation[];
   readonly parcelObservations?: readonly ParcelSnapshotObservation[];
+  /** Optional for the same reason: absent on every bundle that predates it. */
+  readonly saleObservations?: readonly SaleObservation[];
 };

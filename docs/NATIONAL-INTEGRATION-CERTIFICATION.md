@@ -1,13 +1,15 @@
 # National integration certification (DF-0O)
 
 Minnesota, Wisconsin and New York, integrated on one `main`, certified
-together. Florida is certified on its own branch and integrates next, under
-the contract in §2.
+together (PR #5); Florida's DF-0M branch integrated with them under the
+contract in §2 (§15).
 This document records what was proven, at what level, on what evidence — and,
 as carefully, what was not.
 
-**Gate.** `THREE_STATE_INTEGRATION: PASS` · `FOUR_STATE_INTEGRATION: PENDING_FLORIDA_INTEGRATION`
-(Florida's branch is certified; it is not yet merged with this one).
+**Gate.** `THREE_STATE_INTEGRATION: PASS` · `FOUR_STATE_INTEGRATION: PASS` at code level on the
+integration branch (§15) — four state registries, identity contracts, migrations
+and suites integrated and green. Combined counts are each state's own
+certification, not one estate holding all four (§15).
 
 ---
 
@@ -54,7 +56,7 @@ these terms, and fails them loudly otherwise:
 7. **Capacity**: Florida's pipeline declares a measured `FootprintProfile` and
    calls the preflight before acquiring, rehydrating or deriving (§7).
 
-## 3. The reconciled source graph
+## 3. The reconciled source graph (three states, as of PR #5; four states in §15)
 
 `df national` — one lifecycle per mapping, derived from the doctrine verdict,
 the mapping status, the acquisition class and the automation status. There is
@@ -86,7 +88,7 @@ automated.
 (`automatedCoreJurisdictions`), equal to 59 + 72 + 62 because Hennepin's own
 feed lies inside Minnesota's 59.
 
-## 4. Capability coverage, by state (registry claims)
+## 4. Capability coverage, by state (registry claims; three states, as of PR #5 — Florida in §15)
 
 County-equivalents per lifecycle. `NOT_SUPPORTED`: no source in the registry
 claims the capability there. `SALE_OBSERVATION` is an assessor's sale echo
@@ -179,7 +181,7 @@ string is expected and harmless: every id hashes the 5-digit county FIPS, whose
 first two digits are the state. The contract per source — scheme, routing,
 leading zeros, punctuation, collision evidence, refusals — is in
 `IDENTITY_CONTRACTS` and summarised in
-[CANONICAL-NORMALIZATION.md §4c](CANONICAL-NORMALIZATION.md). Pinned ids per
+[CANONICAL-NORMALIZATION.md §4d](CANONICAL-NORMALIZATION.md). Pinned ids per
 state are asserted in `tests/national-integration.test.ts`.
 
 ## 7. Cloud disk and scratch safety
@@ -320,3 +322,125 @@ No newer release was ingested: this phase starts no ingestion.
 - Minnesota and Hennepin have no ledger/NOOP pipeline (`df auto` covers New
   York and Wisconsin); their acquisition is automated but each tick is a full
   run. A generic statewide pipeline (DF-0N proposal 2) is the natural home.
+
+## 15. Four-state integration: Florida (DF-0M) merged with New York and DF-0O
+
+**How.** A new branch from the DF-0O head, then `git merge --no-ff` of the
+Florida branch `claude/wisconsin-parcel-ingestion-1zz3r9` at `c868376`: all 13
+Florida commits keep their SHAs, authorship and order. No history was rewritten,
+nothing was force-pushed, and the Florida branch is left exactly as it was.
+
+**Conflicts (15 files), resolved by keeping both sides:**
+
+| File | Resolution |
+|---|---|
+| `src/registry/sources.ts` | New York's and Florida's imports and constants side by side; all sources and mappings kept (13 sources, 12 mappings) |
+| `src/cli/df.ts` | both imports; `df auto` dispatches Florida's three specs first, then Wisconsin and New York |
+| `src/runtime/staged-store.ts` | both `committedRuns` (DF-0O) and `hasRunTable` (DF-0M) |
+| `reference/artifact-catalog.json` | rebuilt as data: Florida's 211 entries unchanged (including its pinned Minnesota retrieval), New York's 3 inserted; 214 entries |
+| 4 test files | national totals become `59 + 72 + 62 + 67`; Minnesota's own-59 filter excludes New York and Florida |
+| `README.md`, 6 docs | both sections kept; Florida's `CANONICAL-NORMALIZATION.md §4c` keeps its number, the DF-0O identity inventory becomes §4d |
+
+Auto-merged, and checked by hand: `stream-run.ts` (Florida's `digest_only`
+retention, `organization_observations` table, sale observations and
+TRANSACTION_RESOLUTION, alongside DF-0O's run-owned scratch and completeness
+watermark), `partition-projection.ts`, `partition-store.ts`, `partitions.ts`.
+
+**Integration fixes (code that neither branch had alone):**
+
+- *Organization completeness* now counts a run as readable through its
+  `organization_observations` table (every run since DF-0M, `digest_only`
+  included) as well as its bundles, and expects runs that contributed to a
+  county partition of any domain, so Florida's sale runs are covered too.
+  Without this, a `digest_only` Florida run would have been judged by its
+  empty bundle table.
+- *Florida's pipeline* claims owner-marked scratch (`claimScratch`) and runs
+  the capacity preflight before acquisition and before a replay, from a
+  footprint measured in DF-0M §15. Under `digest_only` the plan counts 16 bytes
+  per row of run tables; under full retention 1 KB. Every release file's bytes
+  are reserved (discovery carries no digest to prove a file is retained here),
+  so a forced re-run is refused safely rather than allowed to fill the disk.
+  Test `06b`: a run that cannot fit is refused after discovery with no county
+  file requested.
+- *Source graph*: SALE_OBSERVATION and SALE_ECONOMICS read the registry's own
+  `sale_observation` / `sale_economics` capabilities when a mapping declares
+  them (Florida's SDF), as well as the connector-derived cases.
+- *Identity inventory*: Florida's three sources share one contract
+  (`flParcelIdentity`, `PUNCTUATION_PRESERVING`, FIPS 12, routed by `CO_NO`);
+  pinned Florida ids, leading zeros included, are asserted.
+
+**Independent review of the merged shared code** (CodeRabbit skipped this PR:
+101 files, one over its limit). Four real defects were found and fixed, each
+with a regression test that fails without the fix:
+
+1. `contributingRuns` truncated a compressed contribution file's run id
+   (`run_x.ndjson.gz` → `run_x.nd`): under `DF_DERIVED_GZIP=1` every national
+   organization fold would have read PARTIAL with phantom missing runs, and a
+   genuinely unreadable run would have gone undetected. (DF-0O code meeting
+   DF-0M's compressed contributions.)
+2. A gzip line writer (spills, contributions, partition files) waited forever
+   for `drain` after its file failed (ENOSPC): it now rejects, so a full disk
+   fails the run instead of hanging it.
+3. Skip-unchanged accepted a county projected by an older resolver: DF-0M moved
+   the property resolver to `property_resolver_2`, so unchanged counties would
+   have kept v1 projections beside v2 ones. A skip now requires the current
+   property (and, with sales, sale) resolver version.
+4. `digest_only` dropped `business_entities` / `business_entity_addresses`, which
+   the national organization fold reads: a registry run under that retention
+   would have left the fold nothing to resolve owners against. Those tables are
+   now kept under every retention.
+
+**Integrated source graph (`df national`, computed):**
+
+| Capability | MN (87) | WI (72) | NY (62) | FL (67) | National automated core |
+|---|---|---|---|---|---:|
+| PARCEL / ASSESSOR / OWNERSHIP_CURRENT | 59 | 72 | 62 | 67 | **260** |
+| TAX | 59 | 72 | NOT_SUPPORTED | 67 | 198 |
+| SALE_OBSERVATION | 59 (assessor echo) | NOT_SUPPORTED | NOT_SUPPORTED | 67 (SDF) | 126 |
+| SALE_ECONOMICS | BLOCKED_ACCESS (eCRV) | FIXTURE_ONLY (RETR) | NOT_SUPPORTED | 67 (doc-stamp-derived) | 67 |
+| TRANSFER / DEED / MORTGAGE / RELEASE / LIEN / FORECLOSURE | — | — | — | NOT_SUPPORTED | **0** |
+
+Florida's lifecycle: `fl_statewide_cadastral`, `fl_dor_nal`, `fl_dor_sdf` — each
+ACTIVE_AUTOMATED_CORE over 67 counties.
+
+**Identity across four states.** Every id hashes the 5-digit county FIPS
+(state 27, 55, 36, 12), so no two states can share an id short of a SHA-256
+collision. Measured: MN/WI/NY on one estate (DF-0N, 11,664,439 ids, 0
+collisions); MN/WI/FL on one estate (DF-0M, 17,251,703 ids, 0 collisions;
+parcel strings in FL∩MN 852, FL∩WI 1,318). **NY↔FL was never measured on one
+estate**: no container has held both. It is covered structurally (distinct
+FIPS) and by the four-state test, not by a live count.
+
+**Counts.** The combined figure is a sum of separate certifications, each
+proven on its own estate:
+
+| | Properties | Certified by |
+|---|---:|---|
+| Minnesota | 2,648,100 | DF-0K / DF-0L |
+| Wisconsin | 3,513,111 | DF-0K / DF-0L |
+| New York | 5,503,228 | DF-0N |
+| Florida | 11,090,492 | DF-0M |
+| **Sum of certifications** | **22,754,931** | — |
+
+No single estate holds all four, so **22,754,931 is not certified as one
+combined estate**, and no replay of the merged code over all four was run. A
+full replay was not needed for this integration: the merge changed no identity
+derivation, no normalization contract, no parser and no connector's
+normalization. The shared runtime changes are additive (an extra table read,
+scratch markers, a preflight) and covered by the suites; each state's own
+replay-sensitive tests (Florida's network-off replay fixture, New York's,
+Wisconsin's) pass on the merged code.
+
+**Migrations.** 0001–0012; 0012 is Florida's `sale_observations` draft (applied
+to no production database). No duplicate numbers. The real-PostgreSQL gate,
+run as a non-root user on the merged code, applies the full chain to two
+independent fresh databases: **60/60 pass**.
+
+**Suites on the merged code** (non-root, after PR #5's review fixes were merged
+in, and the four review fixes above): 978 tests — **965 pass, 0 fail, 13
+skipped**; the national suite also passes with `DF_DERIVED_GZIP=1` (S3 contract tests needing CI's moto). Three assertions failed on
+the first run, each a total that one branch had pinned without the other
+state (Florida's 198, New York's 193, and "more than 3,000 uncovered", which
+260 covered counties disprove); they now assert the four-state arithmetic.
+`tsc --noEmit` clean.
+

@@ -1,0 +1,87 @@
+{
+ "claim": "Before Florida arrived, the estate's Minnesota and Wisconsin partitions were rebuilt from retained or re-acquired publisher bytes and compared with DF-0K's recorded digests.",
+ "df0kReference": "reference/wi-statewide/V12.0.0-2026/partition-digests.json (global 5780f1ba\u2026, 132 partitions)",
+ "wisconsin": {
+  "runId": "run_6a5d84da418a892d0322a504265ff1e5",
+  "status": "completed",
+  "metrics": {
+   "rowsDiscovered": 0,
+   "rowsParsed": 3574646,
+   "rowsValid": 3513111,
+   "rowsQuarantined": 61535,
+   "rowsEmitted": 3513111,
+   "rowsUnchanged": 0,
+   "rowsRevised": 0,
+   "rowsNew": 3513111,
+   "contactObservations": 3444181,
+   "canonicalEvents": 11632019,
+   "rowsMissingFromSnapshot": 0,
+   "rowsResolved": 3513111,
+   "rowsConflicted": 25420
+  },
+  "normalizedDigest": "3e2ec68b545f333cc774d0a6dc0cfc318c2adb555faae8f03a9b14f76f989f36",
+  "partitionsActivated": 73,
+  "peakHeapMB": 143,
+  "ms": 1405433,
+  "retention": "digest_only",
+  "comparedWithDf0k": {
+   "partitions": 72,
+   "outputDigestEqual": 72,
+   "inputDigestEqual": 72,
+   "rowCountEqual": 72
+  },
+  "identicalToDf0k": 72
+ },
+ "minnesota": {
+  "reacquisition": {
+   "sha256": "e3d54ee1900a15f3e93cf38cce49c89bd988bb5bbe70a962bfe762f8daf30f08",
+   "restored": true,
+   "bytes": 2610774016,
+   "ms": 166905,
+   "retrievedAt": "2026-09-29T23:44:07.204Z"
+  },
+  "conversion": {
+   "rowsWritten": 2710201,
+   "reportedCount": 2710201,
+   "sourceSchemaDigest": "20140d162f9604269d3b0aae306d3a8e6cd6c1b38690e586310150f334818151"
+  },
+  "convertMs": 144993,
+  "bundleSha256": "3096c3b6fe41c3c1169be5e1ce990d5255887b3d64f42bb26d2dc3354ab5dfd1",
+  "runId": "run_75f8ca1bfa848df79781c31788cd0ce9",
+  "status": "completed",
+  "metrics": {
+   "rowsDiscovered": 0,
+   "rowsParsed": 2710201,
+   "rowsValid": 2648100,
+   "rowsQuarantined": 62101,
+   "rowsEmitted": 2648100,
+   "rowsUnchanged": 0,
+   "rowsRevised": 0,
+   "rowsNew": 2648100,
+   "contactObservations": 8090904,
+   "canonicalEvents": 7174656,
+   "rowsMissingFromSnapshot": 0,
+   "rowsResolved": 2648100,
+   "rowsConflicted": 17151
+  },
+  "normalizedDigest": "e9404ab1e00a06ab9aa4a1951ef4297b460009d5fcaab479248c4b31c9c0dbeb",
+  "partitionsActivated": 60,
+  "peakHeapMB": 155,
+  "ms": 1272384,
+  "retention": "digest_only",
+  "comparedWithDf0k": {
+   "partitions": 59,
+   "outputDigestEqual": 0,
+   "inputDigestEqual": 0,
+   "rowCountEqual": 59
+  },
+  "why": "The GeoPackage bytes are identical (equal sha256), but DF-0K never pinned its retrieval instant, and the bundle header, evidence and observedAt all carry the new one. Row counts are equal in all 59 counties; the digests are those of a new retrieval of the same bytes. The retrieval is now pinned in the artifact catalog."
+ },
+ "organizationPartition": {
+  "inputDigestEqualToDf0k": true,
+  "outputDigestEqualToDf0k": false,
+  "rowCountEqualToDf0k": true,
+  "why": "Same observations (input digest equal to DF-0K). Its link decisions carry the observedAt of the run that last recomputed it: in DF-0K that was Wisconsin; in this estate it was the Minnesota rebuild, whose observedAt is the new retrieval instant. The national partition recomputing on every run is the carried organization-fold P1."
+ },
+ "globalBeforeFlorida": "82ee7a7b5856734c220dae3f2f5ce8835c1d674fa1f070036eb4d20f8cf7cf0d"
+}

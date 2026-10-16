@@ -30,6 +30,7 @@ import {
   parcelAuthorityFor,
 } from '../canonical/property-resolution.ts';
 import { contributionOf, projectResolutions, type ResolutionContribution } from '../canonical/resolution-projection.ts';
+import { isSaleContributionLine, saleContributionOf } from '../canonical/sale-projection.ts';
 import {
   countyPartition,
   globalDigest,
@@ -41,7 +42,7 @@ import {
   type PartitionPlan,
 } from '../canonical/partitions.ts';
 import { createPartitionStore, type PartitionActivation, type PartitionStore } from './partition-store.ts';
-import { recomputePartitions } from './partition-projection.ts';
+import { PROPERTY_RESOLVER_VERSION, SALE_RESOLVER_VERSION, recomputePartitions } from './partition-projection.ts';
 import type { EntityLinkDecision } from '../canonical/entity-resolution.ts';
 import { organizationObservationOf } from '../canonical/organization-projection.ts';
 import {
@@ -72,6 +73,8 @@ import {
   type ChangeContext,
   type Connector,
   type ConnectorContext,
+  type NormalizeResult,
+  type ParsedRecord,
   type RunStage,
   type SourceRelease,
   type SourceRun,
@@ -129,6 +132,25 @@ export type StreamRunOptions = {
   /** Local snapshot bundle to ingest instead of crawling. */
   readonly localFile?: string;
   /**
+   * An artifact the caller has already acquired and verified, and the snapshot
+   * lines a pure, versioned derivation reads out of it.
+   *
+   * For publishers whose release is many retained files — Florida's 67 county
+   * archives, pinned by one release manifest — rather than one bundle. Storing
+   * the derived bundle beside the evidence would double the disk for nothing
+   * the evidence cannot regenerate: the NAL alone would be tens of gigabytes of
+   * NDJSON. So the derivation is recomputed on every run, its digest recorded,
+   * and the ARTIFACT the rows cite is the release manifest, which names every
+   * county file by sha256.
+   */
+  readonly derived?: {
+    readonly artifact: ArchivedArtifact;
+    readonly release: SourceRelease;
+    lines(): AsyncIterable<string>;
+    /** Marks the run as a re-interpretation of retained evidence. */
+    readonly replay?: boolean;
+  };
+  /**
    * Reuse a completed acquisition for this (source, period) if one is recorded
    * and still verifies. Turns a failed canonicalisation into a cheap retry
    * instead of a second 1.1 GB download.
@@ -147,6 +169,30 @@ export type StreamRunOptions = {
    * redone. Off by default, so existing sources behave exactly as before.
    */
   readonly skipUnchangedPartitions?: boolean;
+  /**
+   * What the run keeps of its canonical rows.
+   *
+   * `full` (the default) writes every staged table, as every run always has.
+   *
+   * `digest_only` normalizes, digests, indexes and projects every row exactly
+   * as `full` does — the same normalized digest, the same contributions, the
+   * same partitions — and does not write the bundle, event, contact or
+   * extra-row tables. It exists for a worker whose disk cannot hold a
+   * statewide estate's canonical rows beside the evidence they came from:
+   * Florida's roll is 11 million rows at ~1 KB each, compressed. The rows are
+   * a pure function of retained evidence, so they are regenerated rather than
+   * stored, and a replay must reproduce the normalized digest to prove it.
+   * Organization observations, business entities and business entity
+   * addresses are still written, so the national organization fold sees
+   * every owner name and every registry entity either way.
+   */
+  readonly canonicalRetention?: 'full' | 'digest_only';
+  /**
+   * Sees every normalized row before it is written or dropped. For audits that
+   * must run over rows a `digest_only` run does not keep — the restricted-field
+   * leakage audit, for one. Must not mutate what it is given.
+   */
+  readonly inspect?: (parsed: ParsedRecord, result: NormalizeResult) => void;
 };
 
 export type StreamRunResult = {
@@ -180,6 +226,8 @@ export type StreamRunResult = {
   /** Partitions left untouched because nothing in them changed. */
   readonly skippedPartitions: readonly string[];
   readonly timings: Readonly<Record<string, number>>;
+  /** Which canonical tables the run kept. */
+  readonly canonicalRetention: 'full' | 'digest_only';
   readonly peakHeapBytes: number;
   /** Peak heap, external, arrayBuffers and RSS per pipeline stage. */
   readonly memoryByStage: Readonly<Record<string, {
@@ -196,6 +244,8 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
   });
   const batch: BatchConfiguration = { ...DEFAULT_BATCH_CONFIG, ...options.batch };
   const dryRun = options.dryRun ?? false;
+  const retention = options.canonicalRetention
+    ?? (process.env['DF_CANONICAL_RETENTION'] === 'digest_only' ? 'digest_only' : 'full');
   const startedAt = clock.now().toISOString();
 
   const mapping = options.registry.mapping(options.mappingId);
@@ -252,7 +302,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     status,
     stage,
     dryRun,
-    replayOf: options.replayArtifact?.artifactId ?? null,
+    replayOf: options.replayArtifact?.artifactId ?? (options.derived?.replay ? options.derived.artifact.artifactId : null),
     artifactId: artifact?.artifactId ?? null,
     artifactSha256: artifact?.sha256 ?? null,
     metrics,
@@ -307,7 +357,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     const checkpoints = createCheckpointStore(varRoot);
     let resumedFromCheckpoint = false;
 
-    if (!options.replayArtifact && options.resume && options.referencePeriod) {
+    if (!options.derived && !options.replayArtifact && options.resume && options.referencePeriod) {
       const checkpoint = await checkpoints.read(source.sourceId, options.referencePeriod);
       if (checkpoint) {
         const candidate: ArchivedArtifact = {
@@ -335,7 +385,13 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       }
     }
 
-    if (resumedFromCheckpoint) {
+    if (options.derived) {
+      // Acquired and verified by the caller; the runtime reads the derivation.
+      stage = 'archive';
+      artifact = options.derived.artifact;
+      release = options.derived.release;
+      logger.info('stream.derived', { artifactId: artifact.artifactId, releaseId: release.releaseId });
+    } else if (resumedFromCheckpoint) {
       stage = 'archive';
     } else if (options.replayArtifact) {
       stage = 'archive';
@@ -454,7 +510,10 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     stage = 'parse';
     const parseStart = performance.now();
     const streaming = connector as StreamingConnector;
-    const session = await streaming.openStream(ctx, artifactStore.readLinesVerified(acquired));
+    const session = await streaming.openStream(
+      ctx,
+      options.derived ? options.derived.lines() : artifactStore.readLinesVerified(acquired),
+    );
 
     if (session.earlyDriftReasons.length > 0) {
       runLogger.error('stream.schema_drift', { reasons: session.earlyDriftReasons });
@@ -503,8 +562,10 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     };
 
     staged = dryRun ? null : await store.beginRun(runId);
-    const contributionsPath = join(scratch, 'contributions.ndjson');
-    const contributionsWriter: LineWriter = await createFileLineWriter(contributionsPath);
+    // Compressed: every accepted row leaves a contribution here, and on an
+    // 11-million-row roll the plain file alone was ~3.7 GB of a worker's disk.
+    const contributionsPath = join(scratch, 'contributions.ndjson.gz');
+    const contributionsWriter: LineWriter = await createFileLineWriter(contributionsPath, { gzip: true });
     // The jurisdictions this run actually produced rows for. The plan is built
     // from these, not from the mapping's declared scope: a statewide source
     // mapped to 87 counties that delivered one county's rows must recompute one
@@ -513,6 +574,10 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     // Per-county row counts, so a statewide run can reconcile against the
     // publisher's own per-county figures instead of only a grand total.
     const observedCountyCounts = new Map<string, number>();
+    // Counties this run produced SALE contributions for: the TRANSACTION_RESOLUTION
+    // partitions it must recompute. A parcel-only source produces none, and
+    // plans none — an empty domain is honest, an invented partition is not.
+    const observedSaleCounties = new Set<string>();
     let producedOrganizationRows = false;
 
     // Seeded with the contract, parser and normalizer versions, so a deliberate
@@ -594,18 +659,34 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
         snapshotId: snapshotKey,
       };
 
-      const { bundle, contacts, extraRows } = connector.normalize(ctx, parsed, evidence, change);
+      const normalized = connector.normalize(ctx, parsed, evidence, change);
+      const { bundle, contacts, extraRows } = normalized;
+      options.inspect?.(parsed, normalized);
 
       // Everything below writes and releases. Nothing accumulates.
       normalizedDigest.add(canonicalJson(evidenceProjectionOf(bundle)));
       if (staged) {
-        await staged.write('bundles', bundle);
-        for (const event of bundle.events) await staged.write('events', event);
-        for (const contact of contacts) await staged.write('contacts', contact);
-        // Connector-specific canonical rows, written verbatim. The runtime does
-        // not know what an instrument reference means and does not need to.
-        for (const [table, rows] of Object.entries(extraRows ?? {})) {
-          for (const row of rows) await staged.write(table as StagedTable, row);
+        if (retention === 'full') {
+          await staged.write('bundles', bundle);
+          for (const event of bundle.events) await staged.write('events', event);
+          for (const contact of contacts) await staged.write('contacts', contact);
+          // Connector-specific canonical rows, written verbatim. The runtime does
+          // not know what an instrument reference means and does not need to.
+          for (const [table, rows] of Object.entries(extraRows ?? {})) {
+            for (const row of rows) await staged.write(table as StagedTable, row);
+          }
+        } else {
+          // digest_only still keeps what the national organization fold reads:
+          // without the registry's entities and addresses, a fold over a
+          // digest_only registry run would see owner names and nothing to
+          // resolve them against, and could still record FULL_NATIONAL.
+          for (const table of ORGANIZATION_FOLD_TABLES) {
+            for (const row of extraRows?.[table] ?? []) await staged.write(table, row);
+          }
+        }
+        for (const party of bundle.parties) {
+          const observation = organizationObservationOf(party);
+          if (observation) await staged.write('organization_observations', observation);
         }
       }
       // The durable, permission-gated record is the restricted partition written
@@ -615,6 +696,13 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       for (const contribution of contributionsOf(bundle)) {
         observedCounties.add(contribution.c);
         observedCountyCounts.set(contribution.c, (observedCountyCounts.get(contribution.c) ?? 0) + 1);
+        await contributionsWriter.write(canonicalJson(contribution));
+      }
+      // Sale observations and echoes, for TRANSACTION_RESOLUTION. Same stream,
+      // marked by domain, split by county AND domain when distributed.
+      for (const sale of bundle.saleObservations ?? []) {
+        const contribution = saleContributionOf(sale);
+        observedSaleCounties.add(contribution.c);
         await contributionsWriter.write(canonicalJson(contribution));
       }
       // A run changes organization identity if it named an organization at all —
@@ -752,9 +840,16 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     if (options.skipUnchangedPartitions && !dryRun) {
       for (const [partition, prior] of priorIndexes) {
         if (partition === null || changedPartitions.has(partition) || prior.size === 0) continue;
-        // Only a partition with a live projection can be left as it is.
+        // Only a partition with a live projection can be left as it is — and a
+        // county whose rows carry sales needs a live sale projection too.
+        // A projection made by an older resolver is not "unchanged": its
+        // conflicts and provenance would differ from a recomputation now.
         const manifest = await partitions.manifest(countyPartition('PROPERTY_RESOLUTION', partition));
-        if (manifest === null) continue;
+        if (manifest === null || manifest.resolverVersion !== PROPERTY_RESOLVER_VERSION) continue;
+        if (observedSaleCounties.has(partition)) {
+          const sales = await partitions.manifest(countyPartition('TRANSACTION_RESOLUTION', partition));
+          if (sales === null || sales.resolverVersion !== SALE_RESOLVER_VERSION) continue;
+        }
         skippedCounties.add(partition);
         skippedActivations.push({
           partitionId: manifest.partitionId, state: 'skipped', generation: manifest.generation,
@@ -816,10 +911,8 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       runId,
       observedCountyFips: [...observedCounties].filter((c) => !skippedCounties.has(c)),
       producedOrganizationRows,
-      // No connector produces transaction-candidate inputs through this path
-      // yet. Declared rather than faked: an empty domain is honest, an invented
-      // partition is not.
-      producedTransactionRows: false,
+      producedTransactionRows: observedSaleCounties.size > 0,
+      observedTransactionCountyFips: [...observedSaleCounties].filter((c) => !skippedCounties.has(c)),
     });
 
     if (!dryRun) {
@@ -933,7 +1026,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
       run, artifact, snapshot, resolutions, conflicts, entityLinks,
       partitionPlan, activations, globalDigest: estateDigest, countyCounts, uncoveredPartitions,
       changeCounts: { ...changeCounts }, skippedPartitions,
-      timings, peakHeapBytes, memoryByStage,
+      timings, canonicalRetention: retention, peakHeapBytes, memoryByStage,
     };
   }
 }
@@ -962,10 +1055,16 @@ async function* allContributions(
   yield* readLines(currentPath);
 }
 
+/** Extra-row tables the national organization fold reads; kept under every retention. */
+const ORGANIZATION_FOLD_TABLES = ['business_entities', 'business_entity_addresses'] as const satisfies readonly StagedTable[];
+
 /**
  * Which runs the national organization fold must see, and which it can (DF-0O).
- * Expected: every run with contributions in a property partition, every run the
- * previous fold read, and this run. Available: every run with committed rows.
+ * Expected: every run with contributions in a county partition of any domain
+ * (property or transaction), every run the previous fold read, and this run.
+ * Available: every run the fold can read — through its organization
+ * observations (every run since DF-0M, `digest_only` included) or, for an
+ * older run, through its committed bundles.
  */
 export async function organizationCompleteness(
   store: GenerationStore,
@@ -974,12 +1073,16 @@ export async function organizationCompleteness(
 ): Promise<OrganizationCompleteness> {
   const expected = new Set<string>(runId === null ? [] : [runId]);
   for (const key of await partitions.listPartitions()) {
-    if (key.domain !== 'PROPERTY_RESOLUTION') continue;
+    if (key.domain === 'ORGANIZATION_RESOLUTION') continue;
     for (const r of await partitions.contributingRuns(key)) expected.add(r);
   }
   const prior = await partitions.manifest(nationPartition('ORGANIZATION_RESOLUTION'));
   for (const r of prior?.completeness?.contributingRuns ?? []) expected.add(r);
-  return assessOrganizationCompleteness(expected, await store.committedRuns('bundles'), {
+  const available = new Set([
+    ...await store.committedRuns('organization_observations'),
+    ...await store.committedRuns('bundles'),
+  ]);
+  return assessOrganizationCompleteness(expected, available, {
     historyEstablished: historyEstablishedAfter(prior),
   });
 }
@@ -992,11 +1095,20 @@ export async function organizationCompleteness(
  * is untouched and keeps whatever `kind` its source stated.
  */
 async function* organizationObservations(store: GenerationStore): AsyncGenerator<string> {
-  for await (const line of store.readTable('bundles')) {
-    const bundle = JSON.parse(line) as CanonicalBundle;
-    for (const party of bundle.parties) {
-      const observation = organizationObservationOf(party);
-      if (observation) yield canonicalJson(observation);
+  for (const runId of await store.listRuns()) {
+    // A run that wrote its organization observations is read from them —
+    // identical lines, a fraction of the bytes. A run from before that table
+    // existed is read the old way, from its bundles.
+    if (await store.hasRunTable(runId, 'organization_observations')) {
+      yield* store.readRunTable(runId, 'organization_observations');
+      continue;
+    }
+    for await (const line of store.readRunTable(runId, 'bundles')) {
+      const bundle = JSON.parse(line) as CanonicalBundle;
+      for (const party of bundle.parties) {
+        const observation = organizationObservationOf(party);
+        if (observation) yield canonicalJson(observation);
+      }
     }
   }
 }
@@ -1017,12 +1129,18 @@ async function distributeContributions(
   skipCounties: ReadonlySet<string> = new Set(),
 ): Promise<readonly string[]> {
   const written: string[] = [];
-  const keyOf = (line: string): string => {
+  const countyOf = (line: string): string => {
     const at = line.indexOf('"c":"');
     if (at === -1) return '';
     const from = at + 5;
     const to = line.indexOf('"', from);
     return to === -1 ? '' : line.slice(from, to);
+  };
+  // Domain, then county: a county's property lines and its sale lines are two
+  // contiguous runs of the sorted stream, bound for two different partitions.
+  const keyOf = (line: string): string => {
+    const county = countyOf(line);
+    return county === '' ? '' : `${isSaleContributionLine(line) ? 'T' : 'P'}${county}`;
   };
 
   /**
@@ -1045,22 +1163,23 @@ async function distributeContributions(
   let pending: IteratorResult<string> = await sorted.next();
 
   while (!pending.done) {
-    const county = keyOf(pending.value);
-    if (county === '') {
+    const key = keyOf(pending.value);
+    if (key === '') {
       // A contribution with no county cannot be placed in a partition.
       pending = await sorted.next();
       continue;
     }
+    const county = key.slice(1);
 
     if (skipCounties.has(county)) {
-      // An unchanged county: its partition keeps what it has.
-      while (!pending.done && keyOf(pending.value) === county) pending = await sorted.next();
+      // An unchanged county: its partitions keep what they have.
+      while (!pending.done && keyOf(pending.value) === key) pending = await sorted.next();
       continue;
     }
 
-    const partition = countyPartition('PROPERTY_RESOLUTION', county);
+    const partition = countyPartition(key.startsWith('T') ? 'TRANSACTION_RESOLUTION' : 'PROPERTY_RESOLUTION', county);
     async function* countyLines(): AsyncGenerator<string> {
-      while (!pending.done && keyOf(pending.value) === county) {
+      while (!pending.done && keyOf(pending.value) === key) {
         yield pending.value;
         pending = await sorted.next();
       }

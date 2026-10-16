@@ -329,6 +329,33 @@ price and no instrument field of any kind — not even the assessor's sale echo
 Minnesota's layer carries. Wisconsin transfer coverage waits on an automated
 RETR distribution, and the coverage report keeps saying so.
 
+## Florida: parcel, roll and sale observations (DF-0M)
+
+DF-0M adds Florida's 67 counties from three Department of Revenue sources, each gated, ingested and
+certified on its own (`FLORIDA-STATEWIDE-PROPERTY-FABRIC.md`): the county parcel shapefiles
+(`parcel`), the NAL roll (`parcel`, `assessor`, `ownership`, `tax`) and the Sale Data File
+(`sale_observation`, `sale_economics`).
+
+| | DF-0K | DF-0M |
+|---|---:|---:|
+| Minnesota automated-core parcel jurisdictions | 59 | 59 |
+| Wisconsin automated-core parcel jurisdictions | 72 | 72 |
+| Florida automated-core parcel jurisdictions | 0 | **67** |
+| **Total automated-core parcel jurisdictions** | 131 | **198** |
+| Florida sale-observation jurisdictions | 0 | **67** |
+| National transfer / deed / mortgage coverage | 0 | **0** |
+
+Every number is derived by `buildCoverage` from the registry and asserted by tests
+(`tests/fl-statewide.test.ts`, `tests/zero-cost-doctrine.test.ts`,
+`tests/automated-acquisition-gate.test.ts`, `tests/wi-statewide-parcels.test.ts`).
+
+**Two new capabilities, deliberately narrower than `transfer`.** `sale_observation` is an
+appraiser's record that a parcel sold, in a month, with the appraiser's qualification of the sale;
+`sale_economics` is its price as the publisher derives it from the documentary stamp tax. Neither is a
+deed, a recorded instrument, a declaration or an arm's-length finding, so Florida adds **nothing** to
+`transfer`, `deed` or `mortgage`, and the national transfer count stays zero. Florida's recorded
+instruments live with 67 county clerks; none is claimed here.
+
 ## New York parcel coverage (DF-0N)
 
 DF-0N adds New York's **62** county-equivalents — the five NYC boroughs each
@@ -360,9 +387,12 @@ mapping, so it adds no coverage of any kind.
 Coverage is now also reported per state and per dashboard capability with
 one derived lifecycle per mapping — `df national`, `src/registry/lifecycle.ts`
 — including `NOT_SUPPORTED` where no source so much as claims a capability.
-Automated-core parcel jurisdictions remain **193**, now computed by
-`automatedCoreJurisdictions` rather than asserted as a literal. Sale
-economics, transfer, deed, mortgage, release, lien and foreclosure stay at
-**0**. Florida (67 counties, certified on its own branch) is not yet merged and not counted here. The full table, and Florida's integration contract, are in
-[NATIONAL-INTEGRATION-CERTIFICATION.md](NATIONAL-INTEGRATION-CERTIFICATION.md).
-No new state was added in DF-0O.
+Automated-core parcel jurisdictions were **193** for the three states of
+DF-0O, computed by `automatedCoreJurisdictions` rather than asserted as a
+literal. With Florida's DF-0M branch integrated, the same computation gives
+**260** (59 + 72 + 62 + 67), each state certified by its own statewide run.
+Sale observations: 126 (Minnesota's assessor echo, Florida's SDF). Sale
+economics: 67 (Florida's doc-stamp-derived price only). Transfer, deed,
+mortgage, release, lien and foreclosure stay at **0**. The full tables are in
+[NATIONAL-INTEGRATION-CERTIFICATION.md](NATIONAL-INTEGRATION-CERTIFICATION.md)
+§4 and §15. DF-0O itself acquired no new state.
