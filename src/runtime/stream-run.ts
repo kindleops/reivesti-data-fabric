@@ -83,7 +83,8 @@ import { createGenerationStore, type GenerationStore, type StagedTable } from '.
 import { createCheckpointStore } from './checkpoint.ts';
 import { assertAutomationPermitted } from './transport.ts';
 import type { RateLimiter, RetryPolicy, Sleep } from './retry.ts';
-import { ensurePrivateDir } from '../core/private-fs.ts';
+import { claimScratch } from './scratch.ts';
+import { assessOrganizationCompleteness, type OrganizationCompleteness } from '../canonical/organization-completeness.ts';
 
 export type BatchConfiguration = {
   /** Rows per source query. Clamped to the layer's own maximum. */
@@ -227,7 +228,9 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
   let release: SourceRelease | null = null;
   let snapshot: SourceSnapshot | null = null;
   const metrics = emptyMetrics();
-  const scratch = join(varRoot, 'scratch', `run-${Date.now().toString(36)}`);
+  // Named before it is claimed so the `finally` can always remove it; claimed
+  // (created and stamped with this process as owner) once the run is admitted.
+  let scratch = join(varRoot, 'scratch', `run-unclaimed-${Date.now().toString(36)}-${process.pid}`);
 
   const finish = (status: SourceRun['status'], extra: Partial<SourceRun>): SourceRun => ({
     runId: extra.runId ?? deterministicId('run', source.sourceId, mapping.mappingId, 'preflight', startedAt),
@@ -293,7 +296,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
     }
     // 0700: the run's scratch holds contributions and sort spills, both of which
     // are source rows before the contact plane has split them.
-    await ensurePrivateDir(scratch, join(varRoot, 'scratch'));
+    scratch = await claimScratch(varRoot, 'run');
 
     // ---- acquire ----------------------------------------------------------
     const acquireStart = performance.now();
@@ -833,6 +836,7 @@ export async function runStreamingConnector(options: StreamRunOptions): Promise<
           observations: () => organizationObservations(store),
           entities: () => store.readTable('business_entities'),
           addresses: () => store.readTable('business_entity_addresses'),
+          completeness: () => organizationCompleteness(store, partitions, runId),
         },
       });
       activations.push(...recomputed.activations, ...skippedActivations);
@@ -952,6 +956,26 @@ async function* allContributions(
     }
   }
   yield* readLines(currentPath);
+}
+
+/**
+ * Which runs the national organization fold must see, and which it can (DF-0O).
+ * Expected: every run with contributions in a property partition, every run the
+ * previous fold read, and this run. Available: every run with committed rows.
+ */
+export async function organizationCompleteness(
+  store: GenerationStore,
+  partitions: PartitionStore,
+  runId: string | null,
+): Promise<OrganizationCompleteness> {
+  const expected = new Set<string>(runId === null ? [] : [runId]);
+  for (const key of await partitions.listPartitions()) {
+    if (key.domain !== 'PROPERTY_RESOLUTION') continue;
+    for (const r of await partitions.contributingRuns(key)) expected.add(r);
+  }
+  const prior = await partitions.manifest(nationPartition('ORGANIZATION_RESOLUTION'));
+  for (const r of prior?.completeness?.contributingRuns ?? []) expected.add(r);
+  return assessOrganizationCompleteness(expected, await store.committedRuns('bundles'));
 }
 
 /**

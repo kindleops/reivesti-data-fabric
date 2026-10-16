@@ -282,3 +282,16 @@ The public polygon product for the 38 counties that permit redistribution: the
 same substrate as the centroids there, with identical keys. `VALIDATION_ONLY`,
 **no mapping**, so no coverage; retained as raw geometry evidence under its own
 fingerprint and never ingested. See `NEW-YORK-STATEWIDE-PROPERTY.md` §3.
+
+## Lifecycle (DF-0O)
+
+A source's standing is derived, never declared: `lifecycleOf(source, mapping)`
+in `src/registry/lifecycle.ts` reads the doctrine verdict, the mapping status,
+the acquisition class and the automation status, and returns one of
+`ACTIVE_AUTOMATED_CORE`, `CORE_ELIGIBLE_NOT_INGESTED`, `BLOCKED_ACCESS`,
+`BLOCKED_MANUAL_ACQUISITION`, `BLOCKED_AUTOMATION`, `PAID_OPTIONAL`,
+`DEFERRED`, `FIXTURE_ONLY` or `UNKNOWN`. `ACTIVE_AUTOMATED_CORE` requires
+`automationStatus: sanctioned` as well as an automated class. A new source is
+added by appending its row and mapping; `tests/national-integration.test.ts`
+rejects duplicate ids and any manual-only, prohibited, paid or unpriced source
+reading as automated core. `df national` prints the table.

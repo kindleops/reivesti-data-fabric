@@ -50,6 +50,7 @@
  */
 import { fail } from '../core/errors.ts';
 import { sha256 } from '../core/hash.ts';
+import type { OrganizationCompleteness } from './organization-completeness.ts';
 
 /**
  * The distinct identity problems the estate solves.
@@ -224,6 +225,12 @@ export type PartitionManifest = {
   readonly activatedAt: string;
   /** The run that last recomputed it. Provenance, not identity. */
   readonly runId: string;
+  /**
+   * Organization partitions only (DF-0O): which runs' evidence the fold saw,
+   * and whether that is every run the estate holds evidence for. Absent on
+   * folds written before DF-0O, which therefore read as UNVERIFIED.
+   */
+  readonly completeness?: OrganizationCompleteness;
 };
 
 /**

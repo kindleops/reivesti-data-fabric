@@ -685,6 +685,54 @@ async function main(): Promise<number> {
       return ownerOnly ? 0 : 1;
     }
 
+    case 'scratch': {
+      // Lists run scratch with each directory's owner and whether it is still
+      // running. --clean-orphans removes ONLY directories whose owner is
+      // provably gone (same host and boot, pid dead or reused). Unowned and
+      // unverifiable directories are reported and left alone.
+      const { listScratch, cleanOrphanedScratch } = await import('../runtime/scratch.ts');
+      const summarize = (e: { name: string; status: string; bytes: number; reason: string; owner: { purpose: string; startedAt: string } | null }) => ({
+        name: e.name, status: e.status, bytes: e.bytes, purpose: e.owner?.purpose ?? null, startedAt: e.owner?.startedAt ?? null, reason: e.reason,
+      });
+      if (flags['clean-orphans'] === true) {
+        const { removed, kept } = await cleanOrphanedScratch(VAR_ROOT);
+        out({ removed: removed.map(summarize), kept: kept.map(summarize), freedBytes: removed.reduce((n, e) => n + e.bytes, 0) });
+        return 0;
+      }
+      const entries = await listScratch(VAR_ROOT);
+      out({ entries: entries.map(summarize), orphaned: entries.filter((e) => e.status === 'ORPHANED').length });
+      return 0;
+    }
+
+    case 'national': {
+      // The reconciled source graph: one lifecycle per mapping, and per state and
+      // capability how many county-equivalents each lifecycle serves. Registry
+      // facts only; live evidence is `df partitions` / `df organizations`.
+      const { sourceLifecycles, capabilityCoverage, automatedCoreJurisdictions, DASHBOARD_CAPABILITIES } = await import('../registry/lifecycle.ts');
+      out({
+        automatedCoreJurisdictions: Object.fromEntries(DASHBOARD_CAPABILITIES.map((c) => [c, automatedCoreJurisdictions(registry, c)])),
+        sources: sourceLifecycles(registry),
+        coverage: capabilityCoverage(registry),
+      });
+      return 0;
+    }
+
+    case 'capacity': {
+      // What the preflight would say for a full statewide run of each automated
+      // connector, measured on this worker now. Read-only.
+      const { preflightCapacity, planFromProfile } = await import('../runtime/capacity.ts');
+      const { NY_FOOTPRINT } = await import('../connectors/ny-statewide-parcels/pipeline.ts');
+      const { WI_FOOTPRINT } = await import('../connectors/wi-statewide-parcels/pipeline.ts');
+      const rows = typeof flags['rows'] === 'string' ? Number(flags['rows']) : null;
+      const verdicts = [];
+      for (const [profile, fullRows, archive] of [[NY_FOOTPRINT, 5_510_061, 562_761_366], [WI_FOOTPRINT, 3_574_646, 759_926_092]] as const) {
+        const n = rows ?? fullRows;
+        verdicts.push(await preflightCapacity(VAR_ROOT, planFromProfile(`${profile.source} (${n} rows)`, profile, n, { publisherArchive: archive })));
+      }
+      out({ verdicts });
+      return verdicts.every((v) => v.ok) ? 0 : 1;
+    }
+
     case 'runs': {
       const fabricStore = createNdjsonFabricStore(VAR_ROOT);
       out((await fabricStore.runs()).map(runReport));
@@ -876,7 +924,34 @@ async function main(): Promise<number> {
           outputDigest: m.outputDigest,
           resolver: m.resolverVersion,
           activatedAt: m.activatedAt,
+          ...(m.domain === 'ORGANIZATION_RESOLUTION' ? {
+            completeness: m.completeness?.status ?? 'UNVERIFIED',
+            missingRuns: m.completeness?.missingRuns ?? null,
+          } : {}),
         })),
+      });
+      return 0;
+    }
+
+    case 'organizations': {
+      // Read-only: what the national organization fold's completeness IS for
+      // the estate on disk, against the verdict its manifest recorded.
+      const { organizationCompleteness } = await import('../runtime/stream-run.ts');
+      const { nationPartition } = await import('../canonical/partitions.ts');
+      const { organizationCompletenessOf } = await import('../canonical/organization-completeness.ts');
+      const partitions = createPartitionStore(VAR_ROOT);
+      const manifest = await partitions.manifest(nationPartition('ORGANIZATION_RESOLUTION'));
+      const now = await organizationCompleteness(createGenerationStore(VAR_ROOT), partitions, null);
+      out({
+        partition: 'organization/us',
+        recorded: organizationCompletenessOf(manifest),
+        observations: manifest?.inputRowCount ?? null,
+        links: manifest?.rowCount ?? null,
+        estateNow: now.status,
+        expectedRuns: now.expectedRuns.length,
+        readableRuns: now.contributingRuns.length,
+        missingRuns: now.missingRuns,
+        national: manifest !== null && manifest.completeness?.status === 'FULL_NATIONAL' && now.status === 'FULL_NATIONAL',
       });
       return 0;
     }
@@ -944,6 +1019,10 @@ async function main(): Promise<number> {
           '  df stream <mappingId> --artifact <sha256> --period <l>   replay, no network',
           '  df sweep                                          reclaim abandoned run generations',
           '  df permissions [--fix]                            audit (or tighten) restricted, scratch, index and archive trees to owner-only',
+          '  df scratch [--clean-orphans]                      run scratch by owner; remove only directories whose owner is provably gone',
+          '  df national                                       source lifecycles and per-state capability coverage (NOT_SUPPORTED where unclaimed)',
+          '  df capacity [--rows N]                            capacity preflight for a full statewide NY / WI run on this worker',
+          '  df organizations                                  national organization fold: recorded vs actual completeness',
           '  df checkpoints                                    completed acquisitions available to --resume',
           '  df replay <mappingId> --artifact <sha256> --period <label>',
           '  df overlap-audit --direct <sourceId> --aggregation <sourceId> [--county <fips>]',

@@ -65,6 +65,8 @@ export type GenerationStore = {
   readTable(table: StagedTable): AsyncGenerator<string>;
   readRunTable(runId: string, table: StagedTable): AsyncGenerator<string>;
   listRuns(): Promise<readonly string[]>;
+  /** Runs whose active generation holds `table` — what a reader can actually read now. */
+  committedRuns(table: StagedTable): Promise<readonly string[]>;
   /** Removes generation directories no CURRENT pointer refers to. */
   sweepAbandoned(): Promise<number>;
 };
@@ -219,6 +221,19 @@ export function createGenerationStore(root: string, options: GenerationStoreOpti
       } catch (e) {
         if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e;
       }
+    },
+
+    async committedRuns(table) {
+      const base = join(dirFor(table), 'runs');
+      const runs = await readdir(base).catch(() => [] as string[]);
+      const out: string[] = [];
+      for (const runId of runs.sort()) {
+        const generation = await currentGeneration(join(base, runId));
+        if (!generation) continue;
+        const plain = join(base, runId, generation, `${table}.ndjson`);
+        if (await access(plain).then(() => true, () => access(`${plain}.gz`).then(() => true, () => false))) out.push(runId);
+      }
+      return out;
     },
 
     async listRuns() {

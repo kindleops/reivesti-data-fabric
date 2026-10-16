@@ -192,3 +192,16 @@ catalog): its workspace copy had been deleted during the Wisconsin replay to
 free disk, on the premise that the test store would outlive the container. That
 is the exact failure the invariant names, and why §0 item 7 pins certified
 retrieval facts in Git.
+
+## Capacity preflight (DF-0O)
+
+Before the New York and Wisconsin pipelines download, rehydrate, derive or
+write anything, `preflightRun` (`src/runtime/capacity.ts`) sizes the run from
+a measured per-row footprint and refuses — `CONFIG insufficient capacity`, with
+the arithmetic and a remedy — when the var root's filesystem, a separate
+scratch volume, or (for tmpfs scratch) free memory cannot hold it. A 10% margin
+covers estimate error. `df capacity` shows the verdict for a full statewide
+run on the current worker. The preflight never moves scratch to tmpfs and
+never deletes anything to make room; freeing space, a larger worker, or a
+separate scratch volume are operator decisions. On the DF-0N/DF-0O worker
+(4.0 GiB free) both full runs are refused, as they should be.

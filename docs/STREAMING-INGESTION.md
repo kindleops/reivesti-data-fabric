@@ -628,3 +628,16 @@ statewide estates did not fit one session's disk. Run tables are written as
 (`readLines` decompresses on the fly), so compressed and plain generations can
 coexist. Restricted tables keep mode 0600. The whole suite passes in both modes;
 a leak scan of a compressed estate must decompress, and the Wisconsin test does.
+
+## Scratch ownership and the national organization fold (DF-0O)
+
+- **Scratch is claimed, not just created.** `claimScratch` makes the run's
+  directory owner-only and writes `.owner.json` (pid, host, boot id, start,
+  purpose). A killed run's scratch is ORPHANED only when its owner is provably
+  gone; `df scratch --clean-orphans` removes those and nothing else.
+- **The organization fold records its inputs.** `organization/us`'s manifest
+  carries `completeness`: the runs it was expected to read, the runs it did,
+  and the missing ones. `PARTIAL` folds activate but are never national.
+  `df organizations` and `df partitions` report it.
+- **Snapshot indexes** are written with their index root so wider legacy
+  directories are tightened.

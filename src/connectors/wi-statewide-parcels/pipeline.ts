@@ -57,7 +57,14 @@ import {
   createWiStatewideParcelConnector,
 } from './index.ts';
 import { discoverWiRelease, WI_FEATURE_LAYER_ID, WI_FEATURE_SERVICE_URL, type WiDiscoveredRelease } from './release.ts';
-import { ensurePrivateDir } from '../../core/private-fs.ts';
+import { claimScratch } from '../../runtime/scratch.ts';
+import {
+  preflightRun,
+  rowsFromArchiveBytes,
+  type CapacityProbe,
+  type CapacityVerdict,
+  type FootprintProfile,
+} from '../../runtime/capacity.ts';
 
 export const WI_STATEWIDE_MAPPING_ID = 'wi_statewide_parcels__all_wi_counties';
 
@@ -89,7 +96,39 @@ export type WiPipelineOptions = {
    * and the commit fails, nothing is activated.
    */
   readonly durable?: DurableStore | null;
+  /** Disk/memory probe for the capacity preflight. Tests inject one; production measures. */
+  readonly capacityProbe?: CapacityProbe;
 };
+
+/**
+ * Measured on the full V12.0.0-2026 statewide run (DF-0K/DF-0H, 3,574,646
+ * rows, gzip run tables). Indexes, organization fold and scratch peak use the
+ * New York measurements, the larger of the two shapes. Per row, rounded up.
+ */
+export const WI_FOOTPRINT: FootprintProfile = {
+  source: WI_STATEWIDE_SOURCE_ID,
+  measuredOn: 'V12.0.0-2026 full statewide run (DF-0H/DF-0K)',
+  derivedBundleBytesPerRow: 762,
+  runTableBytesPerRow: 1_310,
+  partitionBytesPerRow: 750,
+  indexBytesPerRow: 24,
+  organizationBytesPerRow: 62,
+  scratchPeakBytesPerRow: 850,
+  archiveBytesPerRow: 213,
+};
+
+/** Refuses, before anything is downloaded, rehydrated, derived or written, a run that cannot fit. */
+function preflightWi(
+  options: Pick<WiPipelineOptions, 'varRoot' | 'capacityProbe' | 'logger'>,
+  label: string,
+  rows: number,
+  extra: Readonly<Record<string, number>>,
+  partitionsAlreadyLive: boolean,
+): Promise<CapacityVerdict> {
+  return preflightRun(options.varRoot, WI_FOOTPRINT, label, rows, extra, {
+    partitionsAlreadyLive, probe: options.capacityProbe, logger: options.logger,
+  });
+}
 
 /** How this run's raw bytes were obtained and kept. */
 export type WiDurability = {
@@ -180,6 +219,13 @@ export async function runWiStatewidePipeline(options: WiPipelineOptions): Promis
       logger.info('wi.noop', { reason: plan.reason });
       return { outcome: 'NOOP', discovered, plan, ...empty, ledger: entry, durability: null, timings, memory: memory.stop() };
     }
+
+    // ---- capacity: before any download, rehydration, derivation or write ----------
+    const forcedSameRelease = plan.action === 'NOOP';
+    await preflightWi(options, `${WI_STATEWIDE_SOURCE_ID} ${discovered.referencePeriod}`,
+      Math.min(discovered.witness.count, options.maxRows ?? Number.POSITIVE_INFINITY),
+      { publisherArchive: forcedSameRelease ? 0 : discovered.head.contentLength ?? 0 },
+      forcedSameRelease);
 
     if (plan.action === 'NOOP' && plan.previous.publisherSha256 !== null) {
       // Forced, and this exact release is already retained: re-ingest from the
@@ -286,6 +332,8 @@ export async function replayWiFromArchive(
   const source = options.registry.source(WI_STATEWIDE_SOURCE_ID);
   const timings: Record<string, number> = {};
   const local = await locateRetainedArchive(options, options.referencePeriod, options.publisherSha256);
+  const label = `${WI_STATEWIDE_SOURCE_ID} replay ${options.referencePeriod}`;
+  if (local !== null) await preflightWi(options, label, rowsFromArchiveBytes(WI_FOOTPRINT, local.byteLength), {}, false);
   let publisher = local;
   let rehydrateMs: number | null = null;
   if (publisher === null && options.durable) {
@@ -294,6 +342,7 @@ export async function replayWiFromArchive(
     publisher = restored.artifact;
     rehydrateMs = restored.ms;
     timings['rehydrate'] = restored.ms;
+    await preflightWi(options, label, rowsFromArchiveBytes(WI_FOOTPRINT, restored.artifact.byteLength), {}, false);
   }
   if (publisher === null) {
     fail('REPLAY', 'no retained archive with that sha256 for that release, in the workspace or a durable store', {
@@ -369,8 +418,7 @@ async function deriveAndIngest(
 
   // ---- derive ----------------------------------------------------------------
   t = performance.now();
-  const scratch = join(options.varRoot, 'scratch', `wi-derive-${Date.now().toString(36)}`);
-  await ensurePrivateDir(scratch, join(options.varRoot, 'scratch'));
+  const scratch = await claimScratch(options.varRoot, 'wi-derive');
   let derivation: BundleDerivation | null = null;
   const archivePath = options.artifactStore.localPath(publisher);
   const bundle = await options.artifactStore.archiveStream(
