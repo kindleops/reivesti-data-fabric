@@ -71,6 +71,9 @@ import { GEOGRAPHY_PROVENANCE, US_COUNTY_EQUIVALENTS } from '../registry/us-geog
 import { checkPromotion } from '../discovery/candidates.ts';
 import { LEGAL_CAPABILITY_LIMITS, PLATFORM_FAMILIES, SOURCE_CANDIDATES } from '../discovery/catalogue.ts';
 import { candidateJurisdictionCount, rankCatalogue } from '../discovery/rank.ts';
+import { NATIONAL_TRANSACTION_CANDIDATES } from '../discovery/national-catalogue.ts';
+import { rankTransactionCandidates, TRANSACTION_WEIGHTS } from '../discovery/transaction-priority.ts';
+import { registrySemanticFindings } from '../discovery/transaction-semantics.ts';
 import { createPartitionStore } from '../runtime/partition-store.ts';
 import { globalDigest } from '../canonical/partitions.ts';
 import type { Connector, StreamingConnector } from '../runtime/connector.ts';
@@ -203,6 +206,18 @@ async function main(): Promise<number> {
         out({
           gate: 'cost must be zero for a CORE candidate; excluded candidates are not scored',
           ranked: rankCatalogue(),
+        });
+        return 0;
+      }
+      if (sub === 'transactions') {
+        // DF-0Q: the transaction-priority research queue. Separate from `rank`
+        // on purpose; reaches no publisher.
+        out({
+          gate: 'PROMOTABLE needs every discovery gate evidenced; EXCLUDED is never scored; '
+            + 'DF-0Q leads are UNVERIFIED hypotheses with no evidence',
+          weights: TRANSACTION_WEIGHTS,
+          registrySemanticFindings: registrySemanticFindings(registry.mappings),
+          ranked: rankTransactionCandidates([...SOURCE_CANDIDATES, ...NATIONAL_TRANSACTION_CANDIDATES], registry),
         });
         return 0;
       }
@@ -1015,6 +1030,7 @@ async function main(): Promise<number> {
           '',
           '  df sources candidates                             researched source candidates',
           '  df sources rank                                   zero-cost priority ranking',
+          '  df sources transactions                           transaction-priority research queue (DF-0Q)',
           '  df sources inspect <id|name>                      one candidate with its evidence',
           '  df sources verify <id|name>                       what a candidate still needs to be promotable',
           '  df sources platforms                              shared source-platform families',

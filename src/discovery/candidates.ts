@@ -15,8 +15,10 @@
 import { deterministicId } from '../core/hash.ts';
 import { fail } from '../core/errors.ts';
 import { isZeroCost } from '../registry/types.ts';
+import type { TransactionSemanticClass } from './transaction-semantics.ts';
 import type {
   AccessType,
+  AcquisitionClass,
   AutomationStatus,
   Capability,
   CostClass,
@@ -123,6 +125,17 @@ export type SourceCandidate = {
   readonly cadence: RefreshFrequency | null;
   /** Suspected shared platform, if any. */
   readonly platformId: string | null;
+  /**
+   * The acquisition MECHANISM, as distinct from permission (DF-0J.1A). Optional
+   * so pre-DF-0Q candidates stay valid; absence reads as UNKNOWN_AUTOMATION.
+   */
+  readonly acquisitionHypothesis?: AcquisitionClass;
+  /**
+   * What one transaction-type record of this source means. Required in practice
+   * for any candidate claiming a transaction capability (DF-0Q); see
+   * `transaction-semantics.ts`.
+   */
+  readonly transactionSemantics?: readonly TransactionSemanticClass[];
 
   readonly verification: VerificationLevel;
   readonly lastResearchedAt: string;
@@ -249,6 +262,35 @@ const CADENCE_SCORE: Partial<Record<RefreshFrequency, number>> = {
   quarterly: 0.4, annual: 0.25, irregular: 0.2, unknown: 0.1,
 };
 
+export function cadenceScore(cadence: RefreshFrequency | null): number {
+  return cadence === null ? 0.1 : (CADENCE_SCORE[cadence] ?? 0.1);
+}
+
+/**
+ * Square root, not linear: a statewide source beating a county source is
+ * right; beating it by 254x is not, because coverage is not the only thing
+ * that matters and Dallas alone is worth more than 254 empty counties.
+ */
+export function jurisdictionLeverage(jurisdictionCount: number, totalJurisdictions: number): number {
+  return totalJurisdictions === 0 ? 0 : Math.min(1, Math.sqrt(jurisdictionCount / totalJurisdictions) * 2.2);
+}
+
+/**
+ * Acquisition classes that are KNOWN not to be automatable. Unknown is not in
+ * the set: it scores low rather than being excluded, exactly as an unknown
+ * `automationHypothesis` does, because a ranking is a research order and
+ * "nobody has looked" must stay distinguishable from "somebody looked and a
+ * person has to click".
+ */
+const NON_AUTOMATED_ACQUISITION: ReadonlySet<AcquisitionClass> = new Set<AcquisitionClass>([
+  'MANUAL_ONLY', 'PROHIBITED_AUTOMATION',
+]);
+
+export function knownNonAutomated(candidate: SourceCandidate): boolean {
+  return candidate.automationHypothesis === 'manual_only'
+    || (candidate.acquisitionHypothesis !== undefined && NON_AUTOMATED_ACQUISITION.has(candidate.acquisitionHypothesis));
+}
+
 export type RankingInput = {
   readonly candidate: SourceCandidate;
   /** Active county-equivalents the scope expands to. Supplied by the registry. */
@@ -274,18 +316,13 @@ export function rankCandidate(input: RankingInput): RankedCandidate {
   const base = { candidateId: c.candidateId, sourceName: c.sourceName, authority: c.authority };
 
   const components: PriorityComponents = {
-    jurisdictionLeverage: input.totalJurisdictions === 0
-      ? 0
-      // Square root, not linear: a statewide source beating a county source is
-      // right; beating it by 254x is not, because coverage is not the only thing
-      // that matters and Dallas alone is worth more than 254 empty counties.
-      : Math.min(1, Math.sqrt(input.jurisdictionCount / input.totalJurisdictions) * 2.2),
+    jurisdictionLeverage: jurisdictionLeverage(input.jurisdictionCount, input.totalJurisdictions),
     capabilityRichness: Math.min(1, c.capabilities.length / 5),
     authorityQuality: input.authoritative ? 1 : 0.5,
     machineReadability: MACHINE_READABILITY[c.accessHypothesis] ?? 0.3,
     automation: AUTOMATION_SCORE[c.automationHypothesis],
     historicalDepth: depthScore(c.historicalDepth),
-    refreshFrequency: c.cadence === null ? 0.1 : (CADENCE_SCORE[c.cadence] ?? 0.1),
+    refreshFrequency: cadenceScore(c.cadence),
     engineeringFeasibility: input.platformConnectorExists ? 1 : (c.platformId !== null ? 0.7 : 0.5),
     marketRelevance: c.capabilities.length === 0
       ? 0
@@ -303,6 +340,16 @@ export function rankCandidate(input: RankingInput): RankedCandidate {
   if (c.automationHypothesis === 'prohibited') {
     return { ...base, components, score: 0, excluded: 'automated acquisition is prohibited by the publisher' };
   }
+  // DF-0Q: the DF-0J.1A acquisition gate, applied to ranking. Before this a
+  // candidate known to need a person scored HIGHER than an uninvestigated one
+  // (manual_only 0.5 against unknown 0.1), so the ranking rewarded exactly the
+  // finding that disqualifies a source. A gate, like cost: no weight changed.
+  if (knownNonAutomated(c)) {
+    return {
+      ...base, components, score: 0,
+      excluded: `no unattended acquisition path (${c.acquisitionHypothesis ?? c.automationHypothesis}): a human is not an acquisition mechanism`,
+    };
+  }
 
   let score = 0;
   for (const [name, weight] of Object.entries(WEIGHTS)) {
@@ -318,7 +365,7 @@ export function rankCandidates(inputs: readonly RankingInput[]): readonly Ranked
     .sort((a, b) => b.score - a.score || a.candidateId.localeCompare(b.candidateId));
 }
 
-function depthScore(depth: string | null): number {
+export function depthScore(depth: string | null): number {
   if (depth === null) return 0.1;
   const year = Number(depth.slice(0, 4));
   if (!Number.isFinite(year)) return 0.1;
