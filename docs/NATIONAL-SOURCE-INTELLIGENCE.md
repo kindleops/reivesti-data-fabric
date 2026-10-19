@@ -376,8 +376,9 @@ transaction work, per the brief.
   both runs is `migration-execution.test.ts`, which cannot import `pg` because
   `node_modules` is absent in this worktree: environmental and pre-existing.
 - `df national` run directly on this branch: totals identical to §2.
-- Not run: `tsc --noEmit`, the PostgreSQL gate (no `node_modules`);
-  `df sources transactions` directly (still approval-gated) — it is exercised
-  through the CLI by a passing test.
+- `df sources transactions` run directly on this branch: 29 ranked (25
+  VERIFICATION_QUEUE, 4 EXCLUDED, 0 PROMOTABLE), order and scores identical to
+  §10; the only registry finding is eCRV's `deed`/`mortgage` (F4).
+- Not run: `tsc --noEmit`, the PostgreSQL gate (no `node_modules`).
 - Not done: any publisher contact; any verification-level promotion; any
   registry, mapping, coverage or canonical change; DF-0R.
