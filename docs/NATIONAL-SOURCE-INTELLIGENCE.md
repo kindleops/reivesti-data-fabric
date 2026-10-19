@@ -11,7 +11,7 @@ report; the code that came with it makes its central claims executable
 
 | | |
 |---|---|
-| Revision | worked on `40c7435f80ac2ecdf823f49e1b43e0a7ea5c42b7` (PR #6 merge, DF-0P Florida). `git ls-remote` and the GitHub API both needed approval this runtime did not have, so **`origin/main` was not re-confirmed**; the worktree was created at this SHA by the orchestrator. |
+| Revision | worked on `40c7435f80ac2ecdf823f49e1b43e0a7ea5c42b7` (PR #6 merge, DF-0P Florida). **Confirmed current**: `git ls-remote origin refs/heads/main` returned this SHA after operator approval — `main` had not moved. |
 | Web access | **None.** This runtime has no fetch, search or browser tool, and neither did a sub-agent probed for one. Not one publisher page, API metadata document or terms page was opened. |
 | Consequence | Everything in §5 onwards about external publishers is a **hypothesis from prior knowledge** (to mid-2026). Every DF-0Q candidate is `UNVERIFIED` with **no evidence entries** — a quote not read off a page would be invented, and `checkPromotion` exists to stop exactly that. A test holds this. |
 | The brief | arrived truncated mid-§8 ("Model judicial vs n…"). The owner's proposed transaction-weighted scoring model ("below") and anything after §8 were **not received**. §10's score is DF-0Q's own design, built to the constraints the brief did state; it is a separate score, so swapping in the owner's weights later is a table edit. |
@@ -37,7 +37,8 @@ model (§6) and the scoring (§10).
 ## 2. Current coverage on merged `main` (computed, not typed)
 
 `automatedCoreJurisdictions(registry, capability)` for each dashboard
-capability, asserted by `tests/transaction-intelligence.test.ts`:
+capability, asserted by `tests/transaction-intelligence.test.ts` and confirmed by
+running `df national` on this branch (identical totals):
 
 | Capability | National automated core | MN (87) | WI (72) | NY (62) | FL (67) | Where it comes from |
 |---|---:|---|---|---|---|---|
@@ -70,7 +71,7 @@ country**, and no automated transfer declaration.
 | F1 | The catalogue's Wisconsin RETR candidate claimed `['transfer', 'deed']`. A RETR is filed *with* a deed and is not one. | **Fixed**: `['transfer', 'sale_economics']`, `transactionSemantics: TRANSFER_DECLARATION`. |
 | F2 | `LEGAL_CAPABILITY_LIMITS` listed Texas `deed` as legally unavailable. Tex. Tax Code § 22.27 reaches the *price*; Texas deeds are recorded by 254 county clerks. A legal limit means "stop looking", so this told the reader to stop looking for a record that exists. | **Fixed**: `['transfer', 'sale_economics']`. The existing test (`includes('transfer')`) still holds; a new one asserts deed is absent. |
 | F3 | `rankCandidate` scored `manual_only` automation at 0.5 and `unknown` at 0.1 — after DF-0J.1A, the ranking **rewarded** the finding that disqualifies a source. RETR, known since DF-0J.1A to have no unattended path, still ranked 4th in `df sources rank`. | **Gate added, no weight changed**: a candidate known to be `MANUAL_ONLY`/`PROHIBITED_AUTOMATION` (new optional `acquisitionHypothesis`) or `manual_only` is now *excluded*, like a paid one. RETR now records `acquisitionHypothesis: MANUAL_ONLY` and drops out with that reason. A test proves the new fields change no other candidate's score. |
-| F4 | The **registry** mapping for eCRV claims `deed` and `mortgage`. eCRV is a transfer declaration: it *names* the deed type and *declares* financing. That is why MN shows DEED and MORTGAGE as 87 `BLOCKED_ACCESS` in §2. | **Reported, not changed.** Editing a registry mapping changes the coverage table, which this phase may not do. `registrySemanticFindings()` computes it; `df sources transactions` prints it; a test pins it as the only overclaim. Decision for the owner (DF-0R): drop `deed`/`mortgage` from the eCRV mapping, or define the dashboard's DEED as "a conveyance is evidenced". |
+| F4 | The **registry** mapping for eCRV claims `deed` and `mortgage`. eCRV is a transfer declaration: it *names* the deed type and *declares* financing. That is why MN shows DEED and MORTGAGE as 87 `BLOCKED_ACCESS` in §2. The same mapping also claims `parcel`, which is why `df national` shows Minnesota PARCEL as 59 active + **28 `BLOCKED_ACCESS`** — the 28 non-opt-in counties have no blocked parcel source, only a transfer declaration that names parcels. | **Reported, not changed.** Editing a registry mapping changes the coverage table, which this phase may not do. `registrySemanticFindings()` computes it; `df sources transactions` prints it; a test pins it as the only overclaim. Decision for the owner (DF-0R): drop `deed`/`mortgage` from the eCRV mapping, or define the dashboard's DEED as "a conveyance is evidenced". |
 | F5 | `df sources opportunities` is commented "verified free candidates not yet built" but filters on cost only, never on verification. | Reported. Harmless today. Unverified DF-0Q leads were kept **out** of `SOURCE_CANDIDATES` for this reason (§5). |
 | F6 | The catalogue's Wisconsin statewide parcels candidate still reads `OFFICIAL_PAGE`; the source has been live core since DF-0K. `SOURCE-DISCOVERY.md` §6's score table predates DF-0J.1A. | Reported; historical text left as written. |
 
@@ -374,8 +375,9 @@ transaction work, per the brief.
   tests in `tests/transaction-intelligence.test.ts` pass. The one failure in
   both runs is `migration-execution.test.ts`, which cannot import `pg` because
   `node_modules` is absent in this worktree: environmental and pre-existing.
-- Not run: `tsc --noEmit`, the PostgreSQL gate (no `node_modules`); `df`
-  commands directly (sandbox approval) — the new subcommand is exercised by a
-  test through the CLI.
+- `df national` run directly on this branch: totals identical to §2.
+- Not run: `tsc --noEmit`, the PostgreSQL gate (no `node_modules`);
+  `df sources transactions` directly (still approval-gated) — it is exercised
+  through the CLI by a passing test.
 - Not done: any publisher contact; any verification-level promotion; any
   registry, mapping, coverage or canonical change; DF-0R.
