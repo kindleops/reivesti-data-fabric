@@ -124,7 +124,7 @@ function automatedCoreCounties(registry: Registry, capability: DashboardCapabili
 
 const STATE_OF_COUNTY: ReadonlyMap<string, string> = new Map(
   JURISDICTIONS.filter((j) => j.jurisdictionType === 'county' && j.stateCode !== undefined)
-    .map((j) => [j.jurisdictionId, j.stateCode as string]),
+    .map((j): [string, string] => [j.jurisdictionId, j.stateCode as string]),
 );
 
 /** Drops a capability only when EVERY state the candidate reaches is legally barred from it. */
@@ -137,7 +137,7 @@ function legallyAvailable(capabilities: readonly Capability[], counties: readonl
 }
 
 const FAMILIES: ReadonlyMap<string, PlatformFamily> = new Map(
-  [...PLATFORM_FAMILIES, ...NATIONAL_PLATFORM_FAMILIES].map((p) => [p.platformId, p]),
+  [...PLATFORM_FAMILIES, ...NATIONAL_PLATFORM_FAMILIES].map((p): [string, PlatformFamily] => [p.platformId, p]),
 );
 
 /**

@@ -1,5 +1,10 @@
 # National source intelligence — recorded transactions (DF-0Q)
 
+**Status: PARTIAL.** The repository-side work is complete; the official-source
+verification the brief asks for (§5, top 10–15 candidates) **could not be done**,
+because no agent available to this phase can reach the internet (§0). Nothing
+external is claimed as verified.
+
 A discovery and planning phase. **No source was activated, nothing was ingested,
 no coverage claim and no canonical count changed.** This document is the phase's
 report; the code that came with it makes its central claims executable
@@ -12,10 +17,11 @@ report; the code that came with it makes its central claims executable
 | | |
 |---|---|
 | Revision | worked on `40c7435f80ac2ecdf823f49e1b43e0a7ea5c42b7` (PR #6 merge, DF-0P Florida). **Confirmed current**: `git ls-remote origin refs/heads/main` returned this SHA after operator approval — `main` had not moved. |
-| Web access | **None.** This runtime has no fetch, search or browser tool, and neither did a sub-agent probed for one. Not one publisher page, API metadata document or terms page was opened. |
+| Execution location | **The owner's Mac, not a cloud clone.** This session runs in a worktree under `/Users/ryankindle/.agent-command/worktrees/`. The cloud-only requirement in the brief was **not satisfied**; the orchestrator, not this agent, chose the location. |
+| Web access — tested, not assumed | **None, in every route available.** (1) This session: no fetch, search or browser tool; `curl` to a public metadata URL **denied** by the permission system. (2) A local sub-agent: no web tool. (3) An agent launched with `remote` isolation: no web tool, `curl` denied — and it too ran on the owner's Mac (a worktree under `/Users/ryankindle/Projects/reivesti-data-fabric/`), not in a cloud container; it changed nothing. (4) No Scout or other peer agent is running (`ListAgents`: none reachable). Not one publisher page, API metadata document or terms page was opened. |
 | Consequence | Everything in §5 onwards about external publishers is a **hypothesis from prior knowledge** (to mid-2026). Every DF-0Q candidate is `UNVERIFIED` with **no evidence entries** — a quote not read off a page would be invented, and `checkPromotion` exists to stop exactly that. A test holds this. |
 | The brief | arrived truncated mid-§8 ("Model judicial vs n…"). The owner's proposed transaction-weighted scoring model ("below") and anything after §8 were **not received**. §10's score is DF-0Q's own design, built to the constraints the brief did state; it is a separate score, so swapping in the owner's weights later is a table edit. |
-| Tests | full suite run on this branch (§12). `tsc` and the PostgreSQL gate could not run: `node_modules` is absent in this worktree and nothing was installed. |
+| Tests | full suite run on this branch (§12). `tsc` and the PostgreSQL gate could not run locally: `node_modules` is absent and `npm ci` requires an approval this session does not have. They are left to CI on the pull request. |
 
 What *was* established firmly is everything that lives in the repository: the
 coverage audit (§2), the defects in existing discovery data (§3), the semantic
@@ -73,6 +79,7 @@ country**, and no automated transfer declaration.
 | F3 | `rankCandidate` scored `manual_only` automation at 0.5 and `unknown` at 0.1 — after DF-0J.1A, the ranking **rewarded** the finding that disqualifies a source. RETR, known since DF-0J.1A to have no unattended path, still ranked 4th in `df sources rank`. | **Gate added, no weight changed**: a candidate known to be `MANUAL_ONLY`/`PROHIBITED_AUTOMATION` (new optional `acquisitionHypothesis`) or `manual_only` is now *excluded*, like a paid one. RETR now records `acquisitionHypothesis: MANUAL_ONLY` and drops out with that reason. A test proves the new fields change no other candidate's score. |
 | F4 | The **registry** mapping for eCRV claims `deed` and `mortgage`. eCRV is a transfer declaration: it *names* the deed type and *declares* financing. That is why MN shows DEED and MORTGAGE as 87 `BLOCKED_ACCESS` in §2. The same mapping also claims `parcel`, which is why `df national` shows Minnesota PARCEL as 59 active + **28 `BLOCKED_ACCESS`** — the 28 non-opt-in counties have no blocked parcel source, only a transfer declaration that names parcels. | **Reported, not changed.** Editing a registry mapping changes the coverage table, which this phase may not do. `registrySemanticFindings()` computes it; `df sources transactions` prints it; a test pins it as the only overclaim. Decision for the owner (DF-0R): drop `deed`/`mortgage` from the eCRV mapping, or define the dashboard's DEED as "a conveyance is evidenced". |
 | F5 | `df sources opportunities` is commented "verified free candidates not yet built" but filters on cost only, never on verification. | Reported. Harmless today. Unverified DF-0Q leads were kept **out** of `SOURCE_CANDIDATES` for this reason (§5). |
+| F7 | DF-0Q's own first pass classified GSCCCA, Virginia SRA and WCCA as `PAID_SUBSCRIPTION` from recollection, which **excluded** them on no evidence — the mirror image of the error the doctrine guards against. | **Fixed** (continuation pass): all three are `UNKNOWN_COST` / licence `unknown`, so they sit in the verification queue. A test now refuses any unverified lead carrying a paid cost class. |
 | F6 | The catalogue's Wisconsin statewide parcels candidate still reads `OFFICIAL_PAGE`; the source has been live core since DF-0K. `SOURCE-DISCOVERY.md` §6's score table predates DF-0J.1A. | Reported; historical text left as written. |
 
 ---
@@ -102,82 +109,96 @@ permission to automate it.
 
 ---
 
-## 5. National survey — 50 states + DC (hypotheses)
+## 5. National survey — 50 states + DC
 
-Recorded in code as 27 `UNVERIFIED` candidates in
-`src/discovery/national-catalogue.ts` and 8 platform families (§7). They are
-kept apart from `SOURCE_CANDIDATES`, whose header promises every entry was
-checked against an official source.
+**Nothing in this section was verified in DF-0Q.** Of the 51 jurisdictions:
+
+| Evidence status | Jurisdictions | Count |
+|---|---|---:|
+| **VERIFIED (prior phases)** — official evidence already in the repo, for *parcel/roll/sale-observation* sources or a legal limit; **no transaction source in any of them is verified** | FL, MN, NY, TX, WI | 5 |
+| **LEAD** — one or more DF-0Q candidates in code, `UNVERIFIED`, no evidence | AK, AZ, CA, CT, DC, GA, HI, IA, IL, IN, MD, NJ, OH, PA, VA, VT, WA (+ FL, NY, TX, WI) | 17 (+4) |
+| **UNRESEARCHED** — no candidate; nothing was looked up | AL, AR, CO, DE, ID, KS, KY, LA, MA, ME, MI, MO, MS, MT, NC, ND, NE, NH, NM, NV, OK, OR, RI, SC, SD, TN, UT, WV, WY | 29 |
+
+"UNRESEARCHED" is not "none exists": these states were never researched at all,
+because no research could be performed. The "recording system" and "notes"
+columns are background knowledge, unverified, included so the next pass knows
+which office to open first.
+
+Leads are recorded in code as 27 `UNVERIFIED` candidates in
+`src/discovery/national-catalogue.ts` and 8 platform families (§7), kept apart
+from `SOURCE_CANDIDATES`, whose header promises every entry was checked against
+an official source.
 
 **Legend.** RI = recorded instrument · TD = transfer declaration · ASO =
 assessor sale observation · ECHO = roll sale echo · FN = foreclosure notice · TS
 = tax sale · AL = auction listing. *ND* = commonly cited as not requiring sale
-price disclosure (only Texas is recorded as a verified legal limit). "Lead" means
-a candidate exists in code.
+price disclosure (only Texas is recorded as a verified legal limit).
 
-| | Estate today | Recording system | Best transaction lead | Notes |
-|---|---|---|---|---|
-| AL | — | 67 probate judges | none found | |
-| AK | — | **state** Recorder's Office (DNR), by recording district | **Lead**: statewide index (RI) | *ND*; district ≠ borough crosswalk needed |
-| AZ | — | 15 county recorders | **Lead**: Maricopa Recorder public API (RI) | Affidavit of Property Value filed with deeds; trustee-sale notices are recorded |
-| AR | — | county circuit clerks | none found | |
-| CA | — | 58 county recorders | **Lead**: LA Assessor (ECHO, no price) | change-of-ownership statements believed confidential (R&T § 481 — verify before recording as a legal limit) |
-| CO | — | 64 clerk & recorders | none found | TD-1000 declaration access unknown |
-| CT | — | 169 town clerks | **Lead**: OPM Real Estate Sales (ASO, statewide) | county-equivalents are planning regions; town→region via pinned crosswalk |
-| DE | — | 3 recorders | none found | |
-| DC | — | Recorder of Deeds (OTR) | **Lead**: ITSPE (ECHO) | one county-equivalent, ArcGIS |
-| FL | parcel/roll/SDF 67 | 67 clerks (vendor portals) | **Lead**: clerk auction calendars (AL+TS) | parcels all present, so a listing would link by parcel id; vendor terms govern |
-| GA | — | **GSCCCA statewide** | **Lead**: GSCCCA indexes + PT-61 (RI+TD) | hypothesised paid subscription → EXCLUDED until a free route is shown |
-| HI | — | **state** Bureau of Conveyances (Regular + Land Court) | **Lead**: statewide index (RI) | two systems → identity must carry the system, as Hennepin's does |
-| ID | — | county recorders | none | *ND* |
-| IL | — | county recorders/clerks | **Leads**: Cook Assessor sales (ASO); IDOR PTAX-203 (TD) | PTAX may be filing-only |
-| IN | — | county recorders | **Lead**: DLGF sales disclosure (TD, statewide) | |
-| IA | — | **Iowa Land Records portal** (all 99 recorders) | **Lead** (RI) | account-gated search; needs an export or licence, not automation |
-| KS | — | registers of deeds | none | *ND* |
-| KY | — | county clerks | none found | |
-| LA | — | parish clerks of court | none | *ND* |
-| ME | — | county registries | none found | transfer tax declarations to Maine Revenue Services — access unknown |
-| MD | — | circuit court land records (MDLandRec) | **Lead**: SDAT roll with recent transfers (ECHO) | also the strongest next PARCEL state; MDLandRec is a viewer, not a distribution |
-| MA | — | 21 registry districts | none (MassGIS parcels carry last-sale echoes) | parcel lead, not transactional |
-| MI | — | county registers | none found | Property Transfer Affidavits held by local assessors |
-| MN | parcel 59 | 87 recorders + registrars | eCRV (TD, `BLOCKED_ACCESS`); Hennepin RecordEASE (RI, prohibited) | an eCRV request still yields MANUAL delivery unless the mechanism is automated |
-| MS | — | chancery clerks | none | *ND* |
-| MO | — | county recorders | none | *ND* |
-| MT | — | clerk & recorders | none | *ND* |
-| NE | — | registers of deeds | none in code | Real Estate Transfer Statement (Form 521) — access unknown |
-| NV | — | county recorders | none found | Declaration of Value |
-| NH | — | county registries | none found | |
-| NJ | — | 21 county clerks/registers | **Lead**: SR-1A sales file (TD, statewide) | highest-leverage declaration lead |
-| NM | — | county clerks | none | *ND* |
-| NY | parcel 62 | NYC City Register (ACRIS) + 57 county clerks; Richmond separate | **Leads**: ACRIS (RI, 4 counties); RP-5217 (TD, 57 counties); DOF sales (ASO) | ACRIS is the strongest RI lead nationally; RP-5217 links on SWIS+SBL, the estate's own identity |
-| NC | — | 100 registers of deeds | none found | |
-| ND | — | county recorders | none | *ND* |
-| OH | — | 88 recorders; auditors take DTE 100 | **Lead**: Franklin Auditor transfers (ASO) | stands for the auditor family |
-| OK | — | county clerks | none found | |
-| OR | — | county clerks | none found | |
-| PA | — | 67 recorders of deeds | **Leads**: Philadelphia RTT (RI+TD); Allegheny sales (ASO), tax liens (RI) | |
-| RI | — | 39 municipal land evidence records | none found | |
-| SC | — | registers of deeds | none found | |
-| SD | — | registers of deeds | none found | |
-| TN | — | registers of deeds | none in code | Comptroller assessment data reportedly carries sales — access unknown |
-| TX | Dallas FN candidate | 254 county clerks | **Lead**: Harris trustee-sale postings (FN) | § 22.27: price and declaration unavailable; deeds are recorded (F2) |
-| UT | — | county recorders | none | *ND* |
-| VT | — | town clerks | **Lead**: transfer tax returns (TD) | |
-| VA | — | circuit court clerks | **Lead**: Secure Remote Access (RI) | hypothesised paid → EXCLUDED |
-| WA | — | county auditors | **Leads**: King Assessor sales (ASO); DOR REET (TD) | |
-| WV | — | county clerks | none found | |
-| WI | parcel 72 | 72 registers of deeds | RETR (TD, manual-only); WCCA (FN, paid) | |
-| WY | — | county clerks | none | *ND* |
+| | Status | Estate today | Recording system (background) | Transaction lead | Notes (unverified) |
+|---|---|---|---|---|---|
+| AL | UNRESEARCHED | — | 67 probate judges | — | |
+| AK | LEAD | — | **state** Recorder's Office (DNR), by recording district | statewide index (RI) | *ND*; district ≠ borough crosswalk needed |
+| AZ | LEAD | — | 15 county recorders | Maricopa Recorder public API (RI) | Affidavit of Property Value filed with deeds; trustee-sale notices recorded |
+| AR | UNRESEARCHED | — | county circuit clerks | — | |
+| CA | LEAD | — | 58 county recorders | LA Assessor (ECHO, no price) | change-of-ownership statements believed confidential (R&T § 481 — verify) |
+| CO | UNRESEARCHED | — | 64 clerk & recorders | — | TD-1000 declaration |
+| CT | LEAD | — | 169 town clerks | OPM Real Estate Sales (ASO, statewide) | county-equivalents are planning regions |
+| DE | UNRESEARCHED | — | 3 recorders | — | |
+| DC | LEAD | — | Recorder of Deeds (OTR) | ITSPE (ECHO) | one county-equivalent, ArcGIS |
+| FL | VERIFIED parcel/SDF · LEAD tx | parcel/roll/SDF 67 | 67 clerks (vendor portals) | clerk auction calendars (AL+TS) | vendor terms govern |
+| GA | LEAD | — | **GSCCCA statewide** | GSCCCA indexes + PT-61 (RI+TD) | suspected subscription-priced; cost UNKNOWN until the fee schedule is read |
+| HI | LEAD | — | **state** Bureau of Conveyances (Regular + Land Court) | statewide index (RI) | two systems → identity must carry the system |
+| ID | UNRESEARCHED | — | county recorders | — | *ND* |
+| IL | LEAD | — | county recorders/clerks | Cook Assessor sales (ASO); IDOR PTAX-203 (TD) | PTAX may be filing-only |
+| IN | LEAD | — | county recorders | DLGF sales disclosure (TD, statewide) | |
+| IA | LEAD | — | **Iowa Land Records portal** (all 99 recorders) | statewide search (RI) | account-gated search; needs an export or licence, not automation |
+| KS | UNRESEARCHED | — | registers of deeds | — | *ND* |
+| KY | UNRESEARCHED | — | county clerks | — | |
+| LA | UNRESEARCHED | — | parish clerks of court | — | *ND* |
+| ME | UNRESEARCHED | — | county registries | — | transfer tax declarations to Maine Revenue Services |
+| MD | LEAD | — | circuit court land records (MDLandRec) | SDAT roll with recent transfers (ECHO) | strongest next PARCEL lead; MDLandRec is a viewer |
+| MA | UNRESEARCHED | — | 21 registry districts | — | MassGIS parcels carry last-sale echoes |
+| MI | UNRESEARCHED | — | county registers | — | Property Transfer Affidavits held by local assessors |
+| MN | VERIFIED parcel · tx blocked | parcel 59 | 87 recorders + registrars | eCRV (TD, `BLOCKED_ACCESS`); Hennepin RecordEASE (RI, prohibited) — both verified in earlier phases | an eCRV request still yields manual delivery unless the mechanism is automated |
+| MS | UNRESEARCHED | — | chancery clerks | — | *ND* |
+| MO | UNRESEARCHED | — | county recorders | — | *ND* |
+| MT | UNRESEARCHED | — | clerk & recorders | — | *ND* |
+| NE | UNRESEARCHED | — | registers of deeds | — | Real Estate Transfer Statement (Form 521) |
+| NV | UNRESEARCHED | — | county recorders | — | Declaration of Value |
+| NH | UNRESEARCHED | — | county registries | — | |
+| NJ | LEAD | — | 21 county clerks/registers | SR-1A sales file (TD, statewide) | highest-leverage declaration lead |
+| NM | UNRESEARCHED | — | county clerks | — | *ND* |
+| NY | VERIFIED parcel · LEAD tx | parcel 62 | NYC City Register (ACRIS) + 57 county clerks; Richmond separate | ACRIS (RI, 4 counties); RP-5217 (TD, 57 counties); DOF sales (ASO) | ACRIS is the strongest RI lead; RP-5217 links on SWIS+SBL |
+| NC | UNRESEARCHED | — | 100 registers of deeds | — | |
+| ND | UNRESEARCHED | — | county recorders | — | *ND* |
+| OH | LEAD | — | 88 recorders; auditors take DTE 100 | Franklin Auditor transfers (ASO) | stands for the auditor family |
+| OK | UNRESEARCHED | — | county clerks | — | |
+| OR | UNRESEARCHED | — | county clerks | — | |
+| PA | LEAD | — | 67 recorders of deeds | Philadelphia RTT (RI+TD); Allegheny sales (ASO), tax liens (RI) | |
+| RI | UNRESEARCHED | — | 39 municipal land evidence records | — | |
+| SC | UNRESEARCHED | — | registers of deeds | — | |
+| SD | UNRESEARCHED | — | registers of deeds | — | |
+| TN | UNRESEARCHED | — | registers of deeds | — | Comptroller assessment data |
+| TX | VERIFIED legal limit · LEAD tx | Dallas FN candidate | 254 county clerks | Harris trustee-sale postings (FN) | § 22.27 (verified earlier): price and declaration unavailable; deeds are recorded (F2) |
+| UT | UNRESEARCHED | — | county recorders | — | *ND* |
+| VT | LEAD | — | town clerks | transfer tax returns (TD) | |
+| VA | LEAD | — | circuit court clerks | Secure Remote Access (RI) | suspected subscription-priced; cost UNKNOWN until read |
+| WA | LEAD | — | county auditors | King Assessor sales (ASO); DOR REET (TD) | |
+| WV | UNRESEARCHED | — | county clerks | — | |
+| WI | VERIFIED parcel · tx manual | parcel 72 | 72 registers of deeds | RETR (TD, manual-only — verified DF-0J.1A); WCCA (FN, cost UNKNOWN) | |
+| WY | UNRESEARCHED | — | county clerks | — | *ND* |
 
-Territories: none was found with a comparable official machine-accessible
-system, and none was researched further.
+Territories: UNRESEARCHED.
 
 ### The structural findings
 
+These are hypotheses to test, not findings.
+
 1. **No state publishes a free, automated, statewide recorded-instrument
-   index that DF-0Q knows of.** The statewide recording systems that exist —
-   Georgia's GSCCCA, Iowa Land Records, Hawaii's and Alaska's state recorders,
-   Virginia's SRA — are either priced or are search applications. The one
+   index that DF-0Q knows of.** The statewide recording systems believed to
+   exist — Georgia's GSCCCA, Iowa Land Records, Hawaii's and Alaska's state
+   recorders, Virginia's SRA — are believed to be priced or to be search
+   applications; their cost is UNKNOWN until read. The one
    large recorded-instrument **distribution** recalled is municipal: NYC's
    ACRIS on Socrata, followed by Philadelphia's.
 2. **Statewide transfer declarations are the realistic statewide path**: NJ
@@ -307,36 +328,54 @@ another copy of one it has.
 
 ### Current queue (computed)
 
-From the test run on this branch (`rankTransactionCandidates` over both
-catalogues). Every entry is UNVERIFIED or OFFICIAL_PAGE; the order is **what to
-verify first**, not a forecast of what will pass. Iowa's place, for example,
-reflects what a statewide recorder index would be worth if an export exists —
-the verification question is precisely whether one does.
+From `df sources transactions` on this branch after the F7 correction. Every
+entry is UNVERIFIED or OFFICIAL_PAGE; the order is **what to verify first**, not
+a forecast of what will pass. GSCCCA, Iowa and Virginia rank high because of
+what a statewide recorder index would be worth *if* a free export exists — the
+verification question is precisely whether one does.
+
+**Why 29 ranked against 27 leads.** The queue ranks both catalogues together:
+the 27 DF-0Q leads plus the 2 candidates in the researched catalogue that claim
+a transaction capability (Wisconsin RETR and Dallas foreclosure notices).
+Parcel-only candidates are not ranked. A test pins `29 = 27 + 2`.
 
 | # | Candidate | Class | Counties | Score |
 |---:|---|---|---:|---:|
 | 1 | NYC ACRIS Real Property (Master/Legals/Parties/References) | RI | 4 | 72.20 |
-| 2 | Maricopa County Recorder public API | RI | 1 | 65.90 |
-| 3 | Iowa Land Records (all 99 recorders) | RI | 99 | 64.44 |
-| 4 | Philadelphia Real Estate Transfers (RTT) | RI + TD | 1 | 63.70 |
-| 5 | Indiana DLGF sales disclosures | TD | 92 | 62.89 |
-| 6 | Allegheny tax liens (filings, satisfactions) | RI | 1 | 62.10 |
-| 7 | Alaska State Recorder | RI | 30 | 61.92 |
-| 8 | Hawaii Bureau of Conveyances | RI | 5 | 61.66 |
-| 9 | Connecticut OPM Real Estate Sales | ASO | 9 | 59.79 |
-| 10 | Illinois PTAX-203 | TD | 102 | 58.75 |
-| 11 | New Jersey SR-1A | TD | 21 | 58.50 |
-| 12 | Cook County Assessor sales | ASO | 1 | 57.50 |
-| 13 | NY ORPTS RP-5217 | TD | 57 | 56.97 |
-| 14 | Washington REET | TD | 39 | 56.06 |
-| 15 | NYC DOF rolling sales | ASO | 5 | 55.48 |
-| 16 | Florida clerk auction calendars | AL + TS | 67 | 54.71 |
-| 17 | Vermont transfer tax returns | TD | 14 | 54.31 |
-| 18 | Allegheny sales | ASO | 1 | 52.10 |
-| 19–20 | Harris / Dallas trustee-sale postings | FN | 1 each | 48.30 |
-| 21–22 | King County sales; Franklin County transfers | ASO | 1 each | 46.40 |
-| 23–25 | Maryland SDAT, DC ITSPE, LA Assessor | ECHO | 24 / 1 / 1 | 45.62 / 44.70 / 43.80 |
-| — | **Excluded**: WI RETR (manual-only), WCCA (paid), Virginia SRA (paid), GSCCCA (paid) | | | 0 |
+| 2 | Georgia GSCCCA indexes + PT-61 | RI + TD | 159 | 68.90 |
+| 3 | Maricopa County Recorder public API | RI | 1 | 65.90 |
+| 4 | Virginia Secure Remote Access | RI | 133 | 65.55 |
+| 5 | Iowa Land Records (all 99 recorders) | RI | 99 | 64.44 |
+| 6 | Philadelphia Real Estate Transfers (RTT) | RI + TD | 1 | 63.70 |
+| 7 | Indiana DLGF sales disclosures | TD | 92 | 62.89 |
+| 8 | Allegheny tax liens (filings, satisfactions) | RI | 1 | 62.10 |
+| 9 | Alaska State Recorder | RI | 30 | 61.92 |
+| 10 | Hawaii Bureau of Conveyances | RI | 5 | 61.66 |
+| 11 | Connecticut OPM Real Estate Sales | ASO | 9 | 59.79 |
+| 12 | Illinois PTAX-203 | TD | 102 | 58.75 |
+| 13 | New Jersey SR-1A | TD | 21 | 58.50 |
+| 14 | Cook County Assessor sales | ASO | 1 | 57.50 |
+| 15 | NY ORPTS RP-5217 | TD | 57 | 56.97 |
+| 16 | Washington REET | TD | 39 | 56.06 |
+| 17 | NYC DOF rolling sales | ASO | 5 | 55.48 |
+| 18 | Wisconsin WCCA foreclosure cases | FN | 72 | 55.32 |
+| 19 | Florida clerk auction calendars | AL + TS | 67 | 54.71 |
+| 20 | Vermont transfer tax returns | TD | 14 | 54.31 |
+| 21 | Allegheny sales | ASO | 1 | 52.10 |
+| 22–23 | Harris / Dallas trustee-sale postings | FN | 1 each | 48.30 |
+| 24–25 | King County sales; Franklin County transfers | ASO | 1 each | 46.40 |
+| 26–28 | Maryland SDAT, DC ITSPE, LA Assessor | ECHO | 24 / 1 / 1 | 45.62 / 44.70 / 43.80 |
+| — | **Excluded**: WI RETR — no unattended path (established in DF-0J.1A) | TD | 72 | 0 |
+
+### The verification set for the next pass (top 15)
+
+The brief asks for 10–15 candidates verified against official sources. That
+was **not done** (§0). The set to verify, in queue order, is #1–#15 above; for
+each, the evidence to capture is: API or file metadata (row count, update
+stamp, schema), the publisher's terms/licence quoted, the fee schedule quoted
+(or an official statement of no fee), and whether automated retrieval is
+documented — each as a `ResearchEvidence` entry with URL, quote and date, so
+`checkPromotion` can read it.
 
 The general ranking, recomputed on this branch: MN parcels 79.55, WI parcels
 73.01, NY centroids 72.36, Dallas notices 44.16; WI RETR now **excluded**
@@ -360,8 +399,10 @@ The general ranking, recomputed on this branch: MN parcels 79.55, WI parcels
    coverage, reusing the eCRV/RETR transfer-declaration model.
 4. **Decide F4** (eCRV's deed/mortgage claim) before any recorded-instrument
    source goes live, so DEED means one thing on the dashboard.
-5. **Do not** build against GSCCCA, Virginia SRA, WCCA, PACER, recorder vendor
-   portals or auction vendor sites, and do not automate any search UI.
+5. **Do not** automate any search UI, recorder vendor portal or auction vendor
+   site. GSCCCA, Virginia SRA and WCCA are queued only to establish their cost
+   and terms from official pages; a published fee makes them `PAID_OPTIONAL`,
+   never core. PACER is per-page priced (well established) and was not queued.
 
 Parcel expansion (Maryland, DC, Massachusetts) is real but comes after the
 transaction work, per the brief.
@@ -371,14 +412,17 @@ transaction work, per the brief.
 ## 12. Verification and what was not done
 
 - `npm test`, baseline at `40c7435` before any change: 919 tests, 905 pass,
-  1 fail, 13 skipped. With DF-0Q: 937 tests, 923 pass, 1 fail, 13 skipped — all 18 new
-  tests in `tests/transaction-intelligence.test.ts` pass. The one failure in
+  1 fail, 13 skipped. With DF-0Q: see the phase summary for the final run; every
+  test in `tests/transaction-intelligence.test.ts` passes. The one failure in
   both runs is `migration-execution.test.ts`, which cannot import `pg` because
-  `node_modules` is absent in this worktree: environmental and pre-existing.
+  `node_modules` is absent in this worktree: **environmental and pre-existing,
+  not a code defect** — the test file is unchanged by DF-0Q and DF-0P's
+  certification ran it green (60/60) where `pg` was installed.
 - `df national` run directly on this branch: totals identical to §2.
-- `df sources transactions` run directly on this branch: 29 ranked (25
-  VERIFICATION_QUEUE, 4 EXCLUDED, 0 PROMOTABLE), order and scores identical to
-  §10; the only registry finding is eCRV's `deed`/`mortgage` (F4).
-- Not run: `tsc --noEmit`, the PostgreSQL gate (no `node_modules`).
+- `df sources transactions` run directly on this branch: 29 ranked (28
+  VERIFICATION_QUEUE, 1 EXCLUDED, 0 PROMOTABLE), order and scores as §10; the
+  only registry finding is eCRV's `deed`/`mortgage` (F4).
+- Not run locally: `tsc --noEmit`, the PostgreSQL gate — `npm ci` needs an
+  approval this session lacks. Left to CI on the pull request.
 - Not done: any publisher contact; any verification-level promotion; any
   registry, mapping, coverage or canonical change; DF-0R.

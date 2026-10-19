@@ -15,6 +15,7 @@ import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { canonicalJson } from '../src/core/hash.ts';
 import { defaultRegistry } from '../src/registry/sources.ts';
+import { isZeroCost } from '../src/registry/types.ts';
 import { DASHBOARD_CAPABILITIES, automatedCoreJurisdictions } from '../src/registry/lifecycle.ts';
 import { checkPromotion, rankCandidate, type SourceCandidate } from '../src/discovery/candidates.ts';
 import { LEGAL_CAPABILITY_LIMITS, SOURCE_CANDIDATES } from '../src/discovery/catalogue.ts';
@@ -200,6 +201,15 @@ test('priority: nothing is PROMOTABLE today — no transaction source has verifi
   assert.ok(!ranked.some((r) => r.sourceName.startsWith('Parcels, Compiled')));
 });
 
+test('priority: the queue is the 27 DF-0Q leads plus the 2 researched candidates that claim a transaction capability', () => {
+  const ranked = rankTransactionCandidates(ALL, registry);
+  const researched = SOURCE_CANDIDATES.filter((c) => c.capabilities.some((cap) => TRANSACTION_CAPABILITIES.has(cap)));
+  assert.equal(NATIONAL_TRANSACTION_CANDIDATES.length, 27);
+  assert.deepEqual(researched.map((c) => c.sourceName).sort(),
+    ['Notice of Foreclosure Sale postings', 'Real Estate Transfer Return (RETR) historical data']);
+  assert.equal(ranked.length, NATIONAL_TRANSACTION_CANDIDATES.length + researched.length);
+});
+
 test('priority: a fully evidenced, free, sanctioned, automated candidate is PROMOTABLE; each failing fact excludes or queues it', () => {
   assert.equal(transactionPriority(verified(), registry).eligibility, 'PROMOTABLE');
   const excluded = (o: Partial<SourceCandidate>) => transactionPriority(verified(o), registry);
@@ -225,9 +235,19 @@ test('priority: a fully evidenced, free, sanctioned, automated candidate is PROM
 });
 
 test('priority: a hypothesised exclusion says it is a hypothesis', () => {
-  const ga = transactionPriority(byName('PT-61'), registry);
-  assert.equal(ga.eligibility, 'EXCLUDED');
-  assert.ok(ga.blockers.some((b) => /PAID_SUBSCRIPTION.*\(hypothesis; UNVERIFIED\)/.test(b)), ga.blockers.join('; '));
+  const r = transactionPriority(verified({ costHypothesis: 'PAID_SUBSCRIPTION', verification: 'UNVERIFIED' }), registry);
+  assert.equal(r.eligibility, 'EXCLUDED');
+  assert.ok(r.blockers.some((b) => /PAID_SUBSCRIPTION.*\(hypothesis; UNVERIFIED\)/.test(b)), r.blockers.join('; '));
+});
+
+test('leads: no unverified lead is classified paid — an unread price is UNKNOWN_COST, not PAID', () => {
+  for (const c of NATIONAL_TRANSACTION_CANDIDATES) {
+    assert.ok(c.costHypothesis === 'UNKNOWN_COST' || isZeroCost(c.costHypothesis), `${c.sourceName}: ${c.costHypothesis}`);
+  }
+  // So the suspected-paid systems are queued for verification, not excluded on a recollection.
+  for (const name of ['PT-61', 'Secure Remote Access', 'WCCA']) {
+    assert.equal(transactionPriority(byName(name), registry).eligibility, 'VERIFICATION_QUEUE', name);
+  }
 });
 
 test('priority: a legal ceiling removes only the barred capability, and a source left with none is excluded', () => {

@@ -711,10 +711,10 @@ export const NATIONAL_TRANSACTION_CANDIDATES: readonly SourceCandidate[] = [
     transactionSemantics: ['RECORDED_INSTRUMENT', 'TRANSFER_DECLARATION'],
     officialUrl: 'https://www.gsccca.org',
     accessHypothesis: 'vendor_export',
-    costHypothesis: 'PAID_SUBSCRIPTION',
+    costHypothesis: 'UNKNOWN_COST',
     automationHypothesis: 'unknown',
     acquisitionHypothesis: 'UNKNOWN_AUTOMATION',
-    licenseHypothesis: 'licensed',
+    licenseHypothesis: 'unknown',
     bulkAvailable: null,
     apiAvailable: null,
     openDataPortal: false,
@@ -723,9 +723,9 @@ export const NATIONAL_TRANSACTION_CANDIDATES: readonly SourceCandidate[] = [
     platformId: null,
     notes: LEAD
       + 'A statutory statewide authority over all 159 clerks\' real estate and lien indexes and the PT-61 transfer '
-      + 'tax form — the best-organised recorded-instrument system in the country, and recalled as subscription '
-      + 'priced (with bulk data products also priced). Hypothesised PAID → excluded by doctrine until a free '
-      + 'route is shown. VERIFY: whether PT-61 data or any index is offered free; never scrape the search.',
+      + 'tax form — the best-organised recorded-instrument system in the country. Recalled as subscription priced; '
+      + 'that recollection is NOT evidence, so cost stays UNKNOWN_COST until the published fee schedule is read. '
+      + 'VERIFY: fee schedule; whether PT-61 data or any index is offered free; never scrape the search.',
   }),
   lead({
     authority: 'Supreme Court of Virginia — circuit court clerks',
@@ -735,10 +735,10 @@ export const NATIONAL_TRANSACTION_CANDIDATES: readonly SourceCandidate[] = [
     transactionSemantics: ['RECORDED_INSTRUMENT'],
     officialUrl: 'https://www.vacourts.gov',
     accessHypothesis: 'manual_import',
-    costHypothesis: 'PAID_SUBSCRIPTION',
+    costHypothesis: 'UNKNOWN_COST',
     automationHypothesis: 'unknown',
     acquisitionHypothesis: 'UNKNOWN_AUTOMATION',
-    licenseHypothesis: 'licensed',
+    licenseHypothesis: 'unknown',
     bulkAvailable: false,
     apiAvailable: false,
     openDataPortal: false,
@@ -746,8 +746,8 @@ export const NATIONAL_TRANSACTION_CANDIDATES: readonly SourceCandidate[] = [
     cadence: null,
     platformId: 'recorder_vendor_portal',
     notes: LEAD
-      + 'Recalled: remote land-record access is a per-clerk subscription under Virginia law. Hypothesised PAID → '
-      + 'excluded. Recorded so nobody spends a pass rediscovering it.',
+      + 'Recalled: remote land-record access is a per-clerk subscription under Virginia law. Unread, so cost stays '
+      + 'UNKNOWN_COST. VERIFY: the statute and any clerk\'s published SRA fee before classifying it paid.',
   }),
 
   // -- 6. Foreclosure, tax sale and auctions ------------------------------------
@@ -759,10 +759,10 @@ export const NATIONAL_TRANSACTION_CANDIDATES: readonly SourceCandidate[] = [
     transactionSemantics: ['FORECLOSURE_NOTICE'],
     officialUrl: 'https://wcca.wicourts.gov',
     accessHypothesis: 'api',
-    costHypothesis: 'PAID_SUBSCRIPTION',
+    costHypothesis: 'UNKNOWN_COST',
     automationHypothesis: 'unknown',
     acquisitionHypothesis: 'UNKNOWN_AUTOMATION',
-    licenseHypothesis: 'licensed',
+    licenseHypothesis: 'unknown',
     bulkAvailable: null,
     apiAvailable: true,
     openDataPortal: false,
@@ -771,7 +771,7 @@ export const NATIONAL_TRANSACTION_CANDIDATES: readonly SourceCandidate[] = [
     platformId: 'court_case_portal',
     notes: LEAD
       + 'Wisconsin forecloses judicially; the case filing is the earliest official signal. Recalled: the bulk / REST '
-      + 'route is a paid data licence; the public case search is not to be automated. Hypothesised PAID → excluded. '
+      + 'route is a paid data licence (unread, so cost stays UNKNOWN_COST); the public case search is not to be automated. '
       + 'One case filing = a foreclosure commenced, not a sale, not a judgment.',
   }),
   lead({
