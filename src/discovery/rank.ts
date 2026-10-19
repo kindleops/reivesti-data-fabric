@@ -24,7 +24,12 @@ import { PLATFORM_FAMILIES, SOURCE_CANDIDATES } from './catalogue.ts';
  * parcel layer is cheap to add: acquisition, pagination, drift detection and
  * bounded-memory crawling are done. What is left is a field map.
  */
-export const IMPLEMENTED_PLATFORMS: ReadonlySet<string> = new Set(['arcgis_feature_service']);
+export const IMPLEMENTED_PLATFORMS: ReadonlySet<string> = new Set([
+  'arcgis_feature_service',
+  // src/runtime/bulk-acquisition.ts — fingerprint, ledger, NOOP, streamed GET —
+  // is publisher-agnostic and runs Wisconsin and New York today (DF-0K, DF-0N).
+  'government_bulk_archive',
+]);
 
 /** Authorities that maintain the record for a capability, rather than republishing it. */
 function isAuthoritative(candidate: SourceCandidate): boolean {
@@ -38,8 +43,8 @@ export function activeCountyCount(): number {
   return JURISDICTIONS.filter((j) => j.jurisdictionType === 'county' && (j.status ?? 'active') === 'active').length;
 }
 
-/** How many ACTIVE county-equivalents a candidate's scope reaches. */
-export function candidateJurisdictionCount(candidate: SourceCandidate): number {
+/** The ACTIVE county-equivalent ids a candidate's scope reaches. */
+export function candidateCounties(candidate: SourceCandidate): readonly string[] {
   const expanded = expandScope(candidate.scope, JURISDICTIONS, `candidate "${candidate.sourceName}"`);
   // A state-scoped candidate expands to the state row, not to its counties, so
   // its leverage is the counties inside those states — which is the number that
@@ -50,9 +55,14 @@ export function candidateJurisdictionCount(candidate: SourceCandidate): number {
       && (j.status ?? 'active') === 'active'
       && j.stateCode !== undefined
       && stateCodes.has(j.stateCode),
-  ).length;
-  const direct = expanded.filter((j) => j.jurisdictionType === 'county' && (j.status ?? 'active') === 'active').length;
-  return counties + direct;
+  );
+  const direct = expanded.filter((j) => j.jurisdictionType === 'county' && (j.status ?? 'active') === 'active');
+  return [...counties, ...direct].map((j) => j.jurisdictionId);
+}
+
+/** How many ACTIVE county-equivalents a candidate's scope reaches. */
+export function candidateJurisdictionCount(candidate: SourceCandidate): number {
+  return candidateCounties(candidate).length;
 }
 
 export function rankingInputFor(candidate: SourceCandidate): RankingInput {

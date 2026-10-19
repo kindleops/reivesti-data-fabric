@@ -107,6 +107,12 @@ Leverage uses a square root rather than a linear ratio: a statewide source
 beating a single county is right, beating it by 254× is not — Dallas alone is
 worth more than 254 empty counties.
 
+**DF-0Q:** a candidate known to need a person (`acquisitionHypothesis`
+`MANUAL_ONLY` / `PROHIBITED_AUTOMATION`, or `manual_only`) is now excluded like a
+paid one — before, `manual_only` out-scored `unknown`. No weight changed.
+Transaction sources have their own, separate score:
+[`NATIONAL-SOURCE-INTELLIGENCE.md`](NATIONAL-SOURCE-INTELLIGENCE.md) §10.
+
 ---
 
 ## 5. Workflow
@@ -116,6 +122,7 @@ df sources candidates              researched candidates and their status
 df sources inspect <id|name>       one candidate with all its evidence
 df sources verify  <id|name>       what it still needs to be promotable
 df sources rank                    zero-cost priority ranking
+df sources transactions            transaction-priority research queue (DF-0Q)
 df sources platforms               shared platform families
 df sources coverage <jurisdiction> capability coverage for one place
 df sources gaps                    gaps by capability and state

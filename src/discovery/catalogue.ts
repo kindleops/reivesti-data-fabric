@@ -312,7 +312,13 @@ export const SOURCE_CANDIDATES: readonly SourceCandidate[] = [
     authority: 'Wisconsin Department of Revenue',
     sourceName: 'Real Estate Transfer Return (RETR) historical data',
     scope: { kind: 'states', stateCodes: ['WI'] },
-    capabilities: ['transfer', 'deed'],
+    // DF-0Q: was ['transfer', 'deed']. A RETR is filed WITH a deed and is not
+    // one; what it carries beyond the transfer is declared consideration.
+    capabilities: ['transfer', 'sale_economics'],
+    transactionSemantics: ['TRANSFER_DECLARATION'],
+    // DF-0J.1A probed it (WISCONSIN-RETR.md §2.1): session-bound SPA, no URL to
+    // fetch. Recorded here so ranking stops scoring it as an open question.
+    acquisitionHypothesis: 'MANUAL_ONLY',
     officialUrl: 'https://www.revenue.wi.gov/Pages/RETr/Home.aspx',
     accessHypothesis: 'bulk_download',
     costHypothesis: 'FREE_PUBLIC_DOWNLOAD',
@@ -392,6 +398,7 @@ export const SOURCE_CANDIDATES: readonly SourceCandidate[] = [
     sourceName: 'Notice of Foreclosure Sale postings',
     scope: { kind: 'counties', countyFips: ['48113'] },
     capabilities: ['foreclosure_notice'],
+    transactionSemantics: ['FORECLOSURE_NOTICE'],
     officialUrl: 'https://www.dallascounty.org/government/county-clerk/recording/foreclosures.php',
     accessHypothesis: 'manual_import',
     costHypothesis: 'FREE_PUBLIC_DOWNLOAD',
@@ -447,7 +454,11 @@ export const LEGAL_CAPABILITY_LIMITS: readonly {
 }[] = [
   {
     stateCodes: ['TX'],
-    capabilities: ['transfer', 'deed'],
+    // DF-0Q: was ['transfer', 'deed']. § 22.27 confidentiality reaches the PRICE
+    // and the declaration that would carry it; Texas deeds are still recorded by
+    // 254 county clerks. Listing `deed` here told the reader to stop looking for
+    // a record that exists.
+    capabilities: ['transfer', 'sale_economics'],
     basis: 'Tex. Tax Code § 22.27 — non-disclosure',
     quote:
       'Texas is a non-disclosure state: the final sales price of a property is not made public in county '
